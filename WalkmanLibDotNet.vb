@@ -5,6 +5,8 @@ Imports Microsoft.VisualBasic
 Imports System.Security.Principal
 Imports System.Windows.Forms
 Public Partial Class WalkmanLib
+    
+    ''' Link: https://www.howtogeek.com/howto/windows-vista/add-take-ownership-to-explorer-right-click-menu-in-vista/
     ''' <summary>Runs the Take Ownership commands for a path.</summary>
     ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
     Shared Sub TakeOwnership(path As String)
