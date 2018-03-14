@@ -6,6 +6,18 @@ Imports System.Security.Principal
 Imports System.Windows.Forms
 Public Partial Class WalkmanLib
     
+    ''' <summary>Opens the Open With dialog box for a file path.</summary>
+    ''' <param name="path">The file to open with a program.</param>
+    Shared Sub OpenWith(path As String)
+        Shell("rundll32 shell32.dll,OpenAs_RunDLL " & path, AppWinStyle.NormalFocus, True, 500)
+    End Sub
+    
+    ''' <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
+    ''' <returns>True if running with administrator permissions, False if not</returns>
+    Shared Function IsAdmin() As Boolean
+        Return New WindowsPrincipal(WindowsIdentity.GetCurrent).IsInRole(WindowsBuiltInRole.Administrator)
+    End Function
+    
     ''' Link: https://www.howtogeek.com/howto/windows-vista/add-take-ownership-to-explorer-right-click-menu-in-vista/
     ''' <summary>Runs the Take Ownership commands for a path.</summary>
     ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
@@ -14,6 +26,17 @@ Public Partial Class WalkmanLib
             RunAsAdmin("cmd.exe", "/c takeown /f " & path & " && icacls " & path & " /grant administrators:F && pause")
         ElseIf Directory.Exists(path)
             RunAsAdmin("cmd.exe", "/c takeown /f " & path & " /r /d y && icacls " & path & " /grant administrators:F /t && pause")
+        End If
+    End Sub
+    
+    ''' <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
+    ''' <param name="programPath">Path of the program to run as administrator.</param>
+    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process. Do not surround the whole variable in quotes.</param>
+    Shared Sub RunAsAdmin(programPath As String, Optional arguments As String = Nothing)
+        If arguments = Nothing Then
+            CreateObject("Shell.Application").ShellExecute(programPath, "", "", "runas")
+        Else
+            CreateObject("Shell.Application").ShellExecute(programPath, """" & arguments & """", "", "runas")
         End If
     End Sub
     
@@ -57,29 +80,6 @@ Public Partial Class WalkmanLib
             ErrorDialog(ex)
             Return False
         End Try
-    End Function
-    
-    ''' <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
-    ''' <param name="programPath">Path of the program to run as administrator.</param>
-    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process. Do not surround the whole variable in quotes.</param>
-    Shared Sub RunAsAdmin(programPath As String, Optional arguments As String = Nothing)
-        If arguments = Nothing Then
-            CreateObject("Shell.Application").ShellExecute(programPath, "", "", "runas")
-        Else
-            CreateObject("Shell.Application").ShellExecute(programPath, """" & arguments & """", "", "runas")
-        End If
-    End Sub
-    
-    ''' <summary>Opens the Open With dialog box for a file path.</summary>
-    ''' <param name="path">The file to open with a program.</param>
-    Shared Sub OpenWith(path As String)
-        Shell("rundll32 shell32.dll,OpenAs_RunDLL " & path, AppWinStyle.NormalFocus, True, 500)
-    End Sub
-    
-    ''' <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
-    ''' <returns>True if running with administrator permissions, False if not</returns>
-    Shared Function IsAdmin() As Boolean
-        Return New WindowsPrincipal(WindowsIdentity.GetCurrent).IsInRole(WindowsBuiltInRole.Administrator)
     End Function
     
     ''' <summary>Sets clipboard to specified text, with optional success message and checks for errors.</summary>

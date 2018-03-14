@@ -4,46 +4,6 @@ Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
 Public Partial Class WalkmanLib
     
-    ''' Link: https://stackoverflow.com/a/1936957/2999220
-    ''' <summary>Opens the Windows properties window for a path.</summary>
-    ''' <param name="path">The path to show the window for.</param>
-    ''' <returns>Whether the properties window was shown successfully or not.</returns>
-    Shared Function ShowProperties(path As String) As Boolean
-        Dim info As New ShellExecuteInfo
-        info.cbSize = Marshal.SizeOf(info)
-        info.lpVerb = "properties"
-        info.lpFile = path
-        info.fMask = 12
-        Return ShellExecuteEx(info)
-    End Function
-    
-    <DllImport("shell32.dll", CharSet := CharSet.Auto)> _
-    Private Shared Function ShellExecuteEx(ByRef lpExecInfo As ShellExecuteInfo) As Boolean
-    End Function
-    <StructLayout(LayoutKind.Sequential, CharSet := CharSet.Auto)> _
-    Private Structure ShellExecuteInfo
-        Public cbSize As Integer
-        Public fMask As UInteger
-        Public hwnd As IntPtr
-        <MarshalAs(UnmanagedType.LPTStr)> _
-        Public lpVerb As String
-        <MarshalAs(UnmanagedType.LPTStr)> _
-        Public lpFile As String
-        <MarshalAs(UnmanagedType.LPTStr)> _
-        Public lpParameters As String
-        <MarshalAs(UnmanagedType.LPTStr)> _
-        Public lpDirectory As String
-        Public nShow As Integer
-        Public hInstApp As IntPtr
-        Public lpIDList As IntPtr
-        <MarshalAs(UnmanagedType.LPTStr)> _
-        Public lpClass As String
-        Public hkeyClass As IntPtr
-        Public dwHotKey As UInteger
-        Public hIcon As IntPtr
-        Public hProcess As IntPtr
-    End Structure
-    
     ''' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
     ''' <summary></summary>
     ''' <param name="path"></param>
@@ -83,7 +43,7 @@ Public Partial Class WalkmanLib
     ''' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
     ''' <param name="path">The file to get the OpenWith program for.</param>
-    ''' <returns>OpenWith program path, or "Filetype not associated!" if none</returns>
+    ''' <returns>OpenWith program path, "Filetype not associated!" if none, or "File not found!"</returns>
     Shared Function GetOpenWith(path As String) As String
         If Not File.Exists(path) Then
             Return "File not found!"
@@ -103,4 +63,44 @@ Public Partial Class WalkmanLib
     End Function
     
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
+    
+    ''' Link: https://stackoverflow.com/a/1936957/2999220
+    ''' <summary>Opens the Windows properties window for a path.</summary>
+    ''' <param name="path">The path to show the window for.</param>
+    ''' <returns>Whether the properties window was shown successfully or not.</returns>
+    Shared Function ShowProperties(path As String) As Boolean
+        Dim info As New ShellExecuteInfo
+        info.cbSize = Marshal.SizeOf(info)
+        info.lpVerb = "properties"
+        info.lpFile = path
+        info.fMask = 12
+        Return ShellExecuteEx(info)
+    End Function
+    
+    <DllImport("shell32.dll", CharSet := CharSet.Auto)> _
+    Private Shared Function ShellExecuteEx(ByRef lpExecInfo As ShellExecuteInfo) As Boolean
+    End Function
+    <StructLayout(LayoutKind.Sequential, CharSet := CharSet.Auto)> _
+    Private Structure ShellExecuteInfo
+        Public cbSize As Integer
+        Public fMask As UInteger
+        Public hwnd As IntPtr
+        <MarshalAs(UnmanagedType.LPTStr)> _
+        Public lpVerb As String
+        <MarshalAs(UnmanagedType.LPTStr)> _
+        Public lpFile As String
+        <MarshalAs(UnmanagedType.LPTStr)> _
+        Public lpParameters As String
+        <MarshalAs(UnmanagedType.LPTStr)> _
+        Public lpDirectory As String
+        Public nShow As Integer
+        Public hInstApp As IntPtr
+        Public lpIDList As IntPtr
+        <MarshalAs(UnmanagedType.LPTStr)> _
+        Public lpClass As String
+        Public hkeyClass As IntPtr
+        Public dwHotKey As UInteger
+        Public hIcon As IntPtr
+        Public hProcess As IntPtr
+    End Structure
 End Class
