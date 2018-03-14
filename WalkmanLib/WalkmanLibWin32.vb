@@ -3,13 +3,13 @@ Imports System.IO
 Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
 Public Partial Class WalkmanLib
-    ''' <summary></summary>
-    ''' <param name="path"></param>
-    ''' <returns></returns>
+    ''' <summary>Opens the Windows properties window for a path.</summary>
+    ''' <param name="path">The path to show the window for.</param>
+    ''' <returns>Whether the properties window was shown successfully or not.</returns>
     Shared Function ShowProperties(path As String) As Boolean
         Dim info As New ShellExecuteInfo
         info.cbSize = Marshal.SizeOf(info)
-        info.lpVerb = "porperties"
+        info.lpVerb = "properties"
         info.lpFile = path
         info.fMask = 12
         Return ShellExecuteEx(info)
@@ -58,17 +58,9 @@ Public Partial Class WalkmanLib
         
     End Function
     
-        ' usage:
-        'Try
-        '    compressedSizeOrError = CompressedFileSize(lblFullPath.Text)
-        'Catch ex As Exception
-        '    compressedSizeOrError = ex.Message
-        'End Try
-        'chkCompressed.Text = "Compressed"
-    
-    ''' <summary></summary>
-    ''' <param name="path"></param>
-    ''' <returns></returns>
+    ''' <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>
+    ''' <param name="path">Path to the file to get size for.</param>
+    ''' <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
     Shared Function GetCompressedSize(path As String) As Double
         Dim sizeMultiplier As IntPtr
         Dim fileLength As Long = Convert.ToInt64(GetCompressedFileSize(path, sizeMultiplier))
@@ -83,10 +75,14 @@ Public Partial Class WalkmanLib
     ' https://stackoverflow.com/a/22508299/2999220
     Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA"(ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
     
-    ''' <summary></summary>
-    ''' <param name="path"></param>
-    ''' <returns></returns>
+    ''' <summary>Gets the path to the program specified to open a file.</summary>
+    ''' <param name="path">The file to get the OpenWith program for.</param>
+    ''' <returns>OpenWith program path, or "Filetype not associated!" if none</returns>
     Shared Function GetOpenWith(path As String) As String
+        If Not File.Exists(path) Then
+            Return "File not found!"
+        End If
+        
         Dim pathDirectory As String = New IO.FileInfo(path).DirectoryName
         
         Dim result As String = Space$(1024)

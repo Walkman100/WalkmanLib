@@ -1,11 +1,12 @@
 ﻿Imports System
 Imports System.IO
+Imports System.IO.File
 Imports Microsoft.VisualBasic
 Imports System.Security.Principal
 Imports System.Windows.Forms
 Public Partial Class WalkmanLib
-    ''' <summary></summary>
-    ''' <param name="path"></param>
+    ''' <summary>Runs the Take Ownership commands for a path.</summary>
+    ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
     Shared Sub TakeOwnership(path As String)
         If File.Exists(path) Then
             RunAsAdmin("cmd.exe", "/c takeown /f " & path & " && icacls " & path & " /grant administrators:F && pause")
@@ -14,20 +15,13 @@ Public Partial Class WalkmanLib
         End If
     End Sub
     
-    ''' <summary></summary>
-    ''' <param name="path"></param>
-    ''' <returns></returns>
-    Shared Function GetFolderIconPath(path As String) As String
-        
-    End Function
-    
     ''' <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttributes">A bitwise combination of the enumeration values.</param>
-    ''' <returns>True if setting the attribute was successful, False if not.</returns>
+    ''' <returns>Whether setting the attribute was successful or not.</returns>
     Shared Function SetAttribute(path As String, fileAttributes As FileAttributes) As Boolean
         Try
-            File.SetAttributes(path, fileAttributes)
+            SetAttributes(path, fileAttributes)
             Return True
         Catch ex As exception
             ErrorDialog(ex)
@@ -35,13 +29,13 @@ Public Partial Class WalkmanLib
         End Try
     End Function
     
-    ''' <summary>Adds the specified System.IO.FileAttributes to the file on the specified path, with a try..catch block.</summary>
+    ''' <summary>Adds the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
-    ''' <param name="fileAttributes">The FileAttributes to add.</param>
-    ''' <returns>True if adding the attribute was successful, False if not.</returns>
-    Shared Function AddAttribute(path As String, fileAttributes As FileAttributes) As Boolean
+    ''' <param name="fileAttribute">The FileAttributes to add.</param>
+    ''' <returns>Whether adding the attribute was successful or not.</returns>
+    Shared Function AddAttribute(path As String, fileAttribute As FileAttributes) As Boolean
         Try
-            File.SetAttributes(path, File.GetAttributes(path) + fileAttributes)
+            SetAttributes(path, GetAttributes(path) + fileAttribute)
             Return True
         Catch ex As exception
             ErrorDialog(ex)
@@ -49,13 +43,13 @@ Public Partial Class WalkmanLib
         End Try
     End Function
     
-    ''' <summary>Removes the specified System.IO.FileAttributes from the file on the specified path, with a try..catch block.</summary>
+    ''' <summary>Removes the specified System.IO.FileAttributes from the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
-    ''' <param name="fileAttributes">The FileAttributes to remove.</param>
-    ''' <returns>True if removing the attribute was successful, False if not.</returns>
-    Shared Function RemoveAttrubute(path As String, fileAttributes As FileAttributes) As Boolean
+    ''' <param name="fileAttribute">The FileAttributes to remove.</param>
+    ''' <returns>Whether removing the attribute was successful or not.</returns>
+    Shared Function RemoveAttribute(path As String, fileAttribute As FileAttributes) As Boolean
         Try
-            File.SetAttributes(path, File.GetAttributes(path) - fileAttributes)
+            SetAttributes(path, GetAttributes(path) - fileAttribute)
             Return True
         Catch ex As exception
             ErrorDialog(ex)
@@ -65,12 +59,11 @@ Public Partial Class WalkmanLib
     
     ''' <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
     ''' <param name="programPath">Path of the program to run as administrator.</param>
-    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process.</param>
+    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process. Do not surround the whole variable in quotes.</param>
     Shared Sub RunAsAdmin(programPath As String, Optional arguments As String = Nothing)
         If arguments = Nothing Then
             CreateObject("Shell.Application").ShellExecute(programPath, "", "", "runas")
         Else
-            arguments = arguments.Trim("""")
             CreateObject("Shell.Application").ShellExecute(programPath, """" & arguments & """", "", "runas")
         End If
     End Sub
@@ -87,11 +80,11 @@ Public Partial Class WalkmanLib
         Return New WindowsPrincipal(WindowsIdentity.GetCurrent).IsInRole(WindowsBuiltInRole.Administrator)
     End Function
     
-    ''' <summary></summary>
-    ''' <param name="text"></param>
-    ''' <param name="successMessage"></param>
-    ''' <param name="showErrors"></param>
-    ''' <returns></returns>
+    ''' <summary>Sets clipboard to specified text, with optional success message and checks for errors.</summary>
+    ''' <param name="text">Text to copy.</param>
+    ''' <param name="successMessage">Message to show on success. If left out no message will be shown, if "default" is supplied then the default message will be shown.</param>
+    ''' <param name="showErrors">Whether to show a message on copy error or not.</param>
+    ''' <returns>Whether setting the clipboard was successful or not.</returns>
     Shared Function SafeSetText(text As String, Optional successMessage As String = Nothing, Optional showErrors As Boolean = True) As Boolean
         Try
             Clipboard.SetText(text, TextDataFormat.UnicodeText)
@@ -111,8 +104,8 @@ Public Partial Class WalkmanLib
         End Try
     End Function
     
-    ''' <summary></summary>
-    ''' <param name="ex"></param>
+    ''' <summary>Shows an error message for an exception, and asks the user if they want to display the full error in a copyable window.</summary>
+    ''' <param name="ex">The System.Exception to show details about.</param>
     Shared Sub ErrorDialog(ex As Exception)
         If MsgBox("There was an error! Error message: " & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)", _
           MsgBoxStyle.YesNo + MsgBoxStyle.Exclamation, "Error!") = MsgBoxresult.Yes Then
@@ -148,4 +141,71 @@ Public Partial Class WalkmanLib
             Next
         End If
     End Sub
+    
+    ''' <summary>Gets path to the folder icon, or "no icon found" if none is set.</summary>
+    ''' <param name="folderPath">The folder path to get the icon path for.</param>
+    ''' <returns>The icon path.</returns>
+    Shared Function GetFolderIconPath(folderPath As String) As String
+        Dim gotIcon, lookingForIconIndex, isAbsolute As Boolean
+        Dim parsedIconPath As String = folderPath
+        
+        If folderPath.EndsWith(":\") Then
+            If Exists(folderPath & "Autorun.inf") Then
+                For Each line In ReadLines(folderPath & "Autorun.inf")
+                    If line.StartsWith("Icon=", True, Nothing) Then
+                        parsedIconPath = line.Substring(5)
+                        gotIcon = True
+                    End If
+                Next
+            End If
+        Else
+            If Exists(folderPath & "\desktop.ini") Then
+                gotIcon = False
+                lookingForIconIndex = False
+                For Each line In ReadLines(folderPath & "\desktop.ini")
+                    If line.StartsWith("IconResource=", True, Nothing) Then
+                        parsedIconPath = line.Substring(13)
+                        gotIcon = True
+                    ElseIf line.StartsWith("IconFile=", True, Nothing) And gotIcon = False Then
+                        parsedIconPath = line.Substring(9)
+                        lookingForIconIndex = True
+                        gotIcon = True
+                    ElseIf line.StartsWith("IconIndex=", True, Nothing) And lookingForIconIndex Then
+                        parsedIconPath = parsedIconPath & "," & line.Substring(10)
+                        lookingForIconIndex = False
+                    End If
+                Next
+            End If
+        End If
+        
+        If gotIcon Then
+            isAbsolute = False
+            If parsedIconPath.StartsWith("%") Then
+                isAbsolute = True
+                parsedIconPath = parsedIconPath.Substring(1)
+                If parsedIconPath.Contains("%") Then
+                    parsedIconPath = Environment.GetEnvironmentVariable(parsedIconPath.Remove(parsedIconPath.IndexOf("%"))) & parsedIconPath.Substring(parsedIconPath.IndexOf("%") + 1)
+                End If
+            Else
+                For i = 1 To 26 ' The Chr() below will give all letters from A to Z
+                    If parsedIconPath.StartsWith( Chr(i+64) & ":\", True, Nothing ) Then
+                        isAbsolute = True
+                        Exit For
+                    End If
+                Next
+            End If
+            
+            If parsedIconPath.EndsWith(",0") Then
+                parsedIconPath = parsedIconPath.Remove(parsedIconPath.Length - 2)
+            End If
+            
+            If isAbsolute Then
+                Return parsedIconPath
+            Else
+                Return folderPath & "\" & parsedIconPath
+            End If
+        Else
+            Return "no icon found"
+        End If
+    End Function
 End Class
