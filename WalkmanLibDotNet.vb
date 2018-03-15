@@ -1,4 +1,6 @@
-﻿Imports System
+﻿Option Explicit Off
+
+Imports System
 Imports System.IO
 Imports System.IO.File
 Imports Microsoft.VisualBasic

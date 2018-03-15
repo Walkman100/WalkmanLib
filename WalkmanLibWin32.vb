@@ -1,25 +1,57 @@
-﻿Imports System
+﻿Option Explicit Off
+
+Imports System
 Imports System.IO
 Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
 Public Partial Class WalkmanLib
     
     ''' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
-    ''' <summary></summary>
-    ''' <param name="path"></param>
-    ''' <param name="showWindow"></param>
-    ''' <returns></returns>
+    ''' <summary>Compresses the specified file using NTFS compression.</summary>
+    ''' <param name="path">Path to the file to compress.</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
+    ''' <returns>Whether the file was compressed successfully or not.</returns>
     Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
-        
+        Try
+            Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
+            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, 1, 2, 0, 0, 0, 0)
+            
+            FilePropertiesStream.Flush(True)
+            FilePropertiesStream.SafeFileHandle.Dispose
+            FilePropertiesStream.Dispose
+            FilePropertiesStream.Close
+            
+            Return True
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+    
+    <DllImport("Kernel32.dll")> _
+    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, lpInBuffer As Short, nInBufferSize As Integer, _
+    lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
     ''' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
-    ''' <summary></summary>
-    ''' <param name="path"></param>
-    ''' <param name="showWindow"></param>
-    ''' <returns></returns>
+    ''' <summary>Decompresses the specified file using NTFS compression.</summary>
+    ''' <param name="path">Path to the file to decompress.</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
+    ''' <returns>Whether the file was decompressed successfully or not.</returns>
     Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
-        
+        Try
+            Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
+            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, 0, 2, 0, 0, 0, 0)
+            ' difference between the two functions: decompressing uses 0 as lpInBuffer while compressing is 1
+            
+            FilePropertiesStream.Flush(True)
+            FilePropertiesStream.SafeFileHandle.Dispose
+            FilePropertiesStream.Dispose
+            FilePropertiesStream.Close
+            
+            Return True
+        Catch ex As Exception
+            Return False
+        End Try
     End Function
     
     ''' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
@@ -67,12 +99,14 @@ Public Partial Class WalkmanLib
     ''' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
     ''' <param name="path">The path to show the window for.</param>
+    ''' <param name="tab">Optional tab to open to. Beware, this name is culture-specific!</param>
     ''' <returns>Whether the properties window was shown successfully or not.</returns>
-    Shared Function ShowProperties(path As String) As Boolean
+    Shared Function ShowProperties(path As String, Optional tab As String = Nothing) As Boolean
         Dim info As New ShellExecuteInfo
         info.cbSize = Marshal.SizeOf(info)
         info.lpVerb = "properties"
         info.lpFile = path
+        If tab <> Nothing Then info.lpParameters = tab
         info.fMask = 12
         Return ShellExecuteEx(info)
     End Function
