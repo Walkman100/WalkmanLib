@@ -20,6 +20,19 @@ Public Partial Class WalkmanLib
         Return New WindowsPrincipal(WindowsIdentity.GetCurrent).IsInRole(WindowsBuiltInRole.Administrator)
     End Function
     
+    ''' <summary></summary>
+    ''' <param name="Prompt"></param>
+    ''' <param name="Buttons"></param>
+    ''' <param name="Title"></param>
+    ''' <returns></returns>
+    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, Optional Title As String = Nothing) As DialogResult
+        Dim formToShow As New CustomMsgBox
+        formToShow.Prompt = Prompt
+        formToShow.Buttons = Buttons
+        formToShow.Title = Title
+        Return formToShow.ShowDialog
+    End Function
+    
     ''' Link: https://www.howtogeek.com/howto/windows-vista/add-take-ownership-to-explorer-right-click-menu-in-vista/
     ''' <summary>Runs the Take Ownership commands for a path.</summary>
     ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
