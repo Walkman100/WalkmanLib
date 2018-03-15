@@ -74,17 +74,17 @@ Public Partial Class WalkmanLib
     
     ''' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
-    ''' <param name="path">The file to get the OpenWith program for.</param>
+    ''' <param name="filePath">The file to get the OpenWith program for.</param>
     ''' <returns>OpenWith program path, "Filetype not associated!" if none, or "File not found!"</returns>
-    Shared Function GetOpenWith(path As String) As String
-        If Not File.Exists(path) Then
+    Shared Function GetOpenWith(filePath As String) As String
+        If Not File.Exists(filePath) Then
             Return "File not found!"
         End If
         
-        Dim pathDirectory As String = New IO.FileInfo(path).DirectoryName
+        Dim pathDirectory As String = New IO.FileInfo(filePath).DirectoryName
         
         Dim result As String = Space$(1024)
-        FindExecutable(path, pathDirectory & "\", result)
+        FindExecutable(filePath, pathDirectory & Path.DirectorySeparatorChar, result)
         
         Dim returnString As String = Strings.Left$(result, InStr(result, Chr(0)) - 1)
         If returnString = "" Then 
@@ -111,9 +111,8 @@ Public Partial Class WalkmanLib
         Return ShellExecuteEx(info)
     End Function
     
-    <DllImport("shell32.dll", CharSet := CharSet.Auto)> _
-    Private Shared Function ShellExecuteEx(ByRef lpExecInfo As ShellExecuteInfo) As Boolean
-    End Function
+    Private Declare Auto Function ShellExecuteEx Lib "shell32.dll"(ByRef lpExecInfo As ShellExecuteInfo) As Boolean
+    
     <StructLayout(LayoutKind.Sequential, CharSet := CharSet.Auto)> _
     Private Structure ShellExecuteInfo
         Public cbSize As Integer

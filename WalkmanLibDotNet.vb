@@ -153,8 +153,8 @@ Public Partial Class WalkmanLib
         Dim gotIcon, lookingForIconIndex, isAbsolute As Boolean
         Dim parsedIconPath As String = folderPath
         
-        If folderPath.EndsWith(":\") Then
-            If Exists(folderPath & "Autorun.inf") Then
+        If folderPath.EndsWith(Path.VolumeSeparatorChar & Path.DirectorySeparatorChar) Then
+            If Exists(Path.Combine(folderPath, "Autorun.inf")) Then
                 For Each line In ReadLines(folderPath & "Autorun.inf")
                     If line.StartsWith("Icon=", True, Nothing) Then
                         parsedIconPath = line.Substring(5)
@@ -163,7 +163,7 @@ Public Partial Class WalkmanLib
                 Next
             End If
         Else
-            If Exists(folderPath & "\desktop.ini") Then
+            If Exists(Path.Combine(folderPath, "desktop.ini")) Then
                 gotIcon = False
                 lookingForIconIndex = False
                 For Each line In ReadLines(folderPath & "\desktop.ini")
@@ -192,7 +192,7 @@ Public Partial Class WalkmanLib
                 End If
             Else
                 For i = 1 To 26 ' The Chr() below will give all letters from A to Z
-                    If parsedIconPath.StartsWith( Chr(i+64) & ":\", True, Nothing ) Then
+                    If parsedIconPath.StartsWith( Chr(i+64) & Path.VolumeSeparatorChar & Path.DirectorySeparatorChar, True, Nothing ) Then
                         isAbsolute = True
                         Exit For
                     End If
@@ -206,7 +206,7 @@ Public Partial Class WalkmanLib
             If isAbsolute Then
                 Return parsedIconPath
             Else
-                Return folderPath & "\" & parsedIconPath
+                Return Path.Combine(folderPath, parsedIconPath)
             End If
         Else
             Return "no icon found"
