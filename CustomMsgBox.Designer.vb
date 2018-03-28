@@ -41,17 +41,17 @@
         'btnAccept
         '
         Me.btnAccept.Anchor = System.Windows.Forms.AnchorStyles.Right
-        Me.btnAccept.Location = New System.Drawing.Point(156, 14)
+        Me.btnAccept.Location = New System.Drawing.Point(156, 8)
         Me.btnAccept.Name = "btnAccept"
         Me.btnAccept.Size = New System.Drawing.Size(75, 23)
-        Me.btnAccept.TabIndex = 2
+        Me.btnAccept.TabIndex = 0
         Me.btnAccept.Text = "Yes"
         Me.btnAccept.UseVisualStyleBackColor = true
         '
         'btnAnswerMid
         '
         Me.btnAnswerMid.Anchor = System.Windows.Forms.AnchorStyles.Right
-        Me.btnAnswerMid.Location = New System.Drawing.Point(237, 14)
+        Me.btnAnswerMid.Location = New System.Drawing.Point(237, 8)
         Me.btnAnswerMid.Name = "btnAnswerMid"
         Me.btnAnswerMid.Size = New System.Drawing.Size(75, 23)
         Me.btnAnswerMid.TabIndex = 1
@@ -61,10 +61,10 @@
         'btnCancel
         '
         Me.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Right
-        Me.btnCancel.Location = New System.Drawing.Point(318, 14)
+        Me.btnCancel.Location = New System.Drawing.Point(318, 8)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(75, 23)
-        Me.btnCancel.TabIndex = 0
+        Me.btnCancel.TabIndex = 2
         Me.btnCancel.Text = "Cancel"
         Me.btnCancel.UseVisualStyleBackColor = true
         '
@@ -89,7 +89,7 @@
         Me.splitContainer.Panel2.Controls.Add(Me.btnCancel)
         Me.splitContainer.Panel2.Controls.Add(Me.btnAnswerMid)
         Me.splitContainer.Size = New System.Drawing.Size(405, 205)
-        Me.splitContainer.SplitterDistance = 155
+        Me.splitContainer.SplitterDistance = 160
         Me.splitContainer.SplitterWidth = 1
         Me.splitContainer.TabIndex = 3
         '
@@ -100,8 +100,8 @@
                         Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
         Me.lblMain.Location = New System.Drawing.Point(59, 34)
         Me.lblMain.Name = "lblMain"
-        Me.lblMain.Size = New System.Drawing.Size(334, 87)
-        Me.lblMain.TabIndex = 1
+        Me.lblMain.Size = New System.Drawing.Size(334, 96)
+        Me.lblMain.TabIndex = 0
         Me.lblMain.Text = "text"
         '
         'pbxMain
@@ -109,6 +109,7 @@
         Me.pbxMain.Location = New System.Drawing.Point(21, 25)
         Me.pbxMain.Name = "pbxMain"
         Me.pbxMain.Size = New System.Drawing.Size(32, 32)
+        Me.pbxMain.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.pbxMain.TabIndex = 0
         Me.pbxMain.TabStop = false
         '
