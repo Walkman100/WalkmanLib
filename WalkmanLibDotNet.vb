@@ -25,7 +25,7 @@ Public Partial Class WalkmanLib
     ''' <param name="Buttons"></param>
     ''' <param name="Title"></param>
     ''' <returns></returns>
-    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = MsgBoxStyle.OkOnly, Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As DialogResult
+    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As DialogResult
         Dim formToShow As New CustomMsgBoxForm
         formToShow.Prompt = Prompt
         formToShow.Buttons = Buttons

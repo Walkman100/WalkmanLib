@@ -26,8 +26,8 @@ Public Partial Class CustomMsgBoxForm
     End Property
     
     Public Enum WinVersionStyle
-        Win7  = 7
-        Win10 = 10
+        Win7
+        Win10
     End Enum
     
     Dim FormLevel As String = Nothing
@@ -69,6 +69,8 @@ Public Partial Class CustomMsgBoxForm
                 ElseIf value.HasFlag(MsgBoxStyle.OkOnly)
                     Button1Text = "Ok"
                 End If
+            Else
+                Button1Text = "Ok"
             End If
         End Set
     End Property
@@ -83,12 +85,16 @@ Public Partial Class CustomMsgBoxForm
         End If
         
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
-        Me.Icon = CType(resources.GetObject(WinVersion.ToString & "_" & FormLevel),System.Drawing.Icon)
+        Me.Icon = CType(resources.GetObject(WinVersion.ToString & "_" & FormLevel), System.Drawing.Icon)
         If FormLevel <> Nothing Then pbxMain.Image = Me.Icon.ToBitmap
         Try
             Me.Icon = Owner.Icon
         Catch
             'Me.Icon = CType(pbxMain.Image, System.Drawing.Icon)
+            ' doesn't work, and it's already set above anyway
+            If FormLevel = Nothing Then
+                Me.ShowIcon = False
+            End If
         End Try
         
         If Button1Text <> Nothing Then
@@ -111,38 +117,42 @@ Public Partial Class CustomMsgBoxForm
         End If
     End Sub
     
-    Sub Accept_Click() Handles btnAccept.Click
-        Select Case Button1Text
+    Private Function GetDialogResult(buttonText As String) As System.Windows.Forms.DialogResult
+        Select Case buttonText
             Case "Abort"
-                Me.DialogResult = System.Windows.Forms.DialogResult.Abort
-            Case "Retry"
-                Me.DialogResult = System.Windows.Forms.DialogResult.Retry
-            Case "Yes"
-                Me.DialogResult = System.Windows.Forms.DialogResult.Yes
-            Case "Ok"
-                Me.DialogResult = System.Windows.Forms.DialogResult.OK
-        End Select
-    End Sub
-    
-    Sub AnswerMid_Click() Handles btnAnswerMid.Click
-        Select Case Button2Text
-            Case "Retry"
-                Me.DialogResult = System.Windows.Forms.DialogResult.Retry
-            Case "No"
-                Me.DialogResult = System.Windows.Forms.DialogResult.No
-        End Select
-    End Sub
-    
-    Sub Cancel_Click() Handles btnCancel.Click
-        Select Case Button3Text
-            Case "Ignore"
-                Me.DialogResult = System.Windows.Forms.DialogResult.Ignore
+                Return System.Windows.Forms.DialogResult.Abort
             Case "Cancel"
-                Me.DialogResult = System.Windows.Forms.DialogResult.Cancel
+                Return System.Windows.Forms.DialogResult.Cancel
+            Case "Ignore"
+                Return System.Windows.Forms.DialogResult.Ignore
+            Case "No"
+                Return System.Windows.Forms.DialogResult.No
+            Case "None"
+                Return System.Windows.Forms.DialogResult.None
+            Case "Ok"
+                Return System.Windows.Forms.DialogResult.OK
+            Case "Retry"
+                Return System.Windows.Forms.DialogResult.Retry
+            Case "Yes"
+                Return System.Windows.Forms.DialogResult.Yes
+            Case Else
+                Return System.Windows.Forms.DialogResult.None
         End Select
+    End Function
+    
+    Private Sub Accept_Click() Handles btnAccept.Click
+        Me.DialogResult = GetDialogResult(Button1Text)
     End Sub
     
-    Sub BtnAnswerMidClick(sender As Object, e As System.EventArgs)
+    Private Sub AnswerMid_Click() Handles btnAnswerMid.Click
+        Me.DialogResult = GetDialogResult(Button2Text)
+    End Sub
+    
+    Private Sub Cancel_Click() Handles btnCancel.Click
+        Me.DialogResult = GetDialogResult(Button3Text)
+    End Sub
+    
+    Private Sub BtnAnswerMidClick(sender As Object, e As System.EventArgs) Handles btnAnswerMid.Click
         MsgBox("test", MsgBoxStyle.Question)
         MsgBox("test", MsgBoxStyle.Information)
         MsgBox("test", MsgBoxStyle.Exclamation)
