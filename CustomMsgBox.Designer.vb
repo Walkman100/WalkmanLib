@@ -1,4 +1,4 @@
-﻿Partial Class CustomMsgBox
+﻿Partial Class CustomMsgBoxForm
     Inherits System.Windows.Forms.Form
     
     ''' <summary>
@@ -112,7 +112,7 @@
         Me.pbxMain.TabIndex = 0
         Me.pbxMain.TabStop = false
         '
-        'CustomMsgBox
+        'CustomMsgBoxForm
         '
         Me.AcceptButton = Me.btnAccept
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
@@ -123,7 +123,7 @@
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = false
         Me.MinimizeBox = false
-        Me.Name = "CustomMsgBox"
+        Me.Name = "CustomMsgBoxForm"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.splitContainer.Panel1.ResumeLayout(false)

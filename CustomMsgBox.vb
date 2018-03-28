@@ -1,18 +1,80 @@
 ﻿Imports Microsoft.VisualBasic
-Public Partial Class CustomMsgBox
-    
-    Public Prompt As String = Nothing
-    Public Buttons As MsgBoxStyle = 0
-    Public Title As String = Nothing
+Public Partial Class CustomMsgBoxForm
     
     Public Sub New()
         ' The Me.InitializeComponent call is required for Windows Forms designer support.
         Me.InitializeComponent()
         
-        Me.lblMain.Text = Prompt
-        If Me.Title <> Nothing Then
-            Me.Text = Me.Title
-        Else
+    End Sub
+    
+    Public Property Prompt() As String
+        Get
+            Return lblMain.Text
+        End Get
+        Set
+            lblMain.Text = value
+        End Set
+    End Property
+    
+    Public Property Title() As String
+        Get
+            Return Me.Text
+        End Get
+        Set
+            Me.Text = value
+        End Set
+    End Property
+    
+    Public Enum WinVersionStyle
+        Win7  = 7
+        Win10 = 10
+    End Enum
+    
+    Dim FormLevel As String = Nothing
+    Public Button1Text As String = Nothing
+    Public Button2Text As String = Nothing
+    Public Button3Text As String = Nothing
+    Public WinVersion As WinVersionStyle = WinVersionStyle.Win10
+    
+    Public WriteOnly Property Buttons() As MsgBoxStyle
+        Set
+            If value <> 0 Then
+                If value.HasFlag(MsgBoxStyle.Critical) Then
+                    FormLevel = "Critical"
+                ElseIf value.HasFlag(MsgBoxStyle.Exclamation)
+                    FormLevel = "Exclamation"
+                ElseIf value.HasFlag(MsgBoxStyle.Information)
+                    FormLevel = "Information"
+                ElseIf value.HasFlag(MsgBoxStyle.Question)
+                    FormLevel = "Question"
+                End If
+                
+                If value.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
+                    Button1Text = "Abort"
+                    Button2Text = "Retry"
+                    Button3Text = "Ignore"
+                ElseIf value.HasFlag(MsgBoxStyle.RetryCancel)
+                    Button1Text = "Retry"
+                    Button3Text = "Cancel"
+                ElseIf value.HasFlag(MsgBoxStyle.YesNoCancel)
+                    Button1Text = "Yes"
+                    Button2Text = "No"
+                    Button3Text = "Cancel"
+                ElseIf value.HasFlag(MsgBoxStyle.YesNo)
+                    Button1Text = "Yes"
+                    Button3Text = "Cancel"
+                ElseIf value.HasFlag(MsgBoxStyle.OkCancel)
+                    Button1Text = "Ok"
+                    Button3Text = "Cancel"
+                ElseIf value.HasFlag(MsgBoxStyle.OkOnly)
+                    Button1Text = "Ok"
+                End If
+            End If
+        End Set
+    End Property
+    
+    Private Sub MeShown() Handles Me.Shown
+        If Me.Text = Nothing Then
             Try
                 Me.Text = Owner.Text
             Catch
@@ -20,43 +82,64 @@ Public Partial Class CustomMsgBox
             End Try
         End If
         
-        If Me.Buttons <> 0 Then
-            If Me.Buttons.HasFlag(MsgBoxStyle.Critical) Then
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.Exclamation)
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.Information)
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.Question)
-                
-            End If
-            
-            If Me.Buttons.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.RetryCancel)
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.YesNoCancel)
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.YesNo)
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.OkCancel)
-                
-            ElseIf Me.Buttons.HasFlag(MsgBoxStyle.OkOnly)
-                
-            End If
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
+        Me.Icon = CType(resources.GetObject(WinVersion.ToString & "_" & FormLevel),System.Drawing.Icon)
+        If FormLevel <> Nothing Then pbxMain.Image = Me.Icon.ToBitmap
+        Try
+            Me.Icon = Owner.Icon
+        Catch
+            'Me.Icon = CType(pbxMain.Image, System.Drawing.Icon)
+        End Try
+        
+        If Button1Text <> Nothing Then
+            btnAccept.Text = Button1Text
+            btnAccept.Visible = True
+        Else
+            btnAccept.Visible = False
+        End If
+        If Button2Text <> Nothing Then
+            btnAnswerMid.Text = Button2Text
+            btnAnswerMid.Visible = True
+        Else
+            btnAnswerMid.Visible = False
+        End If
+        If Button3Text <> Nothing Then
+            btnCancel.Text = Button3Text
+            btnCancel.Visible = True
+        Else
+            btnCancel.Visible = False
         End If
     End Sub
     
     Sub Accept_Click() Handles btnAccept.Click
-        Me.DialogResult = DialogResult.Yes
+        Select Case Button1Text
+            Case "Abort"
+                Me.DialogResult = System.Windows.Forms.DialogResult.Abort
+            Case "Retry"
+                Me.DialogResult = System.Windows.Forms.DialogResult.Retry
+            Case "Yes"
+                Me.DialogResult = System.Windows.Forms.DialogResult.Yes
+            Case "Ok"
+                Me.DialogResult = System.Windows.Forms.DialogResult.OK
+        End Select
     End Sub
     
     Sub AnswerMid_Click() Handles btnAnswerMid.Click
-        Me.DialogResult = DialogResult.No
+        Select Case Button2Text
+            Case "Retry"
+                Me.DialogResult = System.Windows.Forms.DialogResult.Retry
+            Case "No"
+                Me.DialogResult = System.Windows.Forms.DialogResult.No
+        End Select
     End Sub
     
     Sub Cancel_Click() Handles btnCancel.Click
-        Me.DialogResult = DialogResult.Cancel
+        Select Case Button3Text
+            Case "Ignore"
+                Me.DialogResult = System.Windows.Forms.DialogResult.Ignore
+            Case "Cancel"
+                Me.DialogResult = System.Windows.Forms.DialogResult.Cancel
+        End Select
     End Sub
     
     Sub BtnAnswerMidClick(sender As Object, e As System.EventArgs)
