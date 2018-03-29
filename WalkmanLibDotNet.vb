@@ -167,22 +167,26 @@ Public Partial Class WalkmanLib
             txtBugReport.ScrollBars = ScrollBars.Vertical
             frmBugReport.Controls.Add(txtBugReport)
             txtBugReport.Dock = DockStyle.Fill
-            txtBugReport.Text = "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
-            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
-            txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
-            txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
-            txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
-            For i = 0 To 100 'Integer.MaxValue no reason to go that high
-                Try
-                    txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
-                Catch
-                    Exit For
-                End Try
-            Next
+            Try
+                txtBugReport.Text = "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
+                txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
+                txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
+                txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
+                txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
+                txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
+                txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
+                txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
+                txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
+                For i = 0 To 100 'Integer.MaxValue no reason to go that high
+                    Try
+                        txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
+                    Catch
+                        Exit For
+                    End Try
+                Next
+            Catch ex2 As Exception
+                txtBugReport.Text = "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
+            End Try
         End If
     End Sub
     
@@ -195,7 +199,7 @@ Public Partial Class WalkmanLib
         
         If folderPath.EndsWith(Path.VolumeSeparatorChar & Path.DirectorySeparatorChar) Then
             If Exists(Path.Combine(folderPath, "Autorun.inf")) Then
-                For Each line In ReadLines(folderPath & "Autorun.inf")
+                For Each line In ReadLines(Path.Combine(folderPath, "Autorun.inf"))
                     If line.StartsWith("Icon=", True, Nothing) Then
                         parsedIconPath = line.Substring(5)
                         gotIcon = True
@@ -206,7 +210,7 @@ Public Partial Class WalkmanLib
             If Exists(Path.Combine(folderPath, "desktop.ini")) Then
                 gotIcon = False
                 lookingForIconIndex = False
-                For Each line In ReadLines(folderPath & "\desktop.ini")
+                For Each line In ReadLines(Path.Combine(folderPath, "desktop.ini"))
                     If line.StartsWith("IconResource=", True, Nothing) Then
                         parsedIconPath = line.Substring(13)
                         gotIcon = True
