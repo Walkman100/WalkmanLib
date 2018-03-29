@@ -36,6 +36,7 @@ Public Partial Class CustomMsgBoxForm
     Public Button2Text As String = Nothing
     Public Button3Text As String = Nothing
     Public WinVersion As WinVersionStyle = WinVersionStyle.Win10
+    Public DialogResultString As String = Nothing
     
     Public WriteOnly Property Buttons() As MsgBoxStyle
         Set
@@ -128,8 +129,6 @@ Public Partial Class CustomMsgBoxForm
                 Return System.Windows.Forms.DialogResult.Ignore
             Case "No"
                 Return System.Windows.Forms.DialogResult.No
-            Case "None"
-                Return System.Windows.Forms.DialogResult.None
             Case "Ok"
                 Return System.Windows.Forms.DialogResult.OK
             Case "Retry"
@@ -143,14 +142,26 @@ Public Partial Class CustomMsgBoxForm
     
     Private Sub Accept_Click() Handles btnAccept.Click
         Me.DialogResult = GetDialogResult(Button1Text)
+        DialogResultString = Button1Text ' for use with custom buttons
+        If GetDialogResult(Button1Text) = System.Windows.Forms.DialogResult.None Then
+            Me.Close
+        End If
     End Sub
     
     Private Sub AnswerMid_Click() Handles btnAnswerMid.Click
         Me.DialogResult = GetDialogResult(Button2Text)
+        DialogResultString = Button2Text
+        If GetDialogResult(Button2Text) = System.Windows.Forms.DialogResult.None Then
+            Me.Close
+        End If
     End Sub
     
     Private Sub Cancel_Click() Handles btnCancel.Click
         Me.DialogResult = GetDialogResult(Button3Text)
+        DialogResultString = Button3Text
+        If GetDialogResult(Button3Text) = System.Windows.Forms.DialogResult.None Then
+            Me.Close
+        End If
     End Sub
     
     Private Sub BtnAnswerMidClick(sender As Object, e As System.EventArgs) Handles btnAnswerMid.Click

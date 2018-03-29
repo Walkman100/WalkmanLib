@@ -25,13 +25,27 @@ Public Partial Class WalkmanLib
     ''' <param name="Buttons"></param>
     ''' <param name="Title"></param>
     ''' <returns></returns>
-    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As DialogResult
+    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, _
+      Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As DialogResult
         Dim formToShow As New CustomMsgBoxForm
         formToShow.Prompt = Prompt
         formToShow.Buttons = Buttons
         formToShow.Title = Title
         formToShow.WinVersion = WinVersion
         Return formToShow.ShowDialog
+    End Function
+    
+    Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, _
+      Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As String
+        Dim formToShow As New CustomMsgBoxForm
+        formToShow.Prompt = Prompt
+        formToShow.Button1Text = customButton1
+        formToShow.Button2Text = customButton2
+        formToShow.Button3Text = customButton3
+        formToShow.Title = Title
+        formToShow.WinVersion = WinVersion
+        formToShow.ShowDialog
+        Return formToShow.DialogResultString
     End Function
     
     ''' Link: https://www.howtogeek.com/howto/windows-vista/add-take-ownership-to-explorer-right-click-menu-in-vista/
