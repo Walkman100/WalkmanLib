@@ -27,6 +27,7 @@ Public Partial Class CustomMsgBoxForm
     End Property
     
     Public Enum WinVersionStyle
+        WinXP
         Win7
         Win10
     End Enum
