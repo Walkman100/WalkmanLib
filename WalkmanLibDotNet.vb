@@ -20,11 +20,12 @@ Public Partial Class WalkmanLib
         Return New WindowsPrincipal(WindowsIdentity.GetCurrent).IsInRole(WindowsBuiltInRole.Administrator)
     End Function
     
-    ''' <summary></summary>
-    ''' <param name="Prompt"></param>
-    ''' <param name="Buttons"></param>
-    ''' <param name="Title"></param>
-    ''' <returns></returns>
+    ''' <summary>Shows a custom messagebox</summary>
+    ''' <param name="Prompt">The text to display in the messagebox window</param>
+    ''' <param name="Buttons">Buttons and style of messagebox to show. A bitwise combination of the enumeration values. Default: OkOnly</param>
+    ''' <param name="Title">Title of the messagebox window. If left out or set to Nothing, then title will be set to the owner form title or CustomMsgBox.</param>
+    ''' <param name="WinVersion">Windows version to use style icons from. Default: CustomMsgBoxForm.WinVersionStyle.Win10</param>
+    ''' <returns>The button the user clicked on.</returns>
     Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, _
       Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As DialogResult
         Dim formToShow As New CustomMsgBoxForm
@@ -35,6 +36,14 @@ Public Partial Class WalkmanLib
         Return formToShow.ShowDialog
     End Function
     
+    ''' <summary>Shows a custom messagebox with custom buttons</summary>
+    ''' <param name="Prompt">The text to display in the messagebox window</param>
+    ''' <param name="customButton1">Text to show on the first button</param>
+    ''' <param name="customButton2">Text to show on the second button. If left out or set to Nothing, this button will be hidden.</param>
+    ''' <param name="customButton3">Text to show on the third button. If left out or set to Nothing, this button will be hidden.</param>
+    ''' <param name="Title">Title of the messagebox window. If left out or set to Nothing, then title will be set to the owner form title or CustomMsgBox.</param>
+    ''' <param name="WinVersion">Windows version to use style icons from. Default: CustomMsgBoxForm.WinVersionStyle.Win10</param>
+    ''' <returns>Text of the button the user clicked on.</returns>
     Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, _
       Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As String
         Dim formToShow As New CustomMsgBoxForm
@@ -48,7 +57,7 @@ Public Partial Class WalkmanLib
         Return formToShow.DialogResultString
     End Function
     
-    ''' Link: https://www.howtogeek.com/howto/windows-vista/add-take-ownership-to-explorer-right-click-menu-in-vista/
+    ' Link: https://www.howtogeek.com/howto/windows-vista/add-take-ownership-to-explorer-right-click-menu-in-vista/
     ''' <summary>Runs the Take Ownership commands for a path.</summary>
     ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
     Shared Sub TakeOwnership(path As String)
@@ -115,7 +124,7 @@ Public Partial Class WalkmanLib
     ''' <summary>Sets clipboard to specified text, with optional success message and checks for errors.</summary>
     ''' <param name="text">Text to copy.</param>
     ''' <param name="successMessage">Message to show on success. If left out no message will be shown, if "default" is supplied then the default message will be shown.</param>
-    ''' <param name="showErrors">Whether to show a message on copy error or not.</param>
+    ''' <param name="showErrors">Whether to show a message on copy error or not. Default: True</param>
     ''' <returns>Whether setting the clipboard was successful or not.</returns>
     Shared Function SafeSetText(text As String, Optional successMessage As String = Nothing, Optional showErrors As Boolean = True) As Boolean
         Try

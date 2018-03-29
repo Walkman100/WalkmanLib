@@ -6,10 +6,10 @@ Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
 Public Partial Class WalkmanLib
     
-    ''' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
+    ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to compress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not (TO DO).</param>
     ''' <returns>Whether the file was compressed successfully or not.</returns>
     Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Try
@@ -32,7 +32,7 @@ Public Partial Class WalkmanLib
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
-    ''' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
+    ' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
     ''' <summary>Decompresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to decompress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
@@ -54,8 +54,8 @@ Public Partial Class WalkmanLib
         End Try
     End Function
     
-    ''' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
-    ''' Link: https://stackoverflow.com/a/22508299/2999220
+    ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
+    ' Link: https://stackoverflow.com/a/22508299/2999220
     ''' <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>
     ''' <param name="path">Path to the file to get size for.</param>
     ''' <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
@@ -72,7 +72,7 @@ Public Partial Class WalkmanLib
     
     Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA"(ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
     
-    ''' Link: http://www.vb-helper.com/howto_get_associated_program.html
+    ' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
     ''' <param name="filePath">The file to get the OpenWith program for.</param>
     ''' <returns>OpenWith program path, "Filetype not associated!" if none, or "File not found!"</returns>
@@ -96,7 +96,7 @@ Public Partial Class WalkmanLib
     
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
     
-    ''' Link: https://stackoverflow.com/a/1936957/2999220
+    ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
     ''' <param name="path">The path to show the window for.</param>
     ''' <param name="tab">Optional tab to open to. Beware, this name is culture-specific!</param>
