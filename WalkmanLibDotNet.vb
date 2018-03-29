@@ -93,6 +93,19 @@ Public Partial Class WalkmanLib
         End Try
     End Function
     
+    ''' <summary>Adds or removes the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
+    ''' <param name="path">The path to the file.</param>
+    ''' <param name="fileAttribute">The FileAttributes to add or remove.</param>
+    ''' <param name="addOrRemoveAttribute">True to add the specified attribute, False to remove it.</param>
+    ''' <returns>Whether setting the attribute was successful or not.</returns>
+    Shared Function ChangeAttribute(path As String, fileAttribute As FileAttributes, addOrRemoveAttribute As Boolean) As Boolean
+        If addOrRemoveAttribute Then
+            Return AddAttribute(path, fileAttribute)
+        Else
+            Return RemoveAttribute(path, fileAttribute)
+        End If
+    End Function
+    
     ''' <summary>Adds the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttribute">The FileAttributes to add.</param>
