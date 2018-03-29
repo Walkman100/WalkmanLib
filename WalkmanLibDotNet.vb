@@ -41,13 +41,15 @@ Public Partial Class WalkmanLib
     ''' <param name="customButton1">Text to show on the first button</param>
     ''' <param name="customButton2">Text to show on the second button. If left out or set to Nothing, this button will be hidden.</param>
     ''' <param name="customButton3">Text to show on the third button. If left out or set to Nothing, this button will be hidden.</param>
+    ''' <param name="Style">Style of messagebox to show. Default: 0</param>
     ''' <param name="Title">Title of the messagebox window. If left out or set to Nothing, then title will be set to the owner form title or CustomMsgBox.</param>
     ''' <param name="WinVersion">Windows version to use style icons from. Default: CustomMsgBoxForm.WinVersionStyle.Win10</param>
     ''' <returns>Text of the button the user clicked on.</returns>
-    Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, _
+    Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, Optional Style As MsgBoxStyle = 0, _
       Optional Title As String = Nothing, Optional WinVersion As CustomMsgBoxForm.WinVersionStyle = CustomMsgBoxForm.WinVersionStyle.Win10) As String
         Dim formToShow As New CustomMsgBoxForm
         formToShow.Prompt = Prompt
+        formToShow.Buttons = Style ' required to set the formlevel
         formToShow.Button1Text = customButton1
         formToShow.Button2Text = customButton2
         formToShow.Button3Text = customButton3
