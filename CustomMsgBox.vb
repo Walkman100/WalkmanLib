@@ -2,6 +2,7 @@
 Public Partial Class CustomMsgBoxForm
     
     Public Sub New()
+        System.Windows.Forms.Application.EnableVisualStyles()
         ' The Me.InitializeComponent call is required for Windows Forms designer support.
         Me.InitializeComponent()
         

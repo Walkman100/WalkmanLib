@@ -76,7 +76,7 @@ Public Partial Class WalkmanLib
     ''' <returns>Whether adding the attribute was successful or not.</returns>
     Shared Function AddAttribute(path As String, fileAttribute As FileAttributes) As Boolean
         Try
-            SetAttributes(path, GetAttributes(path) + fileAttribute)
+            SetAttributes(path, GetAttributes(path) Or fileAttribute)
             Return True
         Catch ex As exception
             ErrorDialog(ex)
@@ -107,6 +107,7 @@ Public Partial Class WalkmanLib
         Try
             Clipboard.SetText(text, TextDataFormat.UnicodeText)
             If successMessage <> Nothing Then
+                System.Windows.Forms.Application.EnableVisualStyles() ' affects when in a console app
                 If successMessage = "default" Then
                     MsgBox(text & vbNewLine & "Succesfully copied!", MsgBoxStyle.Information, "Succesfully copied!")
                 Else
@@ -116,6 +117,7 @@ Public Partial Class WalkmanLib
             Return True
         Catch ex As Exception
             If showErrors Then
+                System.Windows.Forms.Application.EnableVisualStyles() ' affects when in a console app
                 MsgBox("Copy failed!" & vbNewLine & "Error: """ & ex.ToString & """", MsgBoxStyle.Critical, "Copy failed!")
             End If
             Return False
@@ -125,8 +127,9 @@ Public Partial Class WalkmanLib
     ''' <summary>Shows an error message for an exception, and asks the user if they want to display the full error in a copyable window.</summary>
     ''' <param name="ex">The System.Exception to show details about.</param>
     Shared Sub ErrorDialog(ex As Exception)
+        System.Windows.Forms.Application.EnableVisualStyles() ' affects when in a console app
         If MsgBox("There was an error! Error message: " & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)", _
-          MsgBoxStyle.YesNo + MsgBoxStyle.Exclamation, "Error!") = MsgBoxresult.Yes Then
+          MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") = MsgBoxresult.Yes Then
             Dim frmBugReport As New Form()
             frmBugReport.Width = 600
             frmBugReport.Height = 525
