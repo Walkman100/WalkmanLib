@@ -4,6 +4,7 @@ Imports System
 Imports System.IO
 Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
+Imports System.ComponentModel
 Public Partial Class WalkmanLib
     
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
@@ -66,8 +67,9 @@ Public Partial Class WalkmanLib
         Dim sizeMultiplier As IntPtr
         Dim fileLength As Long = Convert.ToInt64(GetCompressedFileSize(path, sizeMultiplier))
         If fileLength = 4294967295 Then ' decimal representation of &HFFFFFFFF
-            Dim Err As Long = Marshal.GetLastWin32Error()
-            If Err <> 0 Then Throw New IOException("Exception getting compressed size: " & Err.ToString)
+            Dim Win32Error As Integer = Marshal.GetLastWin32Error()
+            Dim errorException = New Win32Exception(Win32Error)
+            If Win32Error <> 0 Then Throw New IOException(errorException.Message, errorException)
         End If
         Dim size As Double = (UInteger.MaxValue + 1) * CLng(sizeMultiplier) + fileLength
         Return size
@@ -84,10 +86,10 @@ Public Partial Class WalkmanLib
             Return "File not found!"
         End If
         
-        Dim pathDirectory As String = New IO.FileInfo(filePath).DirectoryName
+        Dim FileProperties As New FileInfo(filePath)
         
         Dim result As String = Space$(1024)
-        FindExecutable(filePath, pathDirectory & Path.DirectorySeparatorChar, result)
+        FindExecutable(FileProperties.Name, FileProperties.DirectoryName & Path.DirectorySeparatorChar, result)
         
         Dim returnString As String = Strings.Left$(result, InStr(result, Chr(0)) - 1)
         If returnString = "" Then 
