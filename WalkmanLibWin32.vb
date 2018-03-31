@@ -6,15 +6,40 @@ Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
 Public Partial Class WalkmanLib
     
-    ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to compress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not (TO DO).</param>
     ''' <returns>Whether the file was compressed successfully or not.</returns>
     Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
+        Return SetCompression(path, True, showWindow)
+    End Function
+    
+    ''' <summary>Decompresses the specified file using NTFS compression.</summary>
+    ''' <param name="path">Path to the file to decompress.</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not (TO DO).</param>
+    ''' <returns>Whether the file was decompressed successfully or not.</returns>
+    Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
+        Return SetCompression(path, False, showWindow)
+    End Function
+    
+    ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
+    ' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
+    ''' <summary>Compress or decompress the specified file using NTFS compression.</summary>
+    ''' <param name="path">Path to the file to (de)compress.</param>
+    ''' <param name="compress">True to compress, False to decompress.</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not (TO DO).</param>
+    ''' <returns>Whether the file was (de)compressed successfully or not.</returns>
+    Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
+        Dim lpInBuffer As Short
+        If compress Then
+            lpInBuffer = 1
+        Else
+            lpInBuffer = 0
+        End If
+        
         Try
             Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
-            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, 1, 2, 0, 0, 0, 0)
+            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, lpInBuffer, 2, 0, 0, 0, 0)
             
             FilePropertiesStream.Flush(True)
             FilePropertiesStream.SafeFileHandle.Dispose
@@ -30,28 +55,6 @@ Public Partial Class WalkmanLib
     <DllImport("Kernel32.dll")> _
     Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, lpInBuffer As Short, nInBufferSize As Integer, _
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
-    End Function
-    
-    ' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
-    ''' <summary>Decompresses the specified file using NTFS compression.</summary>
-    ''' <param name="path">Path to the file to decompress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
-    ''' <returns>Whether the file was decompressed successfully or not.</returns>
-    Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
-        Try
-            Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
-            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, 0, 2, 0, 0, 0, 0)
-            ' difference between the two functions: decompressing uses 0 as lpInBuffer while compressing is 1
-            
-            FilePropertiesStream.Flush(True)
-            FilePropertiesStream.SafeFileHandle.Dispose
-            FilePropertiesStream.Dispose
-            FilePropertiesStream.Close
-            
-            Return True
-        Catch ex As Exception
-            Return False
-        End Try
     End Function
     
     ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html

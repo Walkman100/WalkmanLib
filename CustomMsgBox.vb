@@ -176,7 +176,7 @@ Public Partial Class WalkmanLib
     ''' <param name="Prompt">The text to display in the messagebox window</param>
     ''' <param name="Buttons">Buttons and style of messagebox to show. A bitwise combination of the enumeration values. Default: OkOnly</param>
     ''' <param name="Title">Title of the messagebox window. If left out or set to Nothing, then title will be set to the owner form title or CustomMsgBox.</param>
-    ''' <param name="WinVersion">Windows version to use style icons from. Default: CustomMsgBoxForm.WinVersionStyle.Win10</param>
+    ''' <param name="WinVersion">Windows version to use style icons from. Default: WinVersionStyle.Win10</param>
     ''' <returns>The button the user clicked on.</returns>
     Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, _
       Optional Title As String = Nothing, Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10) As DialogResult
@@ -195,7 +195,7 @@ Public Partial Class WalkmanLib
     ''' <param name="customButton3">Text to show on the third button. If left out or set to Nothing, this button will be hidden.</param>
     ''' <param name="Style">Style of messagebox to show. Default: 0</param>
     ''' <param name="Title">Title of the messagebox window. If left out or set to Nothing, then title will be set to the owner form title or CustomMsgBox.</param>
-    ''' <param name="WinVersion">Windows version to use style icons from. Default: CustomMsgBoxForm.WinVersionStyle.Win10</param>
+    ''' <param name="WinVersion">Windows version to use style icons from. Default: WinVersionStyle.Win10</param>
     ''' <returns>Text of the button the user clicked on.</returns>
     Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, Optional Style As MsgBoxStyle = 0, _
       Optional Title As String = Nothing, Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10) As String
