@@ -89,7 +89,7 @@ Public Partial Class WalkmanLib
     ''' <returns>Whether removing the attribute was successful or not.</returns>
     Shared Function RemoveAttribute(path As String, fileAttribute As FileAttributes) As Boolean
         Try
-            SetAttributes(path, GetAttributes(path) - fileAttribute)
+            SetAttributes(path, GetAttributes(path) And Not fileAttribute)
             Return True
         Catch ex As exception
             ErrorDialog(ex)

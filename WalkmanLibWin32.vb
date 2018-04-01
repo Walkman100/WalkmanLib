@@ -40,7 +40,7 @@ Public Partial Class WalkmanLib
         
         Try
             Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
-            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, lpInBuffer, 2, 0, 0, 0, 0)
+            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
             
             FilePropertiesStream.Flush(True)
             FilePropertiesStream.SafeFileHandle.Dispose
