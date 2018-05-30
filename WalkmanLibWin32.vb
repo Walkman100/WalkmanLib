@@ -77,6 +77,42 @@ Public Partial Class WalkmanLib
     
     Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA"(ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
     
+    ' Link: https://stackoverflow.com/a/33487494/2999220
+    ''' <summary></summary>
+    ''' <param name="path"></param>
+    ''' <returns></returns>
+    Shared Function GetSymlinkTarget(path As String) As String
+        Dim INVALID_HANDLE_VALUE As New IntPtr(-1)
+        Const FILE_READ_EA As UInteger = &H8
+        Const FILE_FLAG_BACKUP_SEMANTICS As UInteger = &H2000000
+        
+        Dim h = CreateFile(path, FILE_READ_EA, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero)
+        If h = INVALID_HANDLE_VALUE Then Throw New Win32Exception()
+        
+        Try
+            Dim sb = New System.Text.StringBuilder(1024)
+            Dim res = GetFinalPathNameByHandle(h, sb, 1024, 0)
+            If res = 0 Then Throw New Win32Exception()
+            Return sb.ToString()
+        Finally
+            CloseHandle(h)
+        End Try
+    End Function
+    
+    <DllImport("Kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
+    Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As System.Text.StringBuilder,
+    cchFilePath As UInteger, dwFlags As UInteger) As UInteger
+    End Function
+    
+    <DllImport("kernel32.dll", SetLastError := True)> _
+    Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
+    End Function
+    
+    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
+    Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
+    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
+    End Function
+    
     ' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
     ''' <param name="filePath">The file to get the OpenWith program for.</param>
