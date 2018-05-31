@@ -212,7 +212,7 @@ Public Partial Class WalkmanLib
     End Function
 End Class
 
-' visual styles in enabled in a Windows Forms Application with the following:
+' visual styles is enabled in a Windows Forms Application with the following:
 'Namespace My
 '    Partial Class MyApplication
 '        Public Sub New()

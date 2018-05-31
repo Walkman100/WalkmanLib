@@ -78,25 +78,38 @@ Public Partial Class WalkmanLib
     Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA"(ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
     
     ' Link: https://stackoverflow.com/a/33487494/2999220
-    ''' <summary></summary>
-    ''' <param name="path"></param>
-    ''' <returns></returns>
+    ''' <summary>Gets the target of a symbolic link or directory junction. Throws ComponentModel.Win32Exception on error.</summary>
+    ''' <param name="path">Path to the symlink to get the target of.</param>
+    ''' <returns>The fully qualified path to the target.</returns>
     Shared Function GetSymlinkTarget(path As String) As String
         Dim INVALID_HANDLE_VALUE As New IntPtr(-1)
         Const FILE_READ_EA As UInteger = &H8
         Const FILE_FLAG_BACKUP_SEMANTICS As UInteger = &H2000000
         
-        Dim h = CreateFile(path, FILE_READ_EA, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero)
-        If h = INVALID_HANDLE_VALUE Then Throw New Win32Exception()
+        Dim fileHandle = CreateFile(path, FILE_READ_EA, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero)
+        If fileHandle = INVALID_HANDLE_VALUE Then Throw New Win32Exception()
         
+        Dim returnString As String = ""
         Try
-            Dim sb = New System.Text.StringBuilder(1024)
-            Dim res = GetFinalPathNameByHandle(h, sb, 1024, 0)
-            If res = 0 Then Throw New Win32Exception()
-            Return sb.ToString()
+            Dim stringBuilderTarget = New System.Text.StringBuilder(1024)
+            Dim result = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
+            If result = 0 Then Throw New Win32Exception()
+            returnString = stringBuilderTarget.ToString()
         Finally
-            CloseHandle(h)
+            CloseHandle(fileHandle)
         End Try
+        
+        returnString = returnString.Substring(4) ' remove "\\?\" at the beginning
+        If returnString.StartsWith("UNC\") Then  ' change "UNC\[IP]\" to proper "\\[IP]\"
+            returnString = "\" & returnString.Substring(3)
+        End If
+        
+        Return returnString
+    End Function
+    
+    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
+    Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
+    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
     End Function
     
     <DllImport("Kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
@@ -106,11 +119,6 @@ Public Partial Class WalkmanLib
     
     <DllImport("kernel32.dll", SetLastError := True)> _
     Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
-    End Function
-    
-    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
-    Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
-    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
     End Function
     
     ' Link: http://www.vb-helper.com/howto_get_associated_program.html
