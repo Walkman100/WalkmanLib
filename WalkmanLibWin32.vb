@@ -77,50 +77,6 @@ Public Partial Class WalkmanLib
     
     Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA"(ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
     
-    ' Link: https://stackoverflow.com/a/33487494/2999220
-    ''' <summary>Gets the target of a symbolic link or directory junction. Throws ComponentModel.Win32Exception on error.</summary>
-    ''' <param name="path">Path to the symlink to get the target of.</param>
-    ''' <returns>The fully qualified path to the target.</returns>
-    Shared Function GetSymlinkTarget(path As String) As String
-        Dim INVALID_HANDLE_VALUE As New IntPtr(-1)
-        Const FILE_READ_EA As UInteger = &H8
-        Const FILE_FLAG_BACKUP_SEMANTICS As UInteger = &H2000000
-        
-        Dim fileHandle = CreateFile(path, FILE_READ_EA, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero)
-        If fileHandle = INVALID_HANDLE_VALUE Then Throw New Win32Exception()
-        
-        Dim returnString As String = ""
-        Try
-            Dim stringBuilderTarget = New System.Text.StringBuilder(1024)
-            Dim result = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
-            If result = 0 Then Throw New Win32Exception()
-            returnString = stringBuilderTarget.ToString()
-        Finally
-            CloseHandle(fileHandle)
-        End Try
-        
-        returnString = returnString.Substring(4) ' remove "\\?\" at the beginning
-        If returnString.StartsWith("UNC\") Then  ' change "UNC\[IP]\" to proper "\\[IP]\"
-            returnString = "\" & returnString.Substring(3)
-        End If
-        
-        Return returnString
-    End Function
-    
-    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
-    Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
-    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
-    End Function
-    
-    <DllImport("Kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
-    Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As System.Text.StringBuilder,
-    cchFilePath As UInteger, dwFlags As UInteger) As UInteger
-    End Function
-    
-    <DllImport("kernel32.dll", SetLastError := True)> _
-    Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
-    End Function
-    
     ' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
     ''' <param name="filePath">The file to get the OpenWith program for.</param>
@@ -144,6 +100,50 @@ Public Partial Class WalkmanLib
     End Function
     
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
+    
+    ' Link: https://stackoverflow.com/a/33487494/2999220
+    ''' <summary>Gets the target of a symbolic link or directory junction. Throws ComponentModel.Win32Exception on error.</summary>
+    ''' <param name="path">Path to the symlink to get the target of.</param>
+    ''' <returns>The fully qualified path to the target.</returns>
+    Shared Function GetSymlinkTarget(path As String) As String
+        Dim INVALID_HANDLE_VALUE As New IntPtr(-1)
+        Const FILE_READ_EA As UInteger = &H8
+        Const FILE_FLAG_BACKUP_SEMANTICS As UInteger = &H2000000
+        
+        Dim fileHandle = CreateFile(path, FILE_READ_EA, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero)
+        If fileHandle = INVALID_HANDLE_VALUE Then Throw New Win32Exception()
+        
+        Dim returnString As String = ""
+        Try
+            Dim stringBuilderTarget = New Text.StringBuilder(1024)
+            Dim result = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
+            If result = 0 Then Throw New Win32Exception()
+            returnString = stringBuilderTarget.ToString()
+        Finally
+            CloseHandle(fileHandle)
+        End Try
+        
+        returnString = returnString.Substring(4) ' remove "\\?\" at the beginning
+        If returnString.StartsWith("UNC\") Then  ' change "UNC\[IP]\" to proper "\\[IP]\"
+            returnString = "\" & returnString.Substring(3)
+        End If
+        
+        Return returnString
+    End Function
+    
+    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
+    Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
+    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
+    End Function
+    
+    <DllImport("Kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
+    Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As Text.StringBuilder,
+    cchFilePath As UInteger, dwFlags As UInteger) As UInteger
+    End Function
+    
+    <DllImport("kernel32.dll", SetLastError := True)> _
+    Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
+    End Function
     
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
