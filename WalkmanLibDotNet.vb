@@ -193,34 +193,21 @@ Public Partial Class WalkmanLib
         ' Use AppendLine rather than Append since args.Data is one line of output, not including the newline character.
         
         Dim stdError As String = Nothing
-        Try
-            process.Start()
-            process.BeginOutputReadLine()
-            stdError = process.StandardError.ReadToEnd()
-            process.WaitForExit()
-        Catch e As Exception
-            Throw New System.ComponentModel.Win32Exception(e.Message, e.InnerException)
-            'Throw New Exception("OS error while executing " & Format(filename, arguments) & ": " & e.Message, e)
-        End Try
+        process.Start()
+        process.BeginOutputReadLine()
+        stdError = process.StandardError.ReadToEnd()
+        process.WaitForExit()
         
-        Dim returnString As String = ""
-        
+        Dim returnString As String = stdOutput.ToString.Trim()
         If mergeStdErr Then
-            If Not String.IsNullOrEmpty(stdOutput.ToString().Trim()) Then
-                returnString &= stdOutput.ToString().Trim()
-                
-                If Not String.IsNullOrEmpty(stdError) Then
+            If Not String.IsNullOrEmpty(stdError) Then
+                If Not String.IsNullOrEmpty(returnString) Then
                     returnString &= vbNewLine
                 End If
-            End If
-            
-            If Not String.IsNullOrEmpty(stdError) Then
-                returnString &= "StdErr: " & stdError.Trim()
                 
+                returnString &= "StdErr: " & stdError.Trim()
                 returnString &= vbNewLine & "ExitCode: " & process.ExitCode
             End If
-        Else
-            returnString = stdOutput.ToString().Trim()
         End If
         
         StdErrReturn = stdError.Trim()
