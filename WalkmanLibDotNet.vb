@@ -167,14 +167,18 @@ Public Partial Class WalkmanLib
     End Sub
     
     ' Link: https://stackoverflow.com/a/10072082/2999220
-    ''' <summary></summary>
-    ''' <param name="filename"></param>
-    ''' <param name="arguments"></param>
-    ''' <returns></returns>
-    Shared Function RunExternalExe(filename As String, Optional arguments As String = Nothing) As String
+    ''' <summary>Runs an executable without showing a window and returns it's output.</summary>
+    ''' <param name="fileName">The path to the program executable.</param>
+    ''' <param name="arguments">Any arguments to run the program with. Default: Nothing</param>
+    ''' <param name="mergeStdErr">Whether to merge StdErr with StdOut in the function's result (Return String). Default: True</param>
+    ''' <param name="StdErrReturn">Reference to a System.String variable to populate with StdErr, if any.</param>
+    ''' <param name="ExitCode">Reference to a Integer variable to populate with the program's Exit Code.</param>
+    ''' <returns>If mergeStdErr is False, Returns StdOut. If mergeStdErr is True and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.</returns>
+    ''' To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to False.
+    Shared Function RunAndGetOutput(fileName As String, Optional arguments As String = Nothing, Optional mergeStdErr As Boolean = True, _
+      Optional ByRef StdErrReturn As String = "", Optional ByRef ExitCode As Integer = -1) As String
         Dim process = New Diagnostics.Process()
-        process.StartInfo.FileName = filename
-        
+        process.StartInfo.FileName = fileName
         If Not String.IsNullOrEmpty(arguments) Then
             process.StartInfo.Arguments = arguments
         End If
@@ -187,37 +191,41 @@ Public Partial Class WalkmanLib
         Dim stdOutput = New Text.StringBuilder()
         AddHandler process.OutputDataReceived, Sub(sender, args) stdOutput.AppendLine(args.Data)
         ' Use AppendLine rather than Append since args.Data is one line of output, not including the newline character.
-        Dim stdError As String = Nothing
         
+        Dim stdError As String = Nothing
         Try
             process.Start()
             process.BeginOutputReadLine()
             stdError = process.StandardError.ReadToEnd()
             process.WaitForExit()
         Catch e As Exception
-            Throw New Exception("OS error while executing " & Format(filename, arguments) & ": " & e.Message, e)
+            Throw New System.ComponentModel.Win32Exception(e.Message, e.InnerException)
+            'Throw New Exception("OS error while executing " & Format(filename, arguments) & ": " & e.Message, e)
         End Try
         
-        If process.ExitCode = 0 Then
-            Return stdOutput.ToString()
-        Else
-            Dim message = New Text.StringBuilder()
+        Dim returnString As String = ""
+        
+        If mergeStdErr Then
+            If Not String.IsNullOrEmpty(stdOutput.ToString().Trim()) Then
+                returnString &= stdOutput.ToString().Trim()
+                
+                If Not String.IsNullOrEmpty(stdError) Then
+                    returnString &= vbNewLine
+                End If
+            End If
             
             If Not String.IsNullOrEmpty(stdError) Then
-                message.AppendLine(stdError)
+                returnString &= "StdErr: " & stdError.Trim()
+                
+                returnString &= vbNewLine & "ExitCode: " & process.ExitCode
             End If
-            
-            If stdOutput.Length <> 0 Then
-                message.AppendLine("Std output:")
-                message.AppendLine(stdOutput.ToString())
-            End If
-            
-            Throw New Exception(Format(filename, arguments) & " finished with exit code = " & process.ExitCode & ": " & message.ToString)
+        Else
+            returnString = stdOutput.ToString().Trim()
         End If
-    End Function
-    
-    Private Shared Function Format(filename As String, arguments As String) As String
-        Return "'" & filename & (If((String.IsNullOrEmpty(arguments)), String.Empty, " " & arguments)) & "'"
+        
+        StdErrReturn = stdError.Trim()
+        ExitCode = process.ExitCode
+        Return returnString
     End Function
     
     ''' <summary>Gets path to the folder icon, or "no icon found" if none is set.</summary>
