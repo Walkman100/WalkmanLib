@@ -166,6 +166,60 @@ Public Partial Class WalkmanLib
         End If
     End Sub
     
+    ' Link: https://stackoverflow.com/a/10072082/2999220
+    ''' <summary></summary>
+    ''' <param name="filename"></param>
+    ''' <param name="arguments"></param>
+    ''' <returns></returns>
+    Shared Function RunExternalExe(filename As String, Optional arguments As String = Nothing) As String
+        Dim process = New Diagnostics.Process()
+        process.StartInfo.FileName = filename
+        
+        If Not String.IsNullOrEmpty(arguments) Then
+            process.StartInfo.Arguments = arguments
+        End If
+        
+        process.StartInfo.CreateNoWindow = True
+        process.StartInfo.WindowStyle = Diagnostics.ProcessWindowStyle.Hidden
+        process.StartInfo.UseShellExecute = False
+        process.StartInfo.RedirectStandardError = True
+        process.StartInfo.RedirectStandardOutput = True
+        Dim stdOutput = New Text.StringBuilder()
+        AddHandler process.OutputDataReceived, Sub(sender, args) stdOutput.AppendLine(args.Data)
+        ' Use AppendLine rather than Append since args.Data is one line of output, not including the newline character.
+        Dim stdError As String = Nothing
+        
+        Try
+            process.Start()
+            process.BeginOutputReadLine()
+            stdError = process.StandardError.ReadToEnd()
+            process.WaitForExit()
+        Catch e As Exception
+            Throw New Exception("OS error while executing " & Format(filename, arguments) & ": " & e.Message, e)
+        End Try
+        
+        If process.ExitCode = 0 Then
+            Return stdOutput.ToString()
+        Else
+            Dim message = New Text.StringBuilder()
+            
+            If Not String.IsNullOrEmpty(stdError) Then
+                message.AppendLine(stdError)
+            End If
+            
+            If stdOutput.Length <> 0 Then
+                message.AppendLine("Std output:")
+                message.AppendLine(stdOutput.ToString())
+            End If
+            
+            Throw New Exception(Format(filename, arguments) & " finished with exit code = " & process.ExitCode & ": " & message.ToString)
+        End If
+    End Function
+    
+    Private Shared Function Format(filename As String, arguments As String) As String
+        Return "'" & filename & (If((String.IsNullOrEmpty(arguments)), String.Empty, " " & arguments)) & "'"
+    End Function
+    
     ''' <summary>Gets path to the folder icon, or "no icon found" if none is set.</summary>
     ''' <param name="folderPath">The folder path to get the icon path for.</param>
     ''' <returns>The icon path.</returns>
