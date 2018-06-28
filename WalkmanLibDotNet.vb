@@ -134,7 +134,7 @@ Public Partial Class WalkmanLib
             frmBugReport.Height = 525
             frmBugReport.StartPosition = FormStartPosition.CenterParent
             frmBugReport.WindowState = FormWindowState.Normal
-            frmBugReport.Show()
+            'frmBugReport.Show() ' in a non-UI thread, window needs to be shown seperately
             frmBugReport.ShowIcon = False
             frmBugReport.ShowInTaskbar = True
             frmBugReport.Text = "Full error trace"
@@ -161,8 +161,15 @@ Public Partial Class WalkmanLib
                     End Try
                 Next
             Catch ex2 As Exception
-                txtBugReport.Text = "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
+                txtBugReport.Text &= "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
             End Try
+            
+            ' Thanks to https://stackoverflow.com/a/661662/2999220
+            If frmBugReport.InvokeRequired Then
+                frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
+            Else
+                frmBugReport.Show()
+            End If
         End If
     End Sub
     
