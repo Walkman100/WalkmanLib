@@ -58,6 +58,71 @@ Public Partial Class WalkmanLib
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
+    ' Link: https://stackoverflow.com/a/14141782/2999220
+    ' Link: https://ss64.com/vb/shortcut.html
+    ' HotKey: https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/windows-scripting/3zb1shc6(v=vs.84)#arguments
+    ''' <summary>Creates or modifies an existing shortcut. When modifying, set a parameter to "" to clear it. Defaults are 'Nothing'.</summary>
+    ''' <param name="shortcutPath">Path to the shortcut file.</param>
+    ''' <param name="targetPath">Full path to the target of the shortcut.</param>
+    ''' <param name="arguments">Arguments to the target.</param>
+    ''' <param name="workingDirectory">Directory to start the target in.</param>
+    ''' <param name="iconPath">Path to the shortcut icon. Append ", iconIndex" to specify an index.</param>
+    ''' <param name="comment">Shortcut comment. Shown in the Shortcut's tooltip.</param>
+    ''' <param name="shortcutKey">Hotkey used to launch the shortcut - see the end of https://ss64.com/vb/shortcut.html.</param>
+    ''' <param name="windowStyle">System.Windows.Forms.FormWindowState to show the launched program in.</param>
+    Shared Sub CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing, _
+        Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As Windows.Forms.FormWindowState = Windows.Forms.FormWindowState.Normal)
+        
+        Dim WSH_Type As Type = Type.GetTypeFromProgID("WScript.Shell")
+        Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
+        
+        Dim WSH_InvokeMember As Object = WSH_Type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {shortcutPath})
+        Dim shortcutObject As IWshShortcut = DirectCast(WSH_InvokeMember, IWshShortcut)
+        
+        If targetPath <> Nothing Then       shortcutObject.TargetPath       = targetPath
+        If arguments <> Nothing Then        shortcutObject.Arguments        = arguments
+        If workingDirectory <> Nothing Then shortcutObject.WorkingDirectory = workingDirectory
+        If iconPath <> Nothing Then         shortcutObject.IconLocation     = iconPath
+        If comment <> Nothing Then          shortcutObject.Description      = comment
+        If shortcutKey <> Nothing Then      shortcutObject.HotKey           = shortcutKey
+        
+        If windowStyle = Windows.Forms.FormWindowState.Normal Then
+            shortcutObject.WindowStyle = 1
+        ElseIf windowStyle = Windows.Forms.FormWindowState.Minimized Then
+            shortcutObject.WindowStyle = 7
+        ElseIf windowStyle = Windows.Forms.FormWindowState.Maximized Then
+            shortcutObject.WindowStyle = 3
+        End If
+        
+        shortcutObject.Save
+    End Sub
+    
+    <ComImport, TypeLibType(CShort(&H1040)), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")> _
+    Private Interface IWshShortcut
+        <DispId(0)> _
+        ReadOnly Property FullName() As String
+        <DispId(&H3e8)> _
+        Property Arguments() As String
+        <DispId(&H3e9)> _
+        Property Description() As String
+        <DispId(&H3ea)> _
+        Property Hotkey() As String
+        <DispId(&H3eb)> _
+        Property IconLocation() As String
+        <DispId(&H3ec)> _
+        WriteOnly Property RelativePath() As String
+        <DispId(&H3ed)> _
+        Property TargetPath() As String
+        <DispId(&H3ee)> _
+        Property WindowStyle() As Integer
+        <DispId(&H3ef)> _
+        Property WorkingDirectory() As String
+        <TypeLibFunc(CShort(&H40)), DispId(&H7d0)> _
+        Sub Load(<[In], MarshalAs(UnmanagedType.BStr)> PathLink As String)
+        <DispId(&H7d1)> _
+        Sub Save()
+    End Interface
+    
     ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     ' Link: https://stackoverflow.com/a/22508299/2999220
     ''' <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>

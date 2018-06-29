@@ -42,40 +42,6 @@ Public Partial Class WalkmanLib
         End If
     End Sub
     
-    ' Link: https://ss64.com/vb/shortcut.html
-    ' HotKey: https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/windows-scripting/3zb1shc6(v=vs.84)#arguments
-    ''' <summary>Creates or modifies an existing shortcut. When modifying, set a parameter to "" to clear it. Defaults are 'Nothing'.</summary>
-    ''' <param name="shortcutPath">Path to the shortcut file.</param>
-    ''' <param name="targetPath">Full path to the target of the shortcut.</param>
-    ''' <param name="arguments">Arguments to the target.</param>
-    ''' <param name="workingDirectory">Directory to start the target in.</param>
-    ''' <param name="iconPath">Path to the shortcut icon. Append ", iconIndex" to specify an index.</param>
-    ''' <param name="comment">Shortcut comment. Shown in the Shortcut's tooltip.</param>
-    ''' <param name="shortcutKey">Hotkey used to launch the shortcut - see the end of https://ss64.com/vb/shortcut.html.</param>
-    ''' <param name="windowStyle">System.Windows.Forms.FormWindowState to show the launched program in.</param>
-    Shared Sub CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing, _
-        Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As FormWindowState = FormWindowState.Normal)
-        
-        Dim shortcutObject = CreateObject("WScript.Shell").CreateShortcut(shortcutPath)
-        
-        If targetPath <> Nothing Then       shortcutObject.TargetPath       = targetPath
-        If arguments <> Nothing Then        shortcutObject.Arguments        = arguments
-        If workingDirectory <> Nothing Then shortcutObject.WorkingDirectory = workingDirectory
-        If iconPath <> Nothing Then         shortcutObject.IconLocation     = iconPath
-        If comment <> Nothing Then          shortcutObject.Description      = comment
-        If shortcutKey <> Nothing Then      shortcutObject.HotKey           = shortcutKey
-        
-        If windowStyle = FormWindowState.Normal Then
-            shortcutObject.WindowStyle = 1
-        ElseIf windowStyle = FormWindowState.Minimized Then
-            shortcutObject.WindowStyle = 7
-        ElseIf windowStyle = FormWindowState.Maximized Then
-            shortcutObject.WindowStyle = 3
-        End If
-        
-        Dim response = shortcutObject.Save
-    End Sub
-    
     ''' <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttributes">A bitwise combination of the enumeration values.</param>
