@@ -33,13 +33,12 @@ Public Partial Class WalkmanLib
     
     ''' <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
     ''' <param name="programPath">Path of the program to run as administrator.</param>
-    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process. Do not surround the whole variable in quotes.</param>
+    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process.</param>
     Shared Sub RunAsAdmin(programPath As String, Optional arguments As String = Nothing)
-        If arguments = Nothing Then
-            CreateObject("Shell.Application").ShellExecute(programPath, "", "", "runas")
-        Else
-            CreateObject("Shell.Application").ShellExecute(programPath, """" & arguments & """", "", "runas")
-        End If
+        Dim WSH_Type As Type = Type.GetTypeFromProgID("Shell.Application")
+        Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
+        
+        WSH_Type.InvokeMember("ShellExecute", System.Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {programPath, arguments, "", "runas"})
     End Sub
     
     ''' <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
