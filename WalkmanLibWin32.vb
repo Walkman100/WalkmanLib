@@ -9,7 +9,7 @@ Public Partial Class WalkmanLib
     
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to compress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not (TO DO).</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not.</param>
     ''' <returns>Whether the file was compressed successfully or not.</returns>
     Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, True, showWindow)
@@ -17,7 +17,7 @@ Public Partial Class WalkmanLib
     
     ''' <summary>Decompresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to decompress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not (TO DO).</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not.</param>
     ''' <returns>Whether the file was decompressed successfully or not.</returns>
     Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, False, showWindow)
@@ -28,7 +28,7 @@ Public Partial Class WalkmanLib
     ''' <summary>Compress or decompress the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to (de)compress.</param>
     ''' <param name="compress">True to compress, False to decompress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not (TO DO).</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
     ''' <returns>Whether the file was (de)compressed successfully or not.</returns>
     Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
         Dim lpInBuffer As Short
@@ -125,6 +125,7 @@ Public Partial Class WalkmanLib
     
     ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     ' Link: https://stackoverflow.com/a/22508299/2999220
+    ' Link: https://stackoverflow.com/a/1650868/2999220 (Win32Exception handling)
     ''' <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>
     ''' <param name="path">Path to the file to get size for.</param>
     ''' <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
@@ -171,12 +172,8 @@ Public Partial Class WalkmanLib
     ''' <param name="path">Path to the symlink to get the target of.</param>
     ''' <returns>The fully qualified path to the target.</returns>
     Shared Function GetSymlinkTarget(path As String) As String
-        Dim INVALID_HANDLE_VALUE As New IntPtr(-1)
-        Const FILE_READ_EA As UInteger = &H8
-        Const FILE_FLAG_BACKUP_SEMANTICS As UInteger = &H2000000
-        
-        Dim fileHandle = CreateFile(path, FILE_READ_EA, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero)
-        If fileHandle = INVALID_HANDLE_VALUE Then Throw New Win32Exception()
+        Dim fileHandle = CreateFile(path, &H8, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, &H2000000, IntPtr.Zero)
+        If fileHandle = New IntPtr(-1) Then Throw New Win32Exception()
         
         Dim returnString As String = ""
         Try
@@ -221,7 +218,8 @@ Public Partial Class WalkmanLib
         info.lpVerb = "properties"
         info.lpFile = path
         If tab <> Nothing Then info.lpParameters = tab
-        info.fMask = 12
+        info.nShow = 5  'SW_SHOW
+        info.fMask = 12 'SEE_MASK_INVOKEIDLIST
         Return ShellExecuteEx(info)
     End Function
     

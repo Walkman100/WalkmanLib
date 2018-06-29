@@ -198,7 +198,7 @@ Public Partial Class WalkmanLib
         AddHandler process.OutputDataReceived, Sub(sender, args) stdOutput.AppendLine(args.Data)
         ' Use AppendLine rather than Append since args.Data is one line of output, not including the newline character.
         
-        Dim stdError As String = Nothing
+        Dim stdError As String
         process.Start()
         process.BeginOutputReadLine()
         stdError = process.StandardError.ReadToEnd()
