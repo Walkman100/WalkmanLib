@@ -59,6 +59,20 @@ Public Partial Class WalkmanLib
     End Function
     
     ' Link: https://stackoverflow.com/a/14141782/2999220
+    ' Link: https://www.tek-tips.com/viewthread.cfm?qid=850335
+    ''' <summary>Gets a shortcut property object to retrieve info about a shortcut.</summary>
+    ''' <param name="shortcutPath">Path to the shortcut file.</param>
+    ''' <returns>Shortcut object of type IWshShortcut - either use WalkmanLib.IWshShortcut or ComImport your own interface.</returns>
+    Shared Function GetShortcutInfo(shortcutPath As String) As IWshShortcut
+        Dim WSH_Type As Type = Type.GetTypeFromProgID("WScript.Shell")
+        Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
+        
+        If Not shortcutPath.EndsWith(".lnk", True, Nothing) Then shortcutPath &= ".lnk"
+        Dim WSH_InvokeMember As Object = WSH_Type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {shortcutPath})
+        
+        Return DirectCast(WSH_InvokeMember, IWshShortcut)
+    End Function
+    
     ' Link: https://ss64.com/vb/shortcut.html
     ' HotKey: https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/windows-scripting/3zb1shc6(v=vs.84)#arguments
     ''' <summary>Creates or modifies an existing shortcut. When modifying, set a parameter to "" to clear it. Defaults are 'Nothing'.</summary>
@@ -72,14 +86,7 @@ Public Partial Class WalkmanLib
     ''' <param name="windowStyle">System.Windows.Forms.FormWindowState to show the launched program in.</param>
     Shared Sub CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing, _
         Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As Windows.Forms.FormWindowState = Windows.Forms.FormWindowState.Normal)
-        
-        Dim WSH_Type As Type = Type.GetTypeFromProgID("WScript.Shell")
-        Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
-        
-        If Not shortcutPath.EndsWith(".lnk", True, Nothing) Then shortcutPath &= ".lnk"
-        
-        Dim WSH_InvokeMember As Object = WSH_Type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {shortcutPath})
-        Dim shortcutObject As IWshShortcut = DirectCast(WSH_InvokeMember, IWshShortcut)
+        Dim shortcutObject As IWshShortcut = GetShortcutInfo(shortcutPath)
         
         If targetPath <> Nothing Then       shortcutObject.TargetPath       = targetPath
         If arguments <> Nothing Then        shortcutObject.Arguments        = arguments
@@ -99,12 +106,14 @@ Public Partial Class WalkmanLib
         shortcutObject.Save
     End Sub
     
+    ''' <summary>Interface for handling WScript.Shell shortcut objects. Use with GetShortcutInfo(shortcutPath) As IWshShortcut</summary>
     <ComImport, TypeLibType(CShort(&H1040)), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")> _
-    Private Interface IWshShortcut
+    Interface IWshShortcut
         <DispId(0)> _
         ReadOnly Property FullName() As String
         <DispId(&H3e8)> _
         Property Arguments() As String
+        ''' <summary>Shortcut Comment.</summary>
         <DispId(&H3e9)> _
         Property Description() As String
         <DispId(&H3ea)> _
@@ -115,6 +124,7 @@ Public Partial Class WalkmanLib
         WriteOnly Property RelativePath() As String
         <DispId(&H3ed)> _
         Property TargetPath() As String
+        ''' <summary>Shortcut "Run" combobox. 1=Normal, 3=Maximized, 7=Minimized.</summary>
         <DispId(&H3ee)> _
         Property WindowStyle() As Integer
         <DispId(&H3ef)> _
