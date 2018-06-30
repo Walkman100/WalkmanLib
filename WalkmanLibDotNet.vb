@@ -96,6 +96,33 @@ Public Partial Class WalkmanLib
         End Try
     End Function
     
+    ' Link: https://stackoverflow.com/a/25958432/2999220
+    ''' <summary>Gets whether a shortcut's "Run as Administrator" checkbox is checked.</summary>
+    ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
+    ''' <returns>State of the Admin flag. True = Set, i.e. will attempt to run as admin.</returns>
+    Shared Function GetShortcutRunAsAdmin(shortcutPath As String) As Boolean
+        Dim shortcutBytes = IO.File.ReadAllBytes(shortcutPath)
+        If shortcutBytes(21) = 0 Then
+            Return False
+        ElseIf shortcutBytes(21) = 32
+            Return True
+        Else
+            Throw New InvalidOperationException("Admin byte was not a known value!")
+        End If
+    End Function
+    ''' <summary>Sets a shortcut's "Run as Administrator" checkbox state.</summary>
+    ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
+    ''' <param name="flagState">State to set the Admin flag to. True = Set, i.e. will attempt to run as admin.</param>
+    Shared Sub SetShortcutRunAsAdmin(shortcutPath As String, flagState As Boolean)
+        Dim shortcutBytes = IO.File.ReadAllBytes(shortcutPath)
+        If flagState Then
+            shortcutBytes(21) = 32
+        Else
+            shortcutBytes(21) = 0
+        End If
+        IO.File.WriteAllBytes(shortcutPath, shortcutBytes)
+    End Sub
+    
     ''' <summary>Sets clipboard to specified text, with optional success message and checks for errors.</summary>
     ''' <param name="text">Text to copy.</param>
     ''' <param name="successMessage">Message to show on success. If left out no message will be shown, if "default" is supplied then the default message will be shown.</param>
