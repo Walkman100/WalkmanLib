@@ -76,6 +76,8 @@ Public Partial Class WalkmanLib
         Dim WSH_Type As Type = Type.GetTypeFromProgID("WScript.Shell")
         Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
         
+        If Not shortcutPath.EndsWith(".lnk", True, Nothing) Then shortcutPath &= ".lnk"
+        
         Dim WSH_InvokeMember As Object = WSH_Type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {shortcutPath})
         Dim shortcutObject As IWshShortcut = DirectCast(WSH_InvokeMember, IWshShortcut)
         
