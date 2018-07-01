@@ -91,14 +91,16 @@
         Me.splitContainer.Size = New System.Drawing.Size(405, 205)
         Me.splitContainer.SplitterDistance = 160
         Me.splitContainer.SplitterWidth = 1
-        Me.splitContainer.TabIndex = 3
+        Me.splitContainer.TabIndex = 0
         '
         'lblMain
         '
-        Me.lblMain.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom)  _
-                        Or System.Windows.Forms.AnchorStyles.Left)  _
+        Me.lblMain.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left)  _
                         Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
+        Me.lblMain.AutoSize = true
         Me.lblMain.Location = New System.Drawing.Point(59, 34)
+        Me.lblMain.MaximumSize = New System.Drawing.Size(334, 0)
+        Me.lblMain.MinimumSize = New System.Drawing.Size(334, 96)
         Me.lblMain.Name = "lblMain"
         Me.lblMain.Size = New System.Drawing.Size(334, 96)
         Me.lblMain.TabIndex = 0
@@ -128,6 +130,7 @@
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.splitContainer.Panel1.ResumeLayout(false)
+        Me.splitContainer.Panel1.PerformLayout
         Me.splitContainer.Panel2.ResumeLayout(false)
         CType(Me.splitContainer,System.ComponentModel.ISupportInitialize).EndInit
         Me.splitContainer.ResumeLayout(false)

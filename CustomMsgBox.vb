@@ -68,7 +68,7 @@ Public Partial Class CustomMsgBoxForm
                     Button3Text = "Cancel"
                 ElseIf value.HasFlag(MsgBoxStyle.YesNo)
                     Button1Text = "Yes"
-                    Button3Text = "Cancel"
+                    Button3Text = "No"
                 ElseIf value.HasFlag(MsgBoxStyle.OkCancel)
                     Button1Text = "Ok"
                     Button3Text = "Cancel"
@@ -93,7 +93,7 @@ Public Partial Class CustomMsgBoxForm
         End If
         
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
-        Me.Icon = CType(resources.GetObject(WinVersion.ToString & "_" & FormLevel), System.Drawing.Icon)
+        Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel), System.Drawing.Icon)
         If FormLevel <> Nothing Then pbxMain.Image = Me.Icon.ToBitmap
         Try
             Me.Icon = Owner.Icon
@@ -104,6 +104,10 @@ Public Partial Class CustomMsgBoxForm
                 Me.ShowIcon = False
             End If
         End Try
+        
+        If lblMain.Height > 96 Then
+            Me.Height = 242 + (lblMain.Height - 96)
+        End If
         
         If Button1Text <> Nothing Then
             btnAccept.Text = Button1Text
