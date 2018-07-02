@@ -105,6 +105,17 @@ Public Partial Class CustomMsgBoxForm
             End If
         End Try
         
+        Select Case FormLevel
+            Case "Critical"
+                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Beep)
+            Case "Exclamation"
+                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Exclamation)
+            Case "Information"
+                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Asterisk)
+            Case "Question"
+                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Question)
+        End Select
+        
         If lblMain.Height > 96 Then
             Me.Height = 242 + (lblMain.Height - 96)
         End If
