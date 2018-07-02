@@ -58,6 +58,33 @@ Public Partial Class WalkmanLib
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
+    ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
+    ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
+    ''' <param name="filePath">The path to the file than contains an image.</param>
+    ''' <param name="iconIndex">Index to extract the icon from. If this is a positive number, it refers to the zero-based position of the icon in the file. If this is a negative number, it refers to the icon's resource ID.</param>
+    ''' <param name="iconSize">Size of icon to extract. Size is measured in pixels. Pass 0 to specify default icon size. Default: 0.</param>
+    ''' <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
+    Shared Function ExtractIconByIndex(filePath As String, iconIndex As Integer, Optional iconSize As UInteger = 0) As Drawing.Icon
+        If Not File.Exists(filePath) Then Throw New FileNotFoundException("File """ & filePath & """ not found!")
+        
+        Dim hiconLarge As IntPtr
+        Dim HRESULT = SHDefExtractIcon(filePath, iconIndex, 0, hiconLarge, Nothing, iconSize)
+        
+        If HRESULT = 0 Then ' S_OK: Success
+            Return Drawing.Icon.FromHandle(hiconLarge)
+        ElseIf HRESULT = 1  ' S_FALSE: The requested icon is not present
+            Throw New ArgumentOutOfRangeException("iconIndex", "The requested icon index is not present in the specified file.")
+        Else 'If HRESULT = 2 ' E_FAIL: The file cannot be accessed, or is being accessed through a slow link
+            Dim Win32Error As Integer = Marshal.GetLastWin32Error()
+            Throw New Win32Exception(Win32Error)
+        End If
+    End Function
+    
+    <DllImport("Shell32.dll", SetLastError:=False)> _
+    Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
+    ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
+    End Function
+    
     ' Link: https://stackoverflow.com/a/14141782/2999220
     ' Link: https://www.tek-tips.com/viewthread.cfm?qid=850335
     ''' <summary>Gets a shortcut property object to retrieve info about a shortcut.</summary>
