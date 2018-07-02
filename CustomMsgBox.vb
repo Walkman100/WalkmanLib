@@ -118,12 +118,19 @@ Public Partial Class CustomMsgBoxForm
         If Button2Text <> Nothing Then
             btnAnswerMid.Text = Button2Text
             btnAnswerMid.Visible = True
+            If btnAnswerMid.Width > 75 Then ' move btnAccept to the left, as btnAnswerMid is anchored right
+                btnAccept.Location = New System.Drawing.Point(btnAccept.Location.X - (btnAnswerMid.Width - 75), btnAccept.Location.Y)
+            End If
         Else
             btnAnswerMid.Visible = False
         End If
         If Button3Text <> Nothing Then
             btnCancel.Text = Button3Text
             btnCancel.Visible = True
+            If btnCancel.Width > 75 Then ' move the other two buttons to the left, as btnCancel is anchored right
+                btnAnswerMid.Location = New System.Drawing.Point(btnAnswerMid.Location.X - (btnCancel.Width - 75), btnAnswerMid.Location.Y)
+                btnAccept.Location = New System.Drawing.Point(btnAccept.Location.X - (btnCancel.Width - 75), btnAccept.Location.Y)
+            End If
         Else
             btnCancel.Visible = False
         End If

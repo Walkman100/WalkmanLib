@@ -41,6 +41,7 @@
         'btnAccept
         '
         Me.btnAccept.Anchor = System.Windows.Forms.AnchorStyles.Right
+        Me.btnAccept.AutoSize = true
         Me.btnAccept.Location = New System.Drawing.Point(156, 8)
         Me.btnAccept.Name = "btnAccept"
         Me.btnAccept.Size = New System.Drawing.Size(75, 23)
@@ -51,6 +52,7 @@
         'btnAnswerMid
         '
         Me.btnAnswerMid.Anchor = System.Windows.Forms.AnchorStyles.Right
+        Me.btnAnswerMid.AutoSize = true
         Me.btnAnswerMid.Location = New System.Drawing.Point(237, 8)
         Me.btnAnswerMid.Name = "btnAnswerMid"
         Me.btnAnswerMid.Size = New System.Drawing.Size(75, 23)
@@ -61,6 +63,7 @@
         'btnCancel
         '
         Me.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Right
+        Me.btnCancel.AutoSize = true
         Me.btnCancel.Location = New System.Drawing.Point(318, 8)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(75, 23)
@@ -132,6 +135,7 @@
         Me.splitContainer.Panel1.ResumeLayout(false)
         Me.splitContainer.Panel1.PerformLayout
         Me.splitContainer.Panel2.ResumeLayout(false)
+        Me.splitContainer.Panel2.PerformLayout
         CType(Me.splitContainer,System.ComponentModel.ISupportInitialize).EndInit
         Me.splitContainer.ResumeLayout(false)
         CType(Me.pbxMain,System.ComponentModel.ISupportInitialize).EndInit
