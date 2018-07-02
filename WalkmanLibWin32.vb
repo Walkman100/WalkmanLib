@@ -246,6 +246,32 @@ Public Partial Class WalkmanLib
     Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
     End Function
     
+    ' Link: https://www.pinvoke.net/default.aspx/shell32.pickicondlg
+    ' Link: https://docs.microsoft.com/en-us/windows/desktop/api/shlobj_core/nf-shlobj_core-pickicondlg
+    ''' <summary>Shows a dialog for the user to choose an icon file and index.</summary>
+    ''' <param name="filePath">Path of the initial file to be loaded. Use the same variable to get the selected file.</param>
+    ''' <param name="iconIndex">Initial Index to be preselected. Use the same variable to get the selected index.</param>
+    ''' <param name="OwnerHandle">Use Me.Handle to make the PickIconDialog show as a Dialog - i.e. blocking your applications interface until dialog is closed.</param>
+    ''' <returns>True if accepted, False if cancelled.</returns>
+    Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
+        Dim filePathBuffer As String = filePath.PadRight(1024, Chr(0))
+        
+        Dim result = PickIconDlg(OwnerHandle, filePathBuffer, filePathBuffer.Length, iconIndex)
+        
+        filePath = filePathBuffer.Remove(filePathBuffer.IndexOf(Chr(0)))
+        
+        If result = 1 Then
+            Return True
+        ElseIf result = 0
+            Return False
+        Else
+            MsgBox(result)
+            Throw New Exception("Unknown error! PickIconDlg return value: " & result)
+        End If
+    End Function
+    
+    Private Declare Unicode Function PickIconDlg Lib "Shell32" Alias "PickIconDlg" (hwndOwner As IntPtr, lpstrFile As String, nMaxFile As Integer, ByRef lpdwIconIndex As Integer) As Integer
+    
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
     ''' <param name="path">The path to show the window for.</param>

@@ -241,7 +241,7 @@ End Class
 '            Me.EnableVisualStyles = True
 '        End Sub
 '        Protected Overrides Sub OnCreateMainForm()
-'            Me.MainForm = My.Forms.CustomMsgBox
+'            Me.MainForm = My.Forms.CustomMsgBoxForm
 '        End Sub
 '    End Class
 'End Namespace
