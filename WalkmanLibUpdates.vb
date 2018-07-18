@@ -14,13 +14,13 @@ Public Partial Class WalkmanLib
         Public Body As String
     End Structure
     
-    Shared Function GetLatestVersionInfo(projectName As String) As VersionInfo
+    Shared Function GetLatestVersionInfo(projectName As String, Optional projectOwner As String = "Walkman100") As VersionInfo
         ' https://stackoverflow.com/a/2904963/2999220
         ServicePointManager.Expect100Continue = True
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
         
         ' https://stackoverflow.com/a/16655779/2999220
-        Dim address As String = "https://api.github.com/repos/Walkman100/" & projectName & "/releases/latest"
+        Dim address As String = "https://api.github.com/repos/" & projectOwner & "/" & projectName & "/releases/latest"
         Dim client As WebClient = New WebClient()
         
         ' https://stackoverflow.com/a/22134980/2999220
@@ -40,29 +40,27 @@ Public Partial Class WalkmanLib
         Return returnVersionInfo
     End Function
     
-    Shared Function GetLatestDownloadLink(projectName As String) As String
+    Shared Function GetLatestDownloadLink(projectName As String, Optional projectOwner As String = "Walkman100") As String
         Dim versionString As String
-        versionString = GetLatestVersionInfo(projectName).TagName
+        versionString = GetLatestVersionInfo(projectName, projectOwner).TagName
         
-        Return "https://github.com/Walkman100/" & projectName & "/releases/download/" & versionString & "/" & projectName & "-Installer.exe"
+        Return "https://github.com/" & projectOwner & "/" & projectName & "/releases/download/" & versionString & "/" & projectName & "-Installer.exe"
     End Function
     
-    Shared Function GetLatestVersion(projectName As String) As Version
+    Shared Function GetLatestVersion(projectName As String, Optional projectOwner As String = "Walkman100") As Version
         Dim versionString As String
-        versionString = GetLatestVersionInfo(projectName).TagName
+        versionString = GetLatestVersionInfo(projectName, projectOwner).TagName
         
         If versionString.StartsWith("v") Then
             versionString = versionString.Substring(1)
         End If
         
-        Dim returnVersion As Version
-        returnVersion = Version.Parse(versionString)
-        Return returnVersion
+        Return Version.Parse(versionString)
     End Function
     
-    Shared Function CheckIfUpdateAvailable(projectName As String, currentVersion As Version) As Boolean
+    Shared Function CheckIfUpdateAvailable(projectName As String, currentVersion As Version, Optional projectOwner As String = "Walkman100") As Boolean
         Dim latestVersion As Version
-        latestVersion = GetLatestVersion(projectName)
+        latestVersion = GetLatestVersion(projectName, projectOwner)
         
         If latestVersion > currentVersion Then
             Return True
