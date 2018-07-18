@@ -265,8 +265,8 @@ Public Partial Class WalkmanLib
         ElseIf result = 0
             Return False
         Else
-            MsgBox(result)
-            Throw New Exception("Unknown error! PickIconDlg return value: " & result)
+            Throw New Exception("Unknown error! PickIconDlg return value: " & result & _
+                vbNewLine & "filePath: " & filePath & vbNewLine & "iconIndex: " & iconIndex)
         End If
     End Function
     
