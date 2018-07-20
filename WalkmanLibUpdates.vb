@@ -91,7 +91,49 @@ Public Partial Class WalkmanLib
         End If
     End Function
     
-'    Shared Function CheckIfUpdateAvailableInBackground(projectName As String, currentVersion As Version, checkComplete As EventHandler)
-'        
-'    End Function
+    ''' <summary>Checks if an update release is available in a GitHub project in a BackgroundWorker.</summary>
+    ''' <param name="projectName">Name of the project repository.</param>
+    ''' <param name="currentVersion">System.Version to check against.</param>
+    ''' <param name="checkComplete">Use "New ComponentModel.RunWorkerCompletedEventHandler(AddressOf [returnSub])" and put your return sub in place of returnSub.</param>
+    ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
+    ''' <returns>Create a Sub with the signature "sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs", and within check e.Error for an exception before using "DirectCast(e.Result, Boolean)": True if latest version is newer than currentVersion, else False.</returns>
+    Shared Sub CheckIfUpdateAvailableInBackground(projectName As String, currentVersion As Version, checkComplete As ComponentModel.RunWorkerCompletedEventHandler, Optional projectOwner As String = "Walkman100")
+        Dim bwUpdateCheck = New ComponentModel.BackgroundWorker()
+        
+        AddHandler bwUpdateCheck.DoWork, AddressOf BackgroundUpdateCheck
+        AddHandler bwUpdateCheck.RunWorkerCompleted, checkComplete
+        
+        Dim bwArgs(3) As Object
+        bwArgs(0) = projectName
+        bwArgs(1) = projectOwner
+        bwArgs(2) = currentVersion
+        
+        bwUpdateCheck.RunWorkerAsync(bwArgs)
+    End Sub
+    
+    Private Shared Sub BackgroundUpdateCheck(sender As Object, e As ComponentModel.DoWorkEventArgs)
+        Dim bwArgs(3) As Object
+        bwArgs = DirectCast(e.Argument, Object())
+        
+        Dim latestVersion As Version
+        latestVersion = GetLatestVersion(bwArgs(0).ToString, bwArgs(1).ToString)
+        
+        If latestVersion > DirectCast(bwArgs(2), Version) Then
+            e.Result = True
+        Else
+            e.Result = False
+        End If
+    End Sub
+    
+    ' Example code to use the background update check:
+'    Sub Main()
+'        WalkmanLib.CheckIfUpdateAvailableInBackground(projectName, My.Application.Info.Version, New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
+'    End Sub
+'    Sub UpdateCheckReturn(sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs)
+'        If Microsoft.VisualBasic.IsNothing(e.Error) Then
+'            Console.WriteLine("Update available: " & DirectCast(e.Result, Boolean))
+'        Else
+'            Console.WriteLine("Error checking for updates: " & e.Error.Message)
+'        End If
+'    End Sub
 End Class
