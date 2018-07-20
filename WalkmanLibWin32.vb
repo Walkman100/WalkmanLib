@@ -1,4 +1,4 @@
-﻿Option Explicit Off
+﻿Option Explicit On
 
 Imports System
 Imports System.IO

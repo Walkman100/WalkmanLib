@@ -1,4 +1,4 @@
-﻿Option Explicit Off
+﻿Option Explicit On
 
 Imports System
 Imports System.IO
@@ -116,7 +116,18 @@ Public Partial Class WalkmanLib
         bwArgs = DirectCast(e.Argument, Object())
         
         Dim latestVersion As Version
-        latestVersion = GetLatestVersion(bwArgs(0).ToString, bwArgs(1).ToString)
+        Dim retries = 0
+        Do Until 0 <> 0
+            Try
+                latestVersion = GetLatestVersion(bwArgs(0).ToString, bwArgs(1).ToString)
+                Exit Do
+            Catch ex As System.Net.WebException
+                retries += 1
+                If retries > 2 Then
+                    Throw
+                End If
+            End Try
+        Loop
         
         If latestVersion > DirectCast(bwArgs(2), Version) Then
             e.Result = True
