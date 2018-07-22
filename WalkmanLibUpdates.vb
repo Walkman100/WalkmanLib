@@ -1,4 +1,7 @@
 ﻿Option Explicit On
+Option Strict On
+Option Compare Binary
+Option Infer On
 
 Imports System
 Imports System.IO
@@ -115,7 +118,7 @@ Public Partial Class WalkmanLib
         Dim bwArgs(3) As Object
         bwArgs = DirectCast(e.Argument, Object())
         
-        Dim latestVersion As Version
+        Dim latestVersion As Version = New Version() ' warning squashing
         Dim retries = 0
         Do Until 0 <> 0
             Try

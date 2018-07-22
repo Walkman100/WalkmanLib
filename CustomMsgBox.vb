@@ -1,4 +1,9 @@
-﻿Imports Microsoft.VisualBasic
+﻿Option Explicit On
+Option Strict On
+Option Compare Binary
+Option Infer On
+
+Imports Microsoft.VisualBasic
 Imports System.Windows.Forms
 
 Public Enum WinVersionStyle
@@ -98,7 +103,7 @@ Public Partial Class CustomMsgBoxForm
         Try
             Me.Icon = Owner.Icon
         Catch
-            'Me.Icon = CType(pbxMain.Image, System.Drawing.Icon)
+            'Me.Icon = DirectCast(pbxMain.Image, System.Drawing.Image)
             ' doesn't work, and it's already set above anyway
             If FormLevel = Nothing Then
                 Me.ShowIcon = False

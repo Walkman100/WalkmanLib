@@ -1,4 +1,7 @@
 ﻿Option Explicit On
+Option Strict On
+Option Compare Binary
+Option Infer On
 
 Imports System
 Imports System.IO
