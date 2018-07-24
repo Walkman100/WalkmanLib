@@ -8,6 +8,14 @@ Imports System.IO
 Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
 Imports System.ComponentModel
+
+Public Enum SymbolicLinkType ' used for CreateSymLink
+    ''' <summary>The target is a file.</summary>
+    File = 0
+    ''' <summary>The target is a directory.</summary>
+    Directory = 1
+End Enum
+
 Public Partial Class WalkmanLib
     
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
@@ -165,6 +173,30 @@ Public Partial Class WalkmanLib
         Sub Save()
     End Interface
     
+    ' Link: https://stackoverflow.com/a/11156870/2999220
+    ''' <summary>Creates a file or directory symbolic link.</summary>
+    ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
+    ''' <param name="targetPath">Absolute or relative path to the target of the shortcut. If relative, target is relative to the symbolic link file.</param>
+    ''' <param name="targetType">Type of the target. If incorrect target is supplied, the system will act as if the target doesn't exist.</param>
+    Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, targetType As SymbolicLinkType)
+        If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
+            
+            Dim errorException = New Win32Exception
+            If errorException.Message = "The system cannot find the file specified" Then
+                If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
+                    Throw New IOException("The symbolic link path already exists", errorException)
+                Elseif Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName)    ' this New FileInfo(symlinkPath) throws an exception on invalid characters in path - perfect!
+                    Throw New IOException("The path to the symbolic link does not exist or is invalid", errorException)
+                End If
+            End If
+            Throw errorException
+        End If
+    End Sub
+    
+    <DllImport("kernel32.dll")> _
+    Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
+    End Function
+    
     ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     ' Link: https://stackoverflow.com/a/22508299/2999220
     ' Link: https://stackoverflow.com/a/1650868/2999220 (Win32Exception handling)
@@ -210,7 +242,7 @@ Public Partial Class WalkmanLib
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
     
     ' Link: https://stackoverflow.com/a/33487494/2999220
-    ''' <summary>Gets the target of a symbolic link or directory junction. Throws ComponentModel.Win32Exception on error.</summary>
+    ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
     ''' <param name="path">Path to the symlink to get the target of.</param>
     ''' <returns>The fully qualified path to the target.</returns>
     Shared Function GetSymlinkTarget(path As String) As String
