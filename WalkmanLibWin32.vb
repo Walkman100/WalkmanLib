@@ -69,6 +69,31 @@ Public Partial Class WalkmanLib
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
+    ' Link: http://pinvoke.net/default.aspx/kernel32.CreateHardLink
+    ''' <summary>Creates a hardlink to an existing file.</summary>
+    ''' <param name="symlinkPath">Path to the hardlink file to create.</param>
+    ''' <param name="targetPath">Absolute or relative path to the existing file to link to. If relative, target is relative to current directory.</param>
+    Shared Sub CreateHardLink(hardlinkPath As String, existingFilePath As String)
+        If CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) = False Then
+            
+            Dim errorException = New Win32Exception
+            If errorException.Message = "The system cannot find the file specified" Then
+                If Not File.Exists(existingFilePath) Then
+                    Throw New FileNotFoundException("The hardlink target does not exist", existingFilePath, errorException)
+                End If
+            ElseIf errorException.Message = "The system cannot find the path specified" Then
+                If Not Directory.Exists(New FileInfo(hardlinkPath).DirectoryName)    Then ' this New FileInfo(symlinkPath) throws an exception on invalid characters in path - perfect!
+                    Throw New DirectoryNotFoundException("The path to the hardlink does not exist", errorException)
+                End If
+            End If
+            Throw errorException
+        End If
+    End Sub
+    
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
+    Private Shared Function CreateHardLink(lpFileName As String, lpExistingFileName As String, lpSecurityAttributes As IntPtr) As Boolean
+    End Function
+    
     ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
     ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
     ''' <param name="filePath">The path to the file than contains an image.</param>
