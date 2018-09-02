@@ -4,9 +4,9 @@ Option Compare Binary
 Option Infer On
 
 Imports System
+Imports System.Collections.Generic
 Imports System.IO
 Imports System.Net
-Imports System.Collections.Generic
 Imports System.Web.Script.Serialization
 ' add a reference to System.Web.Extensions
 

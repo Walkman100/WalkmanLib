@@ -3,8 +3,8 @@ Option Strict On
 Option Compare Binary
 Option Infer On
 
-Imports Microsoft.VisualBasic
 Imports System.Windows.Forms
+Imports Microsoft.VisualBasic
 
 Public Enum WinVersionStyle
     WinXP

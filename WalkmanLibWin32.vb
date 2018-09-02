@@ -4,10 +4,10 @@ Option Compare Binary
 Option Infer On
 
 Imports System
+Imports System.ComponentModel
 Imports System.IO
 Imports System.Runtime.InteropServices
 Imports Microsoft.VisualBasic
-Imports System.ComponentModel
 
 Public Enum SymbolicLinkType ' used for CreateSymLink
     ''' <summary>The target is a file.</summary>
@@ -17,60 +17,6 @@ Public Enum SymbolicLinkType ' used for CreateSymLink
 End Enum
 
 Public Partial Class WalkmanLib
-    
-    ' =================================== File Compression ===================================
-    
-    ''' <summary>Compresses the specified file using NTFS compression.</summary>
-    ''' <param name="path">Path to the file to compress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not.</param>
-    ''' <returns>Whether the file was compressed successfully or not.</returns>
-    Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
-        Return SetCompression(path, True, showWindow)
-    End Function
-    
-    ''' <summary>Decompresses the specified file using NTFS compression.</summary>
-    ''' <param name="path">Path to the file to decompress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not.</param>
-    ''' <returns>Whether the file was decompressed successfully or not.</returns>
-    Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
-        Return SetCompression(path, False, showWindow)
-    End Function
-    
-    ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
-    ' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
-    ''' <summary>Compress or decompress the specified file using NTFS compression.</summary>
-    ''' <param name="path">Path to the file to (de)compress.</param>
-    ''' <param name="compress">True to compress, False to decompress.</param>
-    ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
-    ''' <returns>Whether the file was (de)compressed successfully or not.</returns>
-    Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
-        Dim lpInBuffer As Short
-        If compress Then
-            lpInBuffer = 1
-        Else
-            lpInBuffer = 0
-        End If
-        
-        Try
-            Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
-            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
-            
-            FilePropertiesStream.Flush(True)
-            FilePropertiesStream.SafeFileHandle.Dispose
-            FilePropertiesStream.Dispose
-            FilePropertiesStream.Close
-            
-            Return True
-        Catch ex As Exception
-            Return False
-        End Try
-    End Function
-    
-    <DllImport("Kernel32.dll")> _
-    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, lpInBuffer As Short, nInBufferSize As Integer, _
-    lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
-    End Function
-    
     
     ' =================================== CreateHardLink ===================================
     
@@ -100,33 +46,73 @@ Public Partial Class WalkmanLib
     End Function
     
     
-    ' =================================== ExtractIconByIndex ===================================
+    ' =================================== CreateSymLink ===================================
     
-    ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
-    ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
-    ''' <param name="filePath">The path to the file than contains an image.</param>
-    ''' <param name="iconIndex">Index to extract the icon from. If this is a positive number, it refers to the zero-based position of the icon in the file. If this is a negative number, it refers to the icon's resource ID.</param>
-    ''' <param name="iconSize">Size of icon to extract. Size is measured in pixels. Pass 0 to specify default icon size. Default: 0.</param>
-    ''' <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
-    Shared Function ExtractIconByIndex(filePath As String, iconIndex As Integer, Optional iconSize As UInteger = 0) As Drawing.Icon
-        If Not File.Exists(filePath) Then Throw New FileNotFoundException("File """ & filePath & """ not found!")
-        
-        Dim hiconLarge As IntPtr
-        Dim HRESULT = SHDefExtractIcon(filePath, iconIndex, 0, hiconLarge, Nothing, iconSize)
-        
-        If HRESULT = 0 Then ' S_OK: Success
-            Return Drawing.Icon.FromHandle(hiconLarge)
-        ElseIf HRESULT = 1  ' S_FALSE: The requested icon is not present
-            Throw New ArgumentOutOfRangeException("iconIndex", "The requested icon index is not present in the specified file.")
-        Else 'If HRESULT = 2 ' E_FAIL: The file cannot be accessed, or is being accessed through a slow link
-            Dim Win32Error As Integer = Marshal.GetLastWin32Error()
-            Throw New Win32Exception(Win32Error)
+    ' Link: https://stackoverflow.com/a/11156870/2999220
+    ''' <summary>Creates a file or directory symbolic link.</summary>
+    ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
+    ''' <param name="targetPath">Absolute or relative path to the target of the shortcut. If relative, target is relative to the symbolic link file.</param>
+    ''' <param name="targetType">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
+    Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, targetType As SymbolicLinkType)
+        If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
+            
+            Dim errorException = New Win32Exception
+            If errorException.Message = "The system cannot find the file specified" Then
+                If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
+                    Throw New IOException("The symbolic link path already exists", errorException)
+                Elseif Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName)    ' this New FileInfo(symlinkPath) throws an exception on invalid characters in path - perfect!
+                    Throw New DirectoryNotFoundException("The path to the symbolic link does not exist or is invalid", errorException)
+                End If
+            End If
+            Throw errorException
         End If
+    End Sub
+    
+    <DllImport("kernel32.dll")> _
+    Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
     End Function
     
-    <DllImport("Shell32.dll", SetLastError:=False)> _
-    Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
-    ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
+    
+    ' =================================== GetSymlinkTarget ===================================
+    
+    ' Link: https://stackoverflow.com/a/33487494/2999220
+    ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
+    ''' <param name="path">Path to the symlink to get the target of.</param>
+    ''' <returns>The fully qualified path to the target.</returns>
+    Shared Function GetSymlinkTarget(path As String) As String
+        Dim fileHandle = CreateFile(path, &H8, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, &H2000000, IntPtr.Zero)
+        If fileHandle = New IntPtr(-1) Then Throw New Win32Exception()
+        
+        Dim returnString As String = ""
+        Try
+            Dim stringBuilderTarget = New Text.StringBuilder(1024)
+            Dim result = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
+            If result = 0 Then Throw New Win32Exception()
+            returnString = stringBuilderTarget.ToString()
+        Finally
+            CloseHandle(fileHandle)
+        End Try
+        
+        returnString = returnString.Substring(4) ' remove "\\?\" at the beginning
+        If returnString.StartsWith("UNC\") Then  ' change "UNC\[IP]\" to proper "\\[IP]\"
+            returnString = "\" & returnString.Substring(3)
+        End If
+        
+        Return returnString
+    End Function
+    
+    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
+    Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
+    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
+    End Function
+    
+    <DllImport("Kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
+    Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As Text.StringBuilder,
+    cchFilePath As UInteger, dwFlags As UInteger) As UInteger
+    End Function
+    
+    <DllImport("kernel32.dll", SetLastError := True)> _
+    Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
     End Function
     
     
@@ -210,30 +196,116 @@ Public Partial Class WalkmanLib
     End Interface
     
     
-    ' =================================== CreateSymLink ===================================
+    ' =================================== PickIconDialogShow ===================================
     
-    ' Link: https://stackoverflow.com/a/11156870/2999220
-    ''' <summary>Creates a file or directory symbolic link.</summary>
-    ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
-    ''' <param name="targetPath">Absolute or relative path to the target of the shortcut. If relative, target is relative to the symbolic link file.</param>
-    ''' <param name="targetType">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
-    Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, targetType As SymbolicLinkType)
-        If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
-            
-            Dim errorException = New Win32Exception
-            If errorException.Message = "The system cannot find the file specified" Then
-                If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
-                    Throw New IOException("The symbolic link path already exists", errorException)
-                Elseif Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName)    ' this New FileInfo(symlinkPath) throws an exception on invalid characters in path - perfect!
-                    Throw New DirectoryNotFoundException("The path to the symbolic link does not exist or is invalid", errorException)
-                End If
-            End If
-            Throw errorException
+    ' Link: https://www.pinvoke.net/default.aspx/shell32.pickicondlg
+    ' Link: https://docs.microsoft.com/en-us/windows/desktop/api/shlobj_core/nf-shlobj_core-pickicondlg
+    ''' <summary>Shows a dialog for the user to choose an icon file and index.</summary>
+    ''' <param name="filePath">Path of the initial file to be loaded. Use the same variable to get the selected file.</param>
+    ''' <param name="iconIndex">Initial Index to be preselected. Use the same variable to get the selected index.</param>
+    ''' <param name="OwnerHandle">Use Me.Handle to make the PickIconDialog show as a Dialog - i.e. blocking your applications interface until dialog is closed.</param>
+    ''' <returns>True if accepted, False if cancelled.</returns>
+    Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
+        Dim filePathBuffer As String = filePath.PadRight(1024, Chr(0))
+        
+        Dim result = PickIconDlg(OwnerHandle, filePathBuffer, filePathBuffer.Length, iconIndex)
+        
+        filePath = filePathBuffer.Remove(filePathBuffer.IndexOf(Chr(0)))
+        
+        If result = 1 Then
+            Return True
+        ElseIf result = 0
+            Return False
+        Else
+            Throw New Exception("Unknown error! PickIconDlg return value: " & result & _
+                vbNewLine & "filePath: " & filePath & vbNewLine & "iconIndex: " & iconIndex)
         End If
-    End Sub
+    End Function
     
-    <DllImport("kernel32.dll")> _
-    Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
+    Private Declare Unicode Function PickIconDlg Lib "Shell32" Alias "PickIconDlg" (hwndOwner As IntPtr, lpstrFile As String, nMaxFile As Integer, ByRef lpdwIconIndex As Integer) As Integer
+    
+    
+    ' =================================== ExtractIconByIndex ===================================
+    
+    ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
+    ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
+    ''' <param name="filePath">The path to the file than contains an image.</param>
+    ''' <param name="iconIndex">Index to extract the icon from. If this is a positive number, it refers to the zero-based position of the icon in the file. If this is a negative number, it refers to the icon's resource ID.</param>
+    ''' <param name="iconSize">Size of icon to extract. Size is measured in pixels. Pass 0 to specify default icon size. Default: 0.</param>
+    ''' <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
+    Shared Function ExtractIconByIndex(filePath As String, iconIndex As Integer, Optional iconSize As UInteger = 0) As Drawing.Icon
+        If Not File.Exists(filePath) Then Throw New FileNotFoundException("File """ & filePath & """ not found!")
+        
+        Dim hiconLarge As IntPtr
+        Dim HRESULT = SHDefExtractIcon(filePath, iconIndex, 0, hiconLarge, Nothing, iconSize)
+        
+        If HRESULT = 0 Then ' S_OK: Success
+            Return Drawing.Icon.FromHandle(hiconLarge)
+        ElseIf HRESULT = 1  ' S_FALSE: The requested icon is not present
+            Throw New ArgumentOutOfRangeException("iconIndex", "The requested icon index is not present in the specified file.")
+        Else 'If HRESULT = 2 ' E_FAIL: The file cannot be accessed, or is being accessed through a slow link
+            Dim Win32Error As Integer = Marshal.GetLastWin32Error()
+            Throw New Win32Exception(Win32Error)
+        End If
+    End Function
+    
+    <DllImport("Shell32.dll", SetLastError:=False)> _
+    Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
+    ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
+    End Function
+    
+    
+    ' =================================== File Compression ===================================
+    
+    ''' <summary>Compresses the specified file using NTFS compression.</summary>
+    ''' <param name="path">Path to the file to compress.</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not.</param>
+    ''' <returns>Whether the file was compressed successfully or not.</returns>
+    Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
+        Return SetCompression(path, True, showWindow)
+    End Function
+    
+    ''' <summary>Decompresses the specified file using NTFS compression.</summary>
+    ''' <param name="path">Path to the file to decompress.</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not.</param>
+    ''' <returns>Whether the file was decompressed successfully or not.</returns>
+    Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
+        Return SetCompression(path, False, showWindow)
+    End Function
+    
+    ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
+    ' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
+    ''' <summary>Compress or decompress the specified file using NTFS compression.</summary>
+    ''' <param name="path">Path to the file to (de)compress.</param>
+    ''' <param name="compress">True to compress, False to decompress.</param>
+    ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
+    ''' <returns>Whether the file was (de)compressed successfully or not.</returns>
+    Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
+        Dim lpInBuffer As Short
+        If compress Then
+            lpInBuffer = 1
+        Else
+            lpInBuffer = 0
+        End If
+        
+        Try
+            Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
+            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
+            
+            FilePropertiesStream.Flush(True)
+            FilePropertiesStream.SafeFileHandle.Dispose
+            FilePropertiesStream.Dispose
+            FilePropertiesStream.Close
+            
+            Return True
+        Catch ex As Exception
+            Return False
+        End Try
+    End Function
+    
+    <DllImport("Kernel32.dll")> _
+    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, lpInBuffer As Short, nInBufferSize As Integer, _
+    lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
     
@@ -287,84 +359,12 @@ Public Partial Class WalkmanLib
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
     
     
-    ' =================================== GetSymlinkTarget ===================================
-    
-    ' Link: https://stackoverflow.com/a/33487494/2999220
-    ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
-    ''' <param name="path">Path to the symlink to get the target of.</param>
-    ''' <returns>The fully qualified path to the target.</returns>
-    Shared Function GetSymlinkTarget(path As String) As String
-        Dim fileHandle = CreateFile(path, &H8, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, &H2000000, IntPtr.Zero)
-        If fileHandle = New IntPtr(-1) Then Throw New Win32Exception()
-        
-        Dim returnString As String = ""
-        Try
-            Dim stringBuilderTarget = New Text.StringBuilder(1024)
-            Dim result = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
-            If result = 0 Then Throw New Win32Exception()
-            returnString = stringBuilderTarget.ToString()
-        Finally
-            CloseHandle(fileHandle)
-        End Try
-        
-        returnString = returnString.Substring(4) ' remove "\\?\" at the beginning
-        If returnString.StartsWith("UNC\") Then  ' change "UNC\[IP]\" to proper "\\[IP]\"
-            returnString = "\" & returnString.Substring(3)
-        End If
-        
-        Return returnString
-    End Function
-    
-    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
-    Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
-    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
-    End Function
-    
-    <DllImport("Kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
-    Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As Text.StringBuilder,
-    cchFilePath As UInteger, dwFlags As UInteger) As UInteger
-    End Function
-    
-    <DllImport("kernel32.dll", SetLastError := True)> _
-    Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
-    End Function
-    
-    
-    ' =================================== PickIconDialogShow ===================================
-    
-    ' Link: https://www.pinvoke.net/default.aspx/shell32.pickicondlg
-    ' Link: https://docs.microsoft.com/en-us/windows/desktop/api/shlobj_core/nf-shlobj_core-pickicondlg
-    ''' <summary>Shows a dialog for the user to choose an icon file and index.</summary>
-    ''' <param name="filePath">Path of the initial file to be loaded. Use the same variable to get the selected file.</param>
-    ''' <param name="iconIndex">Initial Index to be preselected. Use the same variable to get the selected index.</param>
-    ''' <param name="OwnerHandle">Use Me.Handle to make the PickIconDialog show as a Dialog - i.e. blocking your applications interface until dialog is closed.</param>
-    ''' <returns>True if accepted, False if cancelled.</returns>
-    Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
-        Dim filePathBuffer As String = filePath.PadRight(1024, Chr(0))
-        
-        Dim result = PickIconDlg(OwnerHandle, filePathBuffer, filePathBuffer.Length, iconIndex)
-        
-        filePath = filePathBuffer.Remove(filePathBuffer.IndexOf(Chr(0)))
-        
-        If result = 1 Then
-            Return True
-        ElseIf result = 0
-            Return False
-        Else
-            Throw New Exception("Unknown error! PickIconDlg return value: " & result & _
-                vbNewLine & "filePath: " & filePath & vbNewLine & "iconIndex: " & iconIndex)
-        End If
-    End Function
-    
-    Private Declare Unicode Function PickIconDlg Lib "Shell32" Alias "PickIconDlg" (hwndOwner As IntPtr, lpstrFile As String, nMaxFile As Integer, ByRef lpdwIconIndex As Integer) As Integer
-    
-    
     ' =================================== ShowProperties ===================================
     
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
     ''' <param name="path">The path to show the window for.</param>
-    ''' <param name="tab">Optional tab to open to. Beware, this name is culture-specific!</param>
+    ''' <param name="tab">Optional tab to open to. Beware, this name is culture-specific! or not</param>
     ''' <returns>Whether the properties window was shown successfully or not.</returns>
     Shared Function ShowProperties(path As String, Optional tab As String = Nothing) As Boolean
         Dim info As New ShellExecuteInfo
