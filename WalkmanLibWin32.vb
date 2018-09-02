@@ -18,6 +18,8 @@ End Enum
 
 Public Partial Class WalkmanLib
     
+    ' =================================== File Compression ===================================
+    
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to compress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
@@ -69,6 +71,9 @@ Public Partial Class WalkmanLib
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
+    
+    ' =================================== CreateHardLink ===================================
+    
     ' Link: http://pinvoke.net/default.aspx/kernel32.CreateHardLink
     ''' <summary>Creates a hardlink to an existing file.</summary>
     ''' <param name="symlinkPath">Path to the hardlink file to create.</param>
@@ -93,6 +98,9 @@ Public Partial Class WalkmanLib
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
     Private Shared Function CreateHardLink(lpFileName As String, lpExistingFileName As String, lpSecurityAttributes As IntPtr) As Boolean
     End Function
+    
+    
+    ' =================================== ExtractIconByIndex ===================================
     
     ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
     ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
@@ -120,6 +128,9 @@ Public Partial Class WalkmanLib
     Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
     ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
     End Function
+    
+    
+    ' =================================== Shortcut Management ===================================
     
     ' Link: https://stackoverflow.com/a/14141782/2999220
     ' Link: https://www.tek-tips.com/viewthread.cfm?qid=850335
@@ -198,11 +209,14 @@ Public Partial Class WalkmanLib
         Sub Save()
     End Interface
     
+    
+    ' =================================== CreateSymLink ===================================
+    
     ' Link: https://stackoverflow.com/a/11156870/2999220
     ''' <summary>Creates a file or directory symbolic link.</summary>
     ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
     ''' <param name="targetPath">Absolute or relative path to the target of the shortcut. If relative, target is relative to the symbolic link file.</param>
-    ''' <param name="targetType">Type of the target. If incorrect target is supplied, the system will act as if the target doesn't exist.</param>
+    ''' <param name="targetType">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
     Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, targetType As SymbolicLinkType)
         If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
             
@@ -211,7 +225,7 @@ Public Partial Class WalkmanLib
                 If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
                     Throw New IOException("The symbolic link path already exists", errorException)
                 Elseif Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName)    ' this New FileInfo(symlinkPath) throws an exception on invalid characters in path - perfect!
-                    Throw New IOException("The path to the symbolic link does not exist or is invalid", errorException)
+                    Throw New DirectoryNotFoundException("The path to the symbolic link does not exist or is invalid", errorException)
                 End If
             End If
             Throw errorException
@@ -221,6 +235,9 @@ Public Partial Class WalkmanLib
     <DllImport("kernel32.dll")> _
     Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
     End Function
+    
+    
+    ' =================================== GetCompressedSize ===================================
     
     ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     ' Link: https://stackoverflow.com/a/22508299/2999220
@@ -241,6 +258,9 @@ Public Partial Class WalkmanLib
     End Function
     
     Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA"(ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
+    
+    
+    ' =================================== GetOpenWith ===================================
     
     ' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
@@ -265,6 +285,9 @@ Public Partial Class WalkmanLib
     End Function
     
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
+    
+    
+    ' =================================== GetSymlinkTarget ===================================
     
     ' Link: https://stackoverflow.com/a/33487494/2999220
     ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
@@ -306,6 +329,9 @@ Public Partial Class WalkmanLib
     Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
     End Function
     
+    
+    ' =================================== PickIconDialogShow ===================================
+    
     ' Link: https://www.pinvoke.net/default.aspx/shell32.pickicondlg
     ' Link: https://docs.microsoft.com/en-us/windows/desktop/api/shlobj_core/nf-shlobj_core-pickicondlg
     ''' <summary>Shows a dialog for the user to choose an icon file and index.</summary>
@@ -331,6 +357,9 @@ Public Partial Class WalkmanLib
     End Function
     
     Private Declare Unicode Function PickIconDlg Lib "Shell32" Alias "PickIconDlg" (hwndOwner As IntPtr, lpstrFile As String, nMaxFile As Integer, ByRef lpdwIconIndex As Integer) As Integer
+    
+    
+    ' =================================== ShowProperties ===================================
     
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>

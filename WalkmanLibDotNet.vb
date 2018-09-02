@@ -9,6 +9,7 @@ Imports System.IO.File
 Imports Microsoft.VisualBasic
 Imports System.Security.Principal
 Imports System.Windows.Forms
+
 Public Partial Class WalkmanLib
     
     ''' <summary>Opens the Open With dialog box for a file path.</summary>
