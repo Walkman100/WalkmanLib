@@ -4,8 +4,9 @@ Option Compare Binary
 Option Infer On
 
 Imports System
-Imports System.Runtime.InteropServices
 Imports System.Management
+Imports System.Runtime.InteropServices
+Imports Microsoft.VisualBasic
 
 ' Credits:
 '  Main code: https://code.msdn.microsoft.com/windowsapps/Sample-to-demonstrate-how-495e69db
@@ -54,6 +55,8 @@ End Enum
 
 Public Partial Class WalkmanLib
     
+    ''' <summary>Gets whether the current Operating System is a Windows Server version or not</summary>
+    ''' <returns>True if current environment is a Server version, and False for a standard Workstation version</returns>
     Shared Function IsWindowsServer As Boolean
                                ' add a reference to System.Management.dll
         Using searcher As New System.Management.ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem")
@@ -70,11 +73,15 @@ Public Partial Class WalkmanLib
         Return False
     End Function
     
-    ' GetSystemMetrics helps us distinguish between Windows Server 2003 and Windows Server 2003 R2
+    ' this helps distinguish between Windows Server 2003 and Windows Server 2003 R2
     <DllImport("user32.dll", CharSet:=CharSet.Auto, SetLastError:=True)> _
-    Public Shared Function GetSystemMetrics(smIndex As Integer) As Integer
+    Private Shared Function GetSystemMetrics(smIndex As Integer) As Integer
     End Function
     
+    ''' <summary>Gets the current Windows version. NOTE: To get an accurate version on Windows versions above 8, 
+    ''' you will need to embed a manifest as per https://msdn.microsoft.com/E7A1A16A-95B3-4B45-81AD-A19E33F15AE4
+    ''' (https://docs.microsoft.com/en-us/windows/desktop/SysInfo/targeting-your-application-at-windows-8-1)</summary>
+    ''' <returns>A Windows version of type (currentNamespace).WindowsVersion</returns>
     Shared Function GetWindowsVersion As WindowsVersion
         Dim currentVersion As Version = Environment.OSVersion.Version
         
@@ -151,7 +158,7 @@ Public Partial Class WalkmanLib
                     Else
                         Return WindowsVersion.Windows8
                     End If
-                ElseIf currentVersion.Minor = 2
+                ElseIf currentVersion.Minor = 3 Then
                     If IsWindowsServer() Then
                         Return WindowsVersion.WindowsServer2012R2
                     Else
@@ -167,8 +174,8 @@ Public Partial Class WalkmanLib
                 End If
         End Select
         
-        Throw New Exception("Unrecognised Windows Version!" & Microsoft.VisualBasic.vbNewLine & Microsoft.VisualBasic.vbNewLine & _
-            "VersionString: " & Environment.OSVersion.VersionString & Microsoft.VisualBasic.vbNewLine & _
+        Throw New Exception("Unrecognised Windows Version!" & vbNewLine & vbNewLine & _
+            "VersionString: " & Environment.OSVersion.VersionString & vbNewLine & _
             "Version.ToString: " & currentVersion.ToString())
     End Function
 End Class
