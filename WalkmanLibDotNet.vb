@@ -136,7 +136,7 @@ Public Partial Class WalkmanLib
         Try
             Clipboard.SetText(text, TextDataFormat.UnicodeText)
             If successMessage <> Nothing Then
-                System.Windows.Forms.Application.EnableVisualStyles() ' affects when in a console app
+                Application.EnableVisualStyles() ' affects when in a console app
                 If successMessage = "default" Then
                     MsgBox(text & vbNewLine & "Succesfully copied!", MsgBoxStyle.Information, "Succesfully copied!")
                 Else
@@ -146,7 +146,7 @@ Public Partial Class WalkmanLib
             Return True
         Catch ex As Exception
             If showErrors Then
-                System.Windows.Forms.Application.EnableVisualStyles() ' affects when in a console app
+                Application.EnableVisualStyles() ' affects when in a console app
                 MsgBox("Copy failed!" & vbNewLine & "Error: """ & ex.ToString & """", MsgBoxStyle.Critical, "Copy failed!")
             End If
             Return False
@@ -155,51 +155,55 @@ Public Partial Class WalkmanLib
     
     ''' <summary>Shows an error message for an exception, and asks the user if they want to display the full error in a copyable window.</summary>
     ''' <param name="ex">The System.Exception to show details about.</param>
-    Shared Sub ErrorDialog(ex As Exception)
-        System.Windows.Forms.Application.EnableVisualStyles() ' affects when in a console app
-        If MsgBox("There was an error! Error message: " & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)", _
-          MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") = MsgBoxresult.Yes Then
-            Dim frmBugReport As New Form()
-            frmBugReport.Width = 600
-            frmBugReport.Height = 525
-            frmBugReport.StartPosition = FormStartPosition.CenterParent
-            frmBugReport.WindowState = FormWindowState.Normal
-            'frmBugReport.Show() ' in a non-UI thread, window needs to be shown seperately
-            frmBugReport.ShowIcon = False
-            frmBugReport.ShowInTaskbar = True
-            frmBugReport.Text = "Full error trace"
-            Dim txtBugReport As New TextBox()
-            txtBugReport.Multiline = True
-            txtBugReport.ScrollBars = ScrollBars.Vertical
-            frmBugReport.Controls.Add(txtBugReport)
-            txtBugReport.Dock = DockStyle.Fill
-            Try
-                txtBugReport.Text = "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
-                txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
-                txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
-                txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
-                txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
-                txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
-                txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
-                txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
-                txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
-                For i = 0 To 100 'Integer.MaxValue no reason to go that high
-                    Try
-                        txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
-                    Catch
-                        Exit For
-                    End Try
-                Next
-            Catch ex2 As Exception
-                txtBugReport.Text &= "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
-            End Try
-            
-            ' Thanks to https://stackoverflow.com/a/661662/2999220
-            If frmBugReport.InvokeRequired Then
-                frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
-            Else
-                frmBugReport.Show()
-            End If
+    ''' <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
+    ''' <param name="showMsgBox">True to show the error message prompt to show the full stacktrace or not, False to just show the window immediately</param>
+    Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True)
+        Application.EnableVisualStyles() ' affects when in a console app
+        If showMsgBox Then
+            If MsgBox(errorMessage & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)", _
+                MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") <> MsgBoxresult.Yes Then Exit Sub
+        End If
+        
+        Dim frmBugReport As New Form()
+        frmBugReport.Width = 600
+        frmBugReport.Height = 525
+        frmBugReport.StartPosition = FormStartPosition.CenterParent
+        frmBugReport.WindowState = FormWindowState.Normal
+        'frmBugReport.Show() ' in a non-UI thread, window needs to be shown seperately
+        frmBugReport.ShowIcon = False
+        frmBugReport.ShowInTaskbar = True
+        frmBugReport.Text = "Full error trace"
+        Dim txtBugReport As New TextBox()
+        txtBugReport.Multiline = True
+        txtBugReport.ScrollBars = ScrollBars.Vertical
+        frmBugReport.Controls.Add(txtBugReport)
+        txtBugReport.Dock = DockStyle.Fill
+        Try
+            txtBugReport.Text = "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
+            txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
+            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
+            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
+            txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
+            txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
+            txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
+            txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
+            txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
+            For i = 0 To 100 'Integer.MaxValue no reason to go that high
+                Try
+                    txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
+                Catch
+                    Exit For
+                End Try
+            Next
+        Catch ex2 As Exception
+            txtBugReport.Text &= "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
+        End Try
+        
+        ' Thanks to https://stackoverflow.com/a/661662/2999220
+        If frmBugReport.InvokeRequired Then
+            frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
+        Else
+            frmBugReport.Show()
         End If
     End Sub
     
