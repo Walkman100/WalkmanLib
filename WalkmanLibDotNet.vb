@@ -37,27 +37,13 @@ Public Partial Class WalkmanLib
     
     ''' <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
     ''' <param name="programPath">Path of the program to run as administrator.</param>
-    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process.</param>
+    ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process. Surround whitespaces with quotes as usual.</param>
     Shared Sub RunAsAdmin(programPath As String, Optional arguments As String = Nothing)
         Dim WSH_Type As Type = Type.GetTypeFromProgID("Shell.Application")
         Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
         
         WSH_Type.InvokeMember("ShellExecute", System.Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {programPath, arguments, "", "runas"})
     End Sub
-    
-    ''' <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
-    ''' <param name="path">The path to the file.</param>
-    ''' <param name="fileAttributes">A bitwise combination of the enumeration values.</param>
-    ''' <returns>Whether setting the attribute was successful or not.</returns>
-    Shared Function SetAttribute(path As String, fileAttributes As FileAttributes) As Boolean
-        Try
-            SetAttributes(path, fileAttributes)
-            Return True
-        Catch ex As exception
-            ErrorDialog(ex)
-            Return False
-        End Try
-    End Function
     
     ''' <summary>Adds or removes the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
@@ -77,13 +63,7 @@ Public Partial Class WalkmanLib
     ''' <param name="fileAttribute">The FileAttributes to add.</param>
     ''' <returns>Whether adding the attribute was successful or not.</returns>
     Shared Function AddAttribute(path As String, fileAttribute As FileAttributes) As Boolean
-        Try
-            SetAttributes(path, GetAttributes(path) Or fileAttribute)
-            Return True
-        Catch ex As exception
-            ErrorDialog(ex)
-            Return False
-        End Try
+        Return SetAttribute(path, GetAttributes(path) Or fileAttribute)
     End Function
     
     ''' <summary>Removes the specified System.IO.FileAttributes from the file at the specified path, with a try..catch block.</summary>
@@ -91,8 +71,16 @@ Public Partial Class WalkmanLib
     ''' <param name="fileAttribute">The FileAttributes to remove.</param>
     ''' <returns>Whether removing the attribute was successful or not.</returns>
     Shared Function RemoveAttribute(path As String, fileAttribute As FileAttributes) As Boolean
+        Return SetAttribute(path, GetAttributes(path) And Not fileAttribute)
+    End Function
+    
+    ''' <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
+    ''' <param name="path">The path to the file.</param>
+    ''' <param name="fileAttributes">A bitwise combination of the enumeration values.</param>
+    ''' <returns>Whether setting the attribute was successful or not.</returns>
+    Shared Function SetAttribute(path As String, fileAttributes As FileAttributes) As Boolean
         Try
-            SetAttributes(path, GetAttributes(path) And Not fileAttribute)
+            SetAttributes(path, fileAttributes)
             Return True
         Catch ex As exception
             ErrorDialog(ex)
@@ -296,8 +284,8 @@ Public Partial Class WalkmanLib
             isAbsolute = False
             If parsedIconPath.StartsWith("%") Then
                 isAbsolute = True
-                parsedIconPath = parsedIconPath.Substring(1)
-                If parsedIconPath.Contains("%") Then
+                If parsedIconPath.Substring(1).Contains("%") Then
+                    parsedIconPath = parsedIconPath.Substring(1)
                     parsedIconPath = Environment.GetEnvironmentVariable(parsedIconPath.Remove(parsedIconPath.IndexOf("%"))) & parsedIconPath.Substring(parsedIconPath.IndexOf("%") + 1)
                 End If
             Else
