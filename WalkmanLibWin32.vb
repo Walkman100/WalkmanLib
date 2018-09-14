@@ -144,8 +144,9 @@ Public Partial Class WalkmanLib
     ''' <param name="comment">Shortcut comment. Shown in the Shortcut's tooltip.</param>
     ''' <param name="shortcutKey">Hotkey used to launch the shortcut - see the end of https://ss64.com/vb/shortcut.html.</param>
     ''' <param name="windowStyle">System.Windows.Forms.FormWindowState to show the launched program in.</param>
-    Shared Sub CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing, _
-        Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As Windows.Forms.FormWindowState = Windows.Forms.FormWindowState.Normal)
+    ''' <returns>Full path to the created shortcut.</returns>
+    Shared Function CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing, _
+        Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As Windows.Forms.FormWindowState = Windows.Forms.FormWindowState.Normal) As String
         Dim shortcutObject As IWshShortcut = GetShortcutInfo(shortcutPath)
         
         If targetPath <> Nothing Then       shortcutObject.TargetPath       = targetPath
@@ -164,7 +165,9 @@ Public Partial Class WalkmanLib
         End If
         
         shortcutObject.Save
-    End Sub
+        
+        Return shortcutObject.FullName
+    End Function
     
     ''' <summary>Interface for handling WScript.Shell shortcut objects. Use with GetShortcutInfo(shortcutPath) As IWshShortcut</summary>
     <ComImport, TypeLibType(CShort(&H1040)), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")> _
