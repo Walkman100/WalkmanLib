@@ -29,9 +29,9 @@ Public Partial Class WalkmanLib
     ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
     Shared Sub TakeOwnership(path As String)
         If File.Exists(path) Then
-            RunAsAdmin("cmd.exe", "/c takeown /f " & path & " && icacls " & path & " /grant administrators:F && pause")
+            RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ && icacls """ & path & """ /grant administrators:F && pause")
         ElseIf Directory.Exists(path)
-            RunAsAdmin("cmd.exe", "/c takeown /f " & path & " /r /d y && icacls " & path & " /grant administrators:F /t && pause")
+            RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ /r /d y && icacls """ & path & """ /grant administrators:F /t && pause")
         End If
     End Sub
     
@@ -145,7 +145,8 @@ Public Partial Class WalkmanLib
     ''' <param name="ex">The System.Exception to show details about.</param>
     ''' <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
     ''' <param name="showMsgBox">True to show the error message prompt to show the full stacktrace or not, False to just show the window immediately</param>
-    Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True)
+    ''' <param name="messagePumpForm">Include this to show the window properly from a background thread. Use `Me` from a WinForms app.</param>
+    Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional messagePumpForm As System.Windows.Forms.Form = Nothing)
         Application.EnableVisualStyles() ' affects when in a console app
         If showMsgBox Then
             If MsgBox(errorMessage & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)", _
@@ -188,11 +189,19 @@ Public Partial Class WalkmanLib
         End Try
         
         ' Thanks to https://stackoverflow.com/a/661662/2999220
-        If frmBugReport.InvokeRequired Then
-            frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
-        Else
-            frmBugReport.Show()
-        End If
+        Try
+            If IsNothing(messagePumpForm) Then
+                If frmBugReport.InvokeRequired Then
+                    frmBugReport.Invoke( DirectCast(Sub() frmBugReport.Show(), MethodInvoker) )
+                Else
+                    frmBugReport.Show()
+                End If
+            Else
+                messagePumpForm.Invoke( DirectCast(Sub() frmBugReport.Show(), MethodInvoker) )
+            End If
+        Catch ex2 As Exception
+            MsgBox("Error showing window: " & ex2.ToString, MsgBoxStyle.Exclamation)
+        End Try
     End Sub
     
     ' Link: https://stackoverflow.com/a/10072082/2999220
