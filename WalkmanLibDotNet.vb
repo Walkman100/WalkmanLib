@@ -146,7 +146,7 @@ Public Partial Class WalkmanLib
     ''' <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
     ''' <param name="showMsgBox">True to show the error message prompt to show the full stacktrace or not, False to just show the window immediately</param>
     ''' <param name="messagePumpForm">Include this to show the window properly from a background thread. Use `Me` from a WinForms app.</param>
-    Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional messagePumpForm As System.Windows.Forms.Form = Nothing)
+    Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional messagePumpForm As Form = Nothing)
         Application.EnableVisualStyles() ' affects when in a console app
         If showMsgBox Then
             If MsgBox(errorMessage & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)", _
@@ -188,9 +188,9 @@ Public Partial Class WalkmanLib
             txtBugReport.Text &= "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
         End Try
         
-        ' Thanks to https://stackoverflow.com/a/661662/2999220
         Try
             If IsNothing(messagePumpForm) Then
+                ' Thanks to https://stackoverflow.com/a/661662/2999220
                 If frmBugReport.InvokeRequired Then
                     frmBugReport.Invoke( DirectCast(Sub() frmBugReport.Show(), MethodInvoker) )
                 Else
