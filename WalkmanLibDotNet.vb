@@ -49,44 +49,66 @@ Public Partial Class WalkmanLib
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttribute">The FileAttributes to add or remove.</param>
     ''' <param name="addOrRemoveAttribute">True to add the specified attribute, False to remove it.</param>
+    ''' <param name="accessDeniedSub">Create a sub with the signature (ex As Exception) and pass it with AddressOf to run it when access is denied and the program can be elevated.</param>
     ''' <returns>Whether setting the attribute was successful or not.</returns>
-    Shared Function ChangeAttribute(path As String, fileAttribute As FileAttributes, addOrRemoveAttribute As Boolean) As Boolean
+    Shared Function ChangeAttribute(path As String, fileAttribute As FileAttributes, addOrRemoveAttribute As Boolean, Optional accessDeniedSub As AccessDeniedDelegate = Nothing) As Boolean
         If addOrRemoveAttribute Then
-            Return AddAttribute(path, fileAttribute)
+            Return AddAttribute(path, fileAttribute, accessDeniedSub)
         Else
-            Return RemoveAttribute(path, fileAttribute)
+            Return RemoveAttribute(path, fileAttribute, accessDeniedSub)
         End If
     End Function
     
     ''' <summary>Adds the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttribute">The FileAttributes to add.</param>
+    ''' <param name="accessDeniedSub">Create a sub with the signature (ex As Exception) and pass it with AddressOf to run it when access is denied and the program can be elevated.</param>
     ''' <returns>Whether adding the attribute was successful or not.</returns>
-    Shared Function AddAttribute(path As String, fileAttribute As FileAttributes) As Boolean
-        Return SetAttribute(path, GetAttributes(path) Or fileAttribute)
+    Shared Function AddAttribute(path As String, fileAttribute As FileAttributes, Optional accessDeniedSub As AccessDeniedDelegate = Nothing) As Boolean
+        Return SetAttribute(path, GetAttributes(path) Or fileAttribute, accessDeniedSub)
     End Function
     
     ''' <summary>Removes the specified System.IO.FileAttributes from the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttribute">The FileAttributes to remove.</param>
+    ''' <param name="accessDeniedSub">Create a sub with the signature (ex As Exception) and pass it with AddressOf to run it when access is denied and the program can be elevated.</param>
     ''' <returns>Whether removing the attribute was successful or not.</returns>
-    Shared Function RemoveAttribute(path As String, fileAttribute As FileAttributes) As Boolean
-        Return SetAttribute(path, GetAttributes(path) And Not fileAttribute)
+    Shared Function RemoveAttribute(path As String, fileAttribute As FileAttributes, Optional accessDeniedSub As AccessDeniedDelegate = Nothing) As Boolean
+        Return SetAttribute(path, GetAttributes(path) And Not fileAttribute, accessDeniedSub)
     End Function
     
     ''' <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttributes">A bitwise combination of the enumeration values.</param>
+    ''' <param name="accessDeniedSub">Create a sub with the signature (ex As Exception) and pass it with AddressOf to run it when access is denied and the program can be elevated.</param>
     ''' <returns>Whether setting the attribute was successful or not.</returns>
-    Shared Function SetAttribute(path As String, fileAttributes As FileAttributes) As Boolean
+    Shared Function SetAttribute(path As String, fileAttributes As FileAttributes, Optional accessDeniedSub As AccessDeniedDelegate = Nothing) As Boolean
         Try
             SetAttributes(path, fileAttributes)
             Return True
         Catch ex As exception
-            ErrorDialog(ex)
+            If ex.GetType.ToString = "System.UnauthorizedAccessException" AndAlso Not IsAdmin() AndAlso Not IsNothing(accessDeniedSub) Then
+                accessDeniedSub.Invoke(ex)
+            Else
+                ErrorDialog(ex)
+            End If
             Return False
         End Try
     End Function
+    Delegate Sub AccessDeniedDelegate(ByVal ex As Exception)
+    
+    ' Example code to use the access denied sub return:
+'    Sub Main()
+'        WalkmanLib.SetAttribute("C:\ProgramData", FileAttributes.Hidden, AddressOf accessDeniedSub)
+'    End Sub
+'    Sub accessDeniedSub(ex As Exception)
+'        Application.EnableVisualStyles() ' affects when in a console app
+'        If MsgBox(ex.Message & vbNewLine & vbNewLine & "Try launching <programName> As Administrator?", _
+'          MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Access denied!") = MsgBoxResult.Yes Then
+'            WalkmanLib.RunAsAdmin(Application.StartupPath & "\" & Diagnostics.Process.GetCurrentProcess.ProcessName & ".exe", "<arguments>")
+'            Environment.Exit(0) / Application.Exit() ' depending on whether running in Console or WinForms app, respectively
+'        End If
+'    End Sub
     
     ' Link: https://stackoverflow.com/a/25958432/2999220
     ''' <summary>Gets whether a shortcut's "Run as Administrator" checkbox is checked.</summary>
