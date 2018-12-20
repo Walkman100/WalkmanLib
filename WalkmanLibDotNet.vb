@@ -116,14 +116,21 @@ Public Partial Class WalkmanLib
     ''' <returns>State of the Admin flag. True = Set, i.e. will attempt to run as admin.</returns>
     Shared Function GetShortcutRunAsAdmin(shortcutPath As String) As Boolean
         Dim shortcutBytes = ReadAllBytes(shortcutPath)
-        If shortcutBytes(21) = 0 Or shortcutBytes(21) = 3 Then
+        
+        ' see table below - most viewers show Hex, this compares in decimal.
+        If shortcutBytes(21) = 0 Or shortcutBytes(21) = 3 Or shortcutBytes(21) = 64 Then
             Return False
-        ElseIf shortcutBytes(21) = 32 Or shortcutBytes(21) = 35 Then ' 23 in Hex, 35 in Decimal - most viewers show Hex, this compares in decimal.
+        ElseIf shortcutBytes(21) = 32 Or shortcutBytes(21) = 35 Or shortcutBytes(21) = 96 Then
             Return True
         Else
             Throw New InvalidOperationException("Admin byte flag was not a known value!")
         End If
     End Function
+    'Not Admin: Dec,    Hex.|Admin: Dec,    Hex.
+    '           0       0   |       32      20      Most Common
+    '           3       3   |       35      23      Some system shortcuts
+    '           64      40  |       96      60      Appear to be created by NSIS installer?
+    
     ''' <summary>Sets a shortcut's "Run as Administrator" checkbox state. WARNING: This uses Bit-flipping, and should be avoided wherever possible - make a backup LNK!</summary>
     ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
     ''' <param name="flagState">State to set the Admin flag to. True = Set, i.e. will attempt to run as admin.</param>
@@ -132,12 +139,16 @@ Public Partial Class WalkmanLib
         If flagState Then
             If shortcutBytes(21) = 3 Then
                 shortcutBytes(21) = 35
+            ElseIf shortcutBytes(21) = 64
+                shortcutBytes(21) = 96
             Else
                 shortcutBytes(21) = 32
             End If
         Else
             If shortcutBytes(21) = 35 Then
                 shortcutBytes(21) = 3
+            ElseIf shortcutBytes(21) = 96
+                shortcutBytes(21) = 64
             Else
                 shortcutBytes(21) = 0
             End If
