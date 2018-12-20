@@ -116,9 +116,9 @@ Public Partial Class WalkmanLib
     ''' <returns>State of the Admin flag. True = Set, i.e. will attempt to run as admin.</returns>
     Shared Function GetShortcutRunAsAdmin(shortcutPath As String) As Boolean
         Dim shortcutBytes = ReadAllBytes(shortcutPath)
-        If shortcutBytes(21) = 0 Then
+        If shortcutBytes(21) = 0 Or shortcutBytes(21) = 3 Then
             Return False
-        ElseIf shortcutBytes(21) = 32
+        ElseIf shortcutBytes(21) = 32 Or shortcutBytes(21) = 35 Then ' 23 in Hex, 35 in Decimal - most viewers show Hex, this compares in decimal.
             Return True
         Else
             Throw New InvalidOperationException("Admin byte flag was not a known value!")
@@ -130,9 +130,17 @@ Public Partial Class WalkmanLib
     Shared Sub SetShortcutRunAsAdmin(shortcutPath As String, flagState As Boolean)
         Dim shortcutBytes = ReadAllBytes(shortcutPath)
         If flagState Then
-            shortcutBytes(21) = 32
+            If shortcutBytes(21) = 3 Then
+                shortcutBytes(21) = 35
+            Else
+                shortcutBytes(21) = 32
+            End If
         Else
-            shortcutBytes(21) = 0
+            If shortcutBytes(21) = 35 Then
+                shortcutBytes(21) = 3
+            Else
+                shortcutBytes(21) = 0
+            End If
         End If
         WriteAllBytes(shortcutPath, shortcutBytes)
     End Sub
