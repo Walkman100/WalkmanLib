@@ -29,6 +29,18 @@ Public Enum MouseButton ' used for MouseClick
     RightDown = &H8
     ''' <summary>Releases the right mouse button.</summary>
     RightUp = &H10
+    ''' <summary>Performs a MiddleClick by running MiddleDown and MiddleUp.</summary>
+    MiddleClick
+    ''' <summary>Holds the right mouse button.</summary>
+    MiddleDown = &H20
+    ''' <summary>Releases the right mouse button.</summary>
+    MiddleUp = &H40
+    ''' <summary>Performs a XClick by running XDown and XUp.</summary>
+    XClick
+    ''' <summary>Holds the X mouse button. (?)</summary>
+    XDown = &H80
+    ''' <summary>Releases the X mouse button. (?)</summary>
+    XUp = &H100
 End Enum
 
 Public Partial Class WalkmanLib
@@ -380,6 +392,7 @@ Public Partial Class WalkmanLib
     ' =================================== MouseClick ===================================
     
     ' Link: https://stackoverflow.com/a/2416762/2999220
+    ' Link: http://pinvoke.net/default.aspx/user32.mouse_event (Additional buttons)
     ''' <summary>Performs a mouse click at the current cursor position.</summary>
     ''' <param name="button">MouseButton to press.</param>
     Shared Sub MouseClick(button As MouseButton)
@@ -388,14 +401,26 @@ Public Partial Class WalkmanLib
                 mouse_event(MouseButton.LeftDown Or MouseButton.LeftUp, 0, 0, 0, 0)
             Case MouseButton.RightClick
                 mouse_event(MouseButton.RightDown Or MouseButton.RightUp, 0, 0, 0, 0)
+            Case MouseButton.MiddleClick
+                mouse_event(MouseButton.MiddleDown Or MouseButton.MiddleUp, 0, 0, 0, 0)
+            Case MouseButton.XClick
+                mouse_event(MouseButton.XDown Or MouseButton.XUp, 0, 0, 0, 0)
             Case Else
                 mouse_event(button, 0, 0, 0, 0)
         End Select
         
-        'Const MouseEvent_LeftDown As Integer = &H2
-        'Const MouseEvent_LeftUp As Integer = &H4
-        'Const MouseEvent_RightDown As Integer = &H8
-        'Const MouseEVent_RightUp As Integer = &H10
+'        Const MOUSEEVENTF_MOVE = &H1
+'        Const MOUSEEVENTF_LEFTDOWN = &H2
+'        Const MOUSEEVENTF_LEFTUP = &H4
+'        Const MOUSEEVENTF_RIGHTDOWN = &H8
+'        Const MOUSEEVENTF_RIGHTUP = &H10
+'        Const MOUSEEVENTF_MIDDLEDOWN = &H20
+'        Const MOUSEEVENTF_MIDDLEUP = &H40
+'        Const MOUSEEVENTF_XDOWN = &H80
+'        Const MOUSEEVENTF_XUP = &H100
+'        Const MOUSEEVENTF_WHEEL = &H800
+'        Const MOUSEEVENTF_HWHEEL = &H1000
+'        Const MOUSEEVENTF_ABSOLUTE = &H8000
     End Sub
     
     <DllImport("user32.dll", CharSet := CharSet.Auto, CallingConvention := CallingConvention.StdCall)> _
