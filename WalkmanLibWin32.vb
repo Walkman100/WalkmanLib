@@ -33,7 +33,7 @@ Public Partial Class WalkmanLib
                     Throw New FileNotFoundException("The hardlink target does not exist", existingFilePath, errorException)
                 End If
             ElseIf errorException.Message = "The system cannot find the path specified" Then
-                If Not Directory.Exists(New FileInfo(hardlinkPath).DirectoryName)    Then ' this New FileInfo(symlinkPath) throws an exception on invalid characters in path - perfect!
+                If Not Directory.Exists(New FileInfo(hardlinkPath).DirectoryName) Then ' "New FileInfo(hardlinkPath)" throws an exception on invalid characters in path - perfect!
                     Throw New DirectoryNotFoundException("The path to the hardlink does not exist", errorException)
                 End If
             End If
@@ -41,7 +41,7 @@ Public Partial Class WalkmanLib
         End If
     End Sub
     
-    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
+    <DllImport("kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
     Private Shared Function CreateHardLink(lpFileName As String, lpExistingFileName As String, lpSecurityAttributes As IntPtr) As Boolean
     End Function
     
@@ -60,7 +60,7 @@ Public Partial Class WalkmanLib
             If errorException.Message = "The system cannot find the file specified" Then
                 If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
                     Throw New IOException("The symbolic link path already exists", errorException)
-                Elseif Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName)    ' this New FileInfo(symlinkPath) throws an exception on invalid characters in path - perfect!
+                ElseIf Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName) Then ' "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
                     Throw New DirectoryNotFoundException("The path to the symbolic link does not exist or is invalid", errorException)
                 End If
             End If
@@ -101,7 +101,7 @@ Public Partial Class WalkmanLib
         Return returnString
     End Function
     
-    <DllImport("kernel32.dll", CharSet := CharSet.Auto, SetLastError := True)> _
+    <DllImport("kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
     Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
     creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
     End Function
@@ -252,7 +252,7 @@ Public Partial Class WalkmanLib
         End If
     End Function
     
-    <DllImport("Shell32.dll", SetLastError:=False)> _
+    <DllImport("Shell32.dll", SetLastError := False)> _
     Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
     ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
     End Function
