@@ -16,6 +16,21 @@ Public Enum SymbolicLinkType ' used for CreateSymLink
     Directory = 1
 End Enum
 
+Public Enum MouseButton ' used for MouseClick
+    ''' <summary>Performs a LeftClick by running LeftDown and LeftUp.</summary>
+    LeftClick
+    ''' <summary>Holds the left mouse button.</summary>
+    LeftDown = &H2
+    ''' <summary>Releases the left mouse button.</summary>
+    LeftUp = &H4
+    ''' <summary>Performs a RightClick by running RightDown and RightUp.</summary>
+    RightClick
+    ''' <summary>Holds the right mouse button.</summary>
+    RightDown = &H8
+    ''' <summary>Releases the right mouse button.</summary>
+    RightUp = &H10
+End Enum
+
 Public Partial Class WalkmanLib
     
     ' =================================== CreateHardLink ===================================
@@ -362,12 +377,38 @@ Public Partial Class WalkmanLib
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
     
     
+    ' =================================== MouseClick ===================================
+    
+    ' Link: https://stackoverflow.com/a/2416762/2999220
+    ''' <summary>Performs a mouse click at the current cursor position.</summary>
+    ''' <param name="button">MouseButton to press.</param>
+    Shared Sub MouseClick(button As MouseButton)
+        Select Case button
+            Case MouseButton.LeftClick
+                mouse_event(MouseButton.LeftDown Or MouseButton.LeftUp, 0, 0, 0, 0)
+            Case MouseButton.RightClick
+                mouse_event(MouseButton.RightDown Or MouseButton.RightUp, 0, 0, 0, 0)
+            Case Else
+                mouse_event(button, 0, 0, 0, 0)
+        End Select
+        
+        'Const MouseEvent_LeftDown As Integer = &H2
+        'Const MouseEvent_LeftUp As Integer = &H4
+        'Const MouseEvent_RightDown As Integer = &H8
+        'Const MouseEVent_RightUp As Integer = &H10
+    End Sub
+    
+    <DllImport("user32.dll", CharSet := CharSet.Auto, CallingConvention := CallingConvention.StdCall)> _
+    Private Shared Sub mouse_event(dwFlags As MouseButton, dx As UInteger, dy As UInteger, cButtons As UInteger, dwExtraInfo As UInteger)
+    End Sub
+    
+    
     ' =================================== ShowProperties ===================================
     
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
     ''' <param name="path">The path to show the window for.</param>
-    ''' <param name="tab">Optional tab to open to. Beware, this name is culture-specific! or not</param>
+    ''' <param name="tab">Optional tab to open to. Beware, this name is Windows version-specific!</param>
     ''' <returns>Whether the properties window was shown successfully or not.</returns>
     Shared Function ShowProperties(path As String, Optional tab As String = Nothing) As Boolean
         Dim info As New ShellExecuteInfo
