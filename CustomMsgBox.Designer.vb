@@ -1,4 +1,4 @@
-﻿Partial Class CustomMsgBoxForm
+Partial Class CustomMsgBoxForm
     Inherits System.Windows.Forms.Form
     
     ''' <summary>

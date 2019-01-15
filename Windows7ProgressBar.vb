@@ -1,3 +1,3 @@
-﻿Public Class Windows7ProgressBar
+Public Class Windows7ProgressBar
     
 End Class
