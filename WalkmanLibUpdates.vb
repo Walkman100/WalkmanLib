@@ -1,7 +1,7 @@
 Option Explicit On
 Option Strict On
 Option Compare Binary
-Option Infer On
+Option Infer Off
 
 Imports System
 Imports System.Collections.Generic
@@ -109,7 +109,7 @@ Public Partial Class WalkmanLib
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
     ''' <returns>Create a Sub with the signature "sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs", and within check e.Error for an exception before using "DirectCast(e.Result, Boolean)": True if latest version is newer than currentVersion, else False.</returns>
     Shared Sub CheckIfUpdateAvailableInBackground(projectName As String, currentVersion As Version, checkComplete As ComponentModel.RunWorkerCompletedEventHandler, Optional projectOwner As String = "Walkman100")
-        Dim bwUpdateCheck = New ComponentModel.BackgroundWorker()
+        Dim bwUpdateCheck As ComponentModel.BackgroundWorker = New ComponentModel.BackgroundWorker()
         
         AddHandler bwUpdateCheck.DoWork, AddressOf BackgroundUpdateCheck
         AddHandler bwUpdateCheck.RunWorkerCompleted, checkComplete
@@ -127,7 +127,7 @@ Public Partial Class WalkmanLib
         bwArgs = DirectCast(e.Argument, Object())
         
         Dim latestVersion As Version = New Version() ' warning squashing
-        Dim retries = 0
+        Dim retries As Integer = 0
         Do Until 0 <> 0
             Try
                 latestVersion = GetLatestVersion(DirectCast(bwArgs(0), String), DirectCast(bwArgs(1), String))

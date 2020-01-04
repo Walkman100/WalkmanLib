@@ -1,7 +1,7 @@
 Option Explicit On
 Option Strict On
 Option Compare Binary
-Option Infer On
+Option Infer Off
 
 Imports System
 Imports System.ComponentModel
@@ -54,7 +54,7 @@ Public Partial Class WalkmanLib
     Shared Sub CreateHardLink(hardlinkPath As String, existingFilePath As String)
         If CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) = False Then
             
-            Dim errorException = New Win32Exception
+            Dim errorException As Win32Exception = New Win32Exception
             If errorException.Message = "The system cannot find the file specified" Then
                 If Not File.Exists(existingFilePath) Then
                     Throw New FileNotFoundException("The hardlink target does not exist", existingFilePath, errorException)
@@ -83,7 +83,7 @@ Public Partial Class WalkmanLib
     Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, targetType As SymbolicLinkType)
         If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
             
-            Dim errorException = New Win32Exception
+            Dim errorException As Win32Exception = New Win32Exception
             If errorException.Message = "The system cannot find the file specified" Then
                 If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
                     Throw New IOException("The symbolic link path already exists", errorException)
@@ -107,13 +107,13 @@ Public Partial Class WalkmanLib
     ''' <param name="path">Path to the symlink to get the target of.</param>
     ''' <returns>The fully qualified path to the target.</returns>
     Shared Function GetSymlinkTarget(path As String) As String
-        Dim fileHandle = CreateFile(path, &H8, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, &H2000000, IntPtr.Zero)
+        Dim fileHandle As IntPtr = CreateFile(path, &H8, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, &H2000000, IntPtr.Zero)
         If fileHandle = New IntPtr(-1) Then Throw New Win32Exception()
         
         Dim returnString As String = ""
         Try
-            Dim stringBuilderTarget = New Text.StringBuilder(1024)
-            Dim result = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
+            Dim stringBuilderTarget As Text.StringBuilder = New Text.StringBuilder(1024)
+            Dim result As UInteger = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
             If result = 0 Then Throw New Win32Exception()
             returnString = stringBuilderTarget.ToString()
         Finally
@@ -238,7 +238,7 @@ Public Partial Class WalkmanLib
     Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
         Dim filePathBuffer As String = filePath.PadRight(1024, Chr(0))
         
-        Dim result = PickIconDlg(OwnerHandle, filePathBuffer, filePathBuffer.Length, iconIndex)
+        Dim result As Integer = PickIconDlg(OwnerHandle, filePathBuffer, filePathBuffer.Length, iconIndex)
         
         filePath = filePathBuffer.Remove(filePathBuffer.IndexOf(Chr(0)))
         
@@ -267,7 +267,7 @@ Public Partial Class WalkmanLib
         If Not File.Exists(filePath) Then Throw New FileNotFoundException("File """ & filePath & """ not found!")
         
         Dim hiconLarge As IntPtr
-        Dim HRESULT = SHDefExtractIcon(filePath, iconIndex, 0, hiconLarge, Nothing, iconSize)
+        Dim HRESULT As Integer = SHDefExtractIcon(filePath, iconIndex, 0, hiconLarge, Nothing, iconSize)
         
         If HRESULT = 0 Then ' S_OK: Success
             Return Drawing.Icon.FromHandle(hiconLarge)
@@ -352,7 +352,7 @@ Public Partial Class WalkmanLib
         Dim fileLength As Long = Convert.ToInt64(GetCompressedFileSize(path, sizeMultiplier))
         If fileLength = 4294967295 Then ' decimal representation of &HFFFFFFFF
             Dim Win32Error As Integer = Marshal.GetLastWin32Error()
-            Dim errorException = New Win32Exception(Win32Error)
+            Dim errorException As Win32Exception = New Win32Exception(Win32Error)
             If Win32Error <> 0 Then Throw New IOException(errorException.Message, errorException)
         End If
         Dim size As Double = (UInteger.MaxValue + 1) * CLng(sizeMultiplier) + fileLength

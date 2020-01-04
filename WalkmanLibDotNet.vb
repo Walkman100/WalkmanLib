@@ -1,7 +1,7 @@
 Option Explicit On
 Option Strict On
 Option Compare Binary
-Option Infer On
+Option Infer Off
 
 Imports System
 Imports System.IO
@@ -115,7 +115,7 @@ Public Partial Class WalkmanLib
     ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
     ''' <returns>State of the Admin flag. True = Set, i.e. will attempt to run as admin.</returns>
     Shared Function GetShortcutRunAsAdmin(shortcutPath As String) As Boolean
-        Dim shortcutBytes = ReadAllBytes(shortcutPath)
+        Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         
         ' see table below - most viewers show Hex, this compares in decimal.
         If shortcutBytes(21) = 0 Or shortcutBytes(21) = 3 Or shortcutBytes(21) = 64 Then
@@ -135,7 +135,7 @@ Public Partial Class WalkmanLib
     ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
     ''' <param name="flagState">State to set the Admin flag to. True = Set, i.e. will attempt to run as admin.</param>
     Shared Sub SetShortcutRunAsAdmin(shortcutPath As String, flagState As Boolean)
-        Dim shortcutBytes = ReadAllBytes(shortcutPath)
+        Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         If flagState Then
             If shortcutBytes(21) = 3 Then
                 shortcutBytes(21) = 35
@@ -218,7 +218,7 @@ Public Partial Class WalkmanLib
             txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
             txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
             txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
-            For i = 0 To 100 'Integer.MaxValue no reason to go that high
+            For i As Integer = 0 To 100 'Integer.MaxValue no reason to go that high
                 Try
                     txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
                 Catch
@@ -256,7 +256,7 @@ Public Partial Class WalkmanLib
     ''' To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to False.
     Shared Function RunAndGetOutput(fileName As String, Optional arguments As String = Nothing, Optional mergeStdErr As Boolean = True, _
       Optional ByRef StdErrReturn As String = "", Optional ByRef ExitCode As Integer = -1) As String
-        Dim process = New Diagnostics.Process()
+        Dim process As Diagnostics.Process = New Diagnostics.Process()
         process.StartInfo.FileName = fileName
         If Not String.IsNullOrEmpty(arguments) Then
             process.StartInfo.Arguments = arguments
@@ -267,7 +267,7 @@ Public Partial Class WalkmanLib
         process.StartInfo.UseShellExecute = False
         process.StartInfo.RedirectStandardError = True
         process.StartInfo.RedirectStandardOutput = True
-        Dim stdOutput = New Text.StringBuilder()
+        Dim stdOutput As Text.StringBuilder = New Text.StringBuilder()
         AddHandler process.OutputDataReceived, Sub(sender, args) stdOutput.AppendLine(args.Data)
         ' Use AppendLine rather than Append since args.Data is one line of output, not including the newline character.
         
@@ -303,7 +303,7 @@ Public Partial Class WalkmanLib
         
         If folderPath.EndsWith(Path.VolumeSeparatorChar & Path.DirectorySeparatorChar) Then
             If Exists(Path.Combine(folderPath, "Autorun.inf")) Then
-                For Each line In ReadLines(Path.Combine(folderPath, "Autorun.inf"))
+                For Each line As String In ReadLines(Path.Combine(folderPath, "Autorun.inf"))
                     If line.StartsWith("Icon=", True, Nothing) Then
                         parsedIconPath = line.Substring(5)
                         gotIcon = True
@@ -314,7 +314,7 @@ Public Partial Class WalkmanLib
             If Exists(Path.Combine(folderPath, "desktop.ini")) Then
                 gotIcon = False
                 lookingForIconIndex = False
-                For Each line In ReadLines(Path.Combine(folderPath, "desktop.ini"))
+                For Each line As String In ReadLines(Path.Combine(folderPath, "desktop.ini"))
                     If line.StartsWith("IconResource=", True, Nothing) Then
                         parsedIconPath = line.Substring(13)
                         gotIcon = True
@@ -339,7 +339,7 @@ Public Partial Class WalkmanLib
                     parsedIconPath = Environment.GetEnvironmentVariable(parsedIconPath.Remove(parsedIconPath.IndexOf("%"))) & parsedIconPath.Substring(parsedIconPath.IndexOf("%") + 1)
                 End If
             Else
-                For i = 1 To 26 ' The Chr() below will give all letters from A to Z
+                For i As Integer = 1 To 26 ' The Chr() below will give all letters from A to Z
                     If parsedIconPath.StartsWith( Chr(i+64) & Path.VolumeSeparatorChar & Path.DirectorySeparatorChar, True, Nothing ) Then
                         isAbsolute = True
                         Exit For
