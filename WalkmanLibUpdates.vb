@@ -7,6 +7,7 @@ Imports System
 Imports System.Collections.Generic
 Imports System.IO
 Imports System.Net
+Imports Microsoft.VisualBasic
 Imports System.Web.Script.Serialization
 ' add a reference to System.Web.Extensions
 
@@ -55,12 +56,19 @@ Public Partial Class WalkmanLib
     ''' <summary>Gets a download link for the latest installer released in a GitHub project.</summary>
     ''' <param name="projectName">Name of the project repository.</param>
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
+    ''' <param name="fileName">Name of the file. Defaults to "$projectName-Installer.exe". Use {0} to replace with the version string.</param>
     ''' <returns>Download URI in a String.</returns>
-    Shared Function GetLatestDownloadLink(projectName As String, Optional projectOwner As String = "Walkman100") As String
+    Shared Function GetLatestDownloadLink(projectName As String, Optional projectOwner As String = "Walkman100", Optional fileName As String = Nothing) As String
         Dim versionString As String
         versionString = GetLatestVersionInfo(projectName, projectOwner).TagName
         
-        Return "https://github.com/" & projectOwner & "/" & projectName & "/releases/download/" & versionString & "/" & projectName & "-Installer.exe"
+        If IsNothing(fileName) Then
+            fileName = projectName & "-Installer.exe"
+        Else
+            fileName = String.Format(fileName, versionString)
+        End If
+        
+        Return "https://github.com/" & projectOwner & "/" & projectName & "/releases/download/" & versionString & "/" & fileName
     End Function
     
     ''' <summary>Gets the latest version released in a GitHub project. Note if the tag name is not in version format will throw an Exception.</summary>
@@ -122,7 +130,7 @@ Public Partial Class WalkmanLib
         Dim retries = 0
         Do Until 0 <> 0
             Try
-                latestVersion = GetLatestVersion(bwArgs(0).ToString, bwArgs(1).ToString)
+                latestVersion = GetLatestVersion(DirectCast(bwArgs(0), String), DirectCast(bwArgs(1), String))
                 Exit Do
             Catch ex As System.Net.WebException
                 retries += 1
