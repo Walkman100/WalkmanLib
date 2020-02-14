@@ -379,7 +379,7 @@ Public Partial Class WalkmanLib
         FindExecutable(FileProperties.Name, FileProperties.DirectoryName & Path.DirectorySeparatorChar, result)
         
         Dim returnString As String = Strings.Left$(result, InStr(result, Chr(0)) - 1)
-        If returnString = "" Then 
+        If returnString = "" Then
             Return "Filetype not associated!"
         Else
             Return returnString
