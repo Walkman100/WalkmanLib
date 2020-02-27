@@ -61,8 +61,14 @@ Public Partial Class WalkmanLib
                 End If
             ElseIf errorException.Message = "The system cannot find the path specified" Then
                 If Not Directory.Exists(New FileInfo(hardlinkPath).DirectoryName) Then ' "New FileInfo(hardlinkPath)" throws an exception on invalid characters in path - perfect!
-                    Throw New DirectoryNotFoundException("The path to the hardlink does not exist", errorException)
+                    Throw New DirectoryNotFoundException("The path to the new hardlink does not exist", errorException)
                 End If
+            ElseIf errorException.Message = "Cannot create a file when that file already exists" Then
+                If File.Exists(hardlinkPath) Or Directory.Exists(hardlinkPath) Then
+                    Throw New IOException("The hardlink path already exists", errorException)
+                End If
+            ElseIf errorException.Message = "Access is denied" Then
+                Throw New UnauthorizedAccessException("Access to the new hardlink path is denied", errorException)
             End If
             Throw errorException
         End If
@@ -81,21 +87,29 @@ Public Partial Class WalkmanLib
     ''' <param name="targetPath">Absolute or relative path to the target of the shortcut. If relative, target is relative to the symbolic link file.</param>
     ''' <param name="targetType">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
     Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, targetType As SymbolicLinkType)
+        ' https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
+        'SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE = 0x02
+        targetType = targetType Or DirectCast(2, SymbolicLinkType)
+        
         If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
             
             Dim errorException As Win32Exception = New Win32Exception
-            If errorException.Message = "The system cannot find the file specified" Then
+            If errorException.Message = "The system cannot find the path specified" Then
+                If Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName) Then ' "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
+                    Throw New DirectoryNotFoundException("The path to the symbolic link does not exist", errorException)
+                End If
+            ElseIf errorException.Message = "Cannot create a file when that file already exists" Then
                 If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
                     Throw New IOException("The symbolic link path already exists", errorException)
-                ElseIf Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName) Then ' "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
-                    Throw New DirectoryNotFoundException("The path to the symbolic link does not exist or is invalid", errorException)
                 End If
+            ElseIf errorException.Message = "Access is denied" Then
+                Throw New UnauthorizedAccessException("Access to the symbolic link path is denied", errorException)
             End If
             Throw errorException
         End If
     End Sub
     
-    <DllImport("kernel32.dll")> _
+    <DllImport("kernel32.dll", SetLastError := True)>
     Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
     End Function
     
