@@ -86,12 +86,11 @@ Public Partial Class WalkmanLib
         Try
             SetAttributes(path, fileAttributes)
             Return True
-        Catch ex As exception
-            If ex.GetType.ToString = "System.UnauthorizedAccessException" AndAlso Not IsAdmin() AndAlso Not IsNothing(accessDeniedSub) Then
-                accessDeniedSub.Invoke(ex)
-            Else
-                ErrorDialog(ex)
-            End If
+        Catch ex As System.UnauthorizedAccessException When Not IsAdmin AndAlso Not IsNothing(accessDeniedSub)
+            accessDeniedSub.Invoke(ex)
+            Return False
+        Catch ex As Exception
+            ErrorDialog(ex)
             Return False
         End Try
     End Function
@@ -334,10 +333,7 @@ Public Partial Class WalkmanLib
             isAbsolute = False
             If parsedIconPath.StartsWith("%") Then
                 isAbsolute = True
-                If parsedIconPath.Substring(1).Contains("%") Then
-                    parsedIconPath = parsedIconPath.Substring(1)
-                    parsedIconPath = Environment.GetEnvironmentVariable(parsedIconPath.Remove(parsedIconPath.IndexOf("%"))) & parsedIconPath.Substring(parsedIconPath.IndexOf("%") + 1)
-                End If
+                parsedIconPath = Environment.ExpandEnvironmentVariables(parsedIconPath)
             Else
                 For i As Integer = 1 To 26 ' The Chr() below will give all letters from A to Z
                     If parsedIconPath.StartsWith( Chr(i+64) & Path.VolumeSeparatorChar & Path.DirectorySeparatorChar, True, Nothing ) Then

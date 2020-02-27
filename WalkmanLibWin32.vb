@@ -259,7 +259,7 @@ Public Partial Class WalkmanLib
     
     ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
     ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
-    ''' <param name="filePath">The path to the file than contains an image.</param>
+    ''' <param name="filePath">The path to the file that contains an image.</param>
     ''' <param name="iconIndex">Index to extract the icon from. If this is a positive number, it refers to the zero-based position of the icon in the file. If this is a negative number, it refers to the icon's resource ID.</param>
     ''' <param name="iconSize">Size of icon to extract. Size is measured in pixels. Pass 0 to specify default icon size. Default: 0.</param>
     ''' <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
@@ -269,13 +269,12 @@ Public Partial Class WalkmanLib
         Dim hiconLarge As IntPtr
         Dim HRESULT As Integer = SHDefExtractIcon(filePath, iconIndex, 0, hiconLarge, Nothing, iconSize)
         
-        If HRESULT = 0 Then ' S_OK: Success
+        If HRESULT = 0 Then     ' S_OK: Success
             Return Drawing.Icon.FromHandle(hiconLarge)
-        ElseIf HRESULT = 1  ' S_FALSE: The requested icon is not present
+        ElseIf HRESULT = 1 Then ' S_FALSE: The requested icon is not present
             Throw New ArgumentOutOfRangeException("iconIndex", "The requested icon index is not present in the specified file.")
-        Else 'If HRESULT = 2 ' E_FAIL: The file cannot be accessed, or is being accessed through a slow link
-            Dim Win32Error As Integer = Marshal.GetLastWin32Error()
-            Throw New Win32Exception(Win32Error)
+        Else 'If HRESULT = 2    ' E_FAIL: The file cannot be accessed, or is being accessed through a slow link
+            Throw New Win32Exception
         End If
     End Function
     
