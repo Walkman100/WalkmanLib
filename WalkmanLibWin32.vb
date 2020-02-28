@@ -48,6 +48,7 @@ Public Partial Class WalkmanLib
     ' =================================== CreateHardLink ===================================
     
     ' Link: http://pinvoke.net/default.aspx/kernel32.CreateHardLink
+    ' Link (native error codes): https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes#system-error-codes
     ''' <summary>Creates a hardlink to an existing file.</summary>
     ''' <param name="symlinkPath">Path to the hardlink file to create.</param>
     ''' <param name="targetPath">Absolute or relative path to the existing file to link to. If relative, target is relative to current directory.</param>
@@ -55,19 +56,23 @@ Public Partial Class WalkmanLib
         If CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) = False Then
             
             Dim errorException As Win32Exception = New Win32Exception
-            If errorException.Message = "The system cannot find the file specified" Then
+            If errorException.NativeErrorCode = 2 Then
+                'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
                 If Not File.Exists(existingFilePath) Then
                     Throw New FileNotFoundException("The hardlink target does not exist", existingFilePath, errorException)
                 End If
-            ElseIf errorException.Message = "The system cannot find the path specified" Then
+            ElseIf errorException.NativeErrorCode = 3 Then
+                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
                 If Not Directory.Exists(New FileInfo(hardlinkPath).DirectoryName) Then ' "New FileInfo(hardlinkPath)" throws an exception on invalid characters in path - perfect!
                     Throw New DirectoryNotFoundException("The path to the new hardlink does not exist", errorException)
                 End If
-            ElseIf errorException.Message = "Cannot create a file when that file already exists" Then
+            ElseIf errorException.NativeErrorCode = 183 Then
+                'ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
                 If File.Exists(hardlinkPath) Or Directory.Exists(hardlinkPath) Then
                     Throw New IOException("The hardlink path already exists", errorException)
                 End If
-            ElseIf errorException.Message = "Access is denied" Then
+            ElseIf errorException.NativeErrorCode = 5 Then
+                'ERROR_ACCESS_DENIED: Access is denied
                 Throw New UnauthorizedAccessException("Access to the new hardlink path is denied", errorException)
             End If
             Throw errorException
@@ -94,15 +99,18 @@ Public Partial Class WalkmanLib
         If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
             
             Dim errorException As Win32Exception = New Win32Exception
-            If errorException.Message = "The system cannot find the path specified" Then
+            If errorException.NativeErrorCode = 3 Then
+                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
                 If Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName) Then ' "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
                     Throw New DirectoryNotFoundException("The path to the symbolic link does not exist", errorException)
                 End If
-            ElseIf errorException.Message = "Cannot create a file when that file already exists" Then
+            ElseIf errorException.NativeErrorCode = 183 Then
+                'ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
                 If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
                     Throw New IOException("The symbolic link path already exists", errorException)
                 End If
-            ElseIf errorException.Message = "Access is denied" Then
+            ElseIf errorException.NativeErrorCode = 5 Then
+                'ERROR_ACCESS_DENIED: Access is denied
                 Throw New UnauthorizedAccessException("Access to the symbolic link path is denied", errorException)
             End If
             Throw errorException
