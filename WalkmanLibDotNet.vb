@@ -208,22 +208,35 @@ Public Partial Class WalkmanLib
         frmBugReport.Controls.Add(txtBugReport)
         txtBugReport.Dock = DockStyle.Fill
         Try
-            txtBugReport.Text = "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
-            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
-            txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
-            txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
-            txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
-            txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
-            For i As Integer = 0 To 100 'Integer.MaxValue no reason to go that high
-                Try
-                    txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
-                Catch
-                    Exit For
-                End Try
-            Next
+            txtBugReport.Text = ""
+            While ex IsNot Nothing
+                If ex.ToString IsNot Nothing Then           txtBugReport.Text &= "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
+                If ex.GetBaseException IsNot Nothing Then   txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
+                If ex.GetType IsNot Nothing Then            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
+                If ex.Message IsNot Nothing Then            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
+                If ex.StackTrace IsNot Nothing Then         txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
+                If TypeOf ex Is ComponentModel.Win32Exception Then
+                                                            txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, ComponentModel.Win32Exception).ErrorCode & vbNewLine
+                                                            txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
+                End If
+                If TypeOf ex Is FileNotFoundException Then
+                                                            txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine
+                                                            txtBugReport.Text &= "FusionLog: " & DirectCast(ex, FileNotFoundException).FusionLog & vbNewLine
+                End If
+                If ex.Source IsNot Nothing Then             txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
+                If ex.TargetSite IsNot Nothing Then         txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
+                                                            txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
+                                                            txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
+                For i As Integer = 0 To 100 'Integer.MaxValue no reason to go that high
+                    Try
+                                                            txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
+                    Catch
+                        Exit For
+                    End Try
+                Next
+                If ex.InnerException IsNot Nothing Then     txtBugReport.Text &= vbNewLine & "InnerException:" & vbNewLine
+                ex = ex.InnerException
+            End While
         Catch ex2 As Exception
             txtBugReport.Text &= "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
         End Try
