@@ -193,20 +193,21 @@ Public Partial Class WalkmanLib
                 MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") <> MsgBoxresult.Yes Then Exit Sub
         End If
         
-        Dim frmBugReport As New Form()
-        frmBugReport.Width = 600
-        frmBugReport.Height = 525
-        frmBugReport.StartPosition = FormStartPosition.CenterParent
-        frmBugReport.WindowState = FormWindowState.Normal
-        'frmBugReport.Show() ' in a non-UI thread, window needs to be shown seperately
-        frmBugReport.ShowIcon = False
-        frmBugReport.ShowInTaskbar = True
-        frmBugReport.Text = "Full error trace"
-        Dim txtBugReport As New TextBox()
-        txtBugReport.Multiline = True
-        txtBugReport.ScrollBars = ScrollBars.Vertical
+        Dim frmBugReport As New Form With {
+            .Width = 600,
+            .Height = 525,
+            .StartPosition = FormStartPosition.CenterParent,
+            .WindowState = FormWindowState.Normal,
+            .ShowIcon = False,
+            .ShowInTaskbar = True,
+            .Text = "Full error trace"
+        }
+        Dim txtBugReport As New TextBox With {
+            .Multiline = True,
+            .ScrollBars = ScrollBars.Vertical,
+            .Dock = DockStyle.Fill
+        }
         frmBugReport.Controls.Add(txtBugReport)
-        txtBugReport.Dock = DockStyle.Fill
         Try
             txtBugReport.Text = ""
             While ex IsNot Nothing
@@ -245,12 +246,12 @@ Public Partial Class WalkmanLib
             If IsNothing(messagePumpForm) Then
                 ' Thanks to https://stackoverflow.com/a/661662/2999220
                 If frmBugReport.InvokeRequired Then
-                    frmBugReport.Invoke( DirectCast(Sub() frmBugReport.Show(), MethodInvoker) )
+                    frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
                 Else
                     frmBugReport.Show()
                 End If
             Else
-                messagePumpForm.Invoke( DirectCast(Sub() frmBugReport.Show(), MethodInvoker) )
+                messagePumpForm.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
             End If
         Catch ex2 As Exception
             MsgBox("Error showing window: " & ex2.ToString, MsgBoxStyle.Exclamation)
@@ -261,17 +262,21 @@ Public Partial Class WalkmanLib
     ''' <summary>Runs an executable without showing a window and returns it's output.</summary>
     ''' <param name="fileName">The path to the program executable.</param>
     ''' <param name="arguments">Any arguments to run the program with. Default: Nothing</param>
+    ''' <param name="workingDirectory">Working directory for the process to be started. Default: Nothing</param>
     ''' <param name="mergeStdErr">Whether to merge StdErr with StdOut in the function's result (Return String). Default: True</param>
     ''' <param name="StdErrReturn">Reference to a System.String variable to populate with StdErr, if any.</param>
     ''' <param name="ExitCode">Reference to a Integer variable to populate with the program's Exit Code.</param>
     ''' <returns>If mergeStdErr is False, Returns StdOut. If mergeStdErr is True and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.</returns>
     ''' To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to False.
-    Shared Function RunAndGetOutput(fileName As String, Optional arguments As String = Nothing, Optional mergeStdErr As Boolean = True, _
-      Optional ByRef StdErrReturn As String = "", Optional ByRef ExitCode As Integer = -1) As String
-        Dim process As Diagnostics.Process = New Diagnostics.Process()
+    Shared Function RunAndGetOutput(fileName As String, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing,
+      Optional mergeStdErr As Boolean = True, Optional ByRef StdErrReturn As String = "", Optional ByRef ExitCode As Integer = -1) As String
+        Dim process As New Diagnostics.Process()
         process.StartInfo.FileName = fileName
         If Not String.IsNullOrEmpty(arguments) Then
             process.StartInfo.Arguments = arguments
+        End If
+        If Not String.IsNullOrEmpty(workingDirectory) Then
+            process.StartInfo.WorkingDirectory = workingDirectory
         End If
         
         process.StartInfo.CreateNoWindow = True
