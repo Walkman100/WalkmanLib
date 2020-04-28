@@ -26,7 +26,7 @@ Public Partial Class CustomMsgBoxForm
         Get
             Return lblMain.Text
         End Get
-        Set
+        Set(value As String)
             lblMain.Text = value
         End Set
     End Property
@@ -35,12 +35,19 @@ Public Partial Class CustomMsgBoxForm
         Get
             Return Me.Text
         End Get
-        Set
+        Set(value As String)
             Me.Text = value
         End Set
     End Property
-    
-    Dim FormLevel As String = Nothing
+
+    Private Enum enumFormLevel
+        Critical
+        Exclamation
+        Information
+        Question
+    End Enum
+
+    Dim FormLevel As enumFormLevel = Nothing
     Public Button1Text As String = Nothing
     Public Button2Text As String = Nothing
     Public Button3Text As String = Nothing
@@ -48,36 +55,36 @@ Public Partial Class CustomMsgBoxForm
     Public DialogResultString As String = Nothing
     
     Public WriteOnly Property Buttons() As MsgBoxStyle
-        Set
+        Set(value As MsgBoxStyle)
             If value <> 0 Then
                 If value.HasFlag(MsgBoxStyle.Critical) Then
-                    FormLevel = "Critical"
-                ElseIf value.HasFlag(MsgBoxStyle.Exclamation)
-                    FormLevel = "Exclamation"
-                ElseIf value.HasFlag(MsgBoxStyle.Information)
-                    FormLevel = "Information"
-                ElseIf value.HasFlag(MsgBoxStyle.Question)
-                    FormLevel = "Question"
+                    FormLevel = enumFormLevel.Critical
+                ElseIf value.HasFlag(MsgBoxStyle.Exclamation) Then
+                    FormLevel = enumFormLevel.Exclamation
+                ElseIf value.HasFlag(MsgBoxStyle.Information) Then
+                    FormLevel = enumFormLevel.Information
+                ElseIf value.HasFlag(MsgBoxStyle.Question) Then
+                    FormLevel = enumFormLevel.Question
                 End If
                 
                 If value.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
                     Button1Text = "Abort"
                     Button2Text = "Retry"
                     Button3Text = "Ignore"
-                ElseIf value.HasFlag(MsgBoxStyle.RetryCancel)
+                ElseIf value.HasFlag(MsgBoxStyle.RetryCancel) Then
                     Button1Text = "Retry"
                     Button3Text = "Cancel"
-                ElseIf value.HasFlag(MsgBoxStyle.YesNoCancel)
+                ElseIf value.HasFlag(MsgBoxStyle.YesNoCancel) Then
                     Button1Text = "Yes"
                     Button2Text = "No"
                     Button3Text = "Cancel"
-                ElseIf value.HasFlag(MsgBoxStyle.YesNo)
+                ElseIf value.HasFlag(MsgBoxStyle.YesNo) Then
                     Button1Text = "Yes"
                     Button3Text = "No"
-                ElseIf value.HasFlag(MsgBoxStyle.OkCancel)
+                ElseIf value.HasFlag(MsgBoxStyle.OkCancel) Then
                     Button1Text = "Ok"
                     Button3Text = "Cancel"
-                ElseIf value.HasFlag(MsgBoxStyle.OkOnly)
+                ElseIf value.HasFlag(MsgBoxStyle.OkOnly) Then
                     Button1Text = "Ok"
                 End If
             Else
@@ -98,7 +105,7 @@ Public Partial Class CustomMsgBoxForm
         End If
         
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
-        Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel), System.Drawing.Icon)
+        Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), System.Drawing.Icon)
         If FormLevel <> Nothing Then pbxMain.Image = Me.Icon.ToBitmap
         Try
             Me.Icon = Owner.Icon
@@ -111,13 +118,13 @@ Public Partial Class CustomMsgBoxForm
         End Try
         
         Select Case FormLevel
-            Case "Critical"
+            Case enumFormLevel.Critical
                 My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Beep)
-            Case "Exclamation"
+            Case enumFormLevel.Exclamation
                 My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Exclamation)
-            Case "Information"
+            Case enumFormLevel.Information
                 My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Asterisk)
-            Case "Question"
+            Case enumFormLevel.Question
                 My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Question)
         End Select
         
@@ -207,11 +214,12 @@ Public Partial Class WalkmanLib
     ''' <returns>The button the user clicked on.</returns>
     Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, _
       Optional Title As String = Nothing, Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10) As DialogResult
-        Dim formToShow As New CustomMsgBoxForm
-        formToShow.Prompt = Prompt
-        formToShow.Buttons = Buttons
-        formToShow.Title = Title
-        formToShow.WinVersion = WinVersion
+        Dim formToShow As New CustomMsgBoxForm With {
+            .Prompt = Prompt,
+            .Buttons = Buttons,
+            .Title = Title,
+            .WinVersion = WinVersion
+        }
         Return formToShow.ShowDialog
     End Function
     
@@ -226,14 +234,15 @@ Public Partial Class WalkmanLib
     ''' <returns>Text of the button the user clicked on.</returns>
     Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, Optional Style As MsgBoxStyle = 0, _
       Optional Title As String = Nothing, Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10) As String
-        Dim formToShow As New CustomMsgBoxForm
-        formToShow.Prompt = Prompt
-        formToShow.Buttons = Style ' required to set the formlevel
-        formToShow.Button1Text = customButton1
-        formToShow.Button2Text = customButton2
-        formToShow.Button3Text = customButton3
-        formToShow.Title = Title
-        formToShow.WinVersion = WinVersion
+        Dim formToShow As New CustomMsgBoxForm With {
+            .Prompt = Prompt,
+            .Buttons = Style, ' required to set the formlevel
+            .Button1Text = customButton1,
+            .Button2Text = customButton2,
+            .Button3Text = customButton3,
+            .Title = Title,
+            .WinVersion = WinVersion
+        }
         formToShow.ShowDialog
         Return formToShow.DialogResultString
     End Function
