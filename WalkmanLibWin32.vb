@@ -372,9 +372,8 @@ Public Partial Class WalkmanLib
         Dim sizeMultiplier As IntPtr
         Dim fileLength As Long = Convert.ToInt64(GetCompressedFileSize(path, sizeMultiplier))
         If fileLength = 4294967295 Then ' decimal representation of &HFFFFFFFF
-            Dim Win32Error As Integer = Marshal.GetLastWin32Error()
-            Dim errorException As Win32Exception = New Win32Exception(Win32Error)
-            If Win32Error <> 0 Then Throw New IOException(errorException.Message, errorException)
+            Dim errorException As Win32Exception = New Win32Exception
+            If errorException.NativeErrorCode() <> 0 Then Throw New IOException(errorException.Message, errorException)
         End If
         Dim size As Double = (UInteger.MaxValue + 1) * CLng(sizeMultiplier) + fileLength
         Return size
@@ -399,7 +398,7 @@ Public Partial Class WalkmanLib
         Dim result As String = Space$(1024)
         FindExecutable(FileProperties.Name, FileProperties.DirectoryName & Path.DirectorySeparatorChar, result)
         
-        Dim returnString As String = Strings.Left$(result, InStr(result, Chr(0)) - 1)
+        Dim returnString As String = result.Remove(result.IndexOf(Chr(0)))
         If returnString = "" Then
             Return "Filetype not associated!"
         Else
