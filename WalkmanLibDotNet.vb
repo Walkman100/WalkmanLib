@@ -216,9 +216,9 @@ Public Partial Class WalkmanLib
                 If ex.GetType IsNot Nothing Then            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
                 If ex.Message IsNot Nothing Then            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
                 If ex.StackTrace IsNot Nothing Then         txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
-                If TypeOf ex Is ComponentModel.Win32Exception Then
-                                                            txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, ComponentModel.Win32Exception).ErrorCode & vbNewLine
-                                                            txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
+                If TypeOf ex Is System.ComponentModel.Win32Exception Then
+                                                            txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode & vbNewLine
+                                                            txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
                 End If
                 If TypeOf ex Is FileNotFoundException Then
                                                             txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine

@@ -236,13 +236,15 @@ Public Partial Class WalkmanLib
       Optional Title As String = Nothing, Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10) As String
         Dim formToShow As New CustomMsgBoxForm With {
             .Prompt = Prompt,
-            .Buttons = Style, ' required to set the formlevel
+            .Buttons = Style,
             .Button1Text = customButton1,
             .Button2Text = customButton2,
             .Button3Text = customButton3,
             .Title = Title,
             .WinVersion = WinVersion
         }
+        ' .Buttons = Style above is required to set the formlevel
+
         formToShow.ShowDialog
         Return formToShow.DialogResultString
     End Function
