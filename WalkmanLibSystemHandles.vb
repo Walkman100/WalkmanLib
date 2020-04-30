@@ -3,7 +3,7 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
-' Get all system open handles method - uses NTQuerySystemInformation and NTQueryObject
+' Get locking processes: Get all open system handles method - uses NTQuerySystemInformation and NTQueryObject
 'https://gist.github.com/i-e-b/2290426
 'https://stackoverflow.com/a/13735033/2999220
 'https://stackoverflow.com/a/6351168/2999220
@@ -19,7 +19,10 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Threading
 
-Namespace WalkmanLib
+Public Partial Class WalkmanLib
+    ''' <summary>
+    ''' Contains methods to get handles to a specified path, by enumerating all the handles open on a system
+    ''' </summary>
     Class SystemHandles
         #Region "Native Methods"
 
@@ -900,4 +903,13 @@ Namespace WalkmanLib
 
         #End Region
     End Class
-End Namespace
+    
+    ''' <summary>
+    ''' Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path"/>, using the Get All System Handles method.
+    ''' </summary>
+    ''' <param name="path">Path to get processes for</param>
+    ''' <returns>Collections.Generic.List(Of Process) that are using the file or directory</returns>
+    Shared Function GetLockingProcessesSH(path As String) As List(Of Process)
+        Return SystemHandles.GetLockingProcesses(path)
+    End Function
+End Class

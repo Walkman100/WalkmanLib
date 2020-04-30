@@ -3,7 +3,7 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
-' RestartManager method
+' Get locking processes: RestartManager method
 'https://stackoverflow.com/a/3504251/2999220
 'https://stackoverflow.com/a/20623311/2999220
 'https://stackoverflow.com/a/20623302/2999220
@@ -17,7 +17,10 @@ Imports System.ComponentModel
 Imports System.Diagnostics
 Imports System.Runtime.InteropServices
 
-Namespace WalkmanLib
+Public Partial Class WalkmanLib
+    ''' <summary>
+    ''' Contains methods to get processes using a specified file, using the Windows RestartManager APIs
+    ''' </summary>
     Public NotInheritable Class RestartManager
         Private Const CCH_RM_MAX_APP_NAME As Integer = 255
         Private Const CCH_RM_MAX_SVC_NAME As Integer = 63
@@ -132,6 +135,11 @@ Namespace WalkmanLib
             End Try
         End Function
 
+        ''' <summary>
+        ''' Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path" />.
+        ''' </summary>
+        ''' <param name="path">Path to the file to get processes for</param>
+        ''' <returns>Collections.Generic.List(Of Process) that are using the file</returns>
         Public Shared Function GetLockingProcesses(path As String) As List(Of Process)
             Dim processes As New List(Of Process)
             For Each pI As ProcessInfo In GetLockingProcessInfos(path)
@@ -144,4 +152,13 @@ Namespace WalkmanLib
             Return processes
         End Function
     End Class
-End Namespace
+
+    ''' <summary>
+    ''' Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path" />, using the RestartManager method.
+    ''' </summary>
+    ''' <param name="path">Path to the file to get processes for</param>
+    ''' <returns>Collections.Generic.List(Of Process) that are using the file</returns>
+    Shared Function GetLockingProcessesRM(path As String) As List(Of Process)
+        Return RestartManager.GetLockingProcesses(path)
+    End Function
+End Class
