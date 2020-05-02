@@ -41,13 +41,14 @@ Public Partial Class CustomMsgBoxForm
     End Property
 
     Private Enum enumFormLevel
+        None
         Critical
         Exclamation
         Information
         Question
     End Enum
 
-    Dim FormLevel As enumFormLevel = Nothing
+    Dim FormLevel As enumFormLevel = enumFormLevel.None
     Public Button1Text As String = Nothing
     Public Button2Text As String = Nothing
     Public Button3Text As String = Nothing
@@ -57,14 +58,20 @@ Public Partial Class CustomMsgBoxForm
     Public WriteOnly Property Buttons() As MsgBoxStyle
         Set(value As MsgBoxStyle)
             If value <> 0 Then
-                If value.HasFlag(MsgBoxStyle.Critical) Then
-                    FormLevel = enumFormLevel.Critical
+                ' MsgBoxStyle members:
+                'Critical = 16
+                'Question = 32
+                'Exclamation = 48
+                'Information = 64
+                ' have to check them in reverse, as only one can be set, but they trigger HasFlags for the values lower
+                If value.HasFlag(MsgBoxStyle.Information) Then
+                    FormLevel = enumFormLevel.Information
                 ElseIf value.HasFlag(MsgBoxStyle.Exclamation) Then
                     FormLevel = enumFormLevel.Exclamation
-                ElseIf value.HasFlag(MsgBoxStyle.Information) Then
-                    FormLevel = enumFormLevel.Information
                 ElseIf value.HasFlag(MsgBoxStyle.Question) Then
                     FormLevel = enumFormLevel.Question
+                ElseIf value.HasFlag(MsgBoxStyle.Critical) Then
+                    FormLevel = enumFormLevel.Critical
                 End If
                 
                 If value.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
@@ -106,13 +113,13 @@ Public Partial Class CustomMsgBoxForm
         
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
         Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), System.Drawing.Icon)
-        If FormLevel <> Nothing Then pbxMain.Image = Me.Icon.ToBitmap
+        If FormLevel <> enumFormLevel.None Then pbxMain.Image = Me.Icon.ToBitmap
         Try
             Me.Icon = Owner.Icon
         Catch
             'Me.Icon = DirectCast(pbxMain.Image, System.Drawing.Image)
             ' doesn't work, and it's already set above anyway
-            If FormLevel = Nothing Then
+            If FormLevel = enumFormLevel.None Then
                 Me.ShowIcon = False
             End If
         End Try
