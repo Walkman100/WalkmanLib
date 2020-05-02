@@ -135,8 +135,8 @@ Public Partial Class CustomMsgBoxForm
                 My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Question)
         End Select
         
-        If lblMain.Height > 96 Then
-            Me.Height = 242 + (lblMain.Height - 96)
+        If lblMain.Height > 13 Then
+            Me.Height = 162 + (lblMain.Height - 13)
         End If
         
         If Button1Text <> Nothing Then

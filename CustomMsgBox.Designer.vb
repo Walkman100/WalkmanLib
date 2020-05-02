@@ -91,8 +91,8 @@ Partial Class CustomMsgBoxForm
         Me.splitContainer.Panel2.Controls.Add(Me.btnAccept)
         Me.splitContainer.Panel2.Controls.Add(Me.btnCancel)
         Me.splitContainer.Panel2.Controls.Add(Me.btnAnswerMid)
-        Me.splitContainer.Size = New System.Drawing.Size(405, 205)
-        Me.splitContainer.SplitterDistance = 160
+        Me.splitContainer.Size = New System.Drawing.Size(405, 123)
+        Me.splitContainer.SplitterDistance = 78
         Me.splitContainer.SplitterWidth = 1
         Me.splitContainer.TabIndex = 0
         '
@@ -103,9 +103,9 @@ Partial Class CustomMsgBoxForm
         Me.lblMain.AutoSize = true
         Me.lblMain.Location = New System.Drawing.Point(59, 34)
         Me.lblMain.MaximumSize = New System.Drawing.Size(334, 0)
-        Me.lblMain.MinimumSize = New System.Drawing.Size(334, 96)
+        Me.lblMain.MinimumSize = New System.Drawing.Size(334, 13)
         Me.lblMain.Name = "lblMain"
-        Me.lblMain.Size = New System.Drawing.Size(334, 96)
+        Me.lblMain.Size = New System.Drawing.Size(334, 13)
         Me.lblMain.TabIndex = 0
         Me.lblMain.Text = "text"
         '
@@ -124,7 +124,7 @@ Partial Class CustomMsgBoxForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.btnCancel
-        Me.ClientSize = New System.Drawing.Size(405, 205)
+        Me.ClientSize = New System.Drawing.Size(405, 123)
         Me.Controls.Add(Me.splitContainer)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = false
