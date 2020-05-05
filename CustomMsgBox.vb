@@ -227,7 +227,8 @@ Public Partial Class WalkmanLib
             .Buttons = Buttons,
             .Title = Title,
             .WinVersion = WinVersion,
-            .Owner = ownerForm
+            .Owner = ownerForm,
+            .ShowInTaskbar = False
         }
         Return formToShow.ShowDialog
     End Function
@@ -252,7 +253,8 @@ Public Partial Class WalkmanLib
             .Button3Text = customButton3,
             .Title = Title,
             .WinVersion = WinVersion,
-            .Owner = ownerForm
+            .Owner = ownerForm,
+            .ShowInTaskbar = False
         }
         ' .Buttons = Style above is required to set the formlevel
 
