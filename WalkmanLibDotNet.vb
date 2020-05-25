@@ -110,47 +110,36 @@ Public Partial Class WalkmanLib
 '    End Sub
     
     ' Link: https://stackoverflow.com/a/25958432/2999220
+    ' Link: https://stackoverflow.com/a/11166160/2999220
+    Private Const RunAsAdminByte  As Byte = &H15 ' Decimal 21
+    Private Const RunAsAdminOnBit As Byte = &H20 ' Decimal 32
+    
     ''' <summary>Gets whether a shortcut's "Run as Administrator" checkbox is checked.</summary>
     ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
     ''' <returns>State of the Admin flag. True = Set, i.e. will attempt to run as admin.</returns>
     Shared Function GetShortcutRunAsAdmin(shortcutPath As String) As Boolean
         Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         
-        ' see table below - most viewers show Hex, this compares in decimal.
-        If     shortcutBytes(&H15) = &H00 Or shortcutBytes(&H15) = &H03 Or shortcutBytes(&H15) = &H40 Then
-            Return False
-        ElseIf shortcutBytes(&H15) = &H20 Or shortcutBytes(&H15) = &H23 Or shortcutBytes(&H15) = &H60 Then
+        If (shortcutBytes(RunAsAdminByte) And RunAsAdminOnBit) = RunAsAdminOnBit Then
             Return True
         Else
-            Throw New InvalidOperationException("Admin byte flag was not a known value!")
+            Return False
         End If
     End Function
-    'Not Admin: Dec,    Hex.|Admin: Dec,    Hex.
-    '           0       0   |       32      20      Most Common
-    '           3       3   |       35      23      Some system shortcuts
-    '           64      40  |       96      60      Appear to be created by NSIS installer?
     
-    ''' <summary>Sets a shortcut's "Run as Administrator" checkbox state. WARNING: This uses Bit-flipping, and should be avoided wherever possible - make a backup LNK!</summary>
+    ''' <summary>
+    ''' Sets a shortcut's "Run as Administrator" checkbox state.
+    ''' Note that this uses bit-flipping to change the documented RunAsAdmin bit.
+    ''' If the Shortcut (.lnk) specification ever changes, this will corrupt shortcuts.
+    ''' </summary>
     ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
     ''' <param name="flagState">State to set the Admin flag to. True = Set, i.e. will attempt to run as admin.</param>
     Shared Sub SetShortcutRunAsAdmin(shortcutPath As String, flagState As Boolean)
         Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         If flagState Then
-            If     shortcutBytes(&H15) = &H03 Then
-                shortcutBytes(&H15) = &H23
-            ElseIf shortcutBytes(&H15) = &H40 Then
-                shortcutBytes(&H15) = &H60
-            Else
-                shortcutBytes(&H15) = &H20
-            End If
+            shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) Or      RunAsAdminOnBit
         Else
-            If     shortcutBytes(&H15) = &H23 Then
-                shortcutBytes(&H15) = &H03
-            ElseIf shortcutBytes(&H15) = &H60 Then
-                shortcutBytes(&H15) = &H40
-            Else
-                shortcutBytes(&H15) = &H00
-            End If
+            shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) And Not RunAsAdminOnBit
         End If
         WriteAllBytes(shortcutPath, shortcutBytes)
     End Sub
