@@ -117,9 +117,9 @@ Public Partial Class WalkmanLib
         Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         
         ' see table below - most viewers show Hex, this compares in decimal.
-        If shortcutBytes(21) = 0 Or shortcutBytes(21) = 3 Or shortcutBytes(21) = 64 Then
+        If     shortcutBytes(&H15) = &H00 Or shortcutBytes(&H15) = &H03 Or shortcutBytes(&H15) = &H40 Then
             Return False
-        ElseIf shortcutBytes(21) = 32 Or shortcutBytes(21) = 35 Or shortcutBytes(21) = 96 Then
+        ElseIf shortcutBytes(&H15) = &H20 Or shortcutBytes(&H15) = &H23 Or shortcutBytes(&H15) = &H60 Then
             Return True
         Else
             Throw New InvalidOperationException("Admin byte flag was not a known value!")
@@ -136,20 +136,20 @@ Public Partial Class WalkmanLib
     Shared Sub SetShortcutRunAsAdmin(shortcutPath As String, flagState As Boolean)
         Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         If flagState Then
-            If shortcutBytes(21) = 3 Then
-                shortcutBytes(21) = 35
-            ElseIf shortcutBytes(21) = 64
-                shortcutBytes(21) = 96
+            If     shortcutBytes(&H15) = &H03 Then
+                shortcutBytes(&H15) = &H23
+            ElseIf shortcutBytes(&H15) = &H40 Then
+                shortcutBytes(&H15) = &H60
             Else
-                shortcutBytes(21) = 32
+                shortcutBytes(&H15) = &H20
             End If
         Else
-            If shortcutBytes(21) = 35 Then
-                shortcutBytes(21) = 3
-            ElseIf shortcutBytes(21) = 96
-                shortcutBytes(21) = 64
+            If     shortcutBytes(&H15) = &H23 Then
+                shortcutBytes(&H15) = &H03
+            ElseIf shortcutBytes(&H15) = &H60 Then
+                shortcutBytes(&H15) = &H40
             Else
-                shortcutBytes(21) = 0
+                shortcutBytes(&H15) = &H00
             End If
         End If
         WriteAllBytes(shortcutPath, shortcutBytes)
