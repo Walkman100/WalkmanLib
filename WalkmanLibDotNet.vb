@@ -42,7 +42,7 @@ Public Partial Class WalkmanLib
         Dim WSH_Type As Type = Type.GetTypeFromProgID("Shell.Application")
         Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
         
-        WSH_Type.InvokeMember("ShellExecute", System.Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {programPath, arguments, "", "runas"})
+        WSH_Type.InvokeMember("ShellExecute", Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {programPath, arguments, "", "runas"})
     End Sub
     
     ''' <summary>Adds or removes the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
@@ -86,7 +86,7 @@ Public Partial Class WalkmanLib
         Try
             SetAttributes(path, fileAttributes)
             Return True
-        Catch ex As System.UnauthorizedAccessException When Not IsAdmin AndAlso Not IsNothing(accessDeniedSub)
+        Catch ex As UnauthorizedAccessException When Not IsAdmin AndAlso Not IsNothing(accessDeniedSub)
             accessDeniedSub.Invoke(ex)
             Return False
         Catch ex As Exception
