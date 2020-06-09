@@ -10,6 +10,16 @@ Imports System.Security.Principal
 Imports System.Windows.Forms
 Imports Microsoft.VisualBasic
 
+' used for IsFileOrDirectory
+<Flags>
+Public Enum PathEnum
+    NotFound = 0
+    Exists = 1
+    IsDirectory = 2
+    IsFile = 4
+    IsDrive = 8
+End Enum
+
 Public Partial Class WalkmanLib
     
     ''' <summary>Opens the Open With dialog box for a file path.</summary>
@@ -143,6 +153,35 @@ Public Partial Class WalkmanLib
         End If
         WriteAllBytes(shortcutPath, shortcutBytes)
     End Sub
+    
+    ''' <summary>
+    ''' Gets whether a specified <paramref name="path"/> exists. `NotFound` is returned on invalid chars.
+    ''' Return value will contain `Exists` if <paramref name="path"/> refers to a valid drive,
+    ''' and `IsDirectory` will be set if the drive is accessible (ready).
+    ''' </summary>
+    ''' <param name="path">Path to the item to get exists info for</param>
+    ''' <returns>PathEnum: either NotFound, or Exists with IsFile | IsDirectory, and IsDrive if <paramref name="path"/> points to a drive mountpoint</returns>
+    Shared Function IsFileOrDirectory(path As String) As PathEnum
+        If path.IndexOfAny(IO.Path.GetInvalidPathChars()) <> -1 Then
+            ' invalid chars
+            Return PathEnum.NotFound
+        End If
+        
+        Dim rtn As PathEnum
+        If File.Exists(path) Then
+            rtn = PathEnum.Exists Or PathEnum.IsFile
+        ElseIf Directory.Exists(path) Then
+            rtn = PathEnum.Exists Or PathEnum.IsDirectory
+        End If
+        
+        ' path can be a Directory and a Drive, or just a Drive...
+        ' will have IsDirectory if the drive can be accessed
+        If New DriveInfo(path).Name = New FileInfo(path).FullName Then
+            rtn = rtn Or PathEnum.Exists Or PathEnum.IsDrive
+        End If
+        
+        Return rtn
+    End Function
     
     ''' <summary>Sets clipboard to specified text, with optional success message and checks for errors.</summary>
     ''' <param name="text">Text to copy.</param>
