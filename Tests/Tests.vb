@@ -20,6 +20,12 @@ Namespace Tests
             If Not Test_GetFolderIconPath3(rootTestFolder) Then returnVal = False
             If Not Test_GetFolderIconPath4(rootTestFolder) Then returnVal = False
             If Not Test_GetFolderIconPath5(rootTestFolder) Then returnVal = False
+            If Not Test_RunAndGetOutput1() Then returnVal = False
+            If Not Test_RunAndGetOutput2() Then returnVal = False
+            If Not Test_RunAndGetOutput3() Then returnVal = False
+            If Not Test_RunAndGetOutput4() Then returnVal = False
+            If Not Test_RunAndGetOutput5() Then returnVal = False
+            If Not Test_RunAndGetOutput6() Then returnVal = False
 
             Return returnVal
         End Function
