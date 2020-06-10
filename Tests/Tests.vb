@@ -4,19 +4,22 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.IO
 
 Namespace Tests
     Module Main
         Function RunAllTests() As Boolean
             Dim returnVal As Boolean = True
 
-            If Not TestString("testfunc", "input1", "input1") Then returnVal = False
-            If Not TestString("testfunc", "input2", "input3") Then returnVal = False
-            If Not TestBoolean("testfunc", True, True) Then returnVal = False
-            If Not TestBoolean("testfunc", True, False) Then returnVal = False
-            If Not TestNumber("testfunc", 34, 34) Then returnVal = False
-            If Not TestNumber("testfunc", 3.141592693, 34) Then returnVal = False
-            If Not TestNumber("testfunc", 0.000000000001234, 1234000) Then returnVal = False
+            Dim rootTestFolder As String = Path.Combine(Directory.GetCurrentDirectory, "tests")
+            Directory.CreateDirectory(rootTestFolder)
+            If Not TestBoolean("CreateDirectory", Directory.Exists(rootTestFolder), True) Then returnVal = False
+
+            If Not Test_GetFolderIconPath1(rootTestFolder) Then returnVal = False
+            If Not Test_GetFolderIconPath2(rootTestFolder) Then returnVal = False
+            If Not Test_GetFolderIconPath3(rootTestFolder) Then returnVal = False
+            If Not Test_GetFolderIconPath4(rootTestFolder) Then returnVal = False
+            If Not Test_GetFolderIconPath5(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function
