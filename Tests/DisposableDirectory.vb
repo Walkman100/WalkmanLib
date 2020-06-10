@@ -9,7 +9,12 @@ Imports System.IO
 Public Class DisposableDirectory
     Implements IDisposable
 
+    Private _dirPath As String
     Public ReadOnly Property dirPath As String
+        Get
+            Return _dirPath
+        End Get
+    End Property
     Private disposed As Boolean = False
 
     Public Sub New(path As String)
@@ -17,7 +22,7 @@ Public Class DisposableDirectory
             Throw New IOException("Path already exists!")
         End If
 
-        dirPath = Directory.CreateDirectory(path).FullName
+        _dirPath = Directory.CreateDirectory(path).FullName
     End Sub
 
     Public Overrides Function ToString() As String

@@ -22,10 +22,10 @@ Namespace Tests
         Function Test_GetFolderIconPath2(rootTestFolder As String) As Boolean
             Using testDir As DisposableDirectory = New DisposableDirectory(Path.Combine(rootTestFolder, "getFolderIconPath2"))
                 File.WriteAllLines(Path.Combine(testDir.dirPath, "desktop.ini"), {
-                "[.ShellClassInfo]",
-                "IconFile=testIconPath",
-                "IconIndex=23"
-            })
+                    "[.ShellClassInfo]",
+                    "IconFile=testIconPath",
+                    "IconIndex=23"
+                })
 
                 Return TestString("GetFolderIconPath2", WalkmanLib.GetFolderIconPath(testDir.dirPath), testDir.dirPath & Path.DirectorySeparatorChar & "testIconPath,23")
             End Using
