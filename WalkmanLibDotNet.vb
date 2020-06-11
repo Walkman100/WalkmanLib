@@ -44,7 +44,7 @@ Public Partial Class WalkmanLib
         ElseIf pathInfo.HasFlag(PathEnum.IsDirectory) Then
             RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ /r /d y && icacls """ & path & """ /grant administrators:F /t && pause")
         Else
-            Throw New ArgumentException("File or Directory at specified path does not exist!", NameOf(path))
+            Throw New ArgumentException("File or Directory at specified path does not exist!", "path")
         End If
     End Sub
     

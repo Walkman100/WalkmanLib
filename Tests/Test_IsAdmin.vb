@@ -7,7 +7,7 @@ Imports System
 Imports System.IO
 
 Namespace Tests
-    Partial Module Tests
+    Module Tests_IsAdmin
         Function Test_IsAdmin1() As Boolean
             Return TestBoolean("IsAdmin1", WalkmanLib.IsAdmin(), False)
         End Function

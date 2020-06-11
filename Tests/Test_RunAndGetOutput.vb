@@ -6,7 +6,7 @@ Option Infer Off
 Imports System
 
 Namespace Tests
-    Partial Module Tests
+    Module Tests_RunAndGetOutput
         Function Test_RunAndGetOutput1() As Boolean
             Dim stdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi")
 

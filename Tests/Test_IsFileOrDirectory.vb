@@ -7,7 +7,7 @@ Imports System
 Imports System.IO
 
 Namespace Tests
-    Partial Module Tests
+    Module Tests_IsFileOrDirectory
         Function Test_IsFileOrDirectory1(rootTestFolder As String) As Boolean
             Using testDir As DisposableDirectory = New DisposableDirectory(Path.Combine(rootTestFolder, "isFileOrDirectory1"))
                 Return TestNumber("IsFileOrDirectory1", WalkmanLib.IsFileOrDirectory(testDir.dirPath), PathEnum.Exists Or PathEnum.IsDirectory)
