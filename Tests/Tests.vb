@@ -28,6 +28,13 @@ Namespace Tests
             If Not Test_RunAndGetOutput6() Then returnVal = False
             If Not Test_IsAdmin1() Then returnVal = False
             If Not Test_IsAdmin2(rootTestFolder) Then returnVal = False
+            If Not Test_IsFileOrDirectory1(rootTestFolder) Then returnVal = False
+            If Not Test_IsFileOrDirectory2(rootTestFolder) Then returnVal = False
+            If Not Test_IsFileOrDirectory3() Then returnVal = False
+            If Not Test_IsFileOrDirectory4() Then returnVal = False
+            If Not Test_IsFileOrDirectory5() Then returnVal = False
+            If Not Test_IsFileOrDirectory6() Then returnVal = False
+            If Not Test_IsFileOrDirectory7() Then returnVal = False
 
             Return returnVal
         End Function

@@ -7,7 +7,7 @@ Imports System
 Imports System.IO
 
 Namespace Tests
-    Module Tests_GetFolderIconPath
+    Partial Module Tests
         Function Test_GetFolderIconPath1(rootTestFolder As String) As Boolean
             Using testDir As DisposableDirectory = New DisposableDirectory(Path.Combine(rootTestFolder, "getFolderIconPath1"))
                 File.WriteAllLines(Path.Combine(testDir.dirPath, "desktop.ini"), {
