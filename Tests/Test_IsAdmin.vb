@@ -13,13 +13,13 @@ Namespace Tests
         End Function
 
         Function Test_IsAdmin2(rootTestFolder As String) As Boolean
-            Dim programPath As String = System.Reflection.Assembly.GetExecutingAssembly().CodeBase
-            programPath = (New Uri(programPath)).LocalPath
+            Dim programPath As String = Reflection.Assembly.GetExecutingAssembly().CodeBase
+            programPath = New Uri(programPath).LocalPath
             Dim tmpOutPath As String = Path.Combine(rootTestFolder, "outTmp.txt")
-            
+
             WalkmanLib.RunAsAdmin("cmd.exe", "/c """ & programPath & """ getAdmin > " & tmpOutPath)
-            System.Threading.Thread.Sleep(1000)
-            
+            Threading.Thread.Sleep(1000)
+
             Dim runAsAdminOutput As String
             Try
                 runAsAdminOutput = File.ReadAllText(tmpOutPath)
@@ -30,7 +30,7 @@ Namespace Tests
                 File.Delete(tmpOutPath)
             Catch
             End Try
-            
+
             Return TestString("IsAdmin2", runAsAdminOutput, "True" & Microsoft.VisualBasic.vbNewLine)
         End Function
     End Module
