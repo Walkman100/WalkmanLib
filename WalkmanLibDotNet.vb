@@ -38,10 +38,13 @@ Public Partial Class WalkmanLib
     ''' <summary>Runs the Take Ownership commands for a path.</summary>
     ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
     Shared Sub TakeOwnership(path As String)
-        If File.Exists(path) Then
+        Dim pathInfo As PathEnum = IsFileOrDirectory(path)
+        If pathInfo.HasFlag(PathEnum.IsFile) Then
             RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ && icacls """ & path & """ /grant administrators:F && pause")
-        ElseIf Directory.Exists(path)
+        ElseIf pathInfo.HasFlag(PathEnum.IsDirectory) Then
             RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ /r /d y && icacls """ & path & """ /grant administrators:F /t && pause")
+        Else
+            Throw New ArgumentException("File or Directory at specified path does not exist!", NameOf(path))
         End If
     End Sub
     
@@ -96,7 +99,7 @@ Public Partial Class WalkmanLib
         Try
             SetAttributes(path, fileAttributes)
             Return True
-        Catch ex As UnauthorizedAccessException When Not IsAdmin AndAlso Not IsNothing(accessDeniedSub)
+        Catch ex As UnauthorizedAccessException When Not IsAdmin() AndAlso Not IsNothing(accessDeniedSub)
             accessDeniedSub.Invoke(ex)
             Return False
         Catch ex As Exception
@@ -174,11 +177,15 @@ Public Partial Class WalkmanLib
             rtn = PathEnum.Exists Or PathEnum.IsDirectory
         End If
         
-        ' path can be a Directory and a Drive, or just a Drive...
-        ' will have IsDirectory if the drive can be accessed
-        If New DriveInfo(path).Name = New FileInfo(path).FullName Then
-            rtn = rtn Or PathEnum.Exists Or PathEnum.IsDrive
-        End If
+        Try
+            ' path can be a Directory and a Drive, or just a Drive...
+            ' will have IsDirectory if the drive can be accessed
+            If New DriveInfo(path).Name = New FileInfo(path).FullName Then
+                rtn = rtn Or PathEnum.Exists Or PathEnum.IsDrive
+            End If
+        Catch ex As ArgumentException
+            ' New DriveInfo() and New FileInfo() throw exceptions on invalid path sequence
+        End Try
         
         Return rtn
     End Function
@@ -217,8 +224,8 @@ Public Partial Class WalkmanLib
     Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional messagePumpForm As Form = Nothing)
         Application.EnableVisualStyles() ' affects when in a console app
         If showMsgBox Then
-            If MsgBox(errorMessage & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)", _
-                MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") <> MsgBoxresult.Yes Then Exit Sub
+            If MsgBox(errorMessage & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
+                MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") <> MsgBoxResult.Yes Then Exit Sub
         End If
         
         Dim frmBugReport As New Form With {
