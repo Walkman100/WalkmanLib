@@ -297,7 +297,7 @@ Public Partial Class WalkmanLib
     ''' <returns>If mergeStdErr is False, Returns StdOut. If mergeStdErr is True and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.</returns>
     ''' To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to False.
     Shared Function RunAndGetOutput(fileName As String, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing,
-      Optional mergeStdErr As Boolean = True, Optional ByRef StdErrReturn As String = "", Optional ByRef ExitCode As Integer = -1) As String
+      Optional mergeStdErr As Boolean = True, Optional ByRef stdErrReturn As String = "", Optional ByRef exitCode As Integer = -1) As String
         Dim process As New Diagnostics.Process()
         process.StartInfo.FileName = fileName
         If Not String.IsNullOrEmpty(arguments) Then
@@ -334,8 +334,8 @@ Public Partial Class WalkmanLib
             End If
         End If
         
-        StdErrReturn = stdError.Trim()
-        ExitCode = process.ExitCode
+        stdErrReturn = stdError.Trim()
+        exitCode = process.ExitCode
         Return returnString
     End Function
     
