@@ -39,6 +39,8 @@ Namespace Tests
             If Not Test_Attributes2(rootTestFolder) Then returnVal = False
             If Not Test_Attributes3(rootTestFolder) Then returnVal = False
             If Not Test_Attributes4(rootTestFolder) Then returnVal = False
+            If Not Test_Attributes5() Then returnVal = False
+            If Not Test_Attributes6() Then returnVal = False
 
             Return returnVal
         End Function

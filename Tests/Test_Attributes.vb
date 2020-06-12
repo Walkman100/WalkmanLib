@@ -5,6 +5,7 @@ Option Infer Off
 
 Imports System
 Imports System.IO
+Imports System.Threading
 
 Namespace Tests
     Module Tests_Attributes
@@ -89,5 +90,42 @@ Namespace Tests
             File.Delete(testFile)
             Return returnVal
         End Function
+
+        Function Test_Attributes5() As Boolean
+            Dim returnVal As Boolean = True
+
+            Dim testPath As String = "C:\Windows"
+
+            If Not TestBoolean("Attributes5.1", WalkmanLib.SetAttribute(testPath, FileAttributes.Hidden, AddressOf Test_Attributes5_delegate), False) Then returnVal = False
+            If Not TestBoolean("Attributes5.2", WalkmanLib.AddAttribute(testPath, FileAttributes.Hidden, AddressOf Test_Attributes5_delegate), False) Then returnVal = False
+            If Not TestBoolean("Attributes5.3", WalkmanLib.RemoveAttribute(testPath, FileAttributes.Hidden, AddressOf Test_Attributes5_delegate), False) Then returnVal = False
+            If Not TestBoolean("Attributes5.4", WalkmanLib.ChangeAttribute(testPath, FileAttributes.Hidden, True, AddressOf Test_Attributes5_delegate), False) Then returnVal = False
+
+            Return returnVal
+        End Function
+        Sub Test_Attributes5_delegate(ex As Exception)
+        End Sub
+
+        Function Test_Attributes6() As Boolean
+            Dim testPath As String = "C:\Windows"
+
+            delegateHasBeenCalled = False
+            delegateEx = Nothing
+
+            WalkmanLib.SetAttribute(testPath, FileAttributes.Hidden, AddressOf Test_Attributes6_delegate)
+
+            Do Until delegateHasBeenCalled = True
+                Thread.Sleep(10)
+            Loop
+
+            Return TestString("Attributes6", delegateEx.GetType().FullName, (New UnauthorizedAccessException).GetType().FullName)
+        End Function
+
+        Dim delegateHasBeenCalled As Boolean
+        Dim delegateEx As Exception
+        Sub Test_Attributes6_delegate(ex As Exception)
+            delegateEx = ex
+            delegateHasBeenCalled = True
+        End Sub
     End Module
 End Namespace
