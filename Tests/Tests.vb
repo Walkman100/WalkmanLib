@@ -35,6 +35,10 @@ Namespace Tests
             If Not Test_IsFileOrDirectory5() Then returnVal = False
             If Not Test_IsFileOrDirectory6() Then returnVal = False
             If Not Test_IsFileOrDirectory7() Then returnVal = False
+            If Not Test_Attributes1(rootTestFolder) Then returnVal = False
+            If Not Test_Attributes2(rootTestFolder) Then returnVal = False
+            If Not Test_Attributes3(rootTestFolder) Then returnVal = False
+            If Not Test_Attributes4(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function
