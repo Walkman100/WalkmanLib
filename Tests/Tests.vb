@@ -83,6 +83,16 @@ Namespace Tests
             Return input.ToString(formatString)
         End Function
 
+        Function TestType(functionName As String, input As Type, expected As Type) As Boolean
+            If input = expected Then
+                WriteTestOutput(functionName, True)
+                Return True
+            Else
+                WriteTestOutput(functionName, False, input.FullName, expected.FullName)
+                Return False
+            End If
+        End Function
+
         Private Sub WriteTestOutput(functionName As String, succeeded As Boolean, Optional input As String = Nothing, Optional expected As String = Nothing)
             WriteColour(ConsoleColor.White, functionName)
 
