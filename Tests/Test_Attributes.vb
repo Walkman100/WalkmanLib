@@ -9,6 +9,16 @@ Imports System.Threading
 
 Namespace Tests
     Module Tests_Attributes
+        Private Function TestGetAttributes(path As String) As FileAttributes
+            ' have to clear Compressed attribute, as tests assume it isn't set, and decompressing files involves P/Invoke
+            Dim fAttr As FileAttributes = File.GetAttributes(path)
+            If fAttr = FileAttributes.Compressed Then
+                Return FileAttributes.Normal
+            Else
+                Return fAttr And Not FileAttributes.Compressed
+            End If
+        End Function
+
         Function Test_Attributes1(rootTestFolder As String) As Boolean
             Dim returnVal As Boolean = True
 
@@ -16,13 +26,13 @@ Namespace Tests
             File.Create(testFile).Dispose()
 
             WalkmanLib.SetAttribute(testFile, FileAttributes.Normal)
-            If Not TestNumber("Attributes1.1", File.GetAttributes(testFile), FileAttributes.Normal) Then returnVal = False
+            If Not TestNumber("Attributes1.1", TestGetAttributes(testFile), FileAttributes.Normal) Then returnVal = False
 
             WalkmanLib.SetAttribute(testFile, FileAttributes.Hidden)
-            If Not TestNumber("Attributes1.2", File.GetAttributes(testFile), FileAttributes.Hidden) Then returnVal = False
+            If Not TestNumber("Attributes1.2", TestGetAttributes(testFile), FileAttributes.Hidden) Then returnVal = False
 
-            WalkmanLib.SetAttribute(testFile, File.GetAttributes(testFile) Or FileAttributes.System)
-            If Not TestNumber("Attributes1.3", File.GetAttributes(testFile), FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
+            WalkmanLib.SetAttribute(testFile, TestGetAttributes(testFile) Or FileAttributes.System)
+            If Not TestNumber("Attributes1.3", TestGetAttributes(testFile), FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
             File.Delete(testFile)
             Return returnVal
@@ -37,13 +47,13 @@ Namespace Tests
             WalkmanLib.SetAttribute(testFile, FileAttributes.Archive)
 
             WalkmanLib.AddAttribute(testFile, FileAttributes.Normal)
-            If Not TestNumber("Attributes2.1", File.GetAttributes(testFile), FileAttributes.Archive) Then returnVal = False
+            If Not TestNumber("Attributes2.1", TestGetAttributes(testFile), FileAttributes.Archive) Then returnVal = False
 
             WalkmanLib.AddAttribute(testFile, FileAttributes.Hidden)
-            If Not TestNumber("Attributes2.2", File.GetAttributes(testFile), FileAttributes.Archive Or FileAttributes.Hidden) Then returnVal = False
+            If Not TestNumber("Attributes2.2", TestGetAttributes(testFile), FileAttributes.Archive Or FileAttributes.Hidden) Then returnVal = False
 
             WalkmanLib.AddAttribute(testFile, FileAttributes.System)
-            If Not TestNumber("Attributes2.3", File.GetAttributes(testFile), FileAttributes.Archive Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
+            If Not TestNumber("Attributes2.3", TestGetAttributes(testFile), FileAttributes.Archive Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
             File.Delete(testFile)
             Return returnVal
@@ -58,13 +68,13 @@ Namespace Tests
             WalkmanLib.SetAttribute(testFile, FileAttributes.Normal Or FileAttributes.ReadOnly Or FileAttributes.Hidden Or FileAttributes.System)
 
             WalkmanLib.RemoveAttribute(testFile, FileAttributes.Normal)
-            If Not TestNumber("Attributes3.1", File.GetAttributes(testFile), FileAttributes.ReadOnly Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
+            If Not TestNumber("Attributes3.1", TestGetAttributes(testFile), FileAttributes.ReadOnly Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
             WalkmanLib.RemoveAttribute(testFile, FileAttributes.Hidden)
-            If Not TestNumber("Attributes3.2", File.GetAttributes(testFile), FileAttributes.ReadOnly Or FileAttributes.System) Then returnVal = False
+            If Not TestNumber("Attributes3.2", TestGetAttributes(testFile), FileAttributes.ReadOnly Or FileAttributes.System) Then returnVal = False
 
             WalkmanLib.RemoveAttribute(testFile, FileAttributes.ReadOnly Or FileAttributes.System)
-            If Not TestNumber("Attributes3.3", File.GetAttributes(testFile), FileAttributes.Normal) Then returnVal = False
+            If Not TestNumber("Attributes3.3", TestGetAttributes(testFile), FileAttributes.Normal) Then returnVal = False
 
             File.Delete(testFile)
             Return returnVal
@@ -79,13 +89,13 @@ Namespace Tests
             WalkmanLib.SetAttribute(testFile, FileAttributes.System Or FileAttributes.Hidden)
 
             WalkmanLib.ChangeAttribute(testFile, FileAttributes.Hidden, False)
-            If Not TestNumber("Attributes4.1", File.GetAttributes(testFile), FileAttributes.System) Then returnVal = False
+            If Not TestNumber("Attributes4.1", TestGetAttributes(testFile), FileAttributes.System) Then returnVal = False
 
             WalkmanLib.ChangeAttribute(testFile, FileAttributes.Hidden, True)
-            If Not TestNumber("Attributes4.2", File.GetAttributes(testFile), FileAttributes.System Or FileAttributes.Hidden) Then returnVal = False
+            If Not TestNumber("Attributes4.2", TestGetAttributes(testFile), FileAttributes.System Or FileAttributes.Hidden) Then returnVal = False
 
             WalkmanLib.ChangeAttribute(testFile, FileAttributes.Archive, True)
-            If Not TestNumber("Attributes4.3", File.GetAttributes(testFile), FileAttributes.System Or FileAttributes.Hidden Or FileAttributes.Archive) Then returnVal = False
+            If Not TestNumber("Attributes4.3", TestGetAttributes(testFile), FileAttributes.System Or FileAttributes.Hidden Or FileAttributes.Archive) Then returnVal = False
 
             File.Delete(testFile)
             Return returnVal
