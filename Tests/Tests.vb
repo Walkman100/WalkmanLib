@@ -55,6 +55,9 @@ Namespace Tests
             If Not Test_Shortcuts12(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts13(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts14(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts15(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts16(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts17(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function

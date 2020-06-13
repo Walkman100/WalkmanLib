@@ -9,9 +9,9 @@ Imports System.IO
 Namespace Tests
     Module Tests_Shortcuts
         Function Test_Shortcuts1() As Boolean
-            Dim shortcutPath As String = Path.Combine(Environment.GetEnvironmentVariable("AppData"),
-                                                      "Microsoft", "Windows", "Start Menu", "Programs",
-                                                      "System Tools", "Command Prompt.lnk")
+            Dim shortcutPath As String = Path.Combine(Environment.GetEnvironmentVariable("AppData"), "Microsoft",
+                                                      "Windows", "Start Menu", "Programs", "System Tools",
+                                                      "Command Prompt.lnk")
             If Not File.Exists(shortcutPath) Then
                 Return TestString("Shortcuts1", "System shortcut doesn't exist", "System shortcut exists")
             End If
@@ -20,9 +20,9 @@ Namespace Tests
         End Function
 
         Function Test_Shortcuts2() As Boolean
-            Dim shortcutPath As String = Path.Combine(Environment.GetEnvironmentVariable("AppData"),
-                                                      "Microsoft", "Windows", "Start Menu", "Programs",
-                                                      "System Tools", "Command Prompt.lnk")
+            Dim shortcutPath As String = Path.Combine(Environment.GetEnvironmentVariable("AppData"), "Microsoft",
+                                                      "Windows", "Start Menu", "Programs", "System Tools",
+                                                      "Command Prompt.lnk")
             If Not File.Exists(shortcutPath) Then
                 Return TestString("Shortcuts2", "System shortcut doesn't exist", "System shortcut exists")
             End If
@@ -31,14 +31,15 @@ Namespace Tests
         End Function
 
         Function Test_Shortcuts3() As Boolean
-            Dim shortcutPath As String = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"),
-                                                      "Microsoft", "Windows", "Start Menu", "Programs",
-                                                      "Accessories", "System Tools", "Character Map.lnk")
+            Dim shortcutPath As String = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "Microsoft",
+                                                      "Windows", "Start Menu", "Programs", "Accessories", "System Tools",
+                                                      "Character Map.lnk")
             If Not File.Exists(shortcutPath) Then
                 Return TestString("Shortcuts3", "System shortcut doesn't exist", "System shortcut exists")
             End If
 
-            Return TestString("Shortcuts3", WalkmanLib.GetShortcutInfo(shortcutPath).Description, "Selects special characters and copies them to your document.")
+            Return TestString("Shortcuts3", WalkmanLib.GetShortcutInfo(shortcutPath).Description,
+                              "Selects special characters and copies them to your document.")
         End Function
 
         Function Test_Shortcuts4(rootTestFolder As String) As Boolean
@@ -146,6 +147,49 @@ Namespace Tests
             WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
             Try
                 Return TestBoolean("Shortcuts14", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), True)
+            Finally
+                DeleteFileIfExists(shortcutPath)
+            End Try
+        End Function
+
+        Function Test_Shortcuts15(rootTestFolder As String) As Boolean
+            Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts15.lnk")
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, "C:\Windows\notepad.exe", "testArgument",
+                                                     "C:\Windows", "C:\Windows\regedit.exe,0", "testComment",
+                                                     "CTRL+ALT+F", Windows.Forms.FormWindowState.Maximized)
+
+            WalkmanLib.CreateShortcut(shortcutPath, workingDirectory:="%UserProfile%")
+            Try
+                Return TestString("Shortcuts15", WalkmanLib.GetShortcutInfo(shortcutPath).WorkingDirectory, "%UserProfile%")
+            Finally
+                DeleteFileIfExists(shortcutPath)
+            End Try
+        End Function
+
+        Function Test_Shortcuts16(rootTestFolder As String) As Boolean
+            Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts16.lnk")
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, "C:\Windows\notepad.exe", "testArgument",
+                                                     "C:\Windows", "C:\Windows\regedit.exe,0", "testComment",
+                                                     "CTRL+ALT+F", Windows.Forms.FormWindowState.Maximized)
+
+            WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
+            Try
+                Return TestString("Shortcuts16", WalkmanLib.GetShortcutInfo(shortcutPath).IconLocation, "C:\Windows\regedit.exe,0")
+            Finally
+                DeleteFileIfExists(shortcutPath)
+            End Try
+        End Function
+
+        Function Test_Shortcuts17(rootTestFolder As String) As Boolean
+            Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts17.lnk")
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, "C:\Windows\notepad.exe", "testArgument",
+                                                     "C:\Windows", "C:\Windows\regedit.exe,0", "testComment",
+                                                     "CTRL+ALT+F", Windows.Forms.FormWindowState.Maximized)
+
+            WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
+            WalkmanLib.CreateShortcut(shortcutPath, workingDirectory:="%UserProfile%", iconPath:="C:\Windows\explorer.exe")
+            Try
+                Return TestBoolean("Shortcuts17", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), True)
             Finally
                 DeleteFileIfExists(shortcutPath)
             End Try
