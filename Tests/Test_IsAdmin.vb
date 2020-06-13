@@ -26,10 +26,7 @@ Namespace Tests
             Catch ex As Exception
                 runAsAdminOutput = "Error: " & ex.Message
             End Try
-            Try
-                File.Delete(tmpOutPath)
-            Catch
-            End Try
+            DeleteFileIfExists(tmpOutPath)
 
             Return TestString("IsAdmin2", runAsAdminOutput, "True" & Microsoft.VisualBasic.vbNewLine)
         End Function

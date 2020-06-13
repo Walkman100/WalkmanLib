@@ -13,7 +13,7 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts1", WalkmanLib.CreateShortcut(shortcutPath), shortcutPath)
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -22,7 +22,8 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts2", WalkmanLib.CreateShortcut(shortcutPath), shortcutPath & ".lnk")
             Finally
-                File.Delete(shortcutPath & ".lnk")
+                If File.Exists(shortcutPath) Then File.Delete(shortcutPath) ' this shouldn't exist - don't show warning
+                DeleteFileIfExists(shortcutPath & ".lnk")
             End Try
         End Function
 
@@ -32,7 +33,7 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts3", WalkmanLib.GetShortcutInfo(shortcutPath).TargetPath, "C:\Windows\notepad.exe")
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -42,7 +43,7 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts4", WalkmanLib.GetShortcutInfo(shortcutPath).Arguments, "testArgument")
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -52,7 +53,7 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts5", WalkmanLib.GetShortcutInfo(shortcutPath).WorkingDirectory, "C:\Windows")
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -62,7 +63,7 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts6", WalkmanLib.GetShortcutInfo(shortcutPath).IconLocation, "C:\Windows\regedit.exe,0")
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -72,7 +73,7 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts7", WalkmanLib.GetShortcutInfo(shortcutPath).Description, "testComment")
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -82,7 +83,7 @@ Namespace Tests
             Try
                 Return TestString("Shortcuts8", WalkmanLib.GetShortcutInfo(shortcutPath).Hotkey, "Alt+Ctrl+F")
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -92,7 +93,7 @@ Namespace Tests
             Try
                 Return TestNumber("Shortcuts9", WalkmanLib.GetShortcutInfo(shortcutPath).WindowStyle, 3) ' 3 = Maximised. explained in the interface commentDoc
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -102,7 +103,7 @@ Namespace Tests
             Try
                 Return TestBoolean("Shortcuts10", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), False)
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
 
@@ -113,7 +114,7 @@ Namespace Tests
             Try
                 Return TestBoolean("Shortcuts11", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), True)
             Finally
-                File.Delete(shortcutPath)
+                DeleteFileIfExists(shortcutPath)
             End Try
         End Function
     End Module

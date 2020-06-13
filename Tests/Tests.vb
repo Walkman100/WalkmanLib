@@ -58,6 +58,16 @@ Namespace Tests
     End Module
 
     Module GeneralFunctions
+        Sub DeleteFileIfExists(path As String)
+            If File.Exists(path) Then
+                File.Delete(path)
+            Else
+                Console.Write("[")
+                WriteColour(ConsoleColor.DarkRed, "Warning")
+                Console.WriteLine("] File " & path & " does not exist")
+            End If
+        End Sub
+
         Function TestString(functionName As String, input As String, expected As String) As Boolean
             If input = expected Then
                 WriteTestOutput(functionName, True)

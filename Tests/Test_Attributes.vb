@@ -34,7 +34,7 @@ Namespace Tests
             WalkmanLib.SetAttribute(testFile, TestGetAttributes(testFile) Or FileAttributes.System)
             If Not TestNumber("Attributes1.3", TestGetAttributes(testFile), FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
-            File.Delete(testFile)
+            DeleteFileIfExists(testFile)
             Return returnVal
         End Function
 
@@ -55,7 +55,7 @@ Namespace Tests
             WalkmanLib.AddAttribute(testFile, FileAttributes.System)
             If Not TestNumber("Attributes2.3", TestGetAttributes(testFile), FileAttributes.Archive Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
-            File.Delete(testFile)
+            DeleteFileIfExists(testFile)
             Return returnVal
         End Function
 
@@ -76,7 +76,7 @@ Namespace Tests
             WalkmanLib.RemoveAttribute(testFile, FileAttributes.ReadOnly Or FileAttributes.System)
             If Not TestNumber("Attributes3.3", TestGetAttributes(testFile), FileAttributes.Normal) Then returnVal = False
 
-            File.Delete(testFile)
+            DeleteFileIfExists(testFile)
             Return returnVal
         End Function
 
@@ -97,7 +97,7 @@ Namespace Tests
             WalkmanLib.ChangeAttribute(testFile, FileAttributes.Archive, True)
             If Not TestNumber("Attributes4.3", TestGetAttributes(testFile), FileAttributes.System Or FileAttributes.Hidden Or FileAttributes.Archive) Then returnVal = False
 
-            File.Delete(testFile)
+            DeleteFileIfExists(testFile)
             Return returnVal
         End Function
 

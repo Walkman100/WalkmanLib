@@ -20,7 +20,7 @@ Namespace Tests
                 File.Create(testFile).Dispose()
                 Return TestNumber("IsFileOrDirectory2", WalkmanLib.IsFileOrDirectory(testFile), PathEnum.Exists Or PathEnum.IsFile)
             Finally
-                File.Delete(testFile)
+                DeleteFileIfExists(testFile)
             End Try
         End Function
 
