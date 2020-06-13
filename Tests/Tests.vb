@@ -41,9 +41,9 @@ Namespace Tests
             If Not Test_Attributes4(rootTestFolder) Then returnVal = False
             If Not Test_Attributes5() Then returnVal = False
             If Not Test_Attributes6() Then returnVal = False
-            If Not Test_Shortcuts1(rootTestFolder) Then returnVal = False
-            If Not Test_Shortcuts2(rootTestFolder) Then returnVal = False
-            If Not Test_Shortcuts3(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts1() Then returnVal = False
+            If Not Test_Shortcuts2() Then returnVal = False
+            If Not Test_Shortcuts3() Then returnVal = False
             If Not Test_Shortcuts4(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts5(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts6(rootTestFolder) Then returnVal = False
@@ -52,6 +52,9 @@ Namespace Tests
             If Not Test_Shortcuts9(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts10(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts11(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts12(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts13(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts14(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function
