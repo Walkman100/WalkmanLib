@@ -167,5 +167,31 @@ Namespace Tests
                 Return TestBoolean("Shortcuts17", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), True)
             End Using
         End Function
+
+        Function Test_Shortcuts18(rootTestFolder As String) As Boolean
+            Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts18.lnk")
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, "C:\Windows\notepad.exe", "testArgument",
+                                                     "C:\Windows", "C:\Windows\regedit.exe,0", "testComment",
+                                                     "CTRL+ALT+F", Windows.Forms.FormWindowState.Maximized)
+
+            Using testFile As New DisposableFile(shortcutPath, False)
+                Dim returnVal As Boolean = True
+
+                Dim link As IWshRuntimeLibrary.IWshShortcut = DirectCast(
+                    New IWshRuntimeLibrary.WshShell().CreateShortcut(shortcutPath),
+                    IWshRuntimeLibrary.IWshShortcut)
+
+                If Not TestString("Shortcuts18.1", link.TargetPath, "C:\Windows\notepad.exe") Then returnVal = False
+                If Not TestString("Shortcuts18.2", link.Arguments, "testArgument") Then returnVal = False
+                If Not TestString("Shortcuts18.3", link.WorkingDirectory, "C:\Windows") Then returnVal = False
+                If Not TestString("Shortcuts18.4", link.IconLocation, "C:\Windows\regedit.exe,0") Then returnVal = False
+                If Not TestString("Shortcuts18.5", link.Description, "testComment") Then returnVal = False
+                If Not TestString("Shortcuts18.6", link.Hotkey, "Alt+Ctrl+F") Then returnVal = False
+                If Not TestNumber("Shortcuts18.7", link.WindowStyle, 3) Then returnVal = False
+                If Not TestString("Shortcuts18.8", link.FullName, shortcutPath) Then returnVal = False
+
+                Return returnVal
+            End Using
+        End Function
     End Module
 End Namespace

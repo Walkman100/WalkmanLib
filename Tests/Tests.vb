@@ -58,6 +58,7 @@ Namespace Tests
             If Not Test_Shortcuts15(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts16(rootTestFolder) Then returnVal = False
             If Not Test_Shortcuts17(rootTestFolder) Then returnVal = False
+            If Not Test_Shortcuts18(rootTestFolder) Then returnVal = False
             If Not Test_Compression1(rootTestFolder) Then returnVal = False
             If Not Test_Compression2(rootTestFolder) Then returnVal = False
             If Not Test_Compression3(rootTestFolder) Then returnVal = False
