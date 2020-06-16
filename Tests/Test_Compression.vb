@@ -8,7 +8,7 @@ Imports System.IO
 Namespace Tests
     Module Tests_Compression
         Function Test_Compression1(rootTestFolder As String) As Boolean
-            Using testFile As DisposableFile = New DisposableFile(Path.Combine(rootTestFolder, "compression1.txt"))
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression1.txt"))
                 WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
                 WalkmanLib.SetCompression(testFile.filePath, False)
 
@@ -25,7 +25,7 @@ Namespace Tests
         End Function
 
         Function Test_Compression2(rootTestFolder As String) As Boolean
-            Using testFile As DisposableFile = New DisposableFile(Path.Combine(rootTestFolder, "compression2.txt"))
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression2.txt"))
                 WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
                 WalkmanLib.SetCompression(testFile.filePath, True)
 
@@ -41,7 +41,7 @@ Namespace Tests
             End Using
         End Function
         Function Test_Compression3(rootTestFolder As String) As Boolean
-            Using testFile As DisposableFile = New DisposableFile(Path.Combine(rootTestFolder, "compression3.txt"))
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression3.txt"))
                 WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
                 WalkmanLib.UncompressFile(testFile.filePath)
 
@@ -58,7 +58,7 @@ Namespace Tests
         End Function
 
         Function Test_Compression4(rootTestFolder As String) As Boolean
-            Using testFile As DisposableFile = New DisposableFile(Path.Combine(rootTestFolder, "compression4.txt"))
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression4.txt"))
                 WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
                 WalkmanLib.CompressFile(testFile.filePath)
 
