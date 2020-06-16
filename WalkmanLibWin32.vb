@@ -355,7 +355,7 @@ Public Partial Class WalkmanLib
     End Function
     
     <DllImport("Kernel32.dll")> _
-    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, lpInBuffer As Short, nInBufferSize As Integer, _
+    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, ByRef lpInBuffer As Short, nInBufferSize As Integer, _
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
     
