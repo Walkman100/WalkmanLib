@@ -3,7 +3,6 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
-Imports System
 Imports System.IO
 
 Namespace Tests
@@ -15,13 +14,9 @@ Namespace Tests
         End Function
 
         Function Test_IsFileOrDirectory2(rootTestFolder As String) As Boolean
-            Dim testFile As String = Path.Combine(rootTestFolder, "isFileOrDirectory2.txt")
-            Try
-                File.Create(testFile).Dispose()
-                Return TestNumber("IsFileOrDirectory2", WalkmanLib.IsFileOrDirectory(testFile), PathEnum.Exists Or PathEnum.IsFile)
-            Finally
-                DeleteFileIfExists(testFile)
-            End Try
+            Using testFile As DisposableFile = New DisposableFile(Path.Combine(rootTestFolder, "isFileOrDirectory2.txt"))
+                Return TestNumber("IsFileOrDirectory2", WalkmanLib.IsFileOrDirectory(testFile.filePath), PathEnum.Exists Or PathEnum.IsFile)
+            End Using
         End Function
 
         Function Test_IsFileOrDirectory3() As Boolean

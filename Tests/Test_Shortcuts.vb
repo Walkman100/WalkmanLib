@@ -43,12 +43,9 @@ Namespace Tests
         End Function
 
         Function Test_Shortcuts4(rootTestFolder As String) As Boolean
-            Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts4.lnk")
-            Try
-                Return TestString("Shortcuts4", WalkmanLib.CreateShortcut(shortcutPath), shortcutPath)
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            Using testFile As DisposableFile = New DisposableFile(Path.Combine(rootTestFolder, "shortcuts4.lnk"), False, False)
+                Return TestString("Shortcuts4", WalkmanLib.CreateShortcut(testFile.filePath), testFile.filePath)
+            End Using
         End Function
 
         Function Test_Shortcuts5(rootTestFolder As String) As Boolean
@@ -64,92 +61,74 @@ Namespace Tests
         Function Test_Shortcuts6(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts6.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, targetPath:="C:\Windows\notepad.exe")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestString("Shortcuts6", WalkmanLib.GetShortcutInfo(shortcutPath).TargetPath, "C:\Windows\notepad.exe")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts7(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts7.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, arguments:="testArgument")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestString("Shortcuts7", WalkmanLib.GetShortcutInfo(shortcutPath).Arguments, "testArgument")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts8(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts8.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, workingDirectory:="C:\Windows")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestString("Shortcuts8", WalkmanLib.GetShortcutInfo(shortcutPath).WorkingDirectory, "C:\Windows")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts9(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts9.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, iconPath:="C:\Windows\regedit.exe,0")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestString("Shortcuts9", WalkmanLib.GetShortcutInfo(shortcutPath).IconLocation, "C:\Windows\regedit.exe,0")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts10(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts10.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, comment:="testComment")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestString("Shortcuts10", WalkmanLib.GetShortcutInfo(shortcutPath).Description, "testComment")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts11(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts11.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, shortcutKey:="CTRL+ALT+F")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestString("Shortcuts11", WalkmanLib.GetShortcutInfo(shortcutPath).Hotkey, "Alt+Ctrl+F")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts12(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts12.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, windowStyle:=Windows.Forms.FormWindowState.Maximized)
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestNumber("Shortcuts12", WalkmanLib.GetShortcutInfo(shortcutPath).WindowStyle, 3) ' 3 = Maximised. explained in the interface commentDoc
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts13(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts13.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath)
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
                 Return TestBoolean("Shortcuts13", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), False)
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts14(rootTestFolder As String) As Boolean
             Dim shortcutPath As String = Path.Combine(rootTestFolder, "shortcuts14.lnk")
             shortcutPath = WalkmanLib.CreateShortcut(shortcutPath)
-            WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
+                WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
                 Return TestBoolean("Shortcuts14", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), True)
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts15(rootTestFolder As String) As Boolean
@@ -158,12 +137,10 @@ Namespace Tests
                                                      "C:\Windows", "C:\Windows\regedit.exe,0", "testComment",
                                                      "CTRL+ALT+F", Windows.Forms.FormWindowState.Maximized)
 
-            WalkmanLib.CreateShortcut(shortcutPath, workingDirectory:="%UserProfile%")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
+                WalkmanLib.CreateShortcut(shortcutPath, workingDirectory:="%UserProfile%")
                 Return TestString("Shortcuts15", WalkmanLib.GetShortcutInfo(shortcutPath).WorkingDirectory, "%UserProfile%")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts16(rootTestFolder As String) As Boolean
@@ -172,12 +149,10 @@ Namespace Tests
                                                      "C:\Windows", "C:\Windows\regedit.exe,0", "testComment",
                                                      "CTRL+ALT+F", Windows.Forms.FormWindowState.Maximized)
 
-            WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
+                WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
                 Return TestString("Shortcuts16", WalkmanLib.GetShortcutInfo(shortcutPath).IconLocation, "C:\Windows\regedit.exe,0")
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
 
         Function Test_Shortcuts17(rootTestFolder As String) As Boolean
@@ -186,13 +161,11 @@ Namespace Tests
                                                      "C:\Windows", "C:\Windows\regedit.exe,0", "testComment",
                                                      "CTRL+ALT+F", Windows.Forms.FormWindowState.Maximized)
 
-            WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
-            WalkmanLib.CreateShortcut(shortcutPath, workingDirectory:="%UserProfile%", iconPath:="C:\Windows\explorer.exe")
-            Try
+            Using testFile As DisposableFile = New DisposableFile(shortcutPath, False)
+                WalkmanLib.SetShortcutRunAsAdmin(shortcutPath, True)
+                WalkmanLib.CreateShortcut(shortcutPath, workingDirectory:="%UserProfile%", iconPath:="C:\Windows\explorer.exe")
                 Return TestBoolean("Shortcuts17", WalkmanLib.GetShortcutRunAsAdmin(shortcutPath), True)
-            Finally
-                DeleteFileIfExists(shortcutPath)
-            End Try
+            End Using
         End Function
     End Module
 End Namespace
