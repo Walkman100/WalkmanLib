@@ -3,6 +3,7 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
+Imports System
 Imports System.IO
 
 Namespace Tests
@@ -13,7 +14,7 @@ Namespace Tests
                 WalkmanLib.SetCompression(testFile.filePath, False)
 
                 If File.GetAttributes(testFile.filePath).HasFlag(FileAttributes.Compressed) Then
-                    Return TestString("Compression1", "File is compressed", "File not compressed")
+                    Return TestString("Compression1", "File is compressed", "File is not compressed")
                 End If
 
                 If Not WalkmanLib.SetCompression(testFile.filePath, True) Then
@@ -46,7 +47,7 @@ Namespace Tests
                 WalkmanLib.UncompressFile(testFile.filePath)
 
                 If File.GetAttributes(testFile.filePath).HasFlag(FileAttributes.Compressed) Then
-                    Return TestString("Compression3", "File is compressed", "File not compressed")
+                    Return TestString("Compression3", "File is compressed", "File is not compressed")
                 End If
 
                 If Not WalkmanLib.CompressFile(testFile.filePath) Then
@@ -71,6 +72,106 @@ Namespace Tests
                 End If
 
                 Return TestNumber("Compression4", File.GetAttributes(testFile.filePath), FileAttributes.Normal)
+            End Using
+        End Function
+
+        Function Test_Compression5(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression5.txt"))
+                Dim fileLength As Long = New FileInfo(testFile.filePath).Length
+                If fileLength <> 0 Then
+                    Return TestString("Compression5", "FileSize:" & fileLength, "FileSize:0")
+                End If
+
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
+                WalkmanLib.CompressFile(testFile.filePath)
+                If Not File.GetAttributes(testFile.filePath).HasFlag(FileAttributes.Compressed) Then
+                    Return TestString("Compression5", "File is not compressed", "File is compressed")
+                End If
+
+                Return TestNumber("Compression5", WalkmanLib.GetCompressedSize(testFile.filePath), 0)
+            End Using
+        End Function
+
+        Function Test_Compression6(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression6.txt"))
+                Dim fileLength As Long = New FileInfo(testFile.filePath).Length
+                If fileLength <> 0 Then
+                    Return TestString("Compression6", "FileSize:" & fileLength, "FileSize:0")
+                End If
+
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
+                WalkmanLib.CompressFile(testFile.filePath)
+                If Not File.GetAttributes(testFile.filePath).HasFlag(FileAttributes.Compressed) Then
+                    Return TestString("Compression6", "File is not compressed", "File is compressed")
+                End If
+
+                File.WriteAllText(testFile.filePath, String.Empty, System.Text.Encoding.UTF8)
+                fileLength = New FileInfo(testFile.filePath).Length
+                If fileLength <> 3 Then
+                    Return TestString("Compression6", "FileSize:" & fileLength, "FileSize:3")
+                End If
+
+                ' currently GetCompressedSize returns the filesize for 0 compressed size...
+                Return TestNumber("Compression6", WalkmanLib.GetCompressedSize(testFile.filePath), 3)
+            End Using
+        End Function
+
+        Function Test_Compression7(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression7.txt"))
+                Dim fileLength As Long = New FileInfo(testFile.filePath).Length
+                If fileLength <> 0 Then
+                    Return TestString("Compression7", "FileSize:" & fileLength, "FileSize:0")
+                End If
+
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
+                WalkmanLib.UncompressFile(testFile.filePath)
+                If File.GetAttributes(testFile.filePath).HasFlag(FileAttributes.Compressed) Then
+                    Return TestString("Compression7", "File is compressed", "File is not compressed")
+                End If
+
+                File.WriteAllText(testFile.filePath, String.Empty, Text.Encoding.UTF8)
+                fileLength = New FileInfo(testFile.filePath).Length
+                If fileLength <> 3 Then
+                    Return TestString("Compression7", "FileSize:" & fileLength, "FileSize:3")
+                End If
+
+                Return TestNumber("Compression7", WalkmanLib.GetCompressedSize(testFile.filePath), 3)
+            End Using
+        End Function
+
+        Function Test_Compression8(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "compression8.txt"))
+                Dim fileLength As Long = New FileInfo(testFile.filePath).Length
+                If fileLength <> 0 Then
+                    Return TestString("Compression8", "FileSize:" & fileLength, "FileSize:0")
+                End If
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
+                WalkmanLib.UncompressFile(testFile.filePath)
+                If File.GetAttributes(testFile.filePath).HasFlag(FileAttributes.Compressed) Then
+                    Return TestString("Compression8", "File is compressed", "File is not compressed")
+                End If
+
+                Dim newFileSize As Integer = 1024 * 64
+                Dim randBytes(newFileSize) As Byte
+                Dim rand As New Random()
+                rand.NextBytes(randBytes)
+
+                Dim randChars(newFileSize) As Char
+                randBytes.CopyTo(randChars, 0)
+                File.WriteAllText(testFile.filePath, randChars, Text.Encoding.ASCII)
+
+                newFileSize += 1 ' seems to be an extra byte added somewhere
+                fileLength = New FileInfo(testFile.filePath).Length
+                If fileLength <> newFileSize Then
+                    Return TestString("Compression8", "FileSize:" & fileLength, "FileSize:" & newFileSize)
+                End If
+
+                WalkmanLib.CompressFile(testFile.filePath)
+                If Not File.GetAttributes(testFile.filePath).HasFlag(FileAttributes.Compressed) Then
+                    Return TestString("Compression8", "File is not compressed", "File is compressed")
+                End If
+
+                Return TestNumber("Compression8", WalkmanLib.GetCompressedSize(testFile.filePath), 1024 * 60)
             End Using
         End Function
     End Module

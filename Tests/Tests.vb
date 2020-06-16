@@ -62,6 +62,10 @@ Namespace Tests
             If Not Test_Compression2(rootTestFolder) Then returnVal = False
             If Not Test_Compression3(rootTestFolder) Then returnVal = False
             If Not Test_Compression4(rootTestFolder) Then returnVal = False
+            If Not Test_Compression5(rootTestFolder) Then returnVal = False
+            If Not Test_Compression6(rootTestFolder) Then returnVal = False
+            If Not Test_Compression7(rootTestFolder) Then returnVal = False
+            If Not Test_Compression8(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function
