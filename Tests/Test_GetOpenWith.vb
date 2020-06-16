@@ -15,13 +15,31 @@ Namespace Tests
 
         Function Test_GetOpenWith2(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "testOpenWith2.bat"))
-                Return TestString("GetOpenWith2", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
+                Dim pathRoot As String = Path.GetPathRoot(rootTestFolder).Remove(2)
+                Dim fsUtilOutput As String = WalkmanLib.RunAndGetOutput("fsutil.exe", "8dot3name query " & pathRoot)
+
+                If fsUtilOutput.EndsWith("is disabled on " & pathRoot) Then
+                    Return TestString("GetOpenWith2", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
+                ElseIf fsUtilOutput.EndsWith("is enabled on " & pathRoot) Then
+                    Return TestString("GetOpenWith2", WalkmanLib.GetOpenWith(testFile.filePath), Path.Combine(rootTestFolder, "TESTOP~1.BAT"))
+                Else
+                    Return TestString("GetOpenWith2", fsUtilOutput, "Valid 8dot3 info")
+                End If
             End Using
         End Function
 
         Function Test_GetOpenWith3(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "testOpenWith3.cmd"))
-                Return TestString("GetOpenWith3", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
+                Dim pathRoot As String = Path.GetPathRoot(rootTestFolder).Remove(2)
+                Dim fsUtilOutput As String = WalkmanLib.RunAndGetOutput("fsutil.exe", "8dot3name query " & pathRoot)
+
+                If fsUtilOutput.EndsWith("is disabled on " & pathRoot) Then
+                    Return TestString("GetOpenWith3", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
+                ElseIf fsUtilOutput.EndsWith("is enabled on " & pathRoot) Then
+                    Return TestString("GetOpenWith3", WalkmanLib.GetOpenWith(testFile.filePath), Path.Combine(rootTestFolder, "TESTOP~1.CMD"))
+                Else
+                    Return TestString("GetOpenWith3", fsUtilOutput, "Valid 8dot3 info")
+                End If
             End Using
         End Function
 
