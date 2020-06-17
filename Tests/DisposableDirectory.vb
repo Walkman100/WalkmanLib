@@ -18,12 +18,15 @@ Namespace Tests
         End Property
         Private disposed As Boolean = False
 
-        Public Sub New(path As String)
-            If Directory.Exists(path) Or File.Exists(path) Then
-                Throw New IOException("Path already exists!")
+        Public Sub New(path As String, Optional createDir As Boolean = True)
+            If createDir Then
+                If Directory.Exists(path) Or File.Exists(path) Then
+                    Throw New IOException("Path already exists!")
+                End If
+                _dirPath = Directory.CreateDirectory(path).FullName
+            Else
+                _dirPath = New DirectoryInfo(path).FullName
             End If
-
-            _dirPath = Directory.CreateDirectory(path).FullName
         End Sub
 
         Public Overrides Function ToString() As String

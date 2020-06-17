@@ -76,6 +76,9 @@ Namespace Tests
             If Not Test_GetOpenWith7(rootTestFolder) Then returnVal = False
             If Not Test_GetOpenWith8(rootTestFolder) Then returnVal = False
             If Not Test_GetOpenWith9(rootTestFolder) Then returnVal = False
+            If Not Test_Symlinks1(rootTestFolder) Then returnVal = False
+            If Not Test_Symlinks2(rootTestFolder) Then returnVal = False
+            If Not Test_Symlinks3(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function
