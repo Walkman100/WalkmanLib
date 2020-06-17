@@ -13,32 +13,28 @@ Namespace Tests
             Return TestString("GetOpenWith1", WalkmanLib.GetOpenWith(testPath).ToLower(), testPath)
         End Function
 
+        Function Is8Dot3Enabled(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "test file.txt"))
+                Return File.Exists(Path.Combine(rootTestFolder, "TESTFI~1.TXT"))
+            End Using
+        End Function
+
         Function Test_GetOpenWith2(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "testOpenWith2.bat"))
-                Dim pathRoot As String = Path.GetPathRoot(rootTestFolder).Remove(2)
-                Dim fsUtilOutput As String = WalkmanLib.RunAndGetOutput("fsutil.exe", "8dot3name query " & pathRoot)
-
-                If fsUtilOutput.EndsWith("is disabled on " & pathRoot) Then
-                    Return TestString("GetOpenWith2", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
-                ElseIf fsUtilOutput.EndsWith("is enabled on " & pathRoot) Then
+                If Is8Dot3Enabled(rootTestFolder) Then
                     Return TestString("GetOpenWith2", WalkmanLib.GetOpenWith(testFile.filePath), Path.Combine(rootTestFolder, "TESTOP~1.BAT"))
                 Else
-                    Return TestString("GetOpenWith2", fsUtilOutput, "Valid 8dot3 info")
+                    Return TestString("GetOpenWith2", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
                 End If
             End Using
         End Function
 
         Function Test_GetOpenWith3(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "testOpenWith3.cmd"))
-                Dim pathRoot As String = Path.GetPathRoot(rootTestFolder).Remove(2)
-                Dim fsUtilOutput As String = WalkmanLib.RunAndGetOutput("fsutil.exe", "8dot3name query " & pathRoot)
-
-                If fsUtilOutput.EndsWith("is disabled on " & pathRoot) Then
-                    Return TestString("GetOpenWith3", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
-                ElseIf fsUtilOutput.EndsWith("is enabled on " & pathRoot) Then
+                If Is8Dot3Enabled(rootTestFolder) Then
                     Return TestString("GetOpenWith3", WalkmanLib.GetOpenWith(testFile.filePath), Path.Combine(rootTestFolder, "TESTOP~1.CMD"))
                 Else
-                    Return TestString("GetOpenWith3", fsUtilOutput, "Valid 8dot3 info")
+                    Return TestString("GetOpenWith3", WalkmanLib.GetOpenWith(testFile.filePath), testFile.filePath)
                 End If
             End Using
         End Function
