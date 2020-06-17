@@ -99,19 +99,23 @@ Public Partial Class WalkmanLib
         If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
             
             Dim errorException As Win32Exception = New Win32Exception
-            If errorException.NativeErrorCode = 3 Then
-                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            If errorException.NativeErrorCode = &H03 Then
+                '0x03: ERROR_PATH_NOT_FOUND: The system cannot find the path specified
                 If Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName) Then ' "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
                     Throw New DirectoryNotFoundException("The path to the symbolic link does not exist", errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 183 Then
-                'ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
+            ElseIf errorException.NativeErrorCode = &HB7 Then
+                '0xB7: ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
                 If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
                     Throw New IOException("The symbolic link path already exists", errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 5 Then
-                'ERROR_ACCESS_DENIED: Access is denied
+            ElseIf errorException.NativeErrorCode = &H05 Then
+                '0x05: ERROR_ACCESS_DENIED: Access is denied
                 Throw New UnauthorizedAccessException("Access to the symbolic link path is denied", errorException)
+            ElseIf errorException.NativeErrorCode = &H522 Then
+                '0x522: ERROR_PRIVILEGE_NOT_HELD: A required privilege is not held by the client.
+                '   ^ this occurs when Developer Mode is not enabled, or on below Windows 10
+                Throw New UnauthorizedAccessException("Symbolic link creation requires Admin privileges, or enabling developer mode", errorException)
             End If
             Throw errorException
         End If
