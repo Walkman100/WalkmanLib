@@ -128,7 +128,7 @@ Namespace Tests
                 Thread.Sleep(10)
             Loop
 
-            Return TestType("Attributes6", delegateEx.GetType(), (New UnauthorizedAccessException).GetType())
+            Return TestType("Attributes6", delegateEx.GetType(), GetType(UnauthorizedAccessException))
         End Function
 
         Dim delegateHasBeenCalled As Boolean

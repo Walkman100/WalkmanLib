@@ -83,6 +83,11 @@ Namespace Tests
             If Not Test_Symlinks5(rootTestFolder) Then returnVal = False
             If Not Test_Symlinks6(rootTestFolder) Then returnVal = False
             If Not Test_Symlinks7(rootTestFolder) Then returnVal = False
+            If Not Test_Hardlinks1(rootTestFolder) Then returnVal = False
+            If Not Test_Hardlinks2(rootTestFolder) Then returnVal = False
+            If Not Test_Hardlinks3(rootTestFolder) Then returnVal = False
+            If Not Test_Hardlinks4(rootTestFolder) Then returnVal = False
+            If Not Test_Hardlinks5(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function
