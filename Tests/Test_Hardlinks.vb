@@ -7,7 +7,7 @@ Imports System
 Imports System.IO
 
 Namespace Tests
-    Module Test_Hardlinks
+    Module Tests_Hardlinks
         Function Test_Hardlinks1(rootTestFolder As String) As Boolean
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks1Source.txt"))
                 File.WriteAllText(testFileSource.filePath, "testText")

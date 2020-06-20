@@ -77,12 +77,13 @@ Namespace Tests
             If Not Test_GetOpenWith8(rootTestFolder) Then returnVal = False
             If Not Test_GetOpenWith9(rootTestFolder) Then returnVal = False
             If Not Test_Symlinks1(rootTestFolder) Then returnVal = False
-            If Not Test_Symlinks2(rootTestFolder) Then returnVal = False
+            If Not Test_Symlinks2() Then returnVal = False
             If Not Test_Symlinks3(rootTestFolder) Then returnVal = False
             If Not Test_Symlinks4(rootTestFolder) Then returnVal = False
             If Not Test_Symlinks5(rootTestFolder) Then returnVal = False
             If Not Test_Symlinks6(rootTestFolder) Then returnVal = False
             If Not Test_Symlinks7(rootTestFolder) Then returnVal = False
+            If Not Test_Symlinks8(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks1(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks2(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks3(rootTestFolder) Then returnVal = False
