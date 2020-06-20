@@ -89,6 +89,13 @@ Namespace Tests
             If Not Test_Hardlinks3(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks4(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks5(rootTestFolder) Then returnVal = False
+            If Not Test_Updates1() Then returnVal = False
+            If Not Test_Updates2() Then returnVal = False
+            If Not Test_Updates3() Then returnVal = False
+            If Not Test_Updates4() Then returnVal = False
+            If Not Test_Updates5() Then returnVal = False
+            If Not Test_Updates6() Then returnVal = False
+            If Not Test_Updates7() Then returnVal = False
 
             Return returnVal
         End Function
