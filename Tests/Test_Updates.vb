@@ -4,6 +4,7 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.Threading
 
 Namespace Tests
     Module Tests_Updates
@@ -38,5 +39,30 @@ Namespace Tests
         Function Test_Updates7() As Boolean
             Return TestBoolean("Updates7", WalkmanLib.CheckIfUpdateAvailable(projectName, New Version(0, 9, 9)), True)
         End Function
+
+        Function Test_Updates8() As Boolean
+            delegateCallComplete = False
+            delegateReturn = Nothing
+
+            WalkmanLib.CheckIfUpdateAvailableInBackground(projectName, New Version(0, 9, 9), New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
+
+            Do Until delegateCallComplete
+                Thread.Sleep(100)
+            Loop
+
+            Return TestString("Updates8", delegateReturn, "Update available: True")
+        End Function
+
+        Dim delegateCallComplete As Boolean
+        Dim delegateReturn As String
+        Sub UpdateCheckReturn(sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs)
+            If Microsoft.VisualBasic.IsNothing(e.Error) Then
+                delegateReturn = "Update available: " & DirectCast(e.Result, Boolean)
+            Else
+                delegateReturn = "Error checking for updates: " & e.Error.Message
+                delegateReturn &= e.Error.ToString
+            End If
+            delegateCallComplete = True
+        End Sub
     End Module
 End Namespace
