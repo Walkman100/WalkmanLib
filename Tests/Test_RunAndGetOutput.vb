@@ -4,6 +4,8 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.ComponentModel
+Imports System.IO
 
 Namespace Tests
     Module Tests_RunAndGetOutput
@@ -46,6 +48,39 @@ Namespace Tests
                 "hi" & Microsoft.VisualBasic.vbNewLine &
                 "StdErr: hi" & Microsoft.VisualBasic.vbNewLine &
                 "ExitCode: 0")
+        End Function
+
+        Function Test_RunAndGetOutputThrows1() As Boolean
+            Try
+                WalkmanLib.RunAndGetOutput("nonExistantFile")
+                Return TestType("RunAndGetOutputThrows1", GetType(NoException), GetType(Win32Exception))
+            Catch ex As Win32Exception ' expected. none of the other Test* should run.
+                Return TestNumber("RunAndGetOutputThrows1", ex.NativeErrorCode, 2) '0x2: ERROR_FILE_NOT_FOUND: The system cannot find the file specified.
+            Catch ex As Exception
+                Return TestType("RunAndGetOutputThrows1", ex.GetType, GetType(Win32Exception))
+            End Try
+        End Function
+
+        Function Test_RunAndGetOutputThrows2() As Boolean
+            Try
+                WalkmanLib.RunAndGetOutput(Environment.GetEnvironmentVariable("WinDir"))
+                Return TestType("RunAndGetOutputThrows2", GetType(NoException), GetType(Win32Exception))
+            Catch ex As Win32Exception ' expected. none of the other Test* should run.
+                Return TestNumber("RunAndGetOutputThrows2", ex.NativeErrorCode, 5) '0x5: ERROR_ACCESS_DENIED: Access is denied.
+            Catch ex As Exception
+                Return TestType("RunAndGetOutputThrows2", ex.GetType, GetType(Win32Exception))
+            End Try
+        End Function
+
+        Function Test_RunAndGetOutputThrows3() As Boolean
+            Try
+                WalkmanLib.RunAndGetOutput(Path.Combine(Environment.SystemDirectory, "shell32.dll"))
+                Return TestType("RunAndGetOutputThrows3", GetType(NoException), GetType(Win32Exception))
+            Catch ex As Win32Exception ' expected. none of the other Test* should run.
+                Return TestNumber("RunAndGetOutputThrows3", ex.NativeErrorCode, 193) '0xC1: ERROR_BAD_EXE_FORMAT: %1 is not a valid Win32 application.
+            Catch ex As Exception
+                Return TestType("RunAndGetOutputThrows3", ex.GetType, GetType(Win32Exception))
+            End Try
         End Function
     End Module
 End Namespace

@@ -26,6 +26,9 @@ Namespace Tests
             If Not Test_RunAndGetOutput4() Then returnVal = False
             If Not Test_RunAndGetOutput5() Then returnVal = False
             If Not Test_RunAndGetOutput6() Then returnVal = False
+            If Not Test_RunAndGetOutputThrows1() Then returnVal = False
+            If Not Test_RunAndGetOutputThrows2() Then returnVal = False
+            If Not Test_RunAndGetOutputThrows3() Then returnVal = False
             If Not Test_IsAdmin1() Then returnVal = False
             If Not Test_IsAdmin2(rootTestFolder) Then returnVal = False
             If Not Test_IsFileOrDirectory1(rootTestFolder) Then returnVal = False
