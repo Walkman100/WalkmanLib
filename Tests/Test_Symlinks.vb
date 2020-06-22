@@ -19,9 +19,10 @@ Namespace Tests
                 End Using
             End Using
         End Function
+
         Function Test_Symlinks2() As Boolean
             Dim symlinkPath As String = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "Documents")
-            Return TestString("Symlinks2", WalkmanLib.GetSymlinkTarget(symlinkPath), "C:\Users\Public\Documents")
+            Return TestString("Symlinks2", WalkmanLib.GetSymlinkTarget(symlinkPath), Path.Combine(Environment.GetEnvironmentVariable("PUBLIC"), "Documents"))
         End Function
 
         Function Test_Symlinks3(rootTestFolder As String) As Boolean
