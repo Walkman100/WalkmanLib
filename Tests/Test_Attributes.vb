@@ -21,84 +21,74 @@ Namespace Tests
 
         Function Test_Attributes1(rootTestFolder As String) As Boolean
             Dim returnVal As Boolean = True
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "setAttributeTest1.txt"))
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal)
+                If Not TestNumber("Attributes1.1", TestGetAttributes(testFile.filePath), FileAttributes.Normal) Then returnVal = False
 
-            Dim testFile As String = Path.Combine(rootTestFolder, "setAttributeTest1.txt")
-            File.Create(testFile).Dispose()
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Hidden)
+                If Not TestNumber("Attributes1.2", TestGetAttributes(testFile.filePath), FileAttributes.Hidden) Then returnVal = False
 
-            WalkmanLib.SetAttribute(testFile, FileAttributes.Normal)
-            If Not TestNumber("Attributes1.1", TestGetAttributes(testFile), FileAttributes.Normal) Then returnVal = False
+                WalkmanLib.SetAttribute(testFile.filePath, TestGetAttributes(testFile.filePath) Or FileAttributes.System)
+                If Not TestNumber("Attributes1.3", TestGetAttributes(testFile.filePath), FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
-            WalkmanLib.SetAttribute(testFile, FileAttributes.Hidden)
-            If Not TestNumber("Attributes1.2", TestGetAttributes(testFile), FileAttributes.Hidden) Then returnVal = False
-
-            WalkmanLib.SetAttribute(testFile, TestGetAttributes(testFile) Or FileAttributes.System)
-            If Not TestNumber("Attributes1.3", TestGetAttributes(testFile), FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
-
-            DeleteFileIfExists(testFile)
-            Return returnVal
+                Return returnVal
+            End Using
         End Function
 
         Function Test_Attributes2(rootTestFolder As String) As Boolean
             Dim returnVal As Boolean = True
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "setAttributeTest2.txt"))
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Archive)
 
-            Dim testFile As String = Path.Combine(rootTestFolder, "setAttributeTest2.txt")
-            File.Create(testFile).Dispose()
+                WalkmanLib.AddAttribute(testFile.filePath, FileAttributes.Normal)
+                If Not TestNumber("Attributes2.1", TestGetAttributes(testFile.filePath), FileAttributes.Archive) Then returnVal = False
 
-            WalkmanLib.SetAttribute(testFile, FileAttributes.Archive)
+                WalkmanLib.AddAttribute(testFile.filePath, FileAttributes.Hidden)
+                If Not TestNumber("Attributes2.2", TestGetAttributes(testFile.filePath), FileAttributes.Archive Or FileAttributes.Hidden) Then returnVal = False
 
-            WalkmanLib.AddAttribute(testFile, FileAttributes.Normal)
-            If Not TestNumber("Attributes2.1", TestGetAttributes(testFile), FileAttributes.Archive) Then returnVal = False
+                WalkmanLib.AddAttribute(testFile.filePath, FileAttributes.System)
+                If Not TestNumber("Attributes2.3", TestGetAttributes(testFile.filePath), FileAttributes.Archive Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
-            WalkmanLib.AddAttribute(testFile, FileAttributes.Hidden)
-            If Not TestNumber("Attributes2.2", TestGetAttributes(testFile), FileAttributes.Archive Or FileAttributes.Hidden) Then returnVal = False
-
-            WalkmanLib.AddAttribute(testFile, FileAttributes.System)
-            If Not TestNumber("Attributes2.3", TestGetAttributes(testFile), FileAttributes.Archive Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
-
-            DeleteFileIfExists(testFile)
-            Return returnVal
+                Return returnVal
+            End Using
         End Function
 
         Function Test_Attributes3(rootTestFolder As String) As Boolean
             Dim returnVal As Boolean = True
 
-            Dim testFile As String = Path.Combine(rootTestFolder, "setAttributeTest3.txt")
-            File.Create(testFile).Dispose()
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "setAttributeTest3.txt"))
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.Normal Or FileAttributes.ReadOnly Or FileAttributes.Hidden Or FileAttributes.System)
 
-            WalkmanLib.SetAttribute(testFile, FileAttributes.Normal Or FileAttributes.ReadOnly Or FileAttributes.Hidden Or FileAttributes.System)
+                WalkmanLib.RemoveAttribute(testFile.filePath, FileAttributes.Normal)
+                If Not TestNumber("Attributes3.1", TestGetAttributes(testFile.filePath), FileAttributes.ReadOnly Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
 
-            WalkmanLib.RemoveAttribute(testFile, FileAttributes.Normal)
-            If Not TestNumber("Attributes3.1", TestGetAttributes(testFile), FileAttributes.ReadOnly Or FileAttributes.Hidden Or FileAttributes.System) Then returnVal = False
+                WalkmanLib.RemoveAttribute(testFile.filePath, FileAttributes.Hidden)
+                If Not TestNumber("Attributes3.2", TestGetAttributes(testFile.filePath), FileAttributes.ReadOnly Or FileAttributes.System) Then returnVal = False
 
-            WalkmanLib.RemoveAttribute(testFile, FileAttributes.Hidden)
-            If Not TestNumber("Attributes3.2", TestGetAttributes(testFile), FileAttributes.ReadOnly Or FileAttributes.System) Then returnVal = False
+                WalkmanLib.RemoveAttribute(testFile.filePath, FileAttributes.ReadOnly Or FileAttributes.System)
+                If Not TestNumber("Attributes3.3", TestGetAttributes(testFile.filePath), FileAttributes.Normal) Then returnVal = False
 
-            WalkmanLib.RemoveAttribute(testFile, FileAttributes.ReadOnly Or FileAttributes.System)
-            If Not TestNumber("Attributes3.3", TestGetAttributes(testFile), FileAttributes.Normal) Then returnVal = False
-
-            DeleteFileIfExists(testFile)
-            Return returnVal
+                Return returnVal
+            End Using
         End Function
 
         Function Test_Attributes4(rootTestFolder As String) As Boolean
             Dim returnVal As Boolean = True
 
-            Dim testFile As String = Path.Combine(rootTestFolder, "setAttributeTest4.txt")
-            File.Create(testFile).Dispose()
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "setAttributeTest4.txt"))
+                WalkmanLib.SetAttribute(testFile.filePath, FileAttributes.System Or FileAttributes.Hidden)
 
-            WalkmanLib.SetAttribute(testFile, FileAttributes.System Or FileAttributes.Hidden)
+                WalkmanLib.ChangeAttribute(testFile.filePath, FileAttributes.Hidden, False)
+                If Not TestNumber("Attributes4.1", TestGetAttributes(testFile.filePath), FileAttributes.System) Then returnVal = False
 
-            WalkmanLib.ChangeAttribute(testFile, FileAttributes.Hidden, False)
-            If Not TestNumber("Attributes4.1", TestGetAttributes(testFile), FileAttributes.System) Then returnVal = False
+                WalkmanLib.ChangeAttribute(testFile.filePath, FileAttributes.Hidden, True)
+                If Not TestNumber("Attributes4.2", TestGetAttributes(testFile.filePath), FileAttributes.System Or FileAttributes.Hidden) Then returnVal = False
 
-            WalkmanLib.ChangeAttribute(testFile, FileAttributes.Hidden, True)
-            If Not TestNumber("Attributes4.2", TestGetAttributes(testFile), FileAttributes.System Or FileAttributes.Hidden) Then returnVal = False
+                WalkmanLib.ChangeAttribute(testFile.filePath, FileAttributes.Archive, True)
+                If Not TestNumber("Attributes4.3", TestGetAttributes(testFile.filePath), FileAttributes.System Or FileAttributes.Hidden Or FileAttributes.Archive) Then returnVal = False
 
-            WalkmanLib.ChangeAttribute(testFile, FileAttributes.Archive, True)
-            If Not TestNumber("Attributes4.3", TestGetAttributes(testFile), FileAttributes.System Or FileAttributes.Hidden Or FileAttributes.Archive) Then returnVal = False
-
-            DeleteFileIfExists(testFile)
-            Return returnVal
+                Return returnVal
+            End Using
         End Function
 
         Function Test_Attributes5() As Boolean

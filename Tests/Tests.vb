@@ -165,12 +165,11 @@ Namespace Tests
         Private Sub WriteTestOutput(functionName As String, succeeded As Boolean, Optional input As String = Nothing, Optional expected As String = Nothing)
             WriteColour(ConsoleColor.White, functionName)
 
+            Console.Write(": [")
             If succeeded Then
-                Console.Write(": [")
                 WriteColour(ConsoleColor.Green, "Y")
-                Console.WriteLine("]")
+                Console.Write("]")
             Else
-                Console.Write(": [")
                 WriteColour(ConsoleColor.Red, "N")
 
                 Console.Write("]: in:")
@@ -186,9 +185,8 @@ Namespace Tests
                 Else
                     WriteColour(ConsoleColor.Cyan, expected)
                 End If
-
-                Console.WriteLine()
             End If
+            Console.WriteLine()
         End Sub
 
         Private Sub WriteColour(colour As ConsoleColor, input As String)
