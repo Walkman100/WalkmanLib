@@ -72,6 +72,8 @@ Namespace Tests
             If Not Test_Compression6(rootTestFolder) Then returnVal = False
             If Not Test_Compression7(rootTestFolder) Then returnVal = False
             If Not Test_Compression8(rootTestFolder) Then returnVal = False
+            If Not Test_Compression9(rootTestFolder) Then returnVal = False
+            If Not Test_Compression10() Then returnVal = False
             If Not Test_GetOpenWith1() Then returnVal = False
             If Not Test_GetOpenWith2(rootTestFolder) Then returnVal = False
             If Not Test_GetOpenWith3(rootTestFolder) Then returnVal = False

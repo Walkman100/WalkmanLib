@@ -105,7 +105,7 @@ Namespace Tests
                     Return TestString("Compression6", "File is not compressed", "File is compressed")
                 End If
 
-                File.WriteAllText(testFile.filePath, String.Empty, System.Text.Encoding.UTF8)
+                File.WriteAllText(testFile.filePath, String.Empty, Text.Encoding.UTF8)
                 fileLength = New FileInfo(testFile.filePath).Length
                 If fileLength <> 3 Then
                     Return TestString("Compression6", "FileSize:" & fileLength, "FileSize:3")
@@ -173,6 +173,16 @@ Namespace Tests
 
                 Return TestNumber("Compression8", WalkmanLib.GetCompressedSize(testFile.filePath), 1024 * 60)
             End Using
+        End Function
+
+        Function Test_Compression9(rootTestFolder As String) As Boolean
+            Dim testPath As String = Path.Combine(rootTestFolder, "compressionThrows1.txt")
+            Return TestBoolean("Compression9", WalkmanLib.SetCompression(testPath, True), False)
+        End Function
+
+        Function Test_Compression10() As Boolean
+            Dim testPath As String = Path.Combine(Environment.SystemDirectory, "shell32.dll")
+            Return TestBoolean("Compression10", WalkmanLib.SetCompression(testPath, True), False)
         End Function
     End Module
 End Namespace
