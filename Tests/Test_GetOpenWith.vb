@@ -80,5 +80,10 @@ Namespace Tests
                                   Path.Combine(Environment.SystemDirectory, "cryptext.dll").ToLower())
             End Using
         End Function
+
+        Function Test_GetOpenWith10(rootTestFolder As String) As Boolean
+            Dim testPath As String = Path.Combine(rootTestFolder, "testOpenWith10.txt")
+            Return TestString("GetOpenWith10", WalkmanLib.GetOpenWith(testPath), "File not found!")
+        End Function
     End Module
 End Namespace
