@@ -193,5 +193,25 @@ Namespace Tests
                 Return returnVal
             End Using
         End Function
+
+        Function Test_ShortcutThrows1(rootTestFolder As String) As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.CreateShortcut(Path.Combine(rootTestFolder, "shortcutThrows1.lnk"), shortcutKey:="TEST")
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("ShortcutThrows1", ex.GetType, GetType(ArgumentException))
+        End Function
+
+        Function Test_ShortcutThrows2() As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.CreateShortcut(Path.Combine(Environment.SystemDirectory, "shortcutThrows2.lnk"))
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("ShortcutThrows2", ex.GetType, GetType(UnauthorizedAccessException))
+        End Function
     End Module
 End Namespace
