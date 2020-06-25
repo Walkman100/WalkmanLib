@@ -96,6 +96,9 @@ Namespace Tests
             If Not Test_Symlinks10() Then returnVal = False
             If Not Test_SymlinkThrows1() Then returnVal = False
             If Not Test_SymlinkThrows2(rootTestFolder) Then returnVal = False
+            If Not Test_SymlinkThrows3(rootTestFolder) Then returnVal = False
+            If Not Test_SymlinkThrows4(rootTestFolder) Then returnVal = False
+            If Not Test_SymlinkThrows5(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks1(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks2(rootTestFolder) Then returnVal = False
             If Not Test_Hardlinks3(rootTestFolder) Then returnVal = False

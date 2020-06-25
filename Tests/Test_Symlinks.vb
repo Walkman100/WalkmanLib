@@ -145,5 +145,42 @@ Namespace Tests
                 File.Delete(symlinkPath)
             End Try
         End Function
+
+        Function Test_SymlinkThrows3(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows3Source.txt"))
+                Dim ex As Exception = New NoException
+                Try
+                    WalkmanLib.CreateSymLink(Path.Combine(rootTestFolder, "nonExistantFolder", "symlinkThrows3.txt"), testFile.filePath, SymbolicLinkType.File)
+                Catch ex2 As Exception
+                    ex = ex2
+                End Try
+                Return TestType("SymlinkThrows3", ex.GetType, GetType(DirectoryNotFoundException))
+            End Using
+        End Function
+
+        Function Test_SymlinkThrows4(rootTestFolder As String) As Boolean
+            Using symlinkPath As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows4.txt")),
+                  testFile As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows4Source.txt"))
+                Dim ex As Exception = New NoException
+                Try
+                    WalkmanLib.CreateSymLink(symlinkPath.filePath, testFile.filePath, SymbolicLinkType.File)
+                Catch ex2 As Exception
+                    ex = ex2
+                End Try
+                Return TestType("SymlinkThrows4", ex.GetType, GetType(IOException))
+            End Using
+        End Function
+
+        Function Test_SymlinkThrows5(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows5.txt"))
+                Dim ex As Exception = New NoException
+                Try
+                    WalkmanLib.CreateSymLink(Path.Combine(Environment.SystemDirectory, "symlinkThrows5.txt"), testFile.filePath, SymbolicLinkType.File)
+                Catch ex2 As Exception
+                    ex = ex2
+                End Try
+                Return TestType("SymlinkThrows5", ex.GetType, GetType(UnauthorizedAccessException))
+            End Using
+        End Function
     End Module
 End Namespace
