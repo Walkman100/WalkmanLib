@@ -4,6 +4,7 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.ComponentModel
 Imports System.IO
 
 Namespace Tests
@@ -100,6 +101,49 @@ Namespace Tests
                     Return TestString("Symlinks8", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource.filePath)
                 End Using
             End Using
+        End Function
+
+        Function Test_Symlinks9() As Boolean
+            Dim testPath As String = Environment.GetEnvironmentVariable("WinDir").ToLower()
+            Return TestString("Symlinks9", WalkmanLib.GetSymlinkTarget(testPath).ToLower(), testPath)
+        End Function
+
+        Function Test_Symlinks10() As Boolean
+            Dim testPath As String = Path.Combine(Environment.SystemDirectory, "shell32.dll").ToLower()
+            Return TestString("Symlinks10", WalkmanLib.GetSymlinkTarget(testPath).ToLower(), testPath)
+        End Function
+
+        Function Test_SymlinkThrows1() As Boolean
+            Try
+                WalkmanLib.GetSymlinkTarget("nonExistantFile")
+                Return TestType("SymlinkThrows1", GetType(NoException), GetType(Win32Exception))
+            Catch ex As Win32Exception ' expected. none of the other Test* should run.
+                Return TestNumber("SymlinkThrows1", ex.NativeErrorCode, 2) '0x2: ERROR_FILE_NOT_FOUND: The system cannot find the file specified.
+            Catch ex As Exception
+                Return TestType("SymlinkThrows1", ex.GetType, GetType(Win32Exception))
+            End Try
+        End Function
+
+        Function Test_SymlinkThrows2(rootTestFolder As String) As Boolean
+            Dim symlinkPath As String = Path.Combine(rootTestFolder, "symlinkThrows2.txt")
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows2Source.txt"))
+                WalkmanLib.CreateSymLink(symlinkPath, testFileSource.filePath, SymbolicLinkType.File)
+            End Using
+
+            If Not File.Exists(symlinkPath) Then
+                Return TestString("SymlinkThrows2", "Test symlink doesn't exist", "Test symlink exists")
+            End If
+
+            Try
+                WalkmanLib.GetSymlinkTarget(symlinkPath)
+                Return TestType("SymlinkThrows2", GetType(NoException), GetType(Win32Exception))
+            Catch ex As Win32Exception
+                Return TestNumber("SymlinkThrows2", ex.NativeErrorCode, 2) '0x2: ERROR_FILE_NOT_FOUND: The system cannot find the file specified.
+            Catch ex As Exception
+                Return TestType("SymlinkThrows2", ex.GetType, GetType(Win32Exception))
+            Finally
+                File.Delete(symlinkPath)
+            End Try
         End Function
     End Module
 End Namespace

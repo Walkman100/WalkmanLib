@@ -176,7 +176,7 @@ Namespace Tests
         End Function
 
         Function Test_Compression9(rootTestFolder As String) As Boolean
-            Dim testPath As String = Path.Combine(rootTestFolder, "compressionThrows1.txt")
+            Dim testPath As String = Path.Combine(rootTestFolder, "compression9.txt")
             Return TestBoolean("Compression9", WalkmanLib.SetCompression(testPath, True), False)
         End Function
 
