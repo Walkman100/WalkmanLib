@@ -4,6 +4,7 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.Net
 Imports System.Threading
 
 Namespace Tests
@@ -60,9 +61,48 @@ Namespace Tests
                 delegateReturn = "Update available: " & DirectCast(e.Result, Boolean)
             Else
                 delegateReturn = "Error checking for updates: " & e.Error.Message
-                delegateReturn &= e.Error.ToString
             End If
             delegateCallComplete = True
         End Sub
+
+        Function Test_UpdateThrows1() As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetLatestVersionInfo("NonExistantProject")
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("UpdateThrows1", ex.GetType, GetType(WebException))
+        End Function
+
+        Function Test_UpdateThrows2() As Boolean
+            Try
+                WalkmanLib.GetLatestVersionInfo("NonExistantProject")
+                Return TestType("UpdateThrows2", GetType(NoException), GetType(WebException))
+            Catch ex As WebException
+                If TypeOf ex.Response Is HttpWebResponse Then
+                    Dim response As HttpWebResponse = DirectCast(ex.Response, HttpWebResponse)
+                    ' expected result. all other Return Test* are unexpected.
+                    Return TestNumber("UpdateThrows2", response.StatusCode, HttpStatusCode.NotFound)
+                Else
+                    Return TestType("UpdateThrows2", ex.Response.GetType, GetType(HttpWebResponse))
+                End If
+            Catch ex As Exception
+                Return TestType("UpdateThrows2", ex.GetType, GetType(WebException))
+            End Try
+        End Function
+
+        Function Test_UpdateThrows3() As Boolean
+            delegateCallComplete = False
+            delegateReturn = Nothing
+
+            WalkmanLib.CheckIfUpdateAvailableInBackground("NonExistantProject", New Version(0, 9, 9), New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
+
+            Do Until delegateCallComplete
+                Thread.Sleep(100)
+            Loop
+
+            Return TestString("UpdateThrows3", delegateReturn, "Error checking for updates: The remote server returned an error: (404) Not Found.")
+        End Function
     End Module
 End Namespace

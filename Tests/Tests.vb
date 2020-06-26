@@ -116,6 +116,9 @@ Namespace Tests
             If Not Test_Updates6() Then returnVal = False
             If Not Test_Updates7() Then returnVal = False
             If Not Test_Updates8() Then returnVal = False
+            If Not Test_UpdateThrows1() Then returnVal = False
+            If Not Test_UpdateThrows2() Then returnVal = False
+            If Not Test_UpdateThrows3() Then returnVal = False
 
             Return returnVal
         End Function
