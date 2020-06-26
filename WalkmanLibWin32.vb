@@ -44,9 +44,7 @@ Public Enum MouseButton ' used for MouseClick
 End Enum
 
 Partial Public Class WalkmanLib
-
-    ' =================================== CreateHardLink ===================================
-
+#Region "CreateHardLink"
     ' Link: http://pinvoke.net/default.aspx/kernel32.CreateHardLink
     ' Link (native error codes): https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes#system-error-codes
     ''' <summary>Creates a hardlink to an existing file.</summary>
@@ -82,10 +80,9 @@ Partial Public Class WalkmanLib
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function CreateHardLink(lpFileName As String, lpExistingFileName As String, lpSecurityAttributes As IntPtr) As Boolean
     End Function
+#End Region
 
-
-    ' =================================== CreateSymLink ===================================
-
+#Region "CreateSymLink"
     ' Link: https://stackoverflow.com/a/11156870/2999220
     ''' <summary>Creates a file or directory symbolic link.</summary>
     ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
@@ -124,10 +121,9 @@ Partial Public Class WalkmanLib
     <DllImport("kernel32.dll", SetLastError:=True)>
     Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
     End Function
+#End Region
 
-
-    ' =================================== GetSymlinkTarget ===================================
-
+#Region "GetSymlinkTarget"
     ' Link: https://stackoverflow.com/a/33487494/2999220
     ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
     ''' <param name="path">Path to the symlink to get the target of.</param>
@@ -167,10 +163,9 @@ Partial Public Class WalkmanLib
     <DllImport("kernel32.dll", SetLastError:=True)>
     Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
     End Function
+#End Region
 
-
-    ' =================================== Shortcut Management ===================================
-
+#Region "Shortcut Management"
     ' Link: https://stackoverflow.com/a/14141782/2999220
     ' Link: https://www.tek-tips.com/viewthread.cfm?qid=850335
     ''' <summary>Gets a shortcut property object to retrieve info about a shortcut.</summary>
@@ -250,10 +245,9 @@ Partial Public Class WalkmanLib
         <DispId(&H7D1)>
         Sub Save()
     End Interface
+#End Region
 
-
-    ' =================================== PickIconDialogShow ===================================
-
+#Region "PickIconDialogShow"
     ' Link: https://www.pinvoke.net/default.aspx/shell32.pickicondlg
     ' Link: https://docs.microsoft.com/en-us/windows/desktop/api/shlobj_core/nf-shlobj_core-pickicondlg
     ''' <summary>Shows a dialog for the user to choose an icon file and index.</summary>
@@ -279,10 +273,9 @@ Partial Public Class WalkmanLib
     End Function
 
     Private Declare Unicode Function PickIconDlg Lib "Shell32" Alias "PickIconDlg" (hwndOwner As IntPtr, lpstrFile As String, nMaxFile As Integer, ByRef lpdwIconIndex As Integer) As Integer
+#End Region
 
-
-    ' =================================== ExtractIconByIndex ===================================
-
+#Region "ExtractIconByIndex"
     ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
     ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
     ''' <param name="filePath">The path to the file that contains an image.</param>
@@ -308,10 +301,9 @@ Partial Public Class WalkmanLib
     Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
     ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
     End Function
+#End Region
 
-
-    ' =================================== File Compression ===================================
-
+#Region "File Compression"
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to compress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
@@ -362,10 +354,9 @@ Partial Public Class WalkmanLib
     Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, ByRef lpInBuffer As Short, nInBufferSize As Integer,
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
+#End Region
 
-
-    ' =================================== GetCompressedSize ===================================
-
+#Region "GetCompressedSize"
     ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     ' Link: https://stackoverflow.com/a/22508299/2999220
     ' Link: https://stackoverflow.com/a/1650868/2999220 (Win32Exception handling)
@@ -384,10 +375,9 @@ Partial Public Class WalkmanLib
     End Function
 
     Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA" (ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
+#End Region
 
-
-    ' =================================== GetOpenWith ===================================
-
+#Region "GetOpenWith"
     ' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
     ''' <param name="filePath">The file to get the OpenWith program for.</param>
@@ -411,10 +401,9 @@ Partial Public Class WalkmanLib
     End Function
 
     Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA" (lpFile As String, lpDirectory As String, lpResult As String) As Long
+#End Region
 
-
-    ' =================================== MouseClick ===================================
-
+#Region "MouseClick"
     ' Link: https://stackoverflow.com/a/2416762/2999220
     ' Link: http://pinvoke.net/default.aspx/user32.mouse_event (Additional buttons)
     ''' <summary>Performs a mouse click at the current cursor position.</summary>
@@ -450,10 +439,9 @@ Partial Public Class WalkmanLib
     <DllImport("user32.dll", CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Sub mouse_event(dwFlags As MouseButton, dx As UInteger, dy As UInteger, cButtons As UInteger, dwExtraInfo As UInteger)
     End Sub
+#End Region
 
-
-    ' =================================== ShowProperties ===================================
-
+#Region "ShowProperties"
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
     ''' <param name="path">The path to show the window for.</param>
@@ -495,4 +483,5 @@ Partial Public Class WalkmanLib
         Public hIcon As IntPtr
         Public hProcess As IntPtr
     End Structure
+#End Region
 End Class
