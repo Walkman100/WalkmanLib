@@ -20,20 +20,20 @@ Public Enum PathEnum
     IsDrive = 8
 End Enum
 
-Public Partial Class WalkmanLib
-    
+Partial Public Class WalkmanLib
+
     ''' <summary>Opens the Open With dialog box for a file path.</summary>
     ''' <param name="path">The file to open with a program.</param>
     Shared Sub OpenWith(path As String)
         Shell("rundll32 shell32.dll,OpenAs_RunDLL " & path, AppWinStyle.NormalFocus, True, 500)
     End Sub
-    
+
     ''' <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
     ''' <returns>True if running with administrator permissions, False if not</returns>
     Shared Function IsAdmin() As Boolean
         Return New WindowsPrincipal(WindowsIdentity.GetCurrent).IsInRole(WindowsBuiltInRole.Administrator)
     End Function
-    
+
     ' Link: https://www.howtogeek.com/howto/windows-vista/add-take-ownership-to-explorer-right-click-menu-in-vista/
     ''' <summary>Runs the Take Ownership commands for a path.</summary>
     ''' <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
@@ -47,17 +47,17 @@ Public Partial Class WalkmanLib
             Throw New ArgumentException("File or Directory at specified path does not exist!", "path")
         End If
     End Sub
-    
+
     ''' <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
     ''' <param name="programPath">Path of the program to run as administrator.</param>
     ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process. Surround whitespaces with quotes as usual.</param>
     Shared Sub RunAsAdmin(programPath As String, Optional arguments As String = Nothing)
         Dim WSH_Type As Type = Type.GetTypeFromProgID("Shell.Application")
         Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
-        
+
         WSH_Type.InvokeMember("ShellExecute", Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {programPath, arguments, "", "runas"})
     End Sub
-    
+
     ''' <summary>Adds or removes the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttribute">The FileAttributes to add or remove.</param>
@@ -71,7 +71,7 @@ Public Partial Class WalkmanLib
             Return RemoveAttribute(path, fileAttribute, accessDeniedSub)
         End If
     End Function
-    
+
     ''' <summary>Adds the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttribute">The FileAttributes to add.</param>
@@ -80,7 +80,7 @@ Public Partial Class WalkmanLib
     Shared Function AddAttribute(path As String, fileAttribute As FileAttributes, Optional accessDeniedSub As AccessDeniedDelegate = Nothing) As Boolean
         Return SetAttribute(path, GetAttributes(path) Or fileAttribute, accessDeniedSub)
     End Function
-    
+
     ''' <summary>Removes the specified System.IO.FileAttributes from the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttribute">The FileAttributes to remove.</param>
@@ -89,7 +89,7 @@ Public Partial Class WalkmanLib
     Shared Function RemoveAttribute(path As String, fileAttribute As FileAttributes, Optional accessDeniedSub As AccessDeniedDelegate = Nothing) As Boolean
         Return SetAttribute(path, GetAttributes(path) And Not fileAttribute, accessDeniedSub)
     End Function
-    
+
     ''' <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>
     ''' <param name="fileAttributes">A bitwise combination of the enumeration values.</param>
@@ -108,38 +108,38 @@ Public Partial Class WalkmanLib
         End Try
     End Function
     Delegate Sub AccessDeniedDelegate(ByVal ex As Exception)
-    
+
     ' Example code to use the access denied sub return:
-'    Sub Main()
-'        WalkmanLib.SetAttribute("C:\ProgramData", FileAttributes.Hidden, AddressOf accessDeniedSub)
-'    End Sub
-'    Sub accessDeniedSub(ex As Exception)
-'        Application.EnableVisualStyles() ' affects when in a console app
-'        If MsgBox(ex.Message & vbNewLine & vbNewLine & "Try launching <programName> As Administrator?", _
-'          MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Access denied!") = MsgBoxResult.Yes Then
-'            WalkmanLib.RunAsAdmin(Application.StartupPath & "\" & Diagnostics.Process.GetCurrentProcess.ProcessName & ".exe", "<arguments>")
-'            Environment.Exit(0) / Application.Exit() ' depending on whether running in Console or WinForms app, respectively
-'        End If
-'    End Sub
-    
+    'Sub Main()
+    '    WalkmanLib.SetAttribute("C:\ProgramData", FileAttributes.Hidden, AddressOf accessDeniedSub)
+    'End Sub
+    'Sub accessDeniedSub(ex As Exception)
+    '    Application.EnableVisualStyles() ' affects when in a console app
+    '    If MsgBox(ex.Message & vbNewLine & vbNewLine & "Try launching <programName> As Administrator?",
+    '      MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Access denied!") = MsgBoxResult.Yes Then
+    '        WalkmanLib.RunAsAdmin(Application.StartupPath & "\" & Diagnostics.Process.GetCurrentProcess.ProcessName & ".exe", "<arguments>")
+    '        Environment.Exit(0) / Application.Exit() ' depending on whether running in Console or WinForms app, respectively
+    '        End If
+    'End Sub
+
     ' Link: https://stackoverflow.com/a/25958432/2999220
     ' Link: https://stackoverflow.com/a/11166160/2999220
-    Private Const RunAsAdminByte  As Byte = &H15 ' Decimal 21
+    Private Const RunAsAdminByte As Byte = &H15 ' Decimal 21
     Private Const RunAsAdminOnBit As Byte = &H20 ' Decimal 32
-    
+
     ''' <summary>Gets whether a shortcut's "Run as Administrator" checkbox is checked.</summary>
     ''' <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
     ''' <returns>State of the Admin flag. True = Set, i.e. will attempt to run as admin.</returns>
     Shared Function GetShortcutRunAsAdmin(shortcutPath As String) As Boolean
         Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
-        
+
         If (shortcutBytes(RunAsAdminByte) And RunAsAdminOnBit) = RunAsAdminOnBit Then
             Return True
         Else
             Return False
         End If
     End Function
-    
+
     ''' <summary>
     ''' Sets a shortcut's "Run as Administrator" checkbox state.
     ''' Note that this uses bit-flipping to change the documented RunAsAdmin bit.
@@ -150,13 +150,13 @@ Public Partial Class WalkmanLib
     Shared Sub SetShortcutRunAsAdmin(shortcutPath As String, flagState As Boolean)
         Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         If flagState Then
-            shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) Or      RunAsAdminOnBit
+            shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) Or RunAsAdminOnBit
         Else
             shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) And Not RunAsAdminOnBit
         End If
         WriteAllBytes(shortcutPath, shortcutBytes)
     End Sub
-    
+
     ''' <summary>
     ''' Gets whether a specified <paramref name="path"/> exists. `NotFound` is returned on invalid chars.
     ''' Return value will contain `Exists` if <paramref name="path"/> refers to a valid drive,
@@ -169,14 +169,14 @@ Public Partial Class WalkmanLib
             ' invalid chars
             Return PathEnum.NotFound
         End If
-        
+
         Dim rtn As PathEnum
         If File.Exists(path) Then
             rtn = PathEnum.Exists Or PathEnum.IsFile
         ElseIf Directory.Exists(path) Then
             rtn = PathEnum.Exists Or PathEnum.IsDirectory
         End If
-        
+
         Try
             ' path can be a Directory and a Drive, or just a Drive...
             ' will have IsDirectory if the drive can be accessed
@@ -186,10 +186,10 @@ Public Partial Class WalkmanLib
         Catch ex As ArgumentException
             ' New DriveInfo() and New FileInfo() throw exceptions on invalid path sequence
         End Try
-        
+
         Return rtn
     End Function
-    
+
     ''' <summary>Sets clipboard to specified text, with optional success message and checks for errors.</summary>
     ''' <param name="text">Text to copy.</param>
     ''' <param name="successMessage">Message to show on success. If left out no message will be shown, if "default" is supplied then the default message will be shown.</param>
@@ -215,7 +215,7 @@ Public Partial Class WalkmanLib
             Return False
         End Try
     End Function
-    
+
     ''' <summary>Shows an error message for an exception, and asks the user if they want to display the full error in a copyable window.</summary>
     ''' <param name="ex">The System.Exception to show details about.</param>
     ''' <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
@@ -227,7 +227,7 @@ Public Partial Class WalkmanLib
             If MsgBox(errorMessage & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
                 MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") <> MsgBoxResult.Yes Then Exit Sub
         End If
-        
+
         Dim frmBugReport As New Form With {
             .Width = 600,
             .Height = 525,
@@ -246,37 +246,37 @@ Public Partial Class WalkmanLib
         Try
             txtBugReport.Text = ""
             While ex IsNot Nothing
-                If ex.ToString IsNot Nothing Then           txtBugReport.Text &= "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
-                If ex.GetBaseException IsNot Nothing Then   txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
-                If ex.GetType IsNot Nothing Then            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
-                If ex.Message IsNot Nothing Then            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
-                If ex.StackTrace IsNot Nothing Then         txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
+                If ex.ToString IsNot Nothing Then txtBugReport.Text &= "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
+                If ex.GetBaseException IsNot Nothing Then txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
+                If ex.GetType IsNot Nothing Then txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
+                If ex.Message IsNot Nothing Then txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
+                If ex.StackTrace IsNot Nothing Then txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
                 If TypeOf ex Is System.ComponentModel.Win32Exception Then
-                                                            txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode & vbNewLine
-                                                            txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
+                    txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode & vbNewLine
+                    txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
                 End If
                 If TypeOf ex Is FileNotFoundException Then
-                                                            txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine
-                                                            txtBugReport.Text &= "FusionLog: " & DirectCast(ex, FileNotFoundException).FusionLog & vbNewLine
+                    txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine
+                    txtBugReport.Text &= "FusionLog: " & DirectCast(ex, FileNotFoundException).FusionLog & vbNewLine
                 End If
-                If ex.Source IsNot Nothing Then             txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
-                If ex.TargetSite IsNot Nothing Then         txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
-                                                            txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
-                                                            txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
+                If ex.Source IsNot Nothing Then txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
+                If ex.TargetSite IsNot Nothing Then txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
+                txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
+                txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
                 For i As Integer = 0 To 100 'Integer.MaxValue no reason to go that high
                     Try
-                                                            txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
+                        txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
                     Catch
                         Exit For
                     End Try
                 Next
-                If ex.InnerException IsNot Nothing Then     txtBugReport.Text &= vbNewLine & "InnerException:" & vbNewLine
+                If ex.InnerException IsNot Nothing Then txtBugReport.Text &= vbNewLine & "InnerException:" & vbNewLine
                 ex = ex.InnerException
             End While
         Catch ex2 As Exception
             txtBugReport.Text &= "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
         End Try
-        
+
         Try
             If IsNothing(messagePumpForm) Then
                 ' Thanks to https://stackoverflow.com/a/661662/2999220
@@ -292,7 +292,7 @@ Public Partial Class WalkmanLib
             MsgBox("Error showing window: " & ex2.ToString, MsgBoxStyle.Exclamation)
         End Try
     End Sub
-    
+
     ' Link: https://stackoverflow.com/a/10072082/2999220
     ''' <summary>Runs an executable without showing a window and returns it's output.</summary>
     ''' <param name="fileName">The path to the program executable.</param>
@@ -313,7 +313,7 @@ Public Partial Class WalkmanLib
         If Not String.IsNullOrEmpty(workingDirectory) Then
             process.StartInfo.WorkingDirectory = workingDirectory
         End If
-        
+
         process.StartInfo.CreateNoWindow = True
         process.StartInfo.WindowStyle = Diagnostics.ProcessWindowStyle.Hidden
         process.StartInfo.UseShellExecute = False
@@ -322,37 +322,37 @@ Public Partial Class WalkmanLib
         Dim stdOutput As Text.StringBuilder = New Text.StringBuilder()
         AddHandler process.OutputDataReceived, Sub(sender, args) stdOutput.AppendLine(args.Data)
         ' Use AppendLine rather than Append since args.Data is one line of output, not including the newline character.
-        
+
         Dim stdError As String
         process.Start()
         process.BeginOutputReadLine()
         stdError = process.StandardError.ReadToEnd()
         process.WaitForExit()
-        
+
         Dim returnString As String = stdOutput.ToString.Trim()
         If mergeStdErr Then
             If Not String.IsNullOrEmpty(stdError) Then
                 If Not String.IsNullOrEmpty(returnString) Then
                     returnString &= vbNewLine
                 End If
-                
+
                 returnString &= "StdErr: " & stdError.Trim()
                 returnString &= vbNewLine & "ExitCode: " & process.ExitCode
             End If
         End If
-        
+
         stdErrReturn = stdError.Trim()
         exitCode = process.ExitCode
         Return returnString
     End Function
-    
+
     ''' <summary>Gets path to the folder icon, or "no icon found" if none is set.</summary>
     ''' <param name="folderPath">The folder path to get the icon path for.</param>
     ''' <returns>The icon path.</returns>
     Shared Function GetFolderIconPath(folderPath As String) As String
         Dim gotIcon, lookingForIconIndex, isAbsolute As Boolean
         Dim parsedIconPath As String = folderPath
-        
+
         If folderPath.EndsWith(Path.VolumeSeparatorChar & Path.DirectorySeparatorChar) Then
             If Exists(Path.Combine(folderPath, "Autorun.inf")) Then
                 For Each line As String In ReadLines(Path.Combine(folderPath, "Autorun.inf"))
@@ -381,7 +381,7 @@ Public Partial Class WalkmanLib
                 Next
             End If
         End If
-        
+
         If gotIcon Then
             isAbsolute = False
             If parsedIconPath.StartsWith("%") Then
@@ -389,17 +389,17 @@ Public Partial Class WalkmanLib
                 parsedIconPath = Environment.ExpandEnvironmentVariables(parsedIconPath)
             Else
                 For i As Integer = 1 To 26 ' The Chr() below will give all letters from A to Z
-                    If parsedIconPath.StartsWith( Chr(i+64) & Path.VolumeSeparatorChar & Path.DirectorySeparatorChar, True, Nothing ) Then
+                    If parsedIconPath.StartsWith(Chr(i + 64) & Path.VolumeSeparatorChar & Path.DirectorySeparatorChar, True, Nothing) Then
                         isAbsolute = True
                         Exit For
                     End If
                 Next
             End If
-            
+
             If parsedIconPath.EndsWith(",0") Then
                 parsedIconPath = parsedIconPath.Remove(parsedIconPath.Length - 2)
             End If
-            
+
             If isAbsolute Then
                 Return parsedIconPath
             Else

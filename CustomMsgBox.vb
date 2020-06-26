@@ -12,16 +12,15 @@ Public Enum WinVersionStyle
     Win10
 End Enum
 
-Public Partial Class CustomMsgBoxForm
+Partial Public Class CustomMsgBoxForm
     Public Sub New()
         Application.EnableVisualStyles()
         ' The Me.InitializeComponent call is required for Windows Forms designer support.
         Me.InitializeComponent()
-        
     End Sub
-    
+
     ' properties
-    
+
     Public Property Prompt() As String
         Get
             Return lblMain.Text
@@ -30,7 +29,7 @@ Public Partial Class CustomMsgBoxForm
             lblMain.Text = value
         End Set
     End Property
-    
+
     Public Property Title() As String
         Get
             Return Me.Text
@@ -54,7 +53,7 @@ Public Partial Class CustomMsgBoxForm
     Public Button3Text As String = Nothing
     Public WinVersion As WinVersionStyle = WinVersionStyle.Win10
     Public DialogResultString As String = Nothing
-    
+
     Public WriteOnly Property Buttons() As MsgBoxStyle
         Set(value As MsgBoxStyle)
             If value <> 0 Then
@@ -73,7 +72,7 @@ Public Partial Class CustomMsgBoxForm
                 ElseIf value.HasFlag(MsgBoxStyle.Critical) Then
                     FormLevel = enumFormLevel.Critical
                 End If
-                
+
                 If value.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
                     Button1Text = "Abort"
                     Button2Text = "Retry"
@@ -99,9 +98,9 @@ Public Partial Class CustomMsgBoxForm
             End If
         End Set
     End Property
-    
+
     ' subs & functions
-    
+
     Private Sub MeShown() Handles Me.Shown
         If Me.Text = Nothing Then
             Try
@@ -110,7 +109,7 @@ Public Partial Class CustomMsgBoxForm
                 Me.Text = "CustomMsgBox"
             End Try
         End If
-        
+
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
         Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), System.Drawing.Icon)
         If FormLevel <> enumFormLevel.None Then pbxMain.Image = Me.Icon.ToBitmap
@@ -123,7 +122,7 @@ Public Partial Class CustomMsgBoxForm
                 Me.ShowIcon = False
             End If
         End Try
-        
+
         Select Case FormLevel
             Case enumFormLevel.Critical
                 My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Beep)
@@ -134,11 +133,11 @@ Public Partial Class CustomMsgBoxForm
             Case enumFormLevel.Question
                 My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Question)
         End Select
-        
+
         If lblMain.Height > 13 Then
             Me.Height = 162 + (lblMain.Height - 13)
         End If
-        
+
         If Button1Text <> Nothing Then
             btnAccept.Text = Button1Text
             btnAccept.Visible = True
@@ -165,7 +164,7 @@ Public Partial Class CustomMsgBoxForm
             btnCancel.Visible = False
         End If
     End Sub
-    
+
     Private Function GetDialogResult(buttonText As String) As DialogResult
         Select Case buttonText
             Case "Abort"
@@ -186,33 +185,33 @@ Public Partial Class CustomMsgBoxForm
                 Return DialogResult.None
         End Select
     End Function
-    
+
     Private Sub Accept_Click() Handles btnAccept.Click
         Me.DialogResult = GetDialogResult(Button1Text)
         DialogResultString = Button1Text ' for use with custom buttons
         If GetDialogResult(Button1Text) = DialogResult.None Then
-            Me.Close
+            Me.Close()
         End If
     End Sub
-    
+
     Private Sub AnswerMid_Click() Handles btnAnswerMid.Click
         Me.DialogResult = GetDialogResult(Button2Text)
         DialogResultString = Button2Text
         If GetDialogResult(Button2Text) = DialogResult.None Then
-            Me.Close
+            Me.Close()
         End If
     End Sub
-    
+
     Private Sub Cancel_Click() Handles btnCancel.Click
         Me.DialogResult = GetDialogResult(Button3Text)
         DialogResultString = Button3Text
         If GetDialogResult(Button3Text) = DialogResult.None Then
-            Me.Close
+            Me.Close()
         End If
     End Sub
 End Class
 
-Public Partial Class WalkmanLib
+Partial Public Class WalkmanLib
     ''' <summary>Shows a custom messagebox</summary>
     ''' <param name="Prompt">The text to display in the messagebox window</param>
     ''' <param name="Buttons">Buttons and style of messagebox to show. A bitwise combination of the enumeration values. Default: OkOnly</param>
@@ -220,7 +219,7 @@ Public Partial Class WalkmanLib
     ''' <param name="WinVersion">Windows version to use style icons from. Default: WinVersionStyle.Win10</param>
     ''' <param name="ownerForm">Used to set the Window's Icon. Set to Me to copy the current form's icon</param>
     ''' <returns>The button the user clicked on.</returns>
-    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, Optional Title As String = Nothing, _
+    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, Optional Title As String = Nothing,
       Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As DialogResult
         Dim formToShow As New CustomMsgBoxForm With {
             .Prompt = Prompt,
@@ -232,7 +231,7 @@ Public Partial Class WalkmanLib
         }
         Return formToShow.ShowDialog
     End Function
-    
+
     ''' <summary>Shows a custom messagebox with custom buttons</summary>
     ''' <param name="Prompt">The text to display in the messagebox window</param>
     ''' <param name="customButton1">Text to show on the first button</param>
@@ -243,7 +242,7 @@ Public Partial Class WalkmanLib
     ''' <param name="WinVersion">Windows version to use style icons from. Default: WinVersionStyle.Win10</param>
     ''' <param name="ownerForm">Used to set the Window's Icon. Set to Me to copy the current form's icon</param>
     ''' <returns>Text of the button the user clicked on.</returns>
-    Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, Optional Style As MsgBoxStyle = 0, _
+    Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, Optional Style As MsgBoxStyle = 0,
       Optional Title As String = Nothing, Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
         Dim formToShow As New CustomMsgBoxForm With {
             .Prompt = Prompt,
@@ -258,7 +257,7 @@ Public Partial Class WalkmanLib
         }
         ' .Buttons = Style above is required to set the formlevel
 
-        formToShow.ShowDialog
+        formToShow.ShowDialog()
         Return formToShow.DialogResultString
     End Function
 End Class

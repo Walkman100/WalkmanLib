@@ -43,10 +43,10 @@ Public Enum MouseButton ' used for MouseClick
     XUp = &H100
 End Enum
 
-Public Partial Class WalkmanLib
-    
+Partial Public Class WalkmanLib
+
     ' =================================== CreateHardLink ===================================
-    
+
     ' Link: http://pinvoke.net/default.aspx/kernel32.CreateHardLink
     ' Link (native error codes): https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes#system-error-codes
     ''' <summary>Creates a hardlink to an existing file.</summary>
@@ -54,7 +54,7 @@ Public Partial Class WalkmanLib
     ''' <param name="targetPath">Absolute or relative path to the existing file to link to. If relative, target is relative to current directory.</param>
     Shared Sub CreateHardLink(hardlinkPath As String, existingFilePath As String)
         If CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) = False Then
-            
+
             Dim errorException As Win32Exception = New Win32Exception
             If errorException.NativeErrorCode = 2 Then
                 'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
@@ -78,14 +78,14 @@ Public Partial Class WalkmanLib
             Throw errorException
         End If
     End Sub
-    
-    <DllImport("kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
+
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function CreateHardLink(lpFileName As String, lpExistingFileName As String, lpSecurityAttributes As IntPtr) As Boolean
     End Function
-    
-    
+
+
     ' =================================== CreateSymLink ===================================
-    
+
     ' Link: https://stackoverflow.com/a/11156870/2999220
     ''' <summary>Creates a file or directory symbolic link.</summary>
     ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
@@ -95,9 +95,9 @@ Public Partial Class WalkmanLib
         ' https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
         'SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE = 0x02
         targetType = targetType Or DirectCast(2, SymbolicLinkType)
-        
+
         If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
-            
+
             Dim errorException As Win32Exception = New Win32Exception
             If errorException.NativeErrorCode = &H03 Then
                 '0x03: ERROR_PATH_NOT_FOUND: The system cannot find the path specified
@@ -120,14 +120,14 @@ Public Partial Class WalkmanLib
             Throw errorException
         End If
     End Sub
-    
-    <DllImport("kernel32.dll", SetLastError := True)>
+
+    <DllImport("kernel32.dll", SetLastError:=True)>
     Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
     End Function
-    
-    
+
+
     ' =================================== GetSymlinkTarget ===================================
-    
+
     ' Link: https://stackoverflow.com/a/33487494/2999220
     ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
     ''' <param name="path">Path to the symlink to get the target of.</param>
@@ -135,7 +135,7 @@ Public Partial Class WalkmanLib
     Shared Function GetSymlinkTarget(path As String) As String
         Dim fileHandle As IntPtr = CreateFile(path, &H8, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, &H2000000, IntPtr.Zero)
         If fileHandle = New IntPtr(-1) Then Throw New Win32Exception()
-        
+
         Dim returnString As String = ""
         Try
             Dim stringBuilderTarget As Text.StringBuilder = New Text.StringBuilder(1024)
@@ -145,32 +145,32 @@ Public Partial Class WalkmanLib
         Finally
             CloseHandle(fileHandle)
         End Try
-        
+
         returnString = returnString.Substring(4) ' remove "\\?\" at the beginning
         If returnString.StartsWith("UNC\") Then  ' change "UNC\[IP]\" to proper "\\[IP]\"
             returnString = "\" & returnString.Substring(3)
         End If
-        
+
         Return returnString
     End Function
-    
-    <DllImport("kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
+
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
     creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
     End Function
-    
-    <DllImport("Kernel32.dll", SetLastError := True, CharSet := CharSet.Auto)> _
+
+    <DllImport("Kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As Text.StringBuilder,
     cchFilePath As UInteger, dwFlags As UInteger) As UInteger
     End Function
-    
-    <DllImport("kernel32.dll", SetLastError := True)> _
+
+    <DllImport("kernel32.dll", SetLastError:=True)>
     Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
     End Function
-    
-    
+
+
     ' =================================== Shortcut Management ===================================
-    
+
     ' Link: https://stackoverflow.com/a/14141782/2999220
     ' Link: https://www.tek-tips.com/viewthread.cfm?qid=850335
     ''' <summary>Gets a shortcut property object to retrieve info about a shortcut.</summary>
@@ -179,13 +179,13 @@ Public Partial Class WalkmanLib
     Shared Function GetShortcutInfo(shortcutPath As String) As IWshShortcut
         Dim WSH_Type As Type = Type.GetTypeFromProgID("WScript.Shell")
         Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
-        
+
         If Not shortcutPath.EndsWith(".lnk", True, Nothing) Then shortcutPath &= ".lnk"
         Dim WSH_InvokeMember As Object = WSH_Type.InvokeMember("CreateShortcut", Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {shortcutPath})
-        
+
         Return DirectCast(WSH_InvokeMember, IWshShortcut)
     End Function
-    
+
     ' Link: https://ss64.com/vb/shortcut.html
     ' HotKey: https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/windows-scripting/3zb1shc6(v=vs.84)#arguments
     ''' <summary>Creates or modifies an existing shortcut. When modifying, set a parameter to "" to clear it. Defaults are 'Nothing'.</summary>
@@ -198,17 +198,17 @@ Public Partial Class WalkmanLib
     ''' <param name="shortcutKey">Hotkey used to launch the shortcut - see the end of https://ss64.com/vb/shortcut.html.</param>
     ''' <param name="windowStyle">System.Windows.Forms.FormWindowState to show the launched program in.</param>
     ''' <returns>Full path to the created shortcut.</returns>
-    Shared Function CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing, _
+    Shared Function CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing,
         Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As Windows.Forms.FormWindowState = Windows.Forms.FormWindowState.Normal) As String
         Dim shortcutObject As IWshShortcut = GetShortcutInfo(shortcutPath)
-        
+
         If targetPath <> Nothing Then       shortcutObject.TargetPath       = targetPath
         If arguments <> Nothing Then        shortcutObject.Arguments        = arguments
         If workingDirectory <> Nothing Then shortcutObject.WorkingDirectory = workingDirectory
         If iconPath <> Nothing Then         shortcutObject.IconLocation     = iconPath
         If comment <> Nothing Then          shortcutObject.Description      = comment
-        If shortcutKey <> Nothing Then      shortcutObject.HotKey           = shortcutKey
-        
+        If shortcutKey <> Nothing Then      shortcutObject.Hotkey           = shortcutKey
+
         If windowStyle = Windows.Forms.FormWindowState.Normal Then
             shortcutObject.WindowStyle = 1
         ElseIf windowStyle = Windows.Forms.FormWindowState.Minimized Then
@@ -216,44 +216,44 @@ Public Partial Class WalkmanLib
         ElseIf windowStyle = Windows.Forms.FormWindowState.Maximized Then
             shortcutObject.WindowStyle = 3
         End If
-        
-        shortcutObject.Save
-        
+
+        shortcutObject.Save()
+
         Return shortcutObject.FullName
     End Function
-    
+
     ''' <summary>Interface for handling WScript.Shell shortcut objects. Use with GetShortcutInfo(shortcutPath) As IWshShortcut</summary>
-    <ComImport, TypeLibType(CShort(&H1040)), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")> _
+    <ComImport, TypeLibType(CShort(&H1040)), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")>
     Interface IWshShortcut
-        <DispId(0)> _
+        <DispId(0)>
         ReadOnly Property FullName() As String
-        <DispId(&H3e8)> _
+        <DispId(&H3E8)>
         Property Arguments() As String
         ''' <summary>Shortcut Comment.</summary>
-        <DispId(&H3e9)> _
+        <DispId(&H3E9)>
         Property Description() As String
-        <DispId(&H3ea)> _
+        <DispId(&H3EA)>
         Property Hotkey() As String
-        <DispId(&H3eb)> _
+        <DispId(&H3EB)>
         Property IconLocation() As String
-        <DispId(&H3ec)> _
+        <DispId(&H3EC)>
         WriteOnly Property RelativePath() As String
-        <DispId(&H3ed)> _
+        <DispId(&H3ED)>
         Property TargetPath() As String
         ''' <summary>Shortcut "Run" combobox. 1=Normal, 3=Maximized, 7=Minimized.</summary>
-        <DispId(&H3ee)> _
+        <DispId(&H3EE)>
         Property WindowStyle() As Integer
-        <DispId(&H3ef)> _
+        <DispId(&H3EF)>
         Property WorkingDirectory() As String
-        <TypeLibFunc(CShort(&H40)), DispId(&H7d0)> _
+        <TypeLibFunc(CShort(&H40)), DispId(&H7D0)>
         Sub Load(<[In], MarshalAs(UnmanagedType.BStr)> PathLink As String)
-        <DispId(&H7d1)> _
+        <DispId(&H7D1)>
         Sub Save()
     End Interface
-    
-    
+
+
     ' =================================== PickIconDialogShow ===================================
-    
+
     ' Link: https://www.pinvoke.net/default.aspx/shell32.pickicondlg
     ' Link: https://docs.microsoft.com/en-us/windows/desktop/api/shlobj_core/nf-shlobj_core-pickicondlg
     ''' <summary>Shows a dialog for the user to choose an icon file and index.</summary>
@@ -263,26 +263,26 @@ Public Partial Class WalkmanLib
     ''' <returns>True if accepted, False if cancelled.</returns>
     Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
         Dim filePathBuffer As String = filePath.PadRight(1024, Chr(0))
-        
+
         Dim result As Integer = PickIconDlg(OwnerHandle, filePathBuffer, filePathBuffer.Length, iconIndex)
-        
+
         filePath = filePathBuffer.Remove(filePathBuffer.IndexOf(Chr(0)))
-        
+
         If result = 1 Then
             Return True
-        ElseIf result = 0
+        ElseIf result = 0 Then
             Return False
         Else
-            Throw New Exception("Unknown error! PickIconDlg return value: " & result & _
+            Throw New Exception("Unknown error! PickIconDlg return value: " & result &
                 vbNewLine & "filePath: " & filePath & vbNewLine & "iconIndex: " & iconIndex)
         End If
     End Function
-    
+
     Private Declare Unicode Function PickIconDlg Lib "Shell32" Alias "PickIconDlg" (hwndOwner As IntPtr, lpstrFile As String, nMaxFile As Integer, ByRef lpdwIconIndex As Integer) As Integer
-    
-    
+
+
     ' =================================== ExtractIconByIndex ===================================
-    
+
     ' Link: https://stackoverflow.com/q/37261353/2999220 (last half)
     ''' <summary>Returns an icon representation of an image that is contained in the specified file.</summary>
     ''' <param name="filePath">The path to the file that contains an image.</param>
@@ -291,10 +291,10 @@ Public Partial Class WalkmanLib
     ''' <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
     Shared Function ExtractIconByIndex(filePath As String, iconIndex As Integer, Optional iconSize As UInteger = 0) As Drawing.Icon
         If Not File.Exists(filePath) Then Throw New FileNotFoundException("File """ & filePath & """ not found!")
-        
+
         Dim hiconLarge As IntPtr
         Dim HRESULT As Integer = SHDefExtractIcon(filePath, iconIndex, 0, hiconLarge, Nothing, iconSize)
-        
+
         If HRESULT = 0 Then     ' S_OK: Success
             Return Drawing.Icon.FromHandle(hiconLarge)
         ElseIf HRESULT = 1 Then ' S_FALSE: The requested icon is not present
@@ -303,15 +303,15 @@ Public Partial Class WalkmanLib
             Throw New Win32Exception
         End If
     End Function
-    
-    <DllImport("Shell32.dll", SetLastError := False)> _
+
+    <DllImport("Shell32.dll", SetLastError:=False)>
     Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
     ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
     End Function
-    
-    
+
+
     ' =================================== File Compression ===================================
-    
+
     ''' <summary>Compresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to compress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
@@ -319,7 +319,7 @@ Public Partial Class WalkmanLib
     Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, True, showWindow)
     End Function
-    
+
     ''' <summary>Decompresses the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to decompress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
@@ -327,7 +327,7 @@ Public Partial Class WalkmanLib
     Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, False, showWindow)
     End Function
-    
+
     ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
     ' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
     ''' <summary>Compress or decompress the specified file using NTFS compression.</summary>
@@ -342,30 +342,30 @@ Public Partial Class WalkmanLib
         Else
             lpInBuffer = 0
         End If
-        
+
         Try
             Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
-            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9c040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
-            
+            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
+
             FilePropertiesStream.Flush(True)
-            FilePropertiesStream.SafeFileHandle.Dispose
-            FilePropertiesStream.Dispose
-            FilePropertiesStream.Close
-            
+            FilePropertiesStream.SafeFileHandle.Dispose()
+            FilePropertiesStream.Dispose()
+            FilePropertiesStream.Close()
+
             Return True
         Catch ex As Exception
             Return False
         End Try
     End Function
-    
-    <DllImport("Kernel32.dll")> _
-    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, ByRef lpInBuffer As Short, nInBufferSize As Integer, _
+
+    <DllImport("Kernel32.dll")>
+    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, ByRef lpInBuffer As Short, nInBufferSize As Integer,
     lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
-    
-    
+
+
     ' =================================== GetCompressedSize ===================================
-    
+
     ' Link: http://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     ' Link: https://stackoverflow.com/a/22508299/2999220
     ' Link: https://stackoverflow.com/a/1650868/2999220 (Win32Exception handling)
@@ -382,12 +382,12 @@ Public Partial Class WalkmanLib
         Dim size As Double = (UInteger.MaxValue + 1) * CLng(sizeMultiplier) + fileLength
         Return size
     End Function
-    
-    Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA"(ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
-    
-    
+
+    Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA" (ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
+
+
     ' =================================== GetOpenWith ===================================
-    
+
     ' Link: http://www.vb-helper.com/howto_get_associated_program.html
     ''' <summary>Gets the path to the program specified to open a file.</summary>
     ''' <param name="filePath">The file to get the OpenWith program for.</param>
@@ -396,12 +396,12 @@ Public Partial Class WalkmanLib
         If Not File.Exists(filePath) Then
             Return "File not found!"
         End If
-        
+
         Dim FileProperties As New FileInfo(filePath)
-        
+
         Dim result As String = Space$(1024)
         FindExecutable(FileProperties.Name, FileProperties.DirectoryName & Path.DirectorySeparatorChar, result)
-        
+
         Dim returnString As String = result.Remove(result.IndexOf(Chr(0)))
         If returnString = "" Then
             Return "Filetype not associated!"
@@ -409,12 +409,12 @@ Public Partial Class WalkmanLib
             Return returnString
         End If
     End Function
-    
-    Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA"(lpFile As String, lpDirectory As String, lpResult As String) As Long
-    
-    
+
+    Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA" (lpFile As String, lpDirectory As String, lpResult As String) As Long
+
+
     ' =================================== MouseClick ===================================
-    
+
     ' Link: https://stackoverflow.com/a/2416762/2999220
     ' Link: http://pinvoke.net/default.aspx/user32.mouse_event (Additional buttons)
     ''' <summary>Performs a mouse click at the current cursor position.</summary>
@@ -432,28 +432,28 @@ Public Partial Class WalkmanLib
             Case Else
                 mouse_event(button, 0, 0, 0, 0)
         End Select
-        
-'        Const MOUSEEVENTF_MOVE = &H1
-'        Const MOUSEEVENTF_LEFTDOWN = &H2
-'        Const MOUSEEVENTF_LEFTUP = &H4
-'        Const MOUSEEVENTF_RIGHTDOWN = &H8
-'        Const MOUSEEVENTF_RIGHTUP = &H10
-'        Const MOUSEEVENTF_MIDDLEDOWN = &H20
-'        Const MOUSEEVENTF_MIDDLEUP = &H40
-'        Const MOUSEEVENTF_XDOWN = &H80
-'        Const MOUSEEVENTF_XUP = &H100
-'        Const MOUSEEVENTF_WHEEL = &H800
-'        Const MOUSEEVENTF_HWHEEL = &H1000
-'        Const MOUSEEVENTF_ABSOLUTE = &H8000
+
+        'Const MOUSEEVENTF_MOVE = &H1
+        'Const MOUSEEVENTF_LEFTDOWN = &H2
+        'Const MOUSEEVENTF_LEFTUP = &H4
+        'Const MOUSEEVENTF_RIGHTDOWN = &H8
+        'Const MOUSEEVENTF_RIGHTUP = &H10
+        'Const MOUSEEVENTF_MIDDLEDOWN = &H20
+        'Const MOUSEEVENTF_MIDDLEUP = &H40
+        'Const MOUSEEVENTF_XDOWN = &H80
+        'Const MOUSEEVENTF_XUP = &H100
+        'Const MOUSEEVENTF_WHEEL = &H800
+        'Const MOUSEEVENTF_HWHEEL = &H1000
+        'Const MOUSEEVENTF_ABSOLUTE = &H8000
     End Sub
-    
-    <DllImport("user32.dll", CharSet := CharSet.Auto, CallingConvention := CallingConvention.StdCall)> _
+
+    <DllImport("user32.dll", CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Sub mouse_event(dwFlags As MouseButton, dx As UInteger, dy As UInteger, cButtons As UInteger, dwExtraInfo As UInteger)
     End Sub
-    
-    
+
+
     ' =================================== ShowProperties ===================================
-    
+
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>
     ''' <param name="path">The path to show the window for.</param>
@@ -469,26 +469,26 @@ Public Partial Class WalkmanLib
         info.fMask = 12 'SEE_MASK_INVOKEIDLIST
         Return ShellExecuteEx(info)
     End Function
-    
+
     Private Declare Auto Function ShellExecuteEx Lib "shell32.dll"(ByRef lpExecInfo As ShellExecuteInfo) As Boolean
-    
-    <StructLayout(LayoutKind.Sequential, CharSet := CharSet.Auto)> _
+
+    <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Auto)>
     Private Structure ShellExecuteInfo
         Public cbSize As Integer
         Public fMask As UInteger
         Public hwnd As IntPtr
-        <MarshalAs(UnmanagedType.LPTStr)> _
+        <MarshalAs(UnmanagedType.LPTStr)>
         Public lpVerb As String
-        <MarshalAs(UnmanagedType.LPTStr)> _
+        <MarshalAs(UnmanagedType.LPTStr)>
         Public lpFile As String
-        <MarshalAs(UnmanagedType.LPTStr)> _
+        <MarshalAs(UnmanagedType.LPTStr)>
         Public lpParameters As String
-        <MarshalAs(UnmanagedType.LPTStr)> _
+        <MarshalAs(UnmanagedType.LPTStr)>
         Public lpDirectory As String
         Public nShow As Integer
         Public hInstApp As IntPtr
         Public lpIDList As IntPtr
-        <MarshalAs(UnmanagedType.LPTStr)> _
+        <MarshalAs(UnmanagedType.LPTStr)>
         Public lpClass As String
         Public hkeyClass As IntPtr
         Public dwHotKey As UInteger

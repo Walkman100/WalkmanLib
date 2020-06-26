@@ -17,7 +17,7 @@ Imports System.ComponentModel
 Imports System.Diagnostics
 Imports System.Runtime.InteropServices
 
-Public Partial Class WalkmanLib
+Partial Public Class WalkmanLib
     ''' <summary>
     ''' Contains methods to get processes using a specified file, using the Windows RestartManager APIs
     ''' </summary>
@@ -108,9 +108,9 @@ Public Partial Class WalkmanLib
                 Dim ArrayLengthNeeded As UInteger = 0,
                     ArrayLength As UInteger = 0,
                     lpdwRebootReasons As UInteger = 0 'RmRebootReasonNone
-                
-                Dim resources As String() = { path } ' Just checking on one resource.
-                
+
+                Dim resources As String() = {path} ' Just checking on one resource.
+
                 If RmRegisterResources(handle, CType(resources.Length, UInteger), resources, 0, Nothing, 0, Nothing) <> 0 Then
                     Throw New Exception("Could not register resource.", New Win32Exception())
                 End If
@@ -126,7 +126,7 @@ Public Partial Class WalkmanLib
 
                         Return processInfos
                     Case 0
-                        Return New ProcessInfo() { }
+                        Return New ProcessInfo() {}
                     Case Else
                         Throw New Exception("Could not list processes locking resource. Failed to get size of result.", New Win32Exception())
                 End Select

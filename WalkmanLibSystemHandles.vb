@@ -19,14 +19,14 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Threading
 
-Public Partial Class WalkmanLib
+Partial Public Class WalkmanLib
     ''' <summary>
     ''' Contains methods to get handles to a specified path, by enumerating all the handles open on a system
     ''' </summary>
     Class SystemHandles
-        #Region "Native Methods"
+#Region "Native Methods"
 
-        #Region "Enums"
+#Region "Enums"
 
         'https://pinvoke.net/default.aspx/Enums.NtStatus
         'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
@@ -288,8 +288,8 @@ Public Partial Class WalkmanLib
 
         'https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-duplicatehandle#DUPLICATE_CLOSE_SOURCE
         Protected Enum DUPLICATE_HANDLE_OPTIONS
-            DUPLICATE_CLOSE_SOURCE = &H00000001
-            DUPLICATE_SAME_ACCESS =  &H00000002
+            DUPLICATE_CLOSE_SOURCE = &H01
+            DUPLICATE_SAME_ACCESS =  &H02
         End Enum
 
         'http://www.jasinskionline.com/TechnicalWiki/SYSTEM_HANDLE_INFORMATION-WinApi-Struct.ashx
@@ -347,9 +347,9 @@ Public Partial Class WalkmanLib
             OTHER
         End Enum
 
-        #End Region
+#End Region
 
-        #Region "Structs"
+#Region "Structs"
 
         'https://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=18975&zep=OpenedFileFinder%2fUtils.h&rzp=%2fKB%2fshell%2fOpenedFileFinder%2f%2fopenedfilefinder_src.zip
         <StructLayout(LayoutKind.Sequential)>
@@ -440,9 +440,9 @@ Public Partial Class WalkmanLib
             Public NonPagedPoolUsage As      Integer
         End Structure
 
-        #End Region
+#End Region
 
-        #Region "Methods"
+#Region "Methods"
 
         'https://docs.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation
         <DllImport("ntdll.dll")>
@@ -510,13 +510,13 @@ Public Partial Class WalkmanLib
                 ) As UInteger
         End Function
 
-        #End Region
+#End Region
 
-        #End Region
+#End Region
 
-        #Region "Public Methods"
+#Region "Public Methods"
 
-        #Region "GetSystemHandles"
+#Region "GetSystemHandles"
 
         ''' <summary>Gets all the open handles on the system. Use GetHandleInfo to retrieve proper type and name information.</summary>
         ''' <returns>Enumerable list of system handles</returns>
@@ -558,9 +558,9 @@ Public Partial Class WalkmanLib
             End Try
         End Function
 
-        #End Region
+#End Region
 
-        #Region "GetHandleInfo"
+#Region "GetHandleInfo"
 
         Friend Structure HandleInfo
             Public ProcessID As UInteger
@@ -749,9 +749,9 @@ Public Partial Class WalkmanLib
             Return handleInfo
         End Function
 
-        #End Region
+#End Region
 
-        #Region "CloseSystemHandle"
+#Region "CloseSystemHandle"
 
         ' https://www.codeproject.com/Articles/18975/Listing-Used-Files
         ''' <summary>Attempts to close a handle in a different process. Fails silently if the handle exists but could not be closed.</summary>
@@ -779,9 +779,9 @@ Public Partial Class WalkmanLib
             End Try
         End Sub
 
-        #End Region
+#End Region
 
-        #Region "ConvertDevicePathToDosPath"
+#Region "ConvertDevicePathToDosPath"
 
         Private Shared deviceMap As Dictionary(Of String, String)
         Private Const networkDeviceQueryDosDevicePrefix As String = "\Device\LanmanRedirector\"
@@ -850,9 +850,9 @@ Public Partial Class WalkmanLib
             Return devicePath
         End Function
 
-        #End Region
+#End Region
 
-        #Region "GetFileHandles / GetLockingProcesses"
+#Region "GetFileHandles / GetLockingProcesses"
 
         ''' <summary>
         ''' Searches through all the open handles on the system, and returns handles with a path containing <paramref name="filePath"/>.
@@ -898,11 +898,11 @@ Public Partial Class WalkmanLib
             Return processes
         End Function
 
-        #End Region
+#End Region
 
-        #End Region
+#End Region
     End Class
-    
+
     ''' <summary>
     ''' Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path"/>, using the Get All System Handles method.
     ''' </summary>
