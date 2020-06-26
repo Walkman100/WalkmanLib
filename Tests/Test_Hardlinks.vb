@@ -88,5 +88,52 @@ Namespace Tests
                 End Using
             End Using
         End Function
+
+        Function Test_HardlinkThrows1(rootTestFolder As String) As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.CreateHardLink(Path.Combine(rootTestFolder, "hardlinkThrows1.txt"), "nonExistantFile.txt")
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows1", ex.GetType, GetType(FileNotFoundException))
+        End Function
+
+        Function Test_HardlinkThrows2(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "hardlinkThrows2Source.txt"))
+                Dim ex As Exception = New NoException
+                Try
+                    WalkmanLib.CreateHardLink(Path.Combine(rootTestFolder, "nonExistantFolder", "hardlinkThrows2.txt"), testFile.filePath)
+                Catch ex2 As Exception
+                    ex = ex2
+                End Try
+                Return TestType("HardlinkThrows2", ex.GetType, GetType(DirectoryNotFoundException))
+            End Using
+        End Function
+
+        Function Test_HardlinkThrows3(rootTestFolder As String) As Boolean
+            Using testSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinkThrows3Source.txt")),
+                  testFile As New DisposableFile(Path.Combine(rootTestFolder, "hardlinkThrows3.txt"))
+                Dim ex As Exception = New NoException
+                Try
+                    WalkmanLib.CreateHardLink(testFile.filePath, testSource.filePath)
+                Catch ex2 As Exception
+                    ex = ex2
+                End Try
+                Return TestType("HardlinkThrows3", ex.GetType, GetType(IOException))
+            End Using
+        End Function
+
+        Function Test_HardlinkThrows4(rootTestFolder As String) As Boolean
+            Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "hardlinkThrows4Source.txt"))
+                Dim ex As Exception = New NoException
+                Try
+                    WalkmanLib.CreateHardLink(Path.Combine(Environment.SystemDirectory, "symlinkThrows3.txt"), testFile.filePath)
+                Catch ex2 As Exception
+                    ex = ex2
+                End Try
+                Return TestType("HardlinkThrows4", ex.GetType, GetType(UnauthorizedAccessException))
+            End Using
+        End Function
     End Module
 End Namespace
