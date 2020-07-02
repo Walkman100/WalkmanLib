@@ -7,6 +7,7 @@ Imports System
 Imports System.Drawing
 Imports System.IO
 Imports System.Resources
+Imports System.Security.Cryptography
 
 Namespace Tests
     Module Tests_Icons
@@ -24,6 +25,14 @@ Namespace Tests
             End Using
         End Sub
 
+        Private Function Sha1File(filePath As String) As String
+            Using fs As New FileStream(filePath, FileMode.Open),
+                  sha1 As SHA1 = SHA1.Create
+                Dim hash As Byte() = sha1.ComputeHash(fs)
+                Return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()
+            End Using
+        End Function
+
         Function Test_ExtractIcon1(rootTestFolder As String, projectRoot As String) As Boolean
             Dim resXlocation As String = Path.Combine(projectRoot, "CustomMsgBox.resx")
             If Not File.Exists(resXlocation) Then
@@ -37,7 +46,7 @@ Namespace Tests
                     Return TestType("ExtractIcon1", ex.GetType, GetType(NoException))
                 End Try
 
-                Return TestNumber("ExtractIcon1", New FileInfo(extractedIcon.filePath).Length, 82979)
+                Return TestString("ExtractIcon1", Sha1File(extractedIcon.filePath), "54055a0a6d465f465a444af7e784f93373376775")
             End Using
         End Function
 
@@ -61,13 +70,10 @@ Namespace Tests
                     Return TestType("ExtractIcon2", ex.GetType, GetType(NoException))
                 End Try
 
-                Using extractedIconByIndex As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon2ByIndex.ico"), False, False)
-                    Using fs As New FileStream(extractedIconByIndex.filePath, FileMode.Create)
-                        extractedIcon.Save(fs)
-                    End Using
+                Using extractedIconByIndex As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon2ByIndex.png"), False, False)
+                    extractedIcon.ToBitmap.Save(extractedIconByIndex.filePath)
 
-                    Return TestNumber("ExtractIcon2", New FileInfo(extractedIconByIndex.filePath).Length, 41086)
-                    '                                           extractbyindex extracts the 16-bit icon for some reason...
+                    Return TestString("ExtractIcon2", Sha1File(extractedIconByIndex.filePath), "5c6f21ec3f34bd07dec4e38dc9d83cdfa3ce5915")
                 End Using
             End Using
         End Function
@@ -80,12 +86,10 @@ Namespace Tests
                 Return TestType("ExtractIcon3", ex.GetType, GetType(NoException))
             End Try
 
-            Using targetIcon As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon3.ico"), False, False)
-                Using fs As New FileStream(targetIcon.filePath, FileMode.Create)
-                    extractedIcon.Save(fs)
-                End Using
+            Using targetIcon As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon3.png"), False, False)
+                extractedIcon.ToBitmap.Save(targetIcon.filePath)
 
-                Return TestNumber("ExtractIcon3", New FileInfo(targetIcon.filePath).Length, 41086)
+                Return TestString("ExtractIcon3", Sha1File(targetIcon.filePath), "b1419f59aea45aa1b1aee38d3d77cdaae9ff3916")
             End Using
         End Function
     End Module
