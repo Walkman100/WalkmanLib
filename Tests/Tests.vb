@@ -5,6 +5,7 @@ Option Infer Off
 
 Imports System
 Imports System.IO
+Imports System.Reflection
 
 Namespace Tests
     Module Main
@@ -119,6 +120,13 @@ Namespace Tests
             If Not Test_UpdateThrows1() Then returnVal = False
             If Not Test_UpdateThrows2() Then returnVal = False
             If Not Test_UpdateThrows3() Then returnVal = False
+
+            Dim projectRoot As String = New Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath
+            projectRoot = New FileInfo(projectRoot).Directory.Parent.Parent.FullName
+
+            If Not Test_ExtractIcon1(rootTestFolder, projectRoot) Then returnVal = False
+            If Not Test_ExtractIcon2(rootTestFolder, projectRoot) Then returnVal = False
+            If Not Test_ExtractIcon3(rootTestFolder) Then returnVal = False
 
             Return returnVal
         End Function
