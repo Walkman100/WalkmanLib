@@ -8,6 +8,9 @@ Imports System.Drawing
 Imports System.IO
 Imports System.Resources
 Imports System.Security.Cryptography
+Imports System.Threading
+Imports System.Threading.Tasks
+Imports System.Windows.Forms
 
 Namespace Tests
     Module Tests_Icons
@@ -91,6 +94,51 @@ Namespace Tests
 
                 Return TestString("ExtractIcon3", Sha1File(targetIcon.filePath), "b1419f59aea45aa1b1aee38d3d77cdaae9ff3916")
             End Using
+        End Function
+
+        Function Test_PickIconDialog1() As Boolean
+            Task.Run(Sub()
+                         Thread.Sleep(600)
+                         SendKeys.SendWait("{ESC}")
+                     End Sub)
+
+            Dim result As Boolean = WalkmanLib.PickIconDialogShow(Path.Combine(Environment.SystemDirectory, "shell32.dll"), 32)
+
+            Return TestBoolean("PickIconDialog1", result, False)
+        End Function
+
+        Function Test_PickIconDialog2() As Boolean
+            Dim filePath As String = Path.Combine(Environment.SystemDirectory, "shell32.dll")
+            Dim iconIndex As Integer = 32
+
+            Task.Run(Sub()
+                         Thread.Sleep(600)
+                         SendKeys.SendWait("{ENTER}")
+                     End Sub)
+            Dim result As Boolean = WalkmanLib.PickIconDialogShow(filePath, iconIndex)
+
+            If Not result Then
+                Return TestBoolean("PickIconDialog2", result, True)
+            End If
+
+            Return TestString("PickIconDialog2", filePath, Path.Combine(Environment.SystemDirectory, "shell32.dll"))
+        End Function
+
+        Function Test_PickIconDialog3() As Boolean
+            Dim filePath As String = Path.Combine(Environment.SystemDirectory, "shell32.dll")
+            Dim iconIndex As Integer = 32
+
+            Task.Run(Sub()
+                         Thread.Sleep(600)
+                         SendKeys.SendWait("{TAB 2}{DOWN}{ENTER}")
+                     End Sub)
+            Dim result As Boolean = WalkmanLib.PickIconDialogShow(filePath, iconIndex)
+
+            If Not result Then
+                Return TestBoolean("PickIconDialog3", result, True)
+            End If
+
+            Return TestNumber("PickIconDialog3", iconIndex, 33)
         End Function
     End Module
 End Namespace
