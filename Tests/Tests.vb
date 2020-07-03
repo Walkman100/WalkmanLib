@@ -130,6 +130,9 @@ Namespace Tests
             If Not Test_PickIconDialog1() Then returnVal = False
             If Not Test_PickIconDialog2() Then returnVal = False
             If Not Test_PickIconDialog3() Then returnVal = False
+            If Not Test_ShowProperties1() Then returnVal = False
+            If Not Test_ShowProperties2() Then returnVal = False
+            If Not Test_ShowProperties3() Then returnVal = False
 
             Return returnVal
         End Function
