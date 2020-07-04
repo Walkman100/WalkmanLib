@@ -24,11 +24,21 @@ Namespace Tests
         Private Shared Function GetWindowText(hWnd As IntPtr, lpString As Text.StringBuilder, nMaxCount As Integer) As Integer
         End Function
 
-        Friend Shared Function GetActiveWindowText() As String
+        'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindow
+        'https://www.pinvoke.net/default.aspx/user32/GetWindow.html
+        <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+        Private Shared Function GetWindow(hWnd As IntPtr, uCmd As UInteger) As IntPtr
+        End Function
+
+        Friend Shared Function GetActiveWindowText(Optional getChildText As Boolean = False) As String
             Dim windowHandle As IntPtr
             windowHandle = GetForegroundWindow()
             If Marshal.GetLastWin32Error <> 0 Then Throw New ComponentModel.Win32Exception()
-            'If windowHandle = Nothing Then Return Nothing
+
+            If getChildText Then
+                windowHandle = GetWindow(windowHandle, 5) 'GW_CHILD = 5
+                If Marshal.GetLastWin32Error <> 0 Then Throw New ComponentModel.Win32Exception()
+            End If
 
             Dim stringBuilderTarget As New Text.StringBuilder(1024)
             Dim result As Integer = GetWindowText(windowHandle, stringBuilderTarget, 1024)
@@ -67,7 +77,22 @@ Namespace Tests
                 End If
 
                 Thread.Sleep(600) ' wait for window to show
-                Return TestString("ShowProperties3", ShowPropertiesTestsHelper.GetActiveWindowText, "shell32.dll Properties")
+                Return TestString("ShowProperties3", ShowPropertiesTestsHelper.GetActiveWindowText(), "shell32.dll Properties")
+            Finally
+                SendKeys.SendWait("{ESC}")
+                Thread.Sleep(10)
+            End Try
+        End Function
+
+        Function Test_ShowProperties4() As Boolean
+            Try
+                Dim result As Boolean = WalkmanLib.ShowProperties(Path.Combine(Environment.SystemDirectory, "shell32.dll"), "Details")
+                If Not result Then
+                    Return TestBoolean("ShowProperties4", result, True)
+                End If
+
+                Thread.Sleep(600)
+                Return TestString("ShowProperties4", ShowPropertiesTestsHelper.GetActiveWindowText(True), "Details")
             Finally
                 SendKeys.SendWait("{ESC}")
                 Thread.Sleep(10)

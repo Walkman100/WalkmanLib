@@ -133,6 +133,7 @@ Namespace Tests
             If Not Test_ShowProperties1() Then returnVal = False
             If Not Test_ShowProperties2() Then returnVal = False
             If Not Test_ShowProperties3() Then returnVal = False
+            If Not Test_ShowProperties4() Then returnVal = False
 
             Return returnVal
         End Function
