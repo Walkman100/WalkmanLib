@@ -40,7 +40,7 @@ Namespace Tests
     Module Tests_ShowProperties
         Function Test_ShowProperties1() As Boolean
             Task.Run(Sub()
-                         Thread.Sleep(500)
+                         Thread.Sleep(600)
                          SendKeys.SendWait("{ENTER}")
                      End Sub)
 
@@ -52,7 +52,7 @@ Namespace Tests
         Function Test_ShowProperties2() As Boolean
             Dim result As Boolean = WalkmanLib.ShowProperties(Path.Combine(Environment.SystemDirectory, "shell32.dll"))
 
-            Thread.Sleep(500) ' ShowProperties is Async when it succeeds
+            Thread.Sleep(600) ' ShowProperties is Async when it succeeds
             SendKeys.SendWait("{ESC}")
             Thread.Sleep(10)  ' wait for window to close else next functions don't work
 
@@ -66,7 +66,7 @@ Namespace Tests
                     Return TestBoolean("ShowProperties3", result, True)
                 End If
 
-                Thread.Sleep(500) ' wait for window to show
+                Thread.Sleep(600) ' wait for window to show
                 Return TestString("ShowProperties3", ShowPropertiesTestsHelper.GetActiveWindowText, "shell32.dll Properties")
             Finally
                 SendKeys.SendWait("{ESC}")
