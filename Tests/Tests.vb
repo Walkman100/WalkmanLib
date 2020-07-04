@@ -134,6 +134,8 @@ Namespace Tests
             If Not Test_ShowProperties2() Then returnVal = False
             If Not Test_ShowProperties3() Then returnVal = False
             If Not Test_ShowProperties4() Then returnVal = False
+            If Not Test_Mouse1() Then returnVal = False
+            If Not Test_Mouse2() Then returnVal = False
 
             Return returnVal
         End Function
