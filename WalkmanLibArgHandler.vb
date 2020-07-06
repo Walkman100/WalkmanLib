@@ -120,22 +120,29 @@ Partial Public Class WalkmanLib
         Public errorInfo As String = Nothing
     End Class
 
+    Private Shared Function GetErrorResult(errorInfo As String, Optional flagName As String = Nothing) As ResultInfo
+        Dim resultInfo As New ResultInfo With {.gotError = True}
+        If flagName Is Nothing Then
+            resultInfo.errorInfo = errorInfo
+        Else
+            resultInfo.errorInfo = String.Format(errorInfo, flagName)
+        End If
+        Return resultInfo
+    End Function
+
     Public Shared Function ProcessArgs(args As String(), flagDict As Dictionary(Of String, FlagInfo)) As ResultInfo
         Dim processingShortFlags As Boolean = True
         Dim finishedProcessingArgs As Boolean = False
         Dim gettingArg As Boolean = False
         Dim gettingArgFor As New FlagInfo
         Dim gettingArgForLong As String = Nothing
-        Dim resultInfo As New ResultInfo
 
         For Each arg As String In args
 
             If processingShortFlags AndAlso arg.StartsWith("-") AndAlso arg(1) <> "-"c Then
                 For Each chr As Char In arg.Substring(1)
                     If gettingArg Then
-                        resultInfo.gotError = True
-                        resultInfo.errorInfo = String.Format("Short Flag ""{0}"" requires arguments!", gettingArgFor.shortFlag)
-                        Return resultInfo
+                        Return GetErrorResult("Short Flag ""{0}"" requires arguments!", gettingArgFor.shortFlag)
                     End If
 
                     Dim gotShortFlag As Boolean = False
@@ -152,9 +159,7 @@ Partial Public Class WalkmanLib
                         End If
                     Next
                     If Not gotShortFlag Then
-                        resultInfo.gotError = True
-                        resultInfo.errorInfo = String.Format("Unknown Short Flag ""{0}""!", chr)
-                        Return resultInfo
+                        Return GetErrorResult("Unknown Short Flag ""{0}""!", chr)
                     End If
 
                 Next
@@ -165,18 +170,14 @@ Partial Public Class WalkmanLib
                 gettingArgForLong = Nothing
             ElseIf arg = "--" Then
                 If gettingArg Then
-                    resultInfo.gotError = True
-                    resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
-                    Return resultInfo
+                    Return GetErrorResult("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
                 End If
 
                 processingShortFlags = False
                 finishedProcessingArgs = True
             ElseIf Not finishedProcessingArgs AndAlso arg.StartsWith("--") Then
                 If gettingArg Then
-                    resultInfo.gotError = True
-                    resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
-                    Return resultInfo
+                    Return GetErrorResult("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
                 End If
 
                 processingShortFlags = False
@@ -191,18 +192,14 @@ Partial Public Class WalkmanLib
                 If flagDict.ContainsKey(arg.ToLowerInvariant()) Then
                     gettingArgFor = flagDict.Item(arg.ToLowerInvariant())
                     If gettingArgFor.hasArgs AndAlso flagArg Is Nothing Then
-                        resultInfo.gotError = True
-                        resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", arg.ToLowerInvariant())
-                        Return resultInfo
+                        Return GetErrorResult("Flag ""{0}"" requires arguments!", arg.ToLowerInvariant())
                     ElseIf gettingArgFor.hasArgs Then
                         gettingArgFor.action(flagArg)
                     Else
                         gettingArgFor.action(Nothing)
                     End If
                 Else
-                    resultInfo.gotError = True
-                    resultInfo.errorInfo = String.Format("Unknown Flag ""{0}""!", arg)
-                    Return resultInfo
+                    Return GetErrorResult("Unknown Flag ""{0}""!", arg)
                 End If
             Else
                 ' extra info
@@ -210,11 +207,9 @@ Partial Public Class WalkmanLib
         Next
 
         If gettingArg Then
-            resultInfo.gotError = True
-            resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
-            Return resultInfo
+            Return GetErrorResult("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
         End If
 
-        Return resultInfo
+        Return New ResultInfo() With {.gotError = False}
     End Function
 End Class
