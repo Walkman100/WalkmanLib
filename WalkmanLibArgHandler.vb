@@ -114,4 +114,107 @@ Partial Public Class WalkmanLib
             End If
         End If
     End Sub
+
+    Public Class ResultInfo
+        Public gotError As Boolean = False
+        Public errorInfo As String = Nothing
+    End Class
+
+    Public Shared Function ProcessArgs(args As String(), flagDict As Dictionary(Of String, FlagInfo)) As ResultInfo
+        Dim processingShortFlags As Boolean = True
+        Dim finishedProcessingArgs As Boolean = False
+        Dim gettingArg As Boolean = False
+        Dim gettingArgFor As New FlagInfo
+        Dim gettingArgForLong As String = Nothing
+        Dim resultInfo As New ResultInfo
+
+        For Each arg As String In args
+
+            If processingShortFlags AndAlso arg.StartsWith("-") AndAlso arg(1) <> "-"c Then
+                For Each chr As Char In arg.Substring(1)
+                    If gettingArg Then
+                        resultInfo.gotError = True
+                        resultInfo.errorInfo = String.Format("Short Flag ""{0}"" requires arguments!", gettingArgFor.shortFlag)
+                        Return resultInfo
+                    End If
+
+                    Dim gotShortFlag As Boolean = False
+                    For Each flagInfo As KeyValuePair(Of String, FlagInfo) In flagDict
+                        If flagInfo.Value.shortFlag = chr Then
+                            If flagInfo.Value.hasArgs Then
+                                gettingArg = True
+                                gettingArgFor = flagInfo.Value
+                            Else
+                                flagInfo.Value.action(Nothing)
+                            End If
+                            gotShortFlag = True
+                            Exit For
+                        End If
+                    Next
+                    If Not gotShortFlag Then
+                        resultInfo.gotError = True
+                        resultInfo.errorInfo = String.Format("Unknown Short Flag ""{0}""!", chr)
+                        Return resultInfo
+                    End If
+
+                Next
+            ElseIf Not arg.StartsWith("--") AndAlso gettingArg Then
+                gettingArgFor.action(arg)
+
+                gettingArg = False
+                gettingArgForLong = Nothing
+            ElseIf arg = "--" Then
+                If gettingArg Then
+                    resultInfo.gotError = True
+                    resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
+                    Return resultInfo
+                End If
+
+                processingShortFlags = False
+                finishedProcessingArgs = True
+            ElseIf Not finishedProcessingArgs AndAlso arg.StartsWith("--") Then
+                If gettingArg Then
+                    resultInfo.gotError = True
+                    resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
+                    Return resultInfo
+                End If
+
+                processingShortFlags = False
+
+                arg = arg.Substring(2)
+                Dim flagArg As String = Nothing
+                If arg.Contains("="c) Then
+                    flagArg = arg.Substring(arg.LastIndexOf("="c) + 1)
+                    arg = arg.Remove(arg.IndexOf("="c))
+                End If
+
+                If flagDict.ContainsKey(arg.ToLowerInvariant()) Then
+                    gettingArgFor = flagDict.Item(arg.ToLowerInvariant())
+                    If gettingArgFor.hasArgs AndAlso flagArg Is Nothing Then
+                        resultInfo.gotError = True
+                        resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", arg.ToLowerInvariant())
+                        Return resultInfo
+                    ElseIf gettingArgFor.hasArgs Then
+                        gettingArgFor.action(flagArg)
+                    Else
+                        gettingArgFor.action(Nothing)
+                    End If
+                Else
+                    resultInfo.gotError = True
+                    resultInfo.errorInfo = String.Format("Unknown Flag ""{0}""!", arg)
+                    Return resultInfo
+                End If
+            Else
+                ' extra info
+            End If
+        Next
+
+        If gettingArg Then
+            resultInfo.gotError = True
+            resultInfo.errorInfo = String.Format("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
+            Return resultInfo
+        End If
+
+        Return resultInfo
+    End Function
 End Class
