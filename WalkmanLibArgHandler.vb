@@ -118,6 +118,7 @@ Partial Public Class WalkmanLib
     Public Class ResultInfo
         Public gotError As Boolean = False
         Public errorInfo As String = Nothing
+        Public extraParams As New List(Of String)
     End Class
 
     Private Shared Function GetErrorResult(errorInfo As String, Optional flagName As String = Nothing) As ResultInfo
@@ -130,12 +131,13 @@ Partial Public Class WalkmanLib
         Return resultInfo
     End Function
 
-    Public Shared Function ProcessArgs(args As String(), flagDict As Dictionary(Of String, FlagInfo)) As ResultInfo
+    Public Shared Function ProcessArgs(args As String(), flagDict As Dictionary(Of String, FlagInfo), Optional paramsAfterFlags As Boolean = False) As ResultInfo
         Dim processingShortFlags As Boolean = True
         Dim finishedProcessingArgs As Boolean = False
         Dim gettingArg As Boolean = False
         Dim gettingArgFor As New FlagInfo
         Dim gettingArgForLong As String = Nothing
+        Dim extraParams As New List(Of String)
 
         For Each arg As String In args
 
@@ -201,8 +203,10 @@ Partial Public Class WalkmanLib
                 Else
                     Return GetErrorResult("Unknown Flag ""{0}""!", arg)
                 End If
+            ElseIf paramsAfterFlags = True Then
+                extraParams.Add(arg)
             Else
-                ' extra info
+                Return GetErrorResult("Argument ""{0}"" is not a flag!", arg)
             End If
         Next
 
@@ -210,6 +214,9 @@ Partial Public Class WalkmanLib
             Return GetErrorResult("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
         End If
 
-        Return New ResultInfo() With {.gotError = False}
+        Return New ResultInfo() With {
+            .gotError = False,
+            .extraParams = extraParams
+        }
     End Function
 End Class
