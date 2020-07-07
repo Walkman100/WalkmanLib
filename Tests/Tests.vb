@@ -109,6 +109,11 @@ Namespace Tests
             If Not Test_HardlinkThrows2(rootTestFolder) Then returnVal = False
             If Not Test_HardlinkThrows3(rootTestFolder) Then returnVal = False
             If Not Test_HardlinkThrows4(rootTestFolder) Then returnVal = False
+            If Not Test_ArgHandler1() Then returnVal = False
+            If Not Test_ArgHandler2() Then returnVal = False
+            If Not Test_ArgHandler3() Then returnVal = False
+            If Not Test_ArgHandler4() Then returnVal = False
+            If Not Test_ArgHandler5() Then returnVal = False
             If Not Test_Updates1() Then returnVal = False
             If Not Test_Updates2() Then returnVal = False
             If Not Test_Updates3() Then returnVal = False
