@@ -3,6 +3,7 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
+Imports System
 Imports System.Windows.Forms
 Imports Microsoft.VisualBasic
 
@@ -118,7 +119,7 @@ Partial Public Class CustomMsgBoxForm
             End Try
         End If
 
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
+        Dim resources As New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
         Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), System.Drawing.Icon)
         If FormLevel <> enumFormLevel.None Then pbxMain.Image = Me.Icon.ToBitmap
         Try
@@ -133,13 +134,13 @@ Partial Public Class CustomMsgBoxForm
 
         Select Case FormLevel
             Case enumFormLevel.Critical
-                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Beep)
+                My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Beep)
             Case enumFormLevel.Exclamation
-                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Exclamation)
+                My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
             Case enumFormLevel.Information
-                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Asterisk)
+                My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Asterisk)
             Case enumFormLevel.Question
-                My.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Question)
+                My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Question)
         End Select
 
         If lblMain.Height > 13 Then
@@ -156,7 +157,7 @@ Partial Public Class CustomMsgBoxForm
             btnAnswerMid.Text = Button2Text
             btnAnswerMid.Visible = True
             If btnAnswerMid.Width > 75 Then ' move btnAccept to the left, as btnAnswerMid is anchored right
-                btnAccept.Location = New System.Drawing.Point(btnAccept.Location.X - (btnAnswerMid.Width - 75), btnAccept.Location.Y)
+                btnAccept.Location = New Drawing.Point(btnAccept.Location.X - (btnAnswerMid.Width - 75), btnAccept.Location.Y)
             End If
         Else
             btnAnswerMid.Visible = False
@@ -165,8 +166,8 @@ Partial Public Class CustomMsgBoxForm
             btnCancel.Text = Button3Text
             btnCancel.Visible = True
             If btnCancel.Width > 75 Then ' move the other two buttons to the left, as btnCancel is anchored right
-                btnAnswerMid.Location = New System.Drawing.Point(btnAnswerMid.Location.X - (btnCancel.Width - 75), btnAnswerMid.Location.Y)
-                btnAccept.Location = New System.Drawing.Point(btnAccept.Location.X - (btnCancel.Width - 75), btnAccept.Location.Y)
+                btnAnswerMid.Location = New Drawing.Point(btnAnswerMid.Location.X - (btnCancel.Width - 75), btnAnswerMid.Location.Y)
+                btnAccept.Location = New Drawing.Point(btnAccept.Location.X - (btnCancel.Width - 75), btnAccept.Location.Y)
             End If
         Else
             btnCancel.Visible = False
@@ -174,24 +175,12 @@ Partial Public Class CustomMsgBoxForm
     End Sub
 
     Private Function GetDialogResult(buttonText As String) As DialogResult
-        Select Case buttonText
-            Case "Abort"
-                Return DialogResult.Abort
-            Case "Cancel"
-                Return DialogResult.Cancel
-            Case "Ignore"
-                Return DialogResult.Ignore
-            Case "No"
-                Return DialogResult.No
-            Case "Ok"
-                Return DialogResult.OK
-            Case "Retry"
-                Return DialogResult.Retry
-            Case "Yes"
-                Return DialogResult.Yes
-            Case Else
-                Return DialogResult.None
-        End Select
+        Dim result As DialogResult
+        If [Enum].TryParse(buttonText, True, result) Then
+            Return result
+        Else
+            Return DialogResult.None
+        End If
     End Function
 
     Private Sub Accept_Click() Handles btnAccept.Click
