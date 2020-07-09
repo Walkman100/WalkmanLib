@@ -77,6 +77,8 @@ Partial Public Class WalkmanLib
         End If
     End Sub
 
+    'https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createhardlinkw
+    'https://www.pinvoke.net/default.aspx/kernel32/CreateHardLink.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function CreateHardLink(lpFileName As String, lpExistingFileName As String, lpSecurityAttributes As IntPtr) As Boolean
     End Function
@@ -118,7 +120,9 @@ Partial Public Class WalkmanLib
         End If
     End Sub
 
-    <DllImport("kernel32.dll", SetLastError:=True)>
+    'https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createsymboliclinkw
+    'https://www.pinvoke.net/default.aspx/kernel32/CreateSymbolicLink.html
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
     End Function
 #End Region
@@ -151,13 +155,16 @@ Partial Public Class WalkmanLib
     End Function
 
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare, securityAttributes As IntPtr,
-    creationDisposition As FileMode, flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
+    Private Shared Function CreateFile(filename As String, access As UInteger, share As FileShare,
+                                       securityAttributes As IntPtr, creationDisposition As FileMode,
+                                       flagsAndAttributes As UInteger, templateFile As IntPtr) As IntPtr
     End Function
 
-    <DllImport("Kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfinalpathnamebyhandlew
+    'https://www.pinvoke.net/default.aspx/shell32/GetFinalPathNameByHandle.html
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As Text.StringBuilder,
-    cchFilePath As UInteger, dwFlags As UInteger) As UInteger
+                                                     cchFilePath As UInteger, dwFlags As UInteger) As UInteger
     End Function
 
     <DllImport("kernel32.dll", SetLastError:=True)>
@@ -272,7 +279,11 @@ Partial Public Class WalkmanLib
         End If
     End Function
 
-    Private Declare Unicode Function PickIconDlg Lib "Shell32" Alias "PickIconDlg" (hwndOwner As IntPtr, lpstrFile As String, nMaxFile As Integer, ByRef lpdwIconIndex As Integer) As Integer
+    'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-pickicondlg
+    'https://www.pinvoke.net/default.aspx/shell32/PickIconDlg.html
+    <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function PickIconDlg(hwndOwner As IntPtr, pszIconPath As String, cchIconPath As Integer, ByRef piIconIndex As Integer) As Integer
+    End Function
 #End Region
 
 #Region "ExtractIconByIndex"
@@ -297,9 +308,11 @@ Partial Public Class WalkmanLib
         End If
     End Function
 
-    <DllImport("Shell32.dll", SetLastError:=False)>
-    Private Shared Function SHDefExtractIcon(ByVal iconFile As String, ByVal iconIndex As Integer, ByVal flags As UInteger,
-    ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr, ByVal iconSize As UInteger) As Integer
+    'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw
+    <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function SHDefExtractIcon(pszIconFile As String, iconIndex As Integer, flags As UInteger,
+                                             ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr,
+                                             iconSize As UInteger) As Integer
     End Function
 #End Region
 
@@ -321,7 +334,7 @@ Partial Public Class WalkmanLib
     End Function
 
     ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
-    ' Link: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364592(v=vs.85).aspx
+    ' Link: https://docs.microsoft.com/en-za/windows/win32/api/winioctl/ni-winioctl-fsctl_set_compression
     ''' <summary>Compress or decompress the specified file using NTFS compression.</summary>
     ''' <param name="path">Path to the file to (de)compress.</param>
     ''' <param name="compress">True to compress, False to decompress.</param>
@@ -350,9 +363,13 @@ Partial Public Class WalkmanLib
         End Try
     End Function
 
-    <DllImport("Kernel32.dll")>
-    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer, ByRef lpInBuffer As Short, nInBufferSize As Integer,
-    lpOutBuffer As IntPtr, nOutBufferSize As Integer, ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
+    'https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol
+    'https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer,
+                                            ByRef lpInBuffer As Short, nInBufferSize As Integer,
+                                            lpOutBuffer As IntPtr, nOutBufferSize As Integer,
+                                            ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
     End Function
 #End Region
 
@@ -374,7 +391,11 @@ Partial Public Class WalkmanLib
         Return size
     End Function
 
-    Private Declare Function GetCompressedFileSize Lib "kernel32" Alias "GetCompressedFileSizeA" (ByVal lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getcompressedfilesizew
+    'https://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function GetCompressedFileSize(lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
+    End Function
 #End Region
 
 #Region "GetOpenWith"
@@ -400,7 +421,11 @@ Partial Public Class WalkmanLib
         End If
     End Function
 
-    Private Declare Function FindExecutable Lib "shell32.dll" Alias "FindExecutableA" (lpFile As String, lpDirectory As String, lpResult As String) As Long
+    'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-findexecutablew
+    'https://www.pinvoke.net/default.aspx/shell32/FindExecutable.html
+    <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindExecutable(lpFile As String, lpDirectory As String, lpResult As String) As Long
+    End Function
 #End Region
 
 #Region "MouseClick"
@@ -436,8 +461,10 @@ Partial Public Class WalkmanLib
         'Const MOUSEEVENTF_ABSOLUTE = &H8000
     End Sub
 
-    <DllImport("user32.dll", CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
-    Private Shared Sub mouse_event(dwFlags As MouseButton, dx As UInteger, dy As UInteger, cButtons As UInteger, dwExtraInfo As UInteger)
+    'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mouse_event
+    'https://www.pinvoke.net/default.aspx/user32/mouse_event.html
+    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
+    Private Shared Sub mouse_event(dwFlags As MouseButton, dx As UInteger, dy As UInteger, dwData As UInteger, dwExtraInfo As UInteger)
     End Sub
 #End Region
 
@@ -458,8 +485,13 @@ Partial Public Class WalkmanLib
         Return ShellExecuteEx(info)
     End Function
 
-    Private Declare Auto Function ShellExecuteEx Lib "shell32.dll"(ByRef lpExecInfo As ShellExecuteInfo) As Boolean
+    'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecuteexw
+    'https://www.pinvoke.net/default.aspx/shell32/ShellExecuteEx.html
+    <DllImport("shell32", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function ShellExecuteEx(ByRef lpExecInfo As ShellExecuteInfo) As Boolean
+    End Function
 
+    'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Auto)>
     Private Structure ShellExecuteInfo
         Public cbSize As Integer
