@@ -73,20 +73,28 @@ Partial Public Class CustomMsgBoxForm
                     FormLevel = enumFormLevel.Critical
                 End If
 
-                If value.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
-                    Button1Text = "Abort"
-                    Button2Text = "Retry"
-                    Button3Text = "Ignore"
-                ElseIf value.HasFlag(MsgBoxStyle.RetryCancel) Then
+                ' MsgBoxStyle buttons members:
+                'OkOnly = 0
+                'OkCancel = 1
+                'AbortRetryIgnore = 2
+                'YesNoCancel = 3
+                'YesNo = 4
+                'RetryCancel = 5
+                ' same as above, have to check them in reverse as only one can be set
+                If value.HasFlag(MsgBoxStyle.RetryCancel) Then
                     Button1Text = "Retry"
-                    Button3Text = "Cancel"
-                ElseIf value.HasFlag(MsgBoxStyle.YesNoCancel) Then
-                    Button1Text = "Yes"
-                    Button2Text = "No"
                     Button3Text = "Cancel"
                 ElseIf value.HasFlag(MsgBoxStyle.YesNo) Then
                     Button1Text = "Yes"
                     Button3Text = "No"
+                ElseIf value.HasFlag(MsgBoxStyle.YesNoCancel) Then
+                    Button1Text = "Yes"
+                    Button2Text = "No"
+                    Button3Text = "Cancel"
+                ElseIf value.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
+                    Button1Text = "Abort"
+                    Button2Text = "Retry"
+                    Button3Text = "Ignore"
                 ElseIf value.HasFlag(MsgBoxStyle.OkCancel) Then
                     Button1Text = "Ok"
                     Button3Text = "Cancel"
