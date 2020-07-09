@@ -135,6 +135,14 @@ Namespace Tests
             If Not Test_PickIconDialog1() Then returnVal = False
             If Not Test_PickIconDialog2() Then returnVal = False
             If Not Test_PickIconDialog3() Then returnVal = False
+            If Not Test_CustomMsgBox1() Then returnVal = False
+            If Not Test_CustomMsgBox2() Then returnVal = False
+            If Not Test_CustomMsgBox3() Then returnVal = False
+            If Not Test_CustomMsgBox4() Then returnVal = False
+            If Not Test_CustomMsgBox5() Then returnVal = False
+            If Not Test_CustomMsgBox6() Then returnVal = False
+            If Not Test_CustomMsgBox7() Then returnVal = False
+            If Not Test_CustomMsgBox8() Then returnVal = False
             If Not Test_ShowProperties1() Then returnVal = False
             If Not Test_ShowProperties2() Then returnVal = False
             If Not Test_ShowProperties3() Then returnVal = False
