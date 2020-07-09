@@ -18,25 +18,25 @@ End Enum
 
 Public Enum MouseButton ' used for MouseClick
     ''' <summary>Performs a LeftClick by running LeftDown and LeftUp.</summary>
-    LeftClick
+    LeftClick = LeftDown Or LeftUp
     ''' <summary>Holds the left mouse button.</summary>
     LeftDown = &H2
     ''' <summary>Releases the left mouse button.</summary>
     LeftUp = &H4
     ''' <summary>Performs a RightClick by running RightDown and RightUp.</summary>
-    RightClick
+    RightClick = RightDown Or RightUp
     ''' <summary>Holds the right mouse button.</summary>
     RightDown = &H8
     ''' <summary>Releases the right mouse button.</summary>
     RightUp = &H10
     ''' <summary>Performs a MiddleClick by running MiddleDown and MiddleUp.</summary>
-    MiddleClick
+    MiddleClick = MiddleDown Or MiddleUp
     ''' <summary>Holds the right mouse button.</summary>
     MiddleDown = &H20
     ''' <summary>Releases the right mouse button.</summary>
     MiddleUp = &H40
     ''' <summary>Performs a XClick by running XDown and XUp.</summary>
-    XClick
+    XClick = XDown Or XUp
     ''' <summary>Holds the X mouse button. (?)</summary>
     XDown = &H80
     ''' <summary>Releases the X mouse button. (?)</summary>
@@ -282,7 +282,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-pickicondlg
     'https://www.pinvoke.net/default.aspx/shell32/PickIconDlg.html
     <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function PickIconDlg(hwndOwner As IntPtr, pszIconPath As String, cchIconPath As UInteger, ByRef piIconIndex As Integer) As Integer
+    Private Shared Function PickIconDlg(hwndOwner As IntPtr, pszIconPath As String, cchIconPath As UInteger, <[In], Out> ByRef piIconIndex As Integer) As Integer
     End Function
 #End Region
 
@@ -311,7 +311,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw
     <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function SHDefExtractIcon(pszIconFile As String, iconIndex As Integer, flags As UInteger,
-                                             ByRef hiconLarge As IntPtr, ByRef hiconSmall As IntPtr,
+                                             <Out> ByRef hiconLarge As IntPtr, <Out> ByRef hiconSmall As IntPtr,
                                              iconSize As UInteger) As Integer
     End Function
 #End Region
@@ -367,8 +367,8 @@ Partial Public Class WalkmanLib
     'https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As UInteger,
-                                            ByRef lpInBuffer As Short, nInBufferSize As UInteger,
-                                            ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
+                                            <[In]> ByRef lpInBuffer As Short, nInBufferSize As UInteger,
+                                            <Out> ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
                                             ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
     End Function
 #End Region
@@ -394,7 +394,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getcompressedfilesizew
     'https://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function GetCompressedFileSize(lpFileName As String, ByRef lpFileSizeHigh As UInteger) As UInteger
+    Private Shared Function GetCompressedFileSize(lpFileName As String, <Out> ByRef lpFileSizeHigh As UInteger) As UInteger
     End Function
 #End Region
 
@@ -434,18 +434,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Performs a mouse click at the current cursor position.</summary>
     ''' <param name="button">MouseButton to press.</param>
     Shared Sub MouseClick(button As MouseButton)
-        Select Case button
-            Case MouseButton.LeftClick
-                mouse_event(MouseButton.LeftDown Or MouseButton.LeftUp, 0, 0, 0, 0)
-            Case MouseButton.RightClick
-                mouse_event(MouseButton.RightDown Or MouseButton.RightUp, 0, 0, 0, 0)
-            Case MouseButton.MiddleClick
-                mouse_event(MouseButton.MiddleDown Or MouseButton.MiddleUp, 0, 0, 0, 0)
-            Case MouseButton.XClick
-                mouse_event(MouseButton.XDown Or MouseButton.XUp, 0, 0, 0, 0)
-            Case Else
-                mouse_event(button, 0, 0, 0, 0)
-        End Select
+        mouse_event(button, 0, 0, 0, 0)
 
         'Const MOUSEEVENTF_MOVE = &H1
         'Const MOUSEEVENTF_LEFTDOWN = &H2
