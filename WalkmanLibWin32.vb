@@ -265,7 +265,7 @@ Partial Public Class WalkmanLib
     Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
         Dim filePathBuffer As String = filePath.PadRight(1024, Chr(0))
 
-        Dim result As Integer = PickIconDlg(OwnerHandle, filePathBuffer, filePathBuffer.Length, iconIndex)
+        Dim result As Integer = PickIconDlg(OwnerHandle, filePathBuffer, CType(filePathBuffer.Length, UInteger), iconIndex)
 
         filePath = filePathBuffer.Remove(filePathBuffer.IndexOf(Chr(0)))
 
@@ -282,7 +282,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-pickicondlg
     'https://www.pinvoke.net/default.aspx/shell32/PickIconDlg.html
     <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function PickIconDlg(hwndOwner As IntPtr, pszIconPath As String, cchIconPath As Integer, ByRef piIconIndex As Integer) As Integer
+    Private Shared Function PickIconDlg(hwndOwner As IntPtr, pszIconPath As String, cchIconPath As UInteger, ByRef piIconIndex As Integer) As Integer
     End Function
 #End Region
 
@@ -366,10 +366,10 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol
     'https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As Integer,
-                                            ByRef lpInBuffer As Short, nInBufferSize As Integer,
-                                            lpOutBuffer As IntPtr, nOutBufferSize As Integer,
-                                            ByRef lpBytesReturned As Integer, lpOverlapped As IntPtr) As Integer
+    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As UInteger,
+                                            ByRef lpInBuffer As Short, nInBufferSize As UInteger,
+                                            ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
+                                            ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
     End Function
 #End Region
 
@@ -381,20 +381,20 @@ Partial Public Class WalkmanLib
     ''' <param name="path">Path to the file to get size for.</param>
     ''' <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
     Shared Function GetCompressedSize(path As String) As Double
-        Dim sizeMultiplier As IntPtr
+        Dim sizeMultiplier As UInteger
         Dim fileLength As Long = Convert.ToInt64(GetCompressedFileSize(path, sizeMultiplier))
-        If fileLength = 4294967295 Then ' decimal representation of &HFFFFFFFF
-            Dim errorException As Win32Exception = New Win32Exception
+        If fileLength = &HFFFFFFFF Then
+            Dim errorException As New Win32Exception
             If errorException.NativeErrorCode() <> 0 Then Throw New IOException(errorException.Message, errorException)
         End If
-        Dim size As Double = (UInteger.MaxValue + 1) * CLng(sizeMultiplier) + fileLength
+        Dim size As Double = ((UInteger.MaxValue + 1) * sizeMultiplier) + fileLength
         Return size
     End Function
 
     'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getcompressedfilesizew
     'https://www.pinvoke.net/default.aspx/kernel32/GetCompressedFileSize.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function GetCompressedFileSize(lpFileName As String, ByRef lpFileSizeHigh As IntPtr) As UInteger
+    Private Shared Function GetCompressedFileSize(lpFileName As String, ByRef lpFileSizeHigh As UInteger) As UInteger
     End Function
 #End Region
 
@@ -476,7 +476,7 @@ Partial Public Class WalkmanLib
     ''' <returns>Whether the properties window was shown successfully or not.</returns>
     Shared Function ShowProperties(path As String, Optional tab As String = Nothing) As Boolean
         Dim info As New ShellExecuteInfo
-        info.cbSize = Marshal.SizeOf(info)
+        info.cbSize = CType(Marshal.SizeOf(info), UInteger)
         info.lpVerb = "properties"
         info.lpFile = path
         If tab <> Nothing Then info.lpParameters = tab
@@ -494,7 +494,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Auto)>
     Private Structure ShellExecuteInfo
-        Public cbSize As Integer
+        Public cbSize As UInteger ' cbSize is specified as a DWORD, and "A DWORD is a 32-bit unsigned integer"
         Public fMask As UInteger
         Public hwnd As IntPtr
         <MarshalAs(UnmanagedType.LPTStr)>
