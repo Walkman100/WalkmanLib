@@ -119,12 +119,12 @@ Partial Public Class WalkmanLib
     '      MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Access denied!") = MsgBoxResult.Yes Then
     '        WalkmanLib.RunAsAdmin(Application.StartupPath & "\" & Diagnostics.Process.GetCurrentProcess.ProcessName & ".exe", "<arguments>")
     '        Environment.Exit(0) / Application.Exit() ' depending on whether running in Console or WinForms app, respectively
-    '        End If
+    '    End If
     'End Sub
 
     ' Link: https://stackoverflow.com/a/25958432/2999220
     ' Link: https://stackoverflow.com/a/11166160/2999220
-    Private Const RunAsAdminByte As Byte = &H15 ' Decimal 21
+    Private Const RunAsAdminByte  As Byte = &H15 ' Decimal 21
     Private Const RunAsAdminOnBit As Byte = &H20 ' Decimal 32
 
     ''' <summary>Gets whether a shortcut's "Run as Administrator" checkbox is checked.</summary>
@@ -150,7 +150,7 @@ Partial Public Class WalkmanLib
     Shared Sub SetShortcutRunAsAdmin(shortcutPath As String, flagState As Boolean)
         Dim shortcutBytes As Byte() = ReadAllBytes(shortcutPath)
         If flagState Then
-            shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) Or RunAsAdminOnBit
+            shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) Or      RunAsAdminOnBit
         Else
             shortcutBytes(RunAsAdminByte) = shortcutBytes(RunAsAdminByte) And Not RunAsAdminOnBit
         End If
@@ -246,31 +246,31 @@ Partial Public Class WalkmanLib
         Try
             txtBugReport.Text = ""
             While ex IsNot Nothing
-                If ex.ToString IsNot Nothing Then txtBugReport.Text &= "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
-                If ex.GetBaseException IsNot Nothing Then txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
-                If ex.GetType IsNot Nothing Then txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
-                If ex.Message IsNot Nothing Then txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
-                If ex.StackTrace IsNot Nothing Then txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
+                If ex.ToString IsNot Nothing Then           txtBugReport.Text &= "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
+                If ex.GetBaseException IsNot Nothing Then   txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
+                If ex.GetType IsNot Nothing Then            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
+                If ex.Message IsNot Nothing Then            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
+                If ex.StackTrace IsNot Nothing Then         txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
                 If TypeOf ex Is System.ComponentModel.Win32Exception Then
-                    txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode & vbNewLine
-                    txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
+                                                            txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode & vbNewLine
+                                                            txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
                 End If
                 If TypeOf ex Is FileNotFoundException Then
-                    txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine
-                    txtBugReport.Text &= "FusionLog: " & DirectCast(ex, FileNotFoundException).FusionLog & vbNewLine
+                                                            txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine
+                                                            txtBugReport.Text &= "FusionLog: " & DirectCast(ex, FileNotFoundException).FusionLog & vbNewLine
                 End If
-                If ex.Source IsNot Nothing Then txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
-                If ex.TargetSite IsNot Nothing Then txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
-                txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
-                txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
+                If ex.Source IsNot Nothing Then             txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
+                If ex.TargetSite IsNot Nothing Then         txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
+                                                            txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
+                                                            txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
                 For i As Integer = 0 To 100 'Integer.MaxValue no reason to go that high
                     Try
-                        txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
+                                                            txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
                     Catch
                         Exit For
                     End Try
                 Next
-                If ex.InnerException IsNot Nothing Then txtBugReport.Text &= vbNewLine & "InnerException:" & vbNewLine
+                If ex.InnerException IsNot Nothing Then     txtBugReport.Text &= vbNewLine & "InnerException:" & vbNewLine
                 ex = ex.InnerException
             End While
         Catch ex2 As Exception

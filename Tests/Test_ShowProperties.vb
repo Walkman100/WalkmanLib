@@ -92,7 +92,15 @@ Namespace Tests
                 End If
 
                 Thread.Sleep(600)
-                Return TestString("ShowProperties4", ShowPropertiesTestsHelper.GetActiveWindowText(True), "Details")
+
+                Dim tabName As String
+                Try
+                    tabName = ShowPropertiesTestsHelper.GetActiveWindowText(True)
+                Catch ex As Exception
+                    tabName = ex.ToString
+                End Try
+
+                Return TestString("ShowProperties4", tabName, "Details")
             Finally
                 SendKeys.SendWait("{ESC}")
                 Thread.Sleep(10)
