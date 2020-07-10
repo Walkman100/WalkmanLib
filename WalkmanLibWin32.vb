@@ -44,6 +44,8 @@ Public Enum MouseButton ' used for MouseClick
 End Enum
 
 Partial Public Class WalkmanLib
+    Const MAX_FILE_PATH As Integer = 32767 ' Maximum LongFileName length
+
 #Region "CreateHardLink"
     ' Link: http://pinvoke.net/default.aspx/kernel32.CreateHardLink
     ' Link (native error codes): https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes#system-error-codes
@@ -138,8 +140,8 @@ Partial Public Class WalkmanLib
 
         Dim returnString As String = ""
         Try
-            Dim stringBuilderTarget As Text.StringBuilder = New Text.StringBuilder(1024)
-            Dim result As UInteger = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, 1024, 0)
+            Dim stringBuilderTarget As New Text.StringBuilder(MAX_FILE_PATH)
+            Dim result As UInteger = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, MAX_FILE_PATH, 0)
             If result = 0 Then Throw New Win32Exception()
             returnString = stringBuilderTarget.ToString()
         Finally
@@ -263,12 +265,10 @@ Partial Public Class WalkmanLib
     ''' <param name="OwnerHandle">Use Me.Handle to make the PickIconDialog show as a Dialog - i.e. blocking your applications interface until dialog is closed.</param>
     ''' <returns>True if accepted, False if cancelled.</returns>
     Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
-        Dim filePathBuffer As String = filePath.PadRight(1024, Chr(0))
+        Dim stringBuilderTarget As New Text.StringBuilder(filePath, MAX_FILE_PATH)
+        Dim result As Integer = PickIconDlg(OwnerHandle, stringBuilderTarget, MAX_FILE_PATH, iconIndex)
 
-        Dim result As Integer = PickIconDlg(OwnerHandle, filePathBuffer, CType(filePathBuffer.Length, UInteger), iconIndex)
-
-        filePath = filePathBuffer.Remove(filePathBuffer.IndexOf(Chr(0)))
-
+        filePath = stringBuilderTarget.ToString()
         If result = 1 Then
             Return True
         ElseIf result = 0 Then
@@ -282,7 +282,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-pickicondlg
     'https://www.pinvoke.net/default.aspx/shell32/PickIconDlg.html
     <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function PickIconDlg(hwndOwner As IntPtr, pszIconPath As String, cchIconPath As UInteger, <[In], Out> ByRef piIconIndex As Integer) As Integer
+    Private Shared Function PickIconDlg(hwndOwner As IntPtr, pszIconPath As Text.StringBuilder, cchIconPath As UInteger, <[In], Out> ByRef piIconIndex As Integer) As Integer
     End Function
 #End Region
 
@@ -349,13 +349,9 @@ Partial Public Class WalkmanLib
         End If
 
         Try
-            Dim FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
-            DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
-
-            FilePropertiesStream.Flush(True)
-            FilePropertiesStream.SafeFileHandle.Dispose()
-            FilePropertiesStream.Dispose()
-            FilePropertiesStream.Close()
+            Using FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
+                DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
+            End Using
 
             Return True
         Catch ex As Exception
@@ -409,11 +405,11 @@ Partial Public Class WalkmanLib
         End If
 
         Dim FileProperties As New FileInfo(filePath)
+        Dim stringBuilderTarget As New Text.StringBuilder(MAX_FILE_PATH)
 
-        Dim result As String = Space$(1024)
-        FindExecutable(FileProperties.Name, FileProperties.DirectoryName & Path.DirectorySeparatorChar, result)
+        FindExecutable(FileProperties.Name, FileProperties.DirectoryName & Path.DirectorySeparatorChar, stringBuilderTarget)
+        Dim returnString As String = stringBuilderTarget.ToString()
 
-        Dim returnString As String = result.Remove(result.IndexOf(Chr(0)))
         If returnString = "" Then
             Return "Filetype not associated!"
         Else
@@ -424,7 +420,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-findexecutablew
     'https://www.pinvoke.net/default.aspx/shell32/FindExecutable.html
     <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function FindExecutable(lpFile As String, lpDirectory As String, lpResult As String) As Long
+    Private Shared Function FindExecutable(lpFile As String, lpDirectory As String, lpResult As Text.StringBuilder) As Long
     End Function
 #End Region
 
