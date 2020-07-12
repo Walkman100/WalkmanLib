@@ -491,29 +491,29 @@ Partial Public Class WalkmanLib
 #End Region
 
 #Region "File Compression"
-    ''' <summary>Compresses the specified file using NTFS compression.</summary>
-    ''' <param name="path">Path to the file to compress.</param>
+    ''' <summary>Compresses the specified file or directory using NTFS compression.</summary>
+    ''' <param name="path">Path to the file or directory to compress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
-    ''' <returns>Whether the file was compressed successfully or not.</returns>
+    ''' <returns>Whether the file or directory was compressed successfully or not.</returns>
     Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, True, showWindow)
     End Function
 
-    ''' <summary>Decompresses the specified file using NTFS compression.</summary>
-    ''' <param name="path">Path to the file to decompress.</param>
+    ''' <summary>Decompresses the specified file or directory using NTFS compression.</summary>
+    ''' <param name="path">Path to the file or directory to decompress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
-    ''' <returns>Whether the file was decompressed successfully or not.</returns>
+    ''' <returns>Whether the file or directory was decompressed successfully or not.</returns>
     Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, False, showWindow)
     End Function
 
     ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
     ' Link: https://docs.microsoft.com/en-za/windows/win32/api/winioctl/ni-winioctl-fsctl_set_compression
-    ''' <summary>Compress or decompress the specified file using NTFS compression.</summary>
-    ''' <param name="path">Path to the file to (de)compress.</param>
+    ''' <summary>Compress or decompress the specified file or directory using NTFS compression.</summary>
+    ''' <param name="path">Path to the file or directory to (de)compress.</param>
     ''' <param name="compress">True to compress, False to decompress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
-    ''' <returns>Whether the file was (de)compressed successfully or not.</returns>
+    ''' <returns>Whether the file or directory was (de)compressed successfully or not.</returns>
     Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
         Dim lpInBuffer As Short
         If compress Then
@@ -523,11 +523,11 @@ Partial Public Class WalkmanLib
         End If
 
         Try
-            Using FilePropertiesStream As FileStream = File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None)
-                DeviceIoControl(FilePropertiesStream.SafeFileHandle.DangerousGetHandle, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
+            Using hFile As SafeFileHandle = Win32CreateFile(path,
+                                                            Win32FileAccess.FileGenericRead Or Win32FileAccess.FileGenericWrite,
+                                                            FileShare.None, FileMode.Open, Win32FileAttribute.FlagBackupSemantics)
+                Return DeviceIoControl(hFile.DangerousGetHandle, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
             End Using
-
-            Return True
         Catch ex As Exception
             Return False
         End Try
