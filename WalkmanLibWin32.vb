@@ -56,7 +56,7 @@ Partial Public Class WalkmanLib
     Shared Sub CreateHardLink(hardlinkPath As String, existingFilePath As String)
         If CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) = False Then
 
-            Dim errorException As Win32Exception = New Win32Exception
+            Dim errorException As New Win32Exception
             If errorException.NativeErrorCode = 2 Then
                 'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
                 If Not File.Exists(existingFilePath) Then
@@ -99,8 +99,7 @@ Partial Public Class WalkmanLib
         targetType = targetType Or DirectCast(2, SymbolicLinkType)
 
         If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
-
-            Dim errorException As Win32Exception = New Win32Exception
+            Dim errorException As New Win32Exception
             If errorException.NativeErrorCode = &H03 Then
                 '0x03: ERROR_PATH_NOT_FOUND: The system cannot find the path specified
                 If Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName) Then ' "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
@@ -321,18 +320,17 @@ Partial Public Class WalkmanLib
     ''' <param name="path">Path to the symlink to get the target of.</param>
     ''' <returns>The fully qualified path to the target.</returns>
     Shared Function GetSymlinkTarget(path As String) As String
-        Dim fileHandle As IntPtr = CreateFile(path, Win32FileAccess.FileReadEA, FileShare.ReadWrite Or FileShare.Delete, IntPtr.Zero, FileMode.Open, Win32FileAttribute.FlagBackupSemantics, IntPtr.Zero)
-        If fileHandle = New IntPtr(-1) Then Throw New Win32Exception()
-
         Dim returnString As String = ""
-        Try
+
+        Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.FileReadEA,
+                                                        FileShare.ReadWrite Or FileShare.Delete, FileMode.Open,
+                                                        Win32FileAttribute.FlagBackupSemantics)
             Dim stringBuilderTarget As New Text.StringBuilder(MAX_FILE_PATH)
-            Dim result As UInteger = GetFinalPathNameByHandle(fileHandle, stringBuilderTarget, MAX_FILE_PATH, 0)
+            Dim result As UInteger = GetFinalPathNameByHandle(hFile.DangerousGetHandle, stringBuilderTarget, MAX_FILE_PATH, 0)
+
             If result = 0 Then Throw New Win32Exception()
             returnString = stringBuilderTarget.ToString()
-        Finally
-            CloseHandle(fileHandle)
-        End Try
+        End Using
 
         returnString = returnString.Substring(4) ' remove "\\?\" at the beginning
         If returnString.StartsWith("UNC\") Then  ' change "UNC\[IP]\" to proper "\\[IP]\"
@@ -347,10 +345,6 @@ Partial Public Class WalkmanLib
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As Text.StringBuilder,
                                                      cchFilePath As UInteger, dwFlags As UInteger) As UInteger
-    End Function
-
-    <DllImport("kernel32.dll", SetLastError:=True)>
-    Private Shared Function CloseHandle(hObject As IntPtr) As Boolean
     End Function
 #End Region
 
