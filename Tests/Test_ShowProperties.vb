@@ -33,16 +33,16 @@ Namespace Tests
         Friend Shared Function GetActiveWindowText(Optional getChildText As Boolean = False) As String
             Dim windowHandle As IntPtr
             windowHandle = GetForegroundWindow()
-            If Marshal.GetLastWin32Error <> 0 Then Throw New ComponentModel.Win32Exception()
+            If Marshal.GetLastWin32Error <> 0 Then Throw New System.ComponentModel.Win32Exception()
 
             If getChildText Then
                 windowHandle = GetWindow(windowHandle, 5) 'GW_CHILD = 5
-                If Marshal.GetLastWin32Error <> 0 Then Throw New ComponentModel.Win32Exception()
+                If Marshal.GetLastWin32Error <> 0 Then Throw New System.ComponentModel.Win32Exception()
             End If
 
             Dim stringBuilderTarget As New Text.StringBuilder(1024)
             Dim result As Integer = GetWindowText(windowHandle, stringBuilderTarget, 1024)
-            If result = 0 Then Throw New ComponentModel.Win32Exception()
+            If result = 0 Then Throw New System.ComponentModel.Win32Exception()
             Return stringBuilderTarget.ToString()
         End Function
     End Class

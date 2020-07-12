@@ -114,14 +114,13 @@ Namespace Tests
         End Function
 
         Function Test_SymlinkThrows1() As Boolean
+            Dim ex As Exception = New NoException
             Try
                 WalkmanLib.GetSymlinkTarget("nonExistantFile")
-                Return TestType("SymlinkThrows1", GetType(NoException), GetType(Win32Exception))
-            Catch ex As Win32Exception ' expected. none of the other Test* should run.
-                Return TestNumber("SymlinkThrows1", ex.NativeErrorCode, 2) '0x2: ERROR_FILE_NOT_FOUND: The system cannot find the file specified.
-            Catch ex As Exception
-                Return TestType("SymlinkThrows1", ex.GetType, GetType(Win32Exception))
+            Catch ex2 As Exception
+                ex = ex2
             End Try
+            Return TestType("SymlinkThrows1", ex.GetType(), GetType(FileNotFoundException))
         End Function
 
         Function Test_SymlinkThrows2(rootTestFolder As String) As Boolean
@@ -134,16 +133,14 @@ Namespace Tests
                 Return TestString("SymlinkThrows2", "Test symlink doesn't exist", "Test symlink exists")
             End If
 
+            Dim ex As Exception = New NoException
             Try
                 WalkmanLib.GetSymlinkTarget(symlinkPath)
-                Return TestType("SymlinkThrows2", GetType(NoException), GetType(Win32Exception))
-            Catch ex As Win32Exception
-                Return TestNumber("SymlinkThrows2", ex.NativeErrorCode, 2) '0x2: ERROR_FILE_NOT_FOUND: The system cannot find the file specified.
-            Catch ex As Exception
-                Return TestType("SymlinkThrows2", ex.GetType, GetType(Win32Exception))
-            Finally
-                File.Delete(symlinkPath)
+            Catch ex2 As Exception
+                ex = ex2
             End Try
+            File.Delete(symlinkPath)
+            Return TestType("SymlinkThrows2", ex.GetType, GetType(FileNotFoundException))
         End Function
 
         Function Test_SymlinkThrows3(rootTestFolder As String) As Boolean
