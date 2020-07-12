@@ -166,151 +166,151 @@ Partial Public Class WalkmanLib
 
     <Flags>
     Public Enum Win32FileAttribute As UInteger
-        AttributeReadOnly = &H1
-        AttributeHidden = &H2
-        AttributeSystem = &H4
-        AttributeDirectory = &H10
-        AttributeArchive = &H20
-        AttributeDevice = &H40
-        AttributNormal = &H80
-        AttributeTemporary = &H100
-        AttributeSparseFile = &H200
-        AttributeReparsePoint = &H400
-        AttributeCompressed = &H800
-        AttributeOffline = &H1000
-        AttributeNotContentIndexed = &H2000
-        AttributeEncrypted = &H4000
-        AttributeIntegrityStream = &H8000
-        AttributeVirtual = &H1_0000
-        AttributeNoScrubData = &H2_0000
-        AttributeEA = &H4_0000
-        AttributeRecallOnOpen = &H4_0000
-        AttributePinned = &H8_0000
-        AttributeUnpinned = &H10_0000
-        AttributeRecallOnDataAccess = &H40_0000
+        AttributeReadOnly =             &H00000001
+        AttributeHidden =               &H00000002
+        AttributeSystem =               &H00000004
+        AttributeDirectory =            &H00000010
+        AttributeArchive =              &H00000020
+        AttributeDevice =               &H00000040
+        AttributNormal =                &H00000080
+        AttributeTemporary =            &H00000100
+        AttributeSparseFile =           &H00000200
+        AttributeReparsePoint =         &H00000400
+        AttributeCompressed =           &H00000800
+        AttributeOffline =              &H00001000
+        AttributeNotContentIndexed =    &H00002000
+        AttributeEncrypted =            &H00004000
+        AttributeIntegrityStream =      &H00008000
+        AttributeVirtual =              &H00010000
+        AttributeNoScrubData =          &H00020000
+        AttributeEA =                   &H00040000
+        AttributeRecallOnOpen =         &H00040000
+        AttributePinned =               &H00080000
+        AttributeUnpinned =             &H00100000
+        AttributeRecallOnDataAccess =   &H00400000
         ''' <summary>The file data is requested, but it should continue to be located in remote storage. It should not be transported back to
         ''' local storage. This flag is for use by remote storage systems.</summary>
-        FlagOpenNoRecall = &H10_0000
+        FlagOpenNoRecall =              &H00100000
         ''' <summary>
         ''' Normal reparse point processing will not occur; CreateFile will attempt to open the reparse point. When a file is opened, a file handle is returned,
         ''' whether or not the filter that controls the reparse point is operational.
         ''' <br />This flag cannot be used with the <see cref="FileMode.Create"/> flag.
         ''' <br />If the file is not a reparse point, then this flag is ignored.
         ''' </summary>
-        FlagOpenReparsePoint = &H20_0000
+        FlagOpenReparsePoint =          &H00200000
         ''' <summary>
         ''' The file or device is being opened with session awareness. If this flag is not specified, then per-session devices (such as a device using RemoteFX
         ''' USB Redirection) cannot be opened by processes running in session 0. This flag has no effect for callers not in session 0.
         ''' This flag Is supported only on server editions of Windows.
         ''' <br />Windows Server 2008 R2 And Windows Server 2008: This flag Is Not supported before Windows Server 2012.
         ''' </summary>
-        FlagSessionAware = &H80_0000
+        FlagSessionAware =              &H00800000
         ''' <summary>
         ''' Access will occur according to POSIX rules. This includes allowing multiple files with names, differing only in case, for file systems that support that naming.
         ''' Use care when using this option, because files created with this flag may not be accessible by applications that are written for MS-DOS or 16-bit Windows.
         ''' </summary>
-        FlagPosixSemantics = &H100_0000
+        FlagPosixSemantics =            &H01000000
         ''' <summary>
         ''' The file is being opened or created for a backup or restore operation. The system ensures that the calling process overrides file security checks when the
         ''' process has SE_BACKUP_NAME And SE_RESTORE_NAME privileges.
         ''' <br />You must set this flag to obtain a handle to a directory. A directory handle can be passed to some functions instead of a file handle.
         ''' </summary>
-        FlagBackupSemantics = &H200_0000
+        FlagBackupSemantics =           &H02000000
         ''' <summary>
         ''' The file is to be deleted immediately after all of its handles are closed, which includes the specified handle and any other open or duplicated handles.
         ''' If there are existing open Handles to a file, the call fails unless they were all opened with the <see cref="FileShare.Delete"/> share mode.
         ''' <br />Subsequent open requests for the file fail, unless the <see cref="FileShare.Delete"/> share mode is specified.
         ''' </summary>
-        FlagDeleteOnClose = &H400_0000
+        FlagDeleteOnClose =             &H04000000
         ''' <summary>
         ''' Access is intended to be sequential from beginning to end. The system can use this as a hint to optimize file caching.
         ''' <br />This flag should not be used if read-behind (that is, reverse scans) will be used.
         ''' <br />This flag has no effect if the file system does not support cached I/O And <see cref="NoBuffering"/>.
         ''' </summary>
-        FlagSequentialScan = &H800_0000
+        FlagSequentialScan =            &H08000000
         ''' <summary>
         ''' Access is intended to be random. The system can use this as a hint to optimize file caching.
         ''' <br />This flag has no effect if the file system does not support cached I/O And <see cref="NoBuffering"/>.
         ''' </summary>
-        FlagRandomAccess = &H1000_0000
+        FlagRandomAccess =              &H10000000
         ''' <summary>
         ''' The file or device is being opened with no system caching for data reads and writes. This flag does not affect hard disk caching or memory mapped files.
         ''' <br />There are strict requirements for successfully working with files opened with CreateFile Using the <see cref="NoBuffering"/> flag.
         ''' </summary>
-        FlagNoBuffering = &H2000_0000
+        FlagNoBuffering =               &H20000000
         ''' <summary>
         ''' The file or device is being opened or created for asynchronous I/O.
         ''' When subsequent I/O operations are completed on this handle, the event specified in the OVERLAPPED structure will be set to the signaled state.
         ''' <br />If this flag is specified, the file can be used for simultaneous read and write operations.
         ''' <br />If this flag is not specified, then I/O operations are serialized, even if the calls to the read and write functions specify an OVERLAPPED Structure.
         ''' </summary>
-        FlagOverlapped = &H4000_0000
+        FlagOverlapped =                &H40000000
         ''' <summary>Write operations will not go through any intermediate cache, they will go directly to disk.</summary>
-        FlagWriteThrough = &H8000_0000UI
+        FlagWriteThrough =              &H80000000UI
     End Enum
 
     <Flags>
     Public Enum Win32FileAccess As UInteger
         ''' <summary>[File & Pipe]</summary>
-        FileReadData = &H1
+        FileReadData =              &H00000001
         ''' <summary>[Directory]</summary>
-        FileListDirectory = &H1
+        FileListDirectory =         &H00000001
         ''' <summary>[File & Pipe]</summary>
-        FileWriteData = &H2
+        FileWriteData =             &H00000002
         ''' <summary>[Directory]</summary>
-        FileAddFile = &H2
+        FileAddFile =               &H00000002
         ''' <summary>[File] The right to append data to the file. (For local files, write operations will not overwrite
         ''' existing data if this flag is specified without <see cref="FileWriteData"/>.)
         ''' </summary>
-        FileAppendData = &H4
+        FileAppendData =            &H00000004
         ''' <summary>[Directory]</summary>
-        FileAddSubdirectory = &H4
+        FileAddSubdirectory =       &H00000004
         ''' <summary>[Pipe]</summary>
-        FileCreatePipeInstance = &H4
+        FileCreatePipeInstance =    &H00000004
         ''' <summary>[File & Directory]</summary>
-        FileReadEA = &H8
+        FileReadEA =                &H00000008
         ''' <summary>[File & Directory]</summary>
-        FileWriteEA = &H10
+        FileWriteEA =               &H00000010
         ''' <summary>[File]</summary>
-        FileExecute = &H20
+        FileExecute =               &H00000020
         ''' <summary>[Directory] The right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the <see cref="Traverse"/> access right.</summary>
-        FileTraverse = &H20
+        FileTraverse =              &H00000020
         ''' <summary>[Directory] The right to delete a directory and all the files it contains, including read-only files.</summary>
-        FileDeleteChild = &H40
+        FileDeleteChild =           &H00000040
         ''' <summary>[All]</summary>
-        FileReadAttributes = &H80
+        FileReadAttributes =        &H00000080
         ''' <summary>[All]</summary>
-        FileWriteAttributes = &H100
-        Delete = &H1_0000
+        FileWriteAttributes =       &H00000100
+        Delete =                    &H00010000
         ''' <summary>Read access to the owner, group, and discretionary access control list (DACL) of the security descriptor.</summary>
-        ReadControl = &H2_0000
+        ReadControl =               &H00020000
         ''' <summary>Write access to the discretionary access control list (DACL).</summary>
-        WriteDac = &H4_0000
+        WriteDac =                  &H00040000
         ''' <summary>Write access to owner.</summary>
-        WriteOwner = &H8_0000
+        WriteOwner =                &H00080000
         ''' <summary>Synchronize access.</summary>
-        Synchronize = &H10_0000
-        StandardRightsRequired = &HF_0000
-        StandardRightsRead = ReadControl
-        StandardRightsWrite = ReadControl
-        StandardRightsExecute = ReadControl
-        StandardRightsAll = &H1F_0000
-        SpecificRightsAll = &HFFFF
+        Synchronize =               &H00100000
+        StandardRightsRequired =    &H000F0000
+        StandardRightsRead =        ReadControl
+        StandardRightsWrite =       ReadControl
+        StandardRightsExecute =     ReadControl
+        StandardRightsAll =         &H001F0000
+        SpecificRightsAll =         &H0000FFFF
         ''' <summary>
         ''' Used to indicate access to a system access control list (SACL). This type of access requires the calling process to
         ''' have the SE_SECURITY_NAME (Manage auditing and security log) privilege. If this flag is set in the access mask of
         ''' an audit access ACE (successful or unsuccessful access), the SACL access will be audited.
         ''' </summary>
-        AccessSystemSecurity = &H100_0000
-        MaximumAllowed = &H200_0000
-        GenericAll = &H1000_0000
-        GenericExecute = &H2000_0000
-        GenericWrite = &H4000_0000
-        GenericRead = &H8000_0000UI
-        FileGenericRead = StandardRightsRead Or FileReadData Or FileReadAttributes Or FileReadEA Or Synchronize
-        FileGenericWrite = StandardRightsWrite Or FileWriteData Or FileWriteAttributes Or FileWriteEA Or FileAppendData Or Synchronize
-        FileGenericExecute = StandardRightsExecute Or FileReadAttributes Or FileExecute Or Synchronize
-        FileAllAccess = StandardRightsRequired Or Synchronize Or &H1FF
+        AccessSystemSecurity =      &H01000000
+        MaximumAllowed =            &H02000000
+        GenericAll =                &H10000000
+        GenericExecute =            &H20000000
+        GenericWrite =              &H40000000
+        GenericRead =               &H80000000UI
+        FileGenericRead =           StandardRightsRead Or FileReadData Or FileReadAttributes Or FileReadEA Or Synchronize
+        FileGenericWrite =          StandardRightsWrite Or FileWriteData Or FileWriteAttributes Or FileWriteEA Or FileAppendData Or Synchronize
+        FileGenericExecute =        StandardRightsExecute Or FileReadAttributes Or FileExecute Or Synchronize
+        FileAllAccess =             StandardRightsRequired Or Synchronize Or &H1FF ' 1FF is everything before Delete (not including)
     End Enum
 #End Region
 
