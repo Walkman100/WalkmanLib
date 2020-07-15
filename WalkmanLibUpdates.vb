@@ -33,7 +33,7 @@ Partial Public Class WalkmanLib
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
 
         ' https://stackoverflow.com/a/16655779/2999220
-        Dim address As String = "https://api.github.com/repos/" & projectOwner & "/" & projectName & "/releases/latest"
+        Dim address As String = String.Format("https://api.github.com/repos/{0}/{1}/releases/latest", projectOwner, projectName)
         Dim client As WebClient = New WebClient()
 
         ' https://stackoverflow.com/a/22134980/2999220
@@ -46,11 +46,11 @@ Partial Public Class WalkmanLib
         Dim jss As New JavaScriptSerializer()
         Dim jsonObjectDict As Dictionary(Of String, Object) = jss.Deserialize(Of Dictionary(Of String, Object))(jsonObject)
 
-        Dim returnVersionInfo As VersionInfo
-        returnVersionInfo.TagName = DirectCast(jsonObjectDict("tag_name"), String)
-        returnVersionInfo.Title = DirectCast(jsonObjectDict("name"), String)
-        returnVersionInfo.Body = DirectCast(jsonObjectDict("body"), String)
-        Return returnVersionInfo
+        Return New VersionInfo With {
+            .TagName = DirectCast(jsonObjectDict("tag_name"), String),
+            .Title = DirectCast(jsonObjectDict("name"), String),
+            .Body = DirectCast(jsonObjectDict("body"), String)
+        }
     End Function
 
     ''' <summary>Gets a download link for the latest installer released in a GitHub project.</summary>
@@ -68,7 +68,7 @@ Partial Public Class WalkmanLib
             fileName = String.Format(fileName, versionString)
         End If
 
-        Return "https://github.com/" & projectOwner & "/" & projectName & "/releases/download/" & versionString & "/" & fileName
+        Return String.Format("https://github.com/{0}/{1}/releases/download/{2}/{3}", projectOwner, projectName, versionString, fileName)
     End Function
 
     ''' <summary>Gets the latest version released in a GitHub project. Note if the tag name is not in version format will throw an Exception.</summary>
@@ -95,11 +95,7 @@ Partial Public Class WalkmanLib
         Dim latestVersion As Version
         latestVersion = GetLatestVersion(projectName, projectOwner)
 
-        If latestVersion > currentVersion Then
-            Return True
-        Else
-            Return False
-        End If
+        Return latestVersion > currentVersion
     End Function
 
     ''' <summary>Checks if an update release is available in a GitHub project in a BackgroundWorker.</summary>
@@ -114,16 +110,11 @@ Partial Public Class WalkmanLib
         AddHandler bwUpdateCheck.DoWork, AddressOf BackgroundUpdateCheck
         AddHandler bwUpdateCheck.RunWorkerCompleted, checkComplete
 
-        Dim bwArgs(3) As Object
-        bwArgs(0) = projectName
-        bwArgs(1) = projectOwner
-        bwArgs(2) = currentVersion
-
-        bwUpdateCheck.RunWorkerAsync(bwArgs)
+        bwUpdateCheck.RunWorkerAsync(New Object() {projectName, projectOwner, currentVersion})
     End Sub
 
     Private Shared Sub BackgroundUpdateCheck(sender As Object, e As ComponentModel.DoWorkEventArgs)
-        Dim bwArgs(3) As Object
+        Dim bwArgs(2) As Object ' vb array initialisers are index-based (10 = 11 elements)
         bwArgs = DirectCast(e.Argument, Object())
 
         Dim latestVersion As Version = New Version() ' warning squashing
@@ -140,11 +131,7 @@ Partial Public Class WalkmanLib
             End Try
         Loop
 
-        If latestVersion > DirectCast(bwArgs(2), Version) Then
-            e.Result = True
-        Else
-            e.Result = False
-        End If
+        e.Result = latestVersion > DirectCast(bwArgs(2), Version)
     End Sub
 
     ' Example code to use the background update check:
