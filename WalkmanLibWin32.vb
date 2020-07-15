@@ -166,6 +166,7 @@ Partial Public Class WalkmanLib
 
     <Flags>
     Public Enum Win32FileAttribute As UInteger
+        None =                          0
         AttributeReadOnly =             &H00000001
         AttributeHidden =               &H00000002
         AttributeSystem =               &H00000004
@@ -251,6 +252,7 @@ Partial Public Class WalkmanLib
 
     <Flags>
     Public Enum Win32FileAccess As UInteger
+        None =                      0
         ''' <summary>[File & Pipe]</summary>
         FileReadData =              &H00000001
         ''' <summary>[Directory]</summary>
@@ -312,6 +314,44 @@ Partial Public Class WalkmanLib
         FileGenericExecute =        StandardRightsExecute Or FileReadAttributes Or FileExecute Or Synchronize
         FileAllAccess =             StandardRightsRequired Or Synchronize Or &H1FF ' 1FF is everything before Delete (not including)
     End Enum
+#End Region
+
+#Region "GetHardlinkCount"
+    ' Link: https://devblogs.microsoft.com/vbteam/to-compare-two-filenames-lucian-wischik/
+    ''' <summary>Gets the count of hardlinks of a file.</summary>
+    ''' <param name="path">Path to the file to get the hardlink count of.</param>
+    ''' <returns>Count of links to a file. The count includes the current link (0 would be a deleted file)</returns>
+    Shared Function GetHardlinkCount(path As String) As UInteger
+        ' don't need to use Win32CreateFile as that's needed for directories
+        Using fs As New FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
+            Dim fileInfo As ByHandleFileInformation
+            If GetFileInformationByHandle(fs.SafeFileHandle, fileInfo) = False Then
+                Throw New Win32Exception
+            End If
+
+            Return fileInfo.nNumberOfLinks
+        End Using
+    End Function
+
+    'https://docs.microsoft.com/en-za/windows/win32/api/fileapi/nf-fileapi-getfileinformationbyhandle
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function GetFileInformationByHandle(hFile As SafeFileHandle, ByRef lpFileInformation As ByHandleFileInformation) As Boolean
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/ns-fileapi-by_handle_file_information
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure ByHandleFileInformation
+        Public dwFileAttributes As UInteger
+        Public ftCreationTime As ComTypes.FILETIME
+        Public ftLastAccessTime As ComTypes.FILETIME
+        Public ftLastWriteTime As ComTypes.FILETIME
+        Public dwVolumeSerialNumber As UInteger
+        Public nFileSizeHigh As UInteger
+        Public nFileSizeLow As UInteger
+        Public nNumberOfLinks As UInteger
+        Public nFileIndexHigh As UInteger
+        Public nFileIndexLow As UInteger
+    End Structure
 #End Region
 
 #Region "GetSymlinkTarget"
