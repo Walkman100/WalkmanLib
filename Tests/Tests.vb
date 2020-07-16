@@ -123,6 +123,11 @@ Namespace Tests
                 If Not Test_HardlinkThrows2(rootTestFolder) Then returnVal = False
                 If Not Test_HardlinkThrows3(rootTestFolder) Then returnVal = False
                 If Not Test_HardlinkThrows4(rootTestFolder) Then returnVal = False
+                If Not Test_Hardlink6(rootTestFolder) Then returnVal = False
+                If Not Test_Hardlink7(rootTestFolder) Then returnVal = False
+                If Not Test_Hardlink8(rootTestFolder) Then returnVal = False
+                If Not Test_Hardlink9(rootTestFolder) Then returnVal = False
+                If Not Test_Hardlink10(rootTestFolder) Then returnVal = False
 
                 Dim projectRoot As String = New Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath
                 projectRoot = New FileInfo(projectRoot).Directory.Parent.Parent.FullName

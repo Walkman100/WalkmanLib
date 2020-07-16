@@ -4,7 +4,9 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.Collections.Generic
 Imports System.IO
+Imports System.Linq
 
 Namespace Tests
     Module Tests_Hardlinks
@@ -133,6 +135,78 @@ Namespace Tests
                     ex = ex2
                 End Try
                 Return TestType("HardlinkThrows4", ex.GetType, GetType(UnauthorizedAccessException))
+            End Using
+        End Function
+
+        Function Test_Hardlink6(rootTestFolder As String) As Boolean
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks6Source.txt"))
+                Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks6.txt")
+
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+
+                Using testHardlink As New DisposableFile(hardlinkPath, False)
+                    Return TestNumber("Hardlinks6", WalkmanLib.GetHardlinkCount(hardlinkPath), 2)
+                End Using
+            End Using
+        End Function
+
+        Function Test_Hardlink7(rootTestFolder As String) As Boolean
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks7Source.txt"))
+                Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks7.txt")
+
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+
+                Using testHardlink As New DisposableFile(hardlinkPath, False)
+                    Return TestNumber("Hardlinks7", WalkmanLib.GetHardlinkCount(testFileSource.filePath), 2)
+                End Using
+            End Using
+        End Function
+
+        Function Test_Hardlink8(rootTestFolder As String) As Boolean
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks8Source.txt"))
+                Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks8.txt")
+
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+
+                Using testHardlink As New DisposableFile(hardlinkPath, False)
+                    Dim lstLinks As List(Of String) = WalkmanLib.GetHardlinkLinks(hardlinkPath).ToList
+
+                    Return TestNumber("Hardlinks8", lstLinks.Count, 2)
+                End Using
+            End Using
+        End Function
+
+        Function Test_Hardlink9(rootTestFolder As String) As Boolean
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks9Source.txt"))
+                Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks9.txt")
+
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+
+                Using testHardlink As New DisposableFile(hardlinkPath, False)
+                    Dim lstLinks As List(Of String) = WalkmanLib.GetHardlinkLinks(hardlinkPath).ToList
+                    Dim linkPath As String = lstLinks.First(Function(x As String)
+                                                                Return x.EndsWith("Source.txt")
+                                                            End Function)
+
+                    Return TestString("Hardlinks9", linkPath, testFileSource.filePath)
+                End Using
+            End Using
+        End Function
+
+        Function Test_Hardlink10(rootTestFolder As String) As Boolean
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks10Source.txt"))
+                Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks10.txt")
+
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+
+                Using testHardlink As New DisposableFile(hardlinkPath, False)
+                    Dim lstLinks As List(Of String) = WalkmanLib.GetHardlinkLinks(testFileSource.filePath).ToList
+                    Dim linkPath As String = lstLinks.First(Function(x As String)
+                                                                Return x.EndsWith("Source.txt")
+                                                            End Function)
+
+                    Return TestString("Hardlinks10", linkPath, testFileSource.filePath)
+                End Using
             End Using
         End Function
     End Module
