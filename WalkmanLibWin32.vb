@@ -334,7 +334,7 @@ Partial Public Class WalkmanLib
         End Using
     End Function
 
-    'https://docs.microsoft.com/en-za/windows/win32/api/fileapi/nf-fileapi-getfileinformationbyhandle
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileinformationbyhandle
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function GetFileInformationByHandle(hFile As SafeFileHandle, ByRef lpFileInformation As ByHandleFileInformation) As Boolean
     End Function
@@ -489,8 +489,8 @@ Partial Public Class WalkmanLib
         Return shortcutObject.FullName
     End Function
 
-    ''' <summary>Interface for handling WScript.Shell shortcut objects. Use with GetShortcutInfo(shortcutPath) As IWshShortcut</summary>
-    <ComImport, TypeLibType(CShort(&H1040)), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")>
+    ''' <summary>Interface for handling WScript.Shell shortcut objects. Use with <see cref="GetShortcutInfo(String)"/> As IWshShortcut</summary>
+    <ComImport, TypeLibType(&H1040S), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")>
     Interface IWshShortcut
         <DispId(0)>
         ReadOnly Property FullName() As String
@@ -512,7 +512,7 @@ Partial Public Class WalkmanLib
         Property WindowStyle() As Integer
         <DispId(&H3EF)>
         Property WorkingDirectory() As String
-        <TypeLibFunc(CShort(&H40)), DispId(&H7D0)>
+        <TypeLibFunc(&H40S), DispId(&H7D0)>
         Sub Load(<[In], MarshalAs(UnmanagedType.BStr)> PathLink As String)
         <DispId(&H7D1)>
         Sub Save()
@@ -597,7 +597,7 @@ Partial Public Class WalkmanLib
     End Function
 
     ' Link: http://www.thescarms.com/dotnet/NTFSCompress.aspx
-    ' Link: https://docs.microsoft.com/en-za/windows/win32/api/winioctl/ni-winioctl-fsctl_set_compression
+    ' Link: https://docs.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_set_compression
     ''' <summary>Compress or decompress the specified file or directory using NTFS compression.</summary>
     ''' <param name="path">Path to the file or directory to (de)compress.</param>
     ''' <param name="compress">True to compress, False to decompress.</param>
