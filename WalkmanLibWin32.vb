@@ -4,6 +4,7 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.IO
 Imports System.Runtime.InteropServices
@@ -352,6 +353,54 @@ Partial Public Class WalkmanLib
         Public nFileIndexHigh As UInteger
         Public nFileIndexLow As UInteger
     End Structure
+#End Region
+
+#Region "GetHardlinkLinks"
+    ' Link: https://stackoverflow.com/a/4511075/2999220
+    ' Link: https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilenamew
+    ''' <summary>Gets all the links to a specified file.
+    ''' Warning: A handle is used to get the links, and is only closed when all the links have been retrieved.
+    ''' To ensure this handle is closed, ensure all the links are retrieved.</summary>
+    ''' <param name="path">Path to the file to get links for. This path does not include the drive identifier.</param>
+    ''' <returns>All a file's links.</returns>
+    Shared Iterator Function GetHardlinkLinks(path As String) As IEnumerable(Of String)
+        Dim INVALID_HANDLE_VALUE As IntPtr = New IntPtr(&HFFFFFFFF)
+        Dim stringBuilderTarget As New Text.StringBuilder(MAX_FILE_PATH)
+        Dim hFind As IntPtr = FindFirstFileName(path, 0, MAX_FILE_PATH, stringBuilderTarget)
+
+        If hFind = INVALID_HANDLE_VALUE Then
+            Throw New Win32Exception
+        End If
+
+        Try
+            Yield stringBuilderTarget.ToString()
+
+            While FindNextFileName(hFind, MAX_FILE_PATH, stringBuilderTarget)
+                Yield stringBuilderTarget.ToString()
+            End While
+
+            Dim errorException As Win32Exception = New Win32Exception
+            '                                    ERROR_HANDLE_EOF: Reached the end of the file.
+            If errorException.NativeErrorCode <> &H26 Then Throw errorException
+        Finally
+            FindClose(hFind)
+        End Try
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilenamew
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindFirstFileName(lpFileName As String, dwFlags As UInteger, ByRef lpdwStringLength As UInteger, pLinkName As Text.StringBuilder) As IntPtr
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextfilenamew
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindNextFileName(hFindStream As IntPtr, ByRef lpdwStringLength As UInteger, pLinkName As Text.StringBuilder) As Boolean
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findclose
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindClose(hFindFile As IntPtr) As Boolean
+    End Function
 #End Region
 
 #Region "GetSymlinkTarget"
