@@ -209,5 +209,85 @@ Namespace Tests
                 End Using
             End Using
         End Function
+
+        Function Test_HardlinkThrows5(rootTestFolder As String) As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkCount(Path.Combine(rootTestFolder, "nonExistantFile.txt"))
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows5", ex.GetType, GetType(FileNotFoundException))
+        End Function
+
+        Function Test_HardlinkThrows6(rootTestFolder As String) As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkCount(Path.Combine(rootTestFolder, "nonExistantFolder", "nonExistantFile.txt"))
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows6", ex.GetType, GetType(DirectoryNotFoundException))
+        End Function
+
+        Function Test_HardlinkThrows7() As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkCount(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "MEMORY.DMP"))
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows7", ex.GetType, GetType(UnauthorizedAccessException))
+        End Function
+
+        Function Test_HardlinkThrows8() As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkCount(Path.Combine(Environment.GetEnvironmentVariable("SystemDrive") & Path.DirectorySeparatorChar, "pagefile.sys"))
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows8", ex.GetType, GetType(IOException))
+        End Function
+
+        Function Test_HardlinkThrows9(rootTestFolder As String) As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkLinks(Path.Combine(rootTestFolder, "nonExistantFile.txt")).ToList
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows9", ex.GetType, GetType(FileNotFoundException))
+        End Function
+
+        Function Test_HardlinkThrows10(rootTestFolder As String) As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkLinks(Path.Combine(rootTestFolder, "nonExistantFolder", "nonExistantFile.txt")).ToList
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows10", ex.GetType, GetType(DirectoryNotFoundException))
+        End Function
+
+        Function Test_HardlinkThrows11() As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkLinks(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "MEMORY.DMP")).ToList
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows11", ex.GetType, GetType(UnauthorizedAccessException))
+        End Function
+
+        Function Test_HardlinkThrows12() As Boolean
+            Dim ex As Exception = New NoException
+            Try
+                WalkmanLib.GetHardlinkLinks(Path.Combine(Environment.GetEnvironmentVariable("SystemDrive") & Path.DirectorySeparatorChar, "pagefile.sys")).ToList
+            Catch ex2 As Exception
+                ex = ex2
+            End Try
+            Return TestType("HardlinkThrows12", ex.GetType, GetType(IOException))
+        End Function
     End Module
 End Namespace
