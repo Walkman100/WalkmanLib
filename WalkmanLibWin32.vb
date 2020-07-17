@@ -146,6 +146,9 @@ Partial Public Class WalkmanLib
             ElseIf errorException.NativeErrorCode = 5 Then
                 'ERROR_ACCESS_DENIED: Access is denied
                 Throw New UnauthorizedAccessException("Access to the file path is denied", errorException)
+            ElseIf errorException.NativeErrorCode = 32 Then
+                'ERROR_SHARING_VIOLATION: The process cannot access the file because it is being used by another process
+                Throw New IOException(errorException.Message, errorException)
             ElseIf errorException.NativeErrorCode = 183 Then
                 'ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
                 Throw New IOException("The target path already exists", errorException)
@@ -369,7 +372,25 @@ Partial Public Class WalkmanLib
         Dim hFind As IntPtr = FindFirstFileName(path, 0, MAX_FILE_PATH, stringBuilderTarget)
 
         If hFind = INVALID_HANDLE_VALUE Then
-            Throw New Win32Exception
+            Dim errorException As New Win32Exception
+            If errorException.NativeErrorCode = 2 Then
+                'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+                If Not File.Exists(path) Then
+                    Throw New FileNotFoundException(errorException.Message, path, errorException)
+                End If
+            ElseIf errorException.NativeErrorCode = 3 Then
+                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+                If Not Directory.Exists(New FileInfo(path).DirectoryName) Then
+                    Throw New DirectoryNotFoundException(errorException.Message, errorException)
+                End If
+            ElseIf errorException.NativeErrorCode = 5 Then
+                'ERROR_ACCESS_DENIED: Access is denied
+                Throw New UnauthorizedAccessException("Access to the file path is denied", errorException)
+            ElseIf errorException.NativeErrorCode = 32 Then
+                'ERROR_SHARING_VIOLATION: The process cannot access the file because it is being used by another process
+                Throw New IOException(errorException.Message, errorException)
+            End If
+            Throw errorException
         End If
 
         Try
