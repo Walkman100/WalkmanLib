@@ -373,12 +373,18 @@ Partial Public Class WalkmanLib
         End If
 
         Try
-            Dim pathRoot As String = IO.Path.GetPathRoot(path)
-            Yield IO.Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1))
             ' link path doesn't include drive letter by default
+            Dim pathRoot As String = IO.Path.GetPathRoot(path)
+            Yield If(stringBuilderTarget.ToString()(0) = IO.Path.DirectorySeparatorChar,
+                IO.Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1)),
+                stringBuilderTarget.ToString())
 
             While FindNextFileName(hFind, MAX_FILE_PATH, stringBuilderTarget)
-                Yield IO.Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1))
+                If stringBuilderTarget.ToString()(0) = IO.Path.DirectorySeparatorChar Then
+                    Yield IO.Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1))
+                Else
+                    Yield stringBuilderTarget.ToString()
+                End If
             End While
 
             Dim errorException As Win32Exception = New Win32Exception
