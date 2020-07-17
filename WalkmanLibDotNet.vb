@@ -252,8 +252,8 @@ Partial Public Class WalkmanLib
                 If ex.Message IsNot Nothing Then            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
                 If ex.StackTrace IsNot Nothing Then         txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
                 If TypeOf ex Is System.ComponentModel.Win32Exception Then
-                                                            txtBugReport.Text &= "ErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode & vbNewLine
-                                                            txtBugReport.Text &= "NativeErrorCode: " & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode & vbNewLine
+                                                            txtBugReport.Text &= "ErrorCode: 0x" & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode.ToString("X") & vbNewLine
+                                                            txtBugReport.Text &= "NativeErrorCode: 0x" & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode.ToString("X") & vbNewLine
                 End If
                 If TypeOf ex Is FileNotFoundException Then
                                                             txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine
@@ -261,14 +261,10 @@ Partial Public Class WalkmanLib
                 End If
                 If ex.Source IsNot Nothing Then             txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
                 If ex.TargetSite IsNot Nothing Then         txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
-                                                            txtBugReport.Text &= "HashCode: " & ex.GetHashCode.ToString & vbNewLine
-                                                            txtBugReport.Text &= "HResult: " & ex.HResult.ToString & vbNewLine & vbNewLine
-                For i As Integer = 0 To 100 'Integer.MaxValue no reason to go that high
-                    Try
-                                                            txtBugReport.Text &= "Data:" & vbNewLine & ex.Data(i).ToString & vbNewLine & vbNewLine
-                    Catch
-                        Exit For
-                    End Try
+                                                            txtBugReport.Text &= "HashCode: 0x" & ex.GetHashCode.ToString("X") & vbNewLine
+                                                            txtBugReport.Text &= "HResult: 0x" & ex.HResult.ToString("X") & vbNewLine & vbNewLine
+                For Each key As Object In ex.Data.Keys
+                                                            txtBugReport.Text &= "Data(" & key.ToString() & "): " & ex.Data(key).ToString() & vbNewLine
                 Next
                 If ex.InnerException IsNot Nothing Then     txtBugReport.Text &= vbNewLine & "InnerException:" & vbNewLine
                 ex = ex.InnerException
