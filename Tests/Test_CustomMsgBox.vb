@@ -78,7 +78,7 @@ Namespace Tests
 
         Function Test_CustomMsgBox7() As Boolean
             Task.Run(Sub()
-                         Thread.Sleep(600)
+                         Thread.Sleep(700)
                          SendKeys.SendWait("{ESC}")
                      End Sub)
 

@@ -76,7 +76,7 @@ Namespace Tests
                     Return TestBoolean("ShowProperties3", result, True)
                 End If
 
-                Thread.Sleep(600) ' wait for window to show
+                Thread.Sleep(700) ' wait for window to show
                 Return TestString("ShowProperties3", ShowPropertiesTestsHelper.GetActiveWindowText(), "shell32.dll Properties")
             Finally
                 SendKeys.SendWait("{ESC}")
@@ -91,7 +91,7 @@ Namespace Tests
                     Return TestBoolean("ShowProperties4", result, True)
                 End If
 
-                Thread.Sleep(600)
+                Thread.Sleep(700)
 
                 Dim tabName As String
                 Try

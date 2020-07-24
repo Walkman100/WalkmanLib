@@ -321,6 +321,7 @@ Partial Public Class WalkmanLib
 #End Region
 
 #Region "GetHardlinkCount"
+    ' Link: https://serverfault.com/questions/758496/get-hardlink-count-for-a-file-on-windows-without-fsutil-which-requires-admin
     ' Link: https://devblogs.microsoft.com/vbteam/to-compare-two-filenames-lucian-wischik/
     ''' <summary>Gets the count of hardlinks of a file.</summary>
     ''' <param name="path">Path to the file to get the hardlink count of.</param>
