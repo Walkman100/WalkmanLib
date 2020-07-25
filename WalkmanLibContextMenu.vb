@@ -470,7 +470,7 @@ Partial Public Class WalkmanLib
         ' declared as a structure as Enums have to be of "Integral" types
         Private Structure IID
             Public Shared ReadOnly INewShortcutHookA As New Guid(&H214E1, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
-            Public Shared ReadOnly IID_IShellBrowser As New Guid(&H214E2, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
+            Public Shared ReadOnly IShellBrowser As New Guid(&H214E2, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
             Public Shared ReadOnly IShellView As New Guid(&H214E3, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
             Public Shared ReadOnly IContextMenu As New Guid(&H214E4, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
             Public Shared ReadOnly IShellIcon As New Guid(&H214E5, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
@@ -496,6 +496,44 @@ Partial Public Class WalkmanLib
             Public Shared ReadOnly IShellExecuteHookW As New Guid(&H214FB, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
             Public Shared ReadOnly ICopyHookW As New Guid(&H214FC, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
             Public Shared ReadOnly IRemoteComputer As New Guid(&H214FE, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
+            Public Shared ReadOnly IQueryInfo As New Guid(&H21500, 0, 0, &HC0, 0, 0, 0, 0, 0, 0, &H46)
+            Public Shared ReadOnly IBriefcaseStg As New Guid(&H8BCE1FA1, &H921, &H101B, &HB1, &HFF, &H0, &HDD, &H1, &HC, &HCC, &H48)
+            Public Shared ReadOnly IShellView2 As New Guid(&H88E39E80, &H3578, &H11CF, &HAE, &H69, &H8, &H0, &H2B, &H2E, &H12, &H62)
+            Public Shared ReadOnly IURLSearchHook As New Guid(&HAC60F6A0, &HFD9, &H11D0, &H99, &HCB, &H0, &HC0, &H4F, &HD6, &H44, &H97)
+            Public Shared ReadOnly ISearchContext As New Guid(&H9F656A2, &H41AF, &H480C, &H88, &HF7, &H16, &HCC, &HD, &H16, &H46, &H15)
+            Public Shared ReadOnly IURLSearchHook2 As New Guid(&H5EE44DA4, &H6D32, &H46E3, &H86, &HBC, &H7, &H54, &HD, &HED, &HD0, &HE0)
+            Public Shared ReadOnly IDefViewID As New Guid(&H985F64F0UI, &HD410, &H4E02, &HBE, &H22, &HDA, &H7, &HF2, &HB5, &HC5, &HE1)
+            Public Shared ReadOnly IDockingWindowSite As New Guid(&H2A342FC, &H7B26, &H11D0, &H8C, &HA9, &H0, &HA0, &HC9, &H2D, &HBF, &HE8)
+            Public Shared ReadOnly IDockingWindowFrame As New Guid(&H47D2657, &H7B27, &H11D0, &H8C, &HA9, &H0, &HA0, &HC9, &H2D, &HBF, &HE8)
+            Public Shared ReadOnly IShellIconOverlay As New Guid(&H7D688A70, &HC613, &H11D0, &H99, &H9B, &H0, &HC0, &H4F, &HD6, &H55, &HE1)
+            Public Shared ReadOnly IShellIconOverlayIdentifier As New Guid(&HC6C4200, &HC589, &H11D0, &H99, &H9A, &H0, &HC0, &H4F, &HD6, &H55, &HE1)
+            Public Shared ReadOnly ICommDlgBrowser2 As New Guid(&H1033951, &H2894, &H11D2, &H90, &H39, &H0, &HC0, &H4F, &H8E, &HEB, &H3E)
+            Public Shared ReadOnly IShellFolderViewCB As New Guid(&H2047E320, &HF2A9, &H11CE, &HAE, &H65, &H8, &H0, &H2B, &H2E, &H12, &H62)
+            Public Shared ReadOnly IShellIconOverlayManager As New Guid(&HF10B5E34UI, &HDD3B, &H42A7, &HAA, &H7D, &H2F, &H4E, &HC5, &H4B, &HB0, &H9B)
+            Public Shared ReadOnly IThumbnailCapture As New Guid(&H4EA3926, &H7211, &H409F, &HB6, &H22, &HF6, &H3D, &HBD, &H16, &HC5, &H33)
+            Public Shared ReadOnly IShellImageStore As New Guid(&H48C8118, &HB924, &H11D1, &H98, &HD5, &H0, &HC0, &H4F, &HB6, &H87, &HDA)
+            Public Shared ReadOnly IContextMenu3 As New Guid(&HBCFCE0A, &HEC17, &H11D0, &H8D, &H10, &H0, &HA0, &HC9, &HF, &H27, &H19)
+            Public Shared ReadOnly IShellFolderBand As New Guid(&H7FE80CC, &HC247, &H11D0, &HB9, &H3A, &H0, &HA0, &HC9, &H3, &H12, &HE1)
+            Public Shared ReadOnly IDefViewFrame As New Guid(&H710EB7A0, &H45ED, &H11D0, &H92, &H4A, &H0, &H20, &HAF, &HC7, &HAC, &H4D)
+            Public Shared ReadOnly IDiscardableBrowserProperty As New Guid(&H49C3DE7, &HD329, &H11D0, &HAB, &H73, &H0, &HC0, &H4F, &HC3, &H3E, &H80)
+            Public Shared ReadOnly IShellChangeNotify As New Guid(&HD82BE2B1, &H5764, &H11D0, &HA9, &H6E, &H0, &HC0, &H4F, &HD7, &H5, &HA2)
+            Public Shared ReadOnly IObjMgr As New Guid(&HBB2761, &H6A77, &H11D0, &HA5, &H35, &H0, &HC0, &H4F, &HD7, &HD0, &H62)
+            Public Shared ReadOnly IACList As New Guid(&H77A130B0, &H94FD, &H11D0, &HA5, &H44, &H0, &HC0, &H4F, &HD7, &HD0, &H62)
+            Public Shared ReadOnly IACList2 As New Guid(&H470141A0, &H5186, &H11D2, &HBB, &HB6, &H0, &H60, &H97, &H7B, &H46, &H4C)
+            Public Shared ReadOnly ICurrentWorkingDirectory As New Guid(&H91956D21UI, &H9276, &H11D1, &H92, &H1A, &H0, &H60, &H97, &HDF, &H5B, &HD4)
+            Public Shared ReadOnly IProgressDialog As New Guid(&HEBBC7C0, &H315E, &H11D2, &HB6, &H2F, &H0, &H60, &H97, &HDF, &H5B, &HD4)
+            Public Shared ReadOnly IActiveDesktop As New Guid(&HF490EB00, &H1240, &H11D1, &H98, &H88, &H0, &H60, &H97, &HDE, &HAC, &HF9)
+            Public Shared ReadOnly IActiveDesktopP As New Guid(&H52502EE0, &HEC80, &H11D0, &H89, &HAB, &H0, &HC0, &H4F, &HC2, &H97, &H2D)
+            Public Shared ReadOnly IADesktopP2 As New Guid(&HB22754E, &H4574, &H11D1, &H98, &H88, &H0, &H60, &H97, &HDE, &HAC, &HF9)
+            Public Shared ReadOnly ISynchronizedCallBack As New Guid(&H74C2604, &H70D1, &H11D1, &HB7, &H5A, &H0, &HA0, &HC9, &H5, &H64, &HFE)
+            Public Shared ReadOnly IQueryAssociations As New Guid(&HC46CA59, &H3C3F, &H11D2, &HBE, &HE6, &H0, &H0, &HF8, &H5, &HCA, &H57)
+            Public Shared ReadOnly IColumnProvider As New Guid(&HE802500, &H1C42, &H11D2, &HBE, &H2C, &H0, &HA0, &HC9, &HA8, &H3D, &HA1)
+            Public Shared ReadOnly INamedPropertyBag As New Guid(&HFB70043, &H952C, &H11D1, &H94, &H6F, &H0, &H0, &H0, &H0, &H0, &H0)
+            Public Shared ReadOnly IShellFolder2 As New Guid(&H93F2F68, &H1D1B, &H11D3, &HA3, &HE, &H0, &HC0, &H4F, &H79, &HAB, &HD1)
+            Public Shared ReadOnly IEnumExtraSearch As New Guid(&HE700BE, &H9DB6, &H11D1, &HA1, &HCE, &H0, &HC0, &H4F, &HD7, &H5D, &H13)
+            Public Shared ReadOnly IDocViewSite As New Guid(&H87D605E, &HC511, &H11CF, &H89, &HA9, &H0, &HA0, &HC9, &H5, &H41, &H29)
+            Public Shared ReadOnly CDefView As New Guid(&H4434FF8, &HEF4C, &H11CE, &HAE, &H65, &H8, &H0, &H2B, &H2E, &H12, &H62)
+            Public Shared ReadOnly IBanneredBar As New Guid(&H596A9A9, &H13E, &H11D1, &H8D, &H34, &H0, &HA0, &HC9, &HF, &H27, &H19)
         End Structure
 #End Region
 
@@ -658,7 +696,7 @@ Partial Public Class WalkmanLib
             ''' <param name="cchMax">Size of the buffer, in characters, to receive the null-terminated string.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
             <PreserveSig>
-            Function GetCommandString(idCmd As UInteger, uType As GetCommandStringFlags, ByRef pReserved As UInteger, pszName As StringBuilder, cchMax As UInteger) As Integer
+            Function GetCommandString(idCmd As UIntPtr, uType As GetCommandStringFlags, ByRef pReserved As UInteger, pszName As StringBuilder, cchMax As UInteger) As Integer
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-icontextmenu2
@@ -673,7 +711,7 @@ Partial Public Class WalkmanLib
             ''' <param name="lParam">Additional message information. The value of this parameter depends on the value of the <paramref name="uMsg"/> parameter.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
             <PreserveSig>
-            Function HandleMenuMsg(uMsg As UInteger, wParam As IntPtr, lParam As IntPtr) As Integer
+            Function HandleMenuMsg(uMsg As UInteger, wParam As UIntPtr, lParam As IntPtr) As Integer
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-icontextmenu3
@@ -689,7 +727,7 @@ Partial Public Class WalkmanLib
             ''' <param name="plResult">The address of an LRESULT value that the owner of the menu will return from the message. This parameter can be NULL.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
             <PreserveSig>
-            Function HandleMenuMsg2(uMsg As UInteger, wParam As UInteger, lParam As UInteger, plResult As IntPtr) As Integer
+            Function HandleMenuMsg2(uMsg As UInteger, wParam As UIntPtr, lParam As IntPtr, plResult As IntPtr) As Integer
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder
@@ -858,27 +896,27 @@ Partial Public Class WalkmanLib
         'End Function
 #End Region
 
-        Private Shared Function GetUIObjectOfFile(hwnd As IntPtr, pszPath As String, ByRef riid As Guid, ByRef ppv As Object) As Integer
-            ppv = Nothing
+        Private Shared Function GetUIObjectOfFile(hwnd As IntPtr, pszPath As String, ByRef rIID As Guid, ByRef ppV As Object) As Integer
+            ppV = Nothing
             Dim hr As Integer
             Dim pIDList As IntPtr
             Dim sfgao As SFGAO
 
             hr = SHParseDisplayName(pszPath, Nothing, pIDList, SFGAO.None, sfgao)
-            If hr >= 0 Then
+            If hr < 0 Then Return hr
+
+            Try
                 Dim pSF As Object = Nothing
                 Dim pIDListChild As IntPtr
 
                 hr = SHBindToParent(pIDList, IID.IShellFolder, pSF, pIDListChild)
-                If hr >= 0 Then
-                    Dim shellFolder As IShellFolder = DirectCast(pSF, IShellFolder)
+                If hr < 0 Then Return hr
 
-                    hr = shellFolder.GetUIObjectOf(hwnd, 1, New IntPtr() {pIDListChild}, riid, Nothing, ppv)
-                    'shellFolder.Release()  apparently the InterfaceIsUnknown attribute makes .Net do this automatically
-                End If
+                Dim shellFolder As IShellFolder = DirectCast(pSF, IShellFolder)
+                Return shellFolder.GetUIObjectOf(hwnd, 1, New IntPtr() {pIDListChild}, rIID, Nothing, ppV)
+            Finally
                 Marshal.FreeCoTaskMem(pIDList)
-            End If
-            Return hr
+            End Try
         End Function
 
         Private Const CM_FirstItem As Integer = &H1
