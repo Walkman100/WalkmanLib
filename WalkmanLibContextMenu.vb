@@ -4,9 +4,11 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Runtime.InteropServices
 Imports System.Text
+Imports System.Windows.Forms
 
 Partial Public Class WalkmanLib
     ' based on the articles in https://stackoverflow.com/a/456922/2999220
@@ -711,7 +713,7 @@ Partial Public Class WalkmanLib
             ''' <param name="lParam">Additional message information. The value of this parameter depends on the value of the <paramref name="uMsg"/> parameter.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
             <PreserveSig>
-            Function HandleMenuMsg(uMsg As UInteger, wParam As UIntPtr, lParam As IntPtr) As Integer
+            Function HandleMenuMsg(uMsg As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-icontextmenu3
@@ -727,7 +729,7 @@ Partial Public Class WalkmanLib
             ''' <param name="plResult">The address of an LRESULT value that the owner of the menu will return from the message. This parameter can be NULL.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
             <PreserveSig>
-            Function HandleMenuMsg2(uMsg As UInteger, wParam As UIntPtr, lParam As IntPtr, plResult As IntPtr) As Integer
+            Function HandleMenuMsg2(uMsg As Integer, wParam As IntPtr, lParam As IntPtr, plResult As IntPtr) As Integer
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder
@@ -922,7 +924,11 @@ Partial Public Class WalkmanLib
         Private Const CM_FirstItem As Integer = &H1
         Private Const CM_LastItem As Integer = &H7FFF
 
-        Shared Sub ShowContextMenu(frmHandle As IntPtr, pos As Point, itemPath As String)
+        Private _contextMenu As IContextMenu
+        Private _contextMenu2 As IContextMenu2
+        Private _contextMenu3 As IContextMenu3
+
+        Sub ShowContextMenu(frmHandle As IntPtr, pos As Point, itemPath As String)
             Dim pt As New ComPoint(pos)
             Dim hr As Integer
             Dim pCM As Object = Nothing
@@ -932,13 +938,25 @@ Partial Public Class WalkmanLib
 
             Dim contextMenu As IContextMenu = DirectCast(pCM, IContextMenu)
             Dim hMenu As IntPtr = CreatePopupMenu()
-            If hMenu = IntPtr.Zero Then Throw New ComponentModel.Win32Exception()
+            If hMenu = IntPtr.Zero Then Throw New Win32Exception()
 
             Try
                 hr = contextMenu.QueryContextMenu(hMenu, 0, CM_FirstItem, CM_LastItem, QueryContextMenuFlags.Normal)
                 If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
 
+                _contextMenu2 = TryCast(contextMenu, IContextMenu2) ' casting performs QueryInterface under the hood
+                _contextMenu3 = TryCast(contextMenu, IContextMenu3) ' TryCast returns Nothing if cast failed
+
                 Dim iCmd As Integer = TrackPopupMenuEx(hMenu, TrackPopupMenuExFlags.ReturnCmd, pt.x, pt.y, frmHandle, IntPtr.Zero)
+
+                If _contextMenu2 IsNot Nothing Then
+                    Marshal.Release(Marshal.GetIUnknownForObject(_contextMenu2))
+                    _contextMenu2 = Nothing
+                End If
+                If _contextMenu3 IsNot Nothing Then
+                    Marshal.Release(Marshal.GetIUnknownForObject(_contextMenu3))
+                    _contextMenu3 = Nothing
+                End If
 
                 If iCmd > 0 Then
                     Dim info As CMInvokeCommandInfoEx = Nothing
@@ -966,6 +984,21 @@ Partial Public Class WalkmanLib
             Finally
                 DestroyMenu(hMenu)
             End Try
+        End Sub
+
+        Sub HandleWindowMessage(ByRef m As Message)
+            If _contextMenu3 IsNot Nothing Then
+                Dim lres As IntPtr
+                If _contextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres) >= 0 Then
+                    m.Result = lres
+                    Return
+                End If
+            ElseIf _contextMenu2 IsNot Nothing Then
+                If _contextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam) >= 0 Then
+                    m.Result = IntPtr.Zero
+                    Return
+                End If
+            End If
         End Sub
     End Class
 End Class
