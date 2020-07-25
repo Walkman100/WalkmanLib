@@ -928,7 +928,7 @@ Partial Public Class WalkmanLib
         Private _contextMenu2 As IContextMenu2
         Private _contextMenu3 As IContextMenu3
 
-        Sub ShowContextMenu(frmHandle As IntPtr, pos As Point, itemPath As String)
+        Public Sub ShowContextMenu(frmHandle As IntPtr, pos As Point, itemPath As String)
             Dim pt As New ComPoint(pos)
             Dim hr As Integer
             Dim pCM As Object = Nothing
@@ -947,7 +947,9 @@ Partial Public Class WalkmanLib
                 _contextMenu2 = TryCast(contextMenu, IContextMenu2) ' casting performs QueryInterface under the hood
                 _contextMenu3 = TryCast(contextMenu, IContextMenu3) ' TryCast returns Nothing if cast failed
 
+                _contextMenu = contextMenu
                 Dim iCmd As Integer = TrackPopupMenuEx(hMenu, TrackPopupMenuExFlags.ReturnCmd, pt.x, pt.y, frmHandle, IntPtr.Zero)
+                _contextMenu = Nothing
 
                 If _contextMenu2 IsNot Nothing Then
                     Marshal.Release(Marshal.GetIUnknownForObject(_contextMenu2))
@@ -982,11 +984,37 @@ Partial Public Class WalkmanLib
                     End If
                 End If
             Finally
+                _contextMenu = Nothing
                 DestroyMenu(hMenu)
             End Try
         End Sub
 
-        Sub HandleWindowMessage(ByRef m As Message)
+        Public Event HelpTextChanged(text As String)
+
+        Private Sub OnMenuSelect(item As UInteger)
+            If _contextMenu IsNot Nothing AndAlso item >= CM_FirstItem AndAlso item <= CM_LastItem Then
+                Dim buffer As New StringBuilder(MAX_FILE_PATH)
+                Dim hr As Integer = _contextMenu.GetCommandString(CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing, buffer, MAX_FILE_PATH)
+                If hr < 0 Then
+                    buffer.Append("No help available. (Failed to get text)")
+                End If
+                RaiseEvent HelpTextChanged(buffer.ToString())
+            End If
+        End Sub
+
+        Const WM_MENUSELECT As Integer = &H11F
+        Public Sub HandleWindowMessage(ByRef m As Message)
+            If m.Msg = WM_MENUSELECT Then
+                'simplified HANDLE_WM_MENUSELECT C++ macro
+                Dim wParamUInt As UInteger = CType(m.WParam.ToInt64, UInteger)
+                ' >>16 is equivalent to HIWORD C++ macro
+                If ((wParamUInt >> 16) And &H10) <> 0 Then
+                    OnMenuSelect(0)
+                Else
+                    OnMenuSelect(wParamUInt And &HFFFFUI) ' & 0xFFFF is equivalent to LOWORD C++ macro
+                End If
+            End If
+
             If _contextMenu3 IsNot Nothing Then
                 Dim lres As IntPtr
                 If _contextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres) >= 0 Then
