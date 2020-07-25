@@ -111,6 +111,7 @@ Partial Public Class WalkmanLib
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/ns-shobjidl_core-cminvokecommandinfoex
         <Flags>
         Private Enum CMICMask As UInteger
+            None = 0
             ''' <summary>The <see cref="CMInvokeCommandInfoEx.dwHotKey"/> member is valid.</summary>
             Hotkey = SeeMask.HotKey
             ''' <summary>The <see cref="CMInvokeCommandInfoEx.hIcon"/> member is valid. As of Windows Vista this flag is not used.</summary>
@@ -434,6 +435,37 @@ Partial Public Class WalkmanLib
             WorkArea = &H10000
         End Enum
 
+        'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+        <Flags>
+        Private Enum ShowWindowFlags As Integer
+            ''' <summary>Hides the window and activates another window.</summary>
+            Hide = 0
+            ''' <summary>Activates and displays a window. If the window is minimized or maximized, the system restores it to its original size and position. An application should specify this flag when displaying the window for the first time.</summary>
+            ShowNormal = 1
+            ''' <summary>Activates the window and displays it as a minimized window.</summary>
+            ShowMinimized = 2
+            ''' <summary>Activates the window and displays it as a maximized window.</summary>
+            ShowMaximized = 3
+            ''' <summary>Maximizes the specified window.</summary>
+            Maximize = 3
+            ''' <summary>Displays a window in its most recent size and position. This value is similar to <see cref="ShowNormal"/>, except that the window is not activated.</summary>
+            ShowNormalNoActive = 4
+            ''' <summary>Activates the window and displays it in its current size and position.</summary>
+            Show = 5
+            ''' <summary>Minimizes the specified window and activates the next top-level window in the Z order.</summary>
+            Minimize = 6
+            ''' <summary>Displays the window as a minimized window. This value is similar to <see cref="ShowMinimized"/>, except the window is not activated.</summary>
+            ShowMinimizedNoActive = 7
+            ''' <summary>Displays the window in its current size and position. This value is similar to <see cref="Show"/>, except that the window is not activated.</summary>
+            ShowNoActive = 8
+            ''' <summary>Activates and displays the window. If the window is minimized or maximized, the system restores it to its original size and position. An application should specify this flag when restoring a minimized window.</summary>
+            Restore = 9
+            ''' <summary>Sets the show state based on the SW_ value specified in the STARTUPINFO structure passed to the CreateProcess function by the program that started the application.</summary>
+            ShowDefault = 10
+            ''' <summary>Minimizes a window, even if the thread that owns the window is not responding. This flag should only be used when minimizing windows from a different thread.</summary>
+            ForceMinimize = 11
+        End Enum
+
         'from ShlGuid.h - line 50 in Windows Kit 10.0.18362.0
         ' declared as a structure as Enums have to be of "Integral" types
         Private Structure IID
@@ -514,8 +546,8 @@ Partial Public Class WalkmanLib
             ''' <summary>An optional working directory name. This member is always NULL for menu items inserted by a Shell extension.</summary>
             <MarshalAs(UnmanagedType.LPStr)>
             Public lpDirectory As String
-            ''' <summary>A set of SW_ values to pass to the ShowWindow function if the command displays a window or starts an application.</summary>
-            Public nShow As Integer
+            ''' <summary>A set of <see cref="ShowWindowFlags"/> values to pass to the ShowWindow function if the command displays a window or starts an application.</summary>
+            Public nShow As ShowWindowFlags
             ''' <summary>
             ''' An optional keyboard shortcut to assign to any application activated by the command. If the <see cref="fMask"/> member does not specify
             ''' <see cref="CMICMask.Hotkey"/>, this member is ignored.
@@ -876,7 +908,7 @@ Partial Public Class WalkmanLib
                                 info.hwnd = frmHandle
                                 info.lpVerb = CType(iCmd - CM_FirstItem, IntPtr)
                                 info.lpVerbW = CType(iCmd - CM_FirstItem, IntPtr)
-                                info.nShow = 1
+                                info.nShow = ShowWindowFlags.ShowNormal
                                 contextMenu.InvokeCommand(info)
                             Else
                                 If Marshal.GetLastWin32Error <> 0 Then
