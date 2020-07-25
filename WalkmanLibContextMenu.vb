@@ -928,52 +928,44 @@ Partial Public Class WalkmanLib
             Dim pCM As Object = Nothing
 
             hr = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu, pCM)
-            If hr >= 0 Then
-                Dim contextMenu As IContextMenu = DirectCast(pCM, IContextMenu)
-                Dim hMenu As IntPtr = CreatePopupMenu()
+            If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
 
-                If hMenu <> IntPtr.Zero Then
-                    Try
-                        hr = contextMenu.QueryContextMenu(hMenu, 0, CM_FirstItem, CM_LastItem, QueryContextMenuFlags.Normal)
-                        If hr >= 0 Then
-                            Dim iCmd As Integer = TrackPopupMenuEx(hMenu, TrackPopupMenuExFlags.ReturnCmd, pt.x, pt.y, frmHandle, IntPtr.Zero)
+            Dim contextMenu As IContextMenu = DirectCast(pCM, IContextMenu)
+            Dim hMenu As IntPtr = CreatePopupMenu()
+            If hMenu = IntPtr.Zero Then Throw New ComponentModel.Win32Exception()
 
-                            If iCmd > 0 Then
-                                Dim info As CMInvokeCommandInfoEx = Nothing
-                                info.cbSize = CType(Marshal.SizeOf(info), UInteger)
-                                info.fMask = CMICMask.Unicode Or CMICMask.PTInvoke
+            Try
+                hr = contextMenu.QueryContextMenu(hMenu, 0, CM_FirstItem, CM_LastItem, QueryContextMenuFlags.Normal)
+                If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
 
-                                If My.Computer.Keyboard.CtrlKeyDown Then
-                                    info.fMask = info.fMask Or CMICMask.ControlDown
-                                End If
-                                If My.Computer.Keyboard.ShiftKeyDown Then
-                                    info.fMask = info.fMask Or CMICMask.ShiftDown
-                                End If
+                Dim iCmd As Integer = TrackPopupMenuEx(hMenu, TrackPopupMenuExFlags.ReturnCmd, pt.x, pt.y, frmHandle, IntPtr.Zero)
 
-                                info.hwnd = frmHandle
-                                info.lpVerb = CType(iCmd - CM_FirstItem, IntPtr)
-                                info.lpVerbW = CType(iCmd - CM_FirstItem, IntPtr)
-                                info.nShow = ShowWindowFlags.ShowNormal
-                                info.ptInvoke = pt
-                                contextMenu.InvokeCommand(info)
-                            Else
-                                If Marshal.GetLastWin32Error <> 0 Then
-                                    Throw New ComponentModel.Win32Exception
-                                End If
-                            End If
-                        Else
-                            Marshal.ThrowExceptionForHR(hr)
-                        End If
-                    Finally
-                        DestroyMenu(hMenu)
-                    End Try
+                If iCmd > 0 Then
+                    Dim info As CMInvokeCommandInfoEx = Nothing
+                    info.cbSize = CType(Marshal.SizeOf(info), UInteger)
+                    info.fMask = CMICMask.Unicode Or CMICMask.PTInvoke
+
+                    If My.Computer.Keyboard.CtrlKeyDown Then
+                        info.fMask = info.fMask Or CMICMask.ControlDown
+                    End If
+                    If My.Computer.Keyboard.ShiftKeyDown Then
+                        info.fMask = info.fMask Or CMICMask.ShiftDown
+                    End If
+
+                    info.hwnd = frmHandle
+                    info.lpVerb = CType(iCmd - CM_FirstItem, IntPtr)
+                    info.lpVerbW = CType(iCmd - CM_FirstItem, IntPtr)
+                    info.nShow = ShowWindowFlags.ShowNormal
+                    info.ptInvoke = pt
+                    contextMenu.InvokeCommand(info)
                 Else
-                    Throw New ComponentModel.Win32Exception()
+                    If Marshal.GetLastWin32Error <> 0 Then
+                        Throw New Win32Exception
+                    End If
                 End If
-                'pcm.Release()  apparently the InterfaceIsUnknown attribute makes .Net do this automatically
-            Else
-                Marshal.ThrowExceptionForHR(hr)
-            End If
+            Finally
+                DestroyMenu(hMenu)
+            End Try
         End Sub
     End Class
 End Class
