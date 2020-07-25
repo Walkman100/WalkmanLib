@@ -12,6 +12,7 @@ Imports System.Windows.Forms
 
 Partial Public Class WalkmanLib
     ' based on the articles in https://stackoverflow.com/a/456922/2999220
+    ' lots of interface help from https://www.developerfusion.com/article/84363/into-the-iunknown/
     Class ContextMenu
 #Region "Enums"
         'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
@@ -952,11 +953,9 @@ Partial Public Class WalkmanLib
                 _contextMenu = Nothing
 
                 If _contextMenu2 IsNot Nothing Then
-                    Marshal.Release(Marshal.GetIUnknownForObject(_contextMenu2))
                     _contextMenu2 = Nothing
                 End If
                 If _contextMenu3 IsNot Nothing Then
-                    Marshal.Release(Marshal.GetIUnknownForObject(_contextMenu3))
                     _contextMenu3 = Nothing
                 End If
 
@@ -1004,27 +1003,29 @@ Partial Public Class WalkmanLib
 
         Const WM_MENUSELECT As Integer = &H11F
         Public Sub HandleWindowMessage(ByRef m As Message)
-            If m.Msg = WM_MENUSELECT Then
-                'simplified HANDLE_WM_MENUSELECT C++ macro
-                Dim wParamUInt As UInteger = CType(m.WParam.ToInt64, UInteger)
-                ' >>16 is equivalent to HIWORD C++ macro
-                If ((wParamUInt >> 16) And &H10) <> 0 Then
-                    OnMenuSelect(0)
-                Else
-                    OnMenuSelect(wParamUInt And &HFFFFUI) ' & 0xFFFF is equivalent to LOWORD C++ macro
+            If _contextMenu IsNot Nothing Then ' _contextMenu is only set if the menu is shown
+                If m.Msg = WM_MENUSELECT Then
+                    'simplified HANDLE_WM_MENUSELECT C++ macro
+                    Dim wParamUInt As UInteger = CType(m.WParam.ToInt64, UInteger)
+                    ' >>16 is equivalent to HIWORD C++ macro
+                    If ((wParamUInt >> 16) And &H10) <> 0 Then
+                        OnMenuSelect(0)
+                    Else
+                        OnMenuSelect(wParamUInt And &HFFFFUI) ' & 0xFFFF is equivalent to LOWORD C++ macro
+                    End If
                 End If
-            End If
 
-            If _contextMenu3 IsNot Nothing Then
-                Dim lres As IntPtr
-                If _contextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres) >= 0 Then
-                    m.Result = lres
-                    Return
-                End If
-            ElseIf _contextMenu2 IsNot Nothing Then
-                If _contextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam) >= 0 Then
-                    m.Result = IntPtr.Zero
-                    Return
+                If _contextMenu3 IsNot Nothing Then
+                    Dim lres As IntPtr
+                    If _contextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres) >= 0 Then
+                        m.Result = lres
+                        Return
+                    End If
+                ElseIf _contextMenu2 IsNot Nothing Then
+                    If _contextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam) >= 0 Then
+                        m.Result = IntPtr.Zero
+                        Return
+                    End If
                 End If
             End If
         End Sub
