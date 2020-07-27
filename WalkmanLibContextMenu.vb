@@ -623,44 +623,6 @@ Partial Public Class WalkmanLib
             ''' </summary>
             Public ptInvoke As ComPoint
         End Structure
-
-        'https://docs.microsoft.com/en-us/windows/win32/api/shtypes/ns-shtypes-shitemid
-        ''' <summary>Defines an item identifier.</summary>
-        <StructLayout(LayoutKind.Sequential)>
-        Private Structure SHItemID
-            ''' <summary>The size of identifier, in bytes, including <see cref="cb"/> itself.</summary>
-            Public cb As UShort
-
-            ''' <summary>A variable-length item identifier, Type: BYTE[1]</summary>
-            <MarshalAs(UnmanagedType.ByValArray, SizeConst:=1)>
-            Public abID As Byte()
-        End Structure
-
-        'https://docs.microsoft.com/en-us/windows/win32/api/shtypes/ns-shtypes-itemidlist
-        ''' <summary>Contains a list of item identifiers.</summary>
-        <StructLayout(LayoutKind.Sequential)>
-        Private Structure ItemIDList
-            ''' <summary>A list of item identifiers.</summary>
-            Public mkid As SHItemID
-        End Structure
-
-        'https://docs.microsoft.com/en-us/windows/win32/api/windef/ns-windef-rect
-        ''' <summary>The RECT structure defines a rectangle by the coordinates of its upper-left and lower-right corners.</summary>
-        <StructLayout(LayoutKind.Sequential)>
-        Private Structure Rect
-            Public left As Integer
-            Public top As Integer
-            Public right As Integer
-            Public bottom As Integer
-        End Structure
-
-        'https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-tpmparams
-        ''' <summary>Contains extended parameters for the <see cref="TrackPopupMenuEx"/> function.</summary>
-        <StructLayout(LayoutKind.Sequential)>
-        Private Structure TPMParams
-            Public cbSize As UInteger
-            Public rcExclude As Rect
-        End Structure
 #End Region
 
 #Region "Interfaces"
@@ -752,8 +714,8 @@ Partial Public Class WalkmanLib
             ''' <param name="hwndOwner">A handle to the owner window that the client should specify if it displays a dialog box or message box.</param>
             ''' <param name="cIDList">The number of file objects or subfolders specified in the apidl parameter.</param>
             ''' <param name="apIDList">
-            ''' The address of an array of pointers to <see cref="ItemIDList"/> structures, each of which uniquely identifies a file object or subfolder relative to the
-            ''' parent folder. Each item identifier list must contain exactly one <see cref="SHItemID"/> structure followed by a terminating zero.
+            ''' The address of an array of pointers to ITEMIDLIST structures, each of which uniquely identifies a file object or subfolder relative to the
+            ''' parent folder. Each item identifier list must contain exactly one SHITEMID structure followed by a terminating zero.
             ''' </param>
             ''' <param name="riid">A reference to the IID of the interface to retrieve through ppv. This can be any valid interface identifier that can be created for an item.</param>
             ''' <param name="rgfReserved">Reserved.</param>
@@ -860,7 +822,7 @@ Partial Public Class WalkmanLib
         ''' the function does not send messages to the window identified by <paramref name="hwnd"/>. However, you must still pass a window handle in <paramref name="hwnd"/>.
         ''' It can be any window handle from your application.
         ''' </param>
-        ''' <param name="lptpm">A pointer to a <see cref="TPMParams"/> structure that specifies an area of the screen the menu should not overlap. This parameter can be NULL.</param>
+        ''' <param name="lptpm">A pointer to a TPMPARAMS structure that specifies an area of the screen the menu should not overlap. This parameter can be NULL.</param>
         ''' <returns>
         ''' If you specify <see cref="TrackPopupMenuExFlags.ReturnCmd"/> in the <paramref name="uFlags"/> parameter, the return value is the menu-item identifier of
         ''' the item that the user selected. If the user cancels the menu without making a selection, or if an error occurs, the return value is zero.
@@ -876,16 +838,6 @@ Partial Public Class WalkmanLib
             hwnd As IntPtr,
             lptpm As IntPtr) As Integer
         End Function
-
-        '<DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-        'Private Shared Function TrackPopupMenuEx(
-        '    hMenu As IntPtr,
-        '    uFlags As TrackPopupMenuExFlags,
-        '    x As Integer,
-        '    y As Integer,
-        '    hwnd As IntPtr,
-        '    ByRef lptpm As TPMParams) As Integer
-        'End Function
 #End Region
 
 #End Region
@@ -1052,16 +1004,18 @@ Partial Public Class WalkmanLib
         End Sub
 
         Private Sub OnMenuSelect(item As UInteger)
-            If IsBuilt() AndAlso _isShown AndAlso item >= _firstItem AndAlso item <= _lastItem Then
-                Try
-                    RaiseEvent HelpTextChanged(
-                        IContextMenu_GetCommandString(_icontextMenu, CType(item - _firstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing),
-                        Nothing)
-                Catch ex As Exception
-                    RaiseEvent HelpTextChanged(
-                        Nothing,
-                        ex)
-                End Try
+            If IsBuilt() AndAlso _isShown Then
+                If item >= _firstItem AndAlso item <= _lastItem Then
+                    Try
+                        RaiseEvent HelpTextChanged(
+                            IContextMenu_GetCommandString(_icontextMenu, CType(item - _firstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing),
+                            Nothing)
+                    Catch ex As Exception
+                        RaiseEvent HelpTextChanged(Nothing, ex)
+                    End Try
+                Else
+                    RaiseEvent HelpTextChanged(Nothing, Nothing)
+                End If
             End If
         End Sub
 
