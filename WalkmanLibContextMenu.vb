@@ -4,6 +4,7 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Runtime.InteropServices
@@ -470,6 +471,64 @@ Partial Public Class WalkmanLib
             ForceMinimize = 11
         End Enum
 
+        'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-insertmenuw
+        <Flags>
+        Public Enum MenuFlags As UInteger
+            ''' <summary>
+            ''' Indicates that the uPosition parameter gives the identifier of the menu item. This flag is the default if neither the
+            ''' <see cref="ByCommand"/> nor <see cref="ByPosition"/> flag is specified.
+            ''' </summary>
+            ByCommand = &H0
+            ''' <summary>
+            ''' Indicates that the uPosition parameter gives the zero-based relative position of the new menu item.
+            ''' If uPosition is -1, the new menu item is appended to the end of the menu.
+            ''' </summary>
+            ByPosition = &H400
+
+            ''' <summary>Enables the menu item so that it can be selected and restores it from its grayed state.</summary>
+            Enabled = &H0
+            ''' <summary>Disables the menu item and grays it so it cannot be selected.</summary>
+            Grayed = &H1
+            ''' <summary>Disables the menu item so that it cannot be selected, but does not gray it.</summary>
+            Disabled = &H2
+            ''' <summary>Places a check mark next to the menu item. If the application provides check-mark bitmaps, this flag displays the check-mark bitmap next to the menu item.</summary>
+            Checked = &H8
+            ''' <summary>
+            ''' Does not place a check mark next to the menu item (default). If the application supplies check-mark bitmaps,
+            ''' this flag displays the clear bitmap next to the menu item.
+            ''' </summary>
+            Unchecked = &H0
+
+            ''' <summary>Specifies that the menu item is a text string; the lpNewItem parameter is a pointer to the string.</summary>
+            [String] = &H0
+            ''' <summary>Uses a bitmap as the menu item. The lpNewItem parameter contains a handle to the bitmap.</summary>
+            Bitmap = &H4
+            ''' <summary>
+            ''' Specifies that the item is an owner-drawn item. Before the menu is displayed for the first time, the window that owns the menu receives a
+            ''' WM_MEASUREITEM message to retrieve the width and height of the menu item. The WM_DRAWITEM message is then sent to the window procedure of
+            ''' the owner window whenever the appearance of the menu item must be updated.
+            ''' </summary>
+            OwnerDraw = &H100
+
+            ''' <summary>
+            ''' Specifies that the menu item opens a drop-down menu or submenu. The uIDNewItem parameter specifies a handle to the drop-down menu or submenu.
+            ''' This flag is used to add a menu name to a menu bar or a menu item that opens a submenu to a drop-down menu, submenu, or shortcut menu.
+            ''' </summary>
+            Popup = &H10
+            ''' <summary>
+            ''' Functions the same as the <see cref="MenuBreak"/> flag for a menu bar. For a drop-down menu, submenu, or shortcut menu,
+            ''' the new column is separated from the old column by a vertical line.
+            ''' </summary>
+            MenuBarBreak = &H20
+            ''' <summary>Places the item on a new line (for menu bars) or in a new column (for a drop-down menu, submenu, or shortcut menu) without separating columns.</summary>
+            MenuBreak = &H40
+            ''' <summary>
+            ''' Draws a horizontal dividing line. This flag is used only in a drop-down menu, submenu, or shortcut menu. The line cannot be grayed, disabled,
+            ''' or highlighted. The lpNewItem and uIDNewItem parameters are ignored.
+            ''' </summary>
+            Separator = &H800
+        End Enum
+
         'from ShlGuid.h - line 50 in Windows Kit 10.0.18362.0
         ' declared as a structure as Enums have to be of "Integral" types
         Private Structure IID
@@ -805,6 +864,27 @@ Partial Public Class WalkmanLib
             ByRef ppIDListLast As IntPtr) As Integer
         End Function
 
+        'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-insertmenuw
+        ''' <summary>Inserts a new menu item into a menu, moving other items down the menu.</summary>
+        ''' <param name="hMenu">A handle to the menu to be changed.</param>
+        ''' <param name="uPosition">The menu item before which the new menu item is to be inserted, as determined by the <paramref name="uFlags"/> parameter.</param>
+        ''' <param name="uFlags">Controls the interpretation of the <paramref name="uPosition"/> parameter and the content, appearance, and behavior of the new menu item.</param>
+        ''' <param name="uIDNewItem">The identifier of the new menu item or, if the uFlags parameter has the <see cref="MenuFlags.Popup"/> flag set, a handle to the drop-down menu or submenu.</param>
+        ''' <param name="lpNewItem">The content of the new menu item. The interpretation of <paramref name="lpNewItem"/> depends on whether the <paramref name="uFlags"/> parameter includes the <see cref="MenuFlags.Bitmap"/>, <see cref="MenuFlags.OwnerDraw"/>, or <see cref="MenuFlags.String"/> flag.</param>
+        ''' <returns>
+        ''' If the function succeeds, the return value is nonzero.
+        ''' If the function fails, the return value is zero. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.
+        ''' </returns>
+        <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+        Private Shared Function InsertMenu(
+            hMenu As IntPtr,
+            uPosition As UInteger,
+            uFlags As MenuFlags,
+            uIDNewItem As UIntPtr,
+            <MarshalAs(UnmanagedType.LPWStr)>
+            lpNewItem As String) As Boolean
+        End Function
+
         'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-trackpopupmenuex
         ''' <summary>
         ''' Displays a shortcut menu at the specified location and tracks the selection of items on the shortcut menu. The shortcut menu can appear anywhere on the screen.
@@ -919,7 +999,10 @@ Partial Public Class WalkmanLib
         Private Const _firstItem As UInteger = &H1
         Private Const _maxItems As UInteger = &H7FFF
 
-        Private _lastItem As UInteger = &H7FFF
+        Private _lastItem As UInteger = _maxItems
+        Private _customItemCount As UInteger = 0
+        Private _customItemDict As New Dictionary(Of UInteger, Action)
+
         Private _isShown As Boolean = False
 
         Public Event HelpTextChanged(text As String, ex As Exception)
@@ -951,6 +1034,21 @@ Partial Public Class WalkmanLib
             End Try
         End Sub
 
+        Public Sub AddItem(position As UInteger, text As String, action As Action, Optional flags As MenuFlags = 0)
+            If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
+
+            If Not (_lastItem + _customItemCount) < _maxItems Then
+                Throw New ArgumentOutOfRangeException("BuildMenu.allowSpaceFor", "No space allowed for custom menu item!")
+            End If
+
+            flags = flags Or MenuFlags.ByPosition
+            _customItemCount += 1UI
+            Dim newItemID As UInteger = _lastItem + _customItemCount
+
+            _customItemDict.Add(newItemID, action)
+            InsertMenu(_contextMenu, position, flags, CType(newItemID, UIntPtr), text)
+        End Sub
+
         Public Sub ShowMenu(frmHandle As IntPtr, pos As Point)
             If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
 
@@ -970,7 +1068,10 @@ Partial Public Class WalkmanLib
                 If _icontextMenu3 IsNot Nothing Then _icontextMenu3 = Nothing
             End Try
 
-            If iCmd > 0 Then
+            If iCmd > _lastItem AndAlso _customItemDict.ContainsKey(CType(iCmd, UInteger)) Then
+                Dim act As Action = _customItemDict.Item(CType(iCmd, UInteger))
+                act()
+            ElseIf iCmd > 0 Then
                 Dim info As CMInvokeCommandInfoEx = Nothing
                 info.cbSize = CType(Marshal.SizeOf(info), UInteger)
                 info.fMask = CMICMask.Unicode Or CMICMask.PTInvoke
@@ -997,6 +1098,8 @@ Partial Public Class WalkmanLib
 
         Public Sub DestroyMenu()
             If IsBuilt() Then
+                _customItemCount = 0
+                _customItemDict.Clear()
                 DestroyMenu(_contextMenu)
                 _contextMenu = IntPtr.Zero
                 _icontextMenu = Nothing ' removing references to an interface automatically calls Marshal.Release
@@ -1019,14 +1122,14 @@ Partial Public Class WalkmanLib
             End If
         End Sub
 
-        Const WM_MENUSELECT As Integer = &H11F
+        Private Const WM_MENUSELECT As Integer = &H11F
         Public Sub HandleWindowMessage(ByRef m As Message)
             If IsBuilt() Then
                 If m.Msg = WM_MENUSELECT Then
                     'simplified HANDLE_WM_MENUSELECT C++ macro
                     Dim wParamUInt As UInteger = CType(m.WParam.ToInt64, UInteger)
                     ' >>16 is equivalent to HIWORD C++ macro
-                    If ((wParamUInt >> 16) And &H10) <> 0 Then
+                    If ((wParamUInt >> 16) And MenuFlags.Popup) <> 0 Then
                         OnMenuSelect(0)
                     Else
                         OnMenuSelect(wParamUInt And &HFFFFUI) ' & 0xFFFF is equivalent to LOWORD C++ macro
