@@ -678,15 +678,13 @@ Partial Public Class WalkmanLib
             ''' identifier that was assigned, plus one. For example, if <paramref name="idCmdFirst"/> is set to 5 and you add three items to the menu with command
             ''' identifiers of 5, 7, and 8, the return value should be MAKE_HRESULT(SEVERITY_SUCCESS, 0, 8 - 5 + 1). Otherwise, it returns a COM error value.
             ''' </returns>
-            <PreserveSig>
-            Function QueryContextMenu(hMenu As IntPtr, indexMenu As UInteger, idCmdFirst As UInteger, idCmdLast As UInteger, uFlags As QueryContextMenuFlags) As Integer
+            Sub QueryContextMenu(hMenu As IntPtr, indexMenu As UInteger, idCmdFirst As UInteger, idCmdLast As UInteger, uFlags As QueryContextMenuFlags)
 
             'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-icontextmenu-invokecommand
             ''' <summary>Carries out the command associated with a shortcut menu item.</summary>
             ''' <param name="pici">A pointer to a CMINVOKECOMMANDINFO or CMINVOKECOMMANDINFOEX structure that contains specifics about the command.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
-            <PreserveSig>
-            Function InvokeCommand(ByRef pici As CMInvokeCommandInfoEx) As Integer
+            Sub InvokeCommand(ByRef pici As CMInvokeCommandInfoEx)
 
             'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-icontextmenu-getcommandstring
             ''' <summary>
@@ -698,13 +696,12 @@ Partial Public Class WalkmanLib
             ''' <param name="pszName">The address of the buffer to receive the null-terminated string being retrieved.</param>
             ''' <param name="cchMax">Size of the buffer, in characters, to receive the null-terminated string.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
-            <PreserveSig>
-            Function GetCommandString(
+            Sub GetCommandString(
                 idCmd As UIntPtr,
                 uType As GetCommandStringFlags,
                 ByRef pReserved As UInteger,
                 pszName As IntPtr,
-                cchMax As UInteger) As Integer
+                cchMax As UInteger)
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-icontextmenu2
@@ -718,8 +715,7 @@ Partial Public Class WalkmanLib
             ''' <param name="wParam">Additional message information. The value of this parameter depends on the value of the <paramref name="uMsg"/> parameter.</param>
             ''' <param name="lParam">Additional message information. The value of this parameter depends on the value of the <paramref name="uMsg"/> parameter.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
-            <PreserveSig>
-            Function HandleMenuMsg(uMsg As Integer, wParam As IntPtr, lParam As IntPtr) As Integer
+            Sub HandleMenuMsg(uMsg As Integer, wParam As IntPtr, lParam As IntPtr)
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-icontextmenu3
@@ -734,8 +730,7 @@ Partial Public Class WalkmanLib
             ''' <param name="lParam">Additional message information. The value of this parameter depends on the value of the <paramref name="uMsg"/> parameter.</param>
             ''' <param name="plResult">The address of an LRESULT value that the owner of the menu will return from the message. This parameter can be NULL.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
-            <PreserveSig>
-            Function HandleMenuMsg2(uMsg As Integer, wParam As IntPtr, lParam As IntPtr, plResult As IntPtr) As Integer
+            Sub HandleMenuMsg2(uMsg As Integer, wParam As IntPtr, lParam As IntPtr, plResult As IntPtr)
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder
@@ -743,21 +738,13 @@ Partial Public Class WalkmanLib
         <ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("000214E6-0000-0000-C000-000000000046")>
         Private Interface IShellFolder
             'interface members are stubs, because GetUIObjectOf is the only function needed - and there are lots of members of this interface.
-            <PreserveSig>
-            Function ParseDisplayName() As Integer
-            <PreserveSig>
-            Function EnumObjects() As Integer
-            <PreserveSig>
-            Function BindToObject() As Integer
-            <PreserveSig>
-            Function BindToStorage() As Integer
-            <PreserveSig>
-            Function CompareIDs() As Integer
-            <PreserveSig>
-            Function CreateViewObject() As Integer
-            <PreserveSig>
-            Function GetAttributesOf() As Integer
-
+            Sub ParseDisplayName()
+            Sub EnumObjects()
+            Sub BindToObject()
+            Sub BindToStorage()
+            Sub CompareIDs()
+            Sub CreateViewObject()
+            Sub GetAttributesOf()
 
             'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishellfolder-getuiobjectof
             ''' <summary>Gets an object that can be used to carry out actions on the specified file objects or folders.</summary>
@@ -771,8 +758,7 @@ Partial Public Class WalkmanLib
             ''' <param name="rgfReserved">Reserved.</param>
             ''' <param name="ppv">When this method returns successfully, contains the interface pointer requested in <paramref name="riid"/>.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
-            <PreserveSig>
-            Function GetUIObjectOf(
+            Sub GetUIObjectOf(
                 hwndOwner As IntPtr,
                 cIDList As UInteger,
                 <MarshalAs(UnmanagedType.LPArray, SizeParamIndex:=1)>
@@ -780,13 +766,10 @@ Partial Public Class WalkmanLib
                 ByRef riid As Guid,
                 ByRef rgfReserved As UInteger,
                 <MarshalAs(UnmanagedType.Interface)>
-                ByRef ppv As Object) As Integer
+                ByRef ppv As Object)
 
-
-            <PreserveSig>
-            Function GetDisplayNameOf() As Integer
-            <PreserveSig>
-            Function SetNameOf() As Integer
+            Sub GetDisplayNameOf()
+            Sub SetNameOf()
         End Interface
 #End Region
 
@@ -904,14 +887,13 @@ Partial Public Class WalkmanLib
         'End Function
 #End Region
 
-        Private Shared Function GetUIObjectOfFile(hwnd As IntPtr, pszPath As String, ByRef rIID As Guid, ByRef ppV As Object) As Integer
-            ppV = Nothing
+        Private Shared Function GetUIObjectOfFile(hwnd As IntPtr, pszPath As String, ByRef rIID As Guid) As Object
             Dim hr As Integer
             Dim pIDList As IntPtr
             Dim sfgao As SFGAO
 
             hr = SHParseDisplayName(pszPath, Nothing, pIDList, SFGAO.None, sfgao)
-            If hr < 0 Then Return hr
+            If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
 
             Try
                 Dim pSF As Object = Nothing
@@ -921,7 +903,10 @@ Partial Public Class WalkmanLib
                 If hr < 0 Then Return hr
 
                 Dim shellFolder As IShellFolder = DirectCast(pSF, IShellFolder)
-                Return shellFolder.GetUIObjectOf(hwnd, 1, New IntPtr() {pIDListChild}, rIID, Nothing, ppV)
+                Dim ppV As Object = Nothing
+
+                shellFolder.GetUIObjectOf(hwnd, 1, New IntPtr() {pIDListChild}, rIID, Nothing, ppV)
+                Return ppV
             Finally
                 Marshal.FreeCoTaskMem(pIDList)
             End Try
@@ -936,19 +921,16 @@ Partial Public Class WalkmanLib
 
         Public Sub ShowContextMenu(frmHandle As IntPtr, pos As Point, itemPath As String)
             Dim pt As New ComPoint(pos)
-            Dim hr As Integer
             Dim pCM As Object = Nothing
 
-            hr = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu, pCM)
-            If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
+            pCM = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu)
 
             Dim contextMenu As IContextMenu = DirectCast(pCM, IContextMenu)
             Dim hMenu As IntPtr = CreatePopupMenu()
             If hMenu = IntPtr.Zero Then Throw New Win32Exception()
 
             Try
-                hr = contextMenu.QueryContextMenu(hMenu, 0, CM_FirstItem, CM_LastItem, QueryContextMenuFlags.Normal)
-                If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
+                contextMenu.QueryContextMenu(hMenu, 0, CM_FirstItem, CM_LastItem, QueryContextMenuFlags.Normal)
 
                 _contextMenu2 = TryCast(contextMenu, IContextMenu2) ' casting performs QueryInterface under the hood
                 _contextMenu3 = TryCast(contextMenu, IContextMenu3) ' TryCast returns Nothing if cast failed
@@ -984,7 +966,7 @@ Partial Public Class WalkmanLib
                     contextMenu.InvokeCommand(info)
                 Else
                     If Marshal.GetLastWin32Error <> 0 Then
-                        Throw New Win32Exception
+                        Throw New Win32Exception()
                     End If
                 End If
             Finally
@@ -993,65 +975,57 @@ Partial Public Class WalkmanLib
             End Try
         End Sub
 
-        Private Shared Function IContextMenu_GetCommandString(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags, ByRef pwReserved As UInteger, ByRef commandString As String) As Integer
+        Private Shared Function IContextMenu_GetCommandString(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags, ByRef pwReserved As UInteger) As String
             ' Callers are expected to be using Unicode.
             If Not uFlags.HasFlag(GetCommandStringFlags.Unicode) Then Throw New ArgumentException("Unicode flag expected!", "uFlags")
 
-            ' First try the Unicode message. Preset the output buffer
-            ' with a known value because some handlers return S_OK without
-            ' doing anything.
+            ' First try the Unicode message. Preset the output buffer with a known value because some handlers return S_OK without doing anything.
             Dim pszUnicode As IntPtr = Marshal.AllocHGlobal(MAX_FILE_PATH * Marshal.SizeOf(Of Int16))
-            Marshal.WriteInt16(pszUnicode, 0)
+            Try
+                Try
+                    Marshal.WriteInt16(pszUnicode, 0)
 
-            ' Some context menu handlers have off-by-one bugs and will
-            ' overflow the output buffer. Specify less buffer size so a
-            ' one-character overflow won't corrupt memory.
-            Dim hr As Integer = contextMenu.GetCommandString(idCmd, uFlags, pwReserved, pszUnicode, MAX_FILE_PATH - 1)
+                    ' Some context menu handlers have off-by-one bugs and will overflow the output buffer. Specify less buffer size so a one-character overflow won't corrupt memory.
+                    contextMenu.GetCommandString(idCmd, uFlags, pwReserved, pszUnicode, MAX_FILE_PATH - 1)
 
-            If hr >= 0 AndAlso Marshal.ReadInt16(pszUnicode) = 0 Then
-                ' Rats, a buggy IContextMenu handler that returned success
-                ' even though it failed.
-                hr = &H80004001 ' E_NOTIMPL
-            End If
+                    If Marshal.ReadInt16(pszUnicode) = 0 Then
+                        ' Rats, a buggy IContextMenu handler that returned success even though it failed.
+                        Marshal.ThrowExceptionForHR(&H80004001) ' E_NOTIMPL
+                    End If
 
-            If hr >= 0 Then
-                commandString = Marshal.PtrToStringUni(pszUnicode)
-            End If
-            Marshal.FreeHGlobal(pszUnicode)
-
-            If hr < 0 Then
-                ' try again with ANSI - specify one less buffer size
-                ' to compensate for context menu handlers that overflow by
-                ' one charactor.
+                    Return Marshal.PtrToStringUni(pszUnicode)
+                Finally
+                    Marshal.FreeHGlobal(pszUnicode)
+                End Try
+            Catch
+                ' try again with ANSI
                 Dim pszAnsi As IntPtr = Marshal.AllocHGlobal(MAX_FILE_PATH * Marshal.SizeOf(Of Byte))
-                Marshal.WriteByte(pszAnsi, 0)
+                Try
+                    Marshal.WriteByte(pszAnsi, 0)
 
-                hr = contextMenu.GetCommandString(idCmd, uFlags And Not GetCommandStringFlags.Unicode, pwReserved, pszAnsi, MAX_FILE_PATH - 1)
+                    contextMenu.GetCommandString(idCmd, uFlags And Not GetCommandStringFlags.Unicode, pwReserved, pszAnsi, MAX_FILE_PATH - 1)
 
-                If hr >= 0 AndAlso Marshal.ReadByte(pszAnsi) = 0 Then
-                    ' Rats, a buggy IContextMenu handler that returned success
-                    ' even though it failed.
-                    hr = &H80004001 ' E_NOTIMPL
-                End If
+                    If Marshal.ReadByte(pszAnsi) = 0 Then
+                        Marshal.ThrowExceptionForHR(&H80004001) ' E_NOTIMPL
+                    End If
 
-                If hr >= 0 Then
-                    commandString = Marshal.PtrToStringAnsi(pszAnsi)
-                End If
-                Marshal.FreeHGlobal(pszAnsi)
-            End If
-
-            Return hr
+                    Return Marshal.PtrToStringAnsi(pszAnsi)
+                Finally
+                    Marshal.FreeHGlobal(pszAnsi)
+                End Try
+            End Try
         End Function
 
         Public Event HelpTextChanged(text As String)
 
         Private Sub OnMenuSelect(item As UInteger)
             If _contextMenu IsNot Nothing AndAlso item >= CM_FirstItem AndAlso item <= CM_LastItem Then
-                Dim commandString As String = ""
-                Dim hr As Integer = IContextMenu_GetCommandString(_contextMenu, CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing, commandString)
-                If hr < 0 Then
+                Dim commandString As String
+                Try
+                    commandString = IContextMenu_GetCommandString(_contextMenu, CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing)
+                Catch
                     commandString = "No help available. (Failed to get text)"
-                End If
+                End Try
                 RaiseEvent HelpTextChanged(commandString)
             End If
         End Sub
@@ -1072,15 +1046,19 @@ Partial Public Class WalkmanLib
 
                 If _contextMenu3 IsNot Nothing Then
                     Dim lres As IntPtr
-                    If _contextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres) >= 0 Then
+                    Try
+                        _contextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres)
                         m.Result = lres
                         Return
-                    End If
+                    Catch
+                    End Try
                 ElseIf _contextMenu2 IsNot Nothing Then
-                    If _contextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam) >= 0 Then
+                    Try
+                        _contextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam)
                         m.Result = IntPtr.Zero
                         Return
-                    End If
+                    Catch
+                    End Try
                 End If
             End If
         End Sub
