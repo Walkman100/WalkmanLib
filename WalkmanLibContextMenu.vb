@@ -1016,17 +1016,19 @@ Partial Public Class WalkmanLib
             End Try
         End Function
 
-        Public Event HelpTextChanged(text As String)
+        Public Event HelpTextChanged(text As String, ex As Exception)
 
         Private Sub OnMenuSelect(item As UInteger)
             If _contextMenu IsNot Nothing AndAlso item >= CM_FirstItem AndAlso item <= CM_LastItem Then
-                Dim commandString As String
                 Try
-                    commandString = IContextMenu_GetCommandString(_contextMenu, CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing)
-                Catch
-                    commandString = "No help available. (Failed to get text)"
+                    RaiseEvent HelpTextChanged(
+                        IContextMenu_GetCommandString(_contextMenu, CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing),
+                        Nothing)
+                Catch ex As Exception
+                    RaiseEvent HelpTextChanged(
+                        Nothing,
+                        ex)
                 End Try
-                RaiseEvent HelpTextChanged(commandString)
             End If
         End Sub
 
