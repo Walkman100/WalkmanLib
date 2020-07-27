@@ -7,13 +7,14 @@ Imports System
 Imports System.ComponentModel
 Imports System.Drawing
 Imports System.Runtime.InteropServices
-Imports System.Text
 Imports System.Windows.Forms
 
 Partial Public Class WalkmanLib
     ' based on the articles in https://stackoverflow.com/a/456922/2999220
     ' lots of interface help from https://www.developerfusion.com/article/84363/into-the-iunknown/
     Class ContextMenu
+#Region "Native Methods"
+
 #Region "Enums"
         'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
         <Flags>
@@ -887,6 +888,9 @@ Partial Public Class WalkmanLib
         'End Function
 #End Region
 
+#End Region
+
+#Region "Shared Methods"
         Private Shared Function GetUIObjectOfFile(hwnd As IntPtr, pszPath As String, ByRef rIID As Guid) As Object
             Dim hr As Integer
             Dim pIDList As IntPtr
@@ -911,69 +915,6 @@ Partial Public Class WalkmanLib
                 Marshal.FreeCoTaskMem(pIDList)
             End Try
         End Function
-
-        Private Const CM_FirstItem As Integer = &H1
-        Private Const CM_LastItem As Integer = &H7FFF
-
-        Private _contextMenu As IContextMenu
-        Private _contextMenu2 As IContextMenu2
-        Private _contextMenu3 As IContextMenu3
-
-        Public Sub ShowContextMenu(frmHandle As IntPtr, pos As Point, itemPath As String)
-            Dim pt As New ComPoint(pos)
-            Dim pCM As Object = Nothing
-
-            pCM = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu)
-
-            Dim contextMenu As IContextMenu = DirectCast(pCM, IContextMenu)
-            Dim hMenu As IntPtr = CreatePopupMenu()
-            If hMenu = IntPtr.Zero Then Throw New Win32Exception()
-
-            Try
-                contextMenu.QueryContextMenu(hMenu, 0, CM_FirstItem, CM_LastItem, QueryContextMenuFlags.Normal)
-
-                _contextMenu2 = TryCast(contextMenu, IContextMenu2) ' casting performs QueryInterface under the hood
-                _contextMenu3 = TryCast(contextMenu, IContextMenu3) ' TryCast returns Nothing if cast failed
-
-                _contextMenu = contextMenu
-                Dim iCmd As Integer = TrackPopupMenuEx(hMenu, TrackPopupMenuExFlags.ReturnCmd, pt.x, pt.y, frmHandle, IntPtr.Zero)
-                _contextMenu = Nothing
-
-                If _contextMenu2 IsNot Nothing Then
-                    _contextMenu2 = Nothing
-                End If
-                If _contextMenu3 IsNot Nothing Then
-                    _contextMenu3 = Nothing
-                End If
-
-                If iCmd > 0 Then
-                    Dim info As CMInvokeCommandInfoEx = Nothing
-                    info.cbSize = CType(Marshal.SizeOf(info), UInteger)
-                    info.fMask = CMICMask.Unicode Or CMICMask.PTInvoke
-
-                    If My.Computer.Keyboard.CtrlKeyDown Then
-                        info.fMask = info.fMask Or CMICMask.ControlDown
-                    End If
-                    If My.Computer.Keyboard.ShiftKeyDown Then
-                        info.fMask = info.fMask Or CMICMask.ShiftDown
-                    End If
-
-                    info.hwnd = frmHandle
-                    info.lpVerb = CType(iCmd - CM_FirstItem, IntPtr)
-                    info.lpVerbW = CType(iCmd - CM_FirstItem, IntPtr)
-                    info.nShow = ShowWindowFlags.ShowNormal
-                    info.ptInvoke = pt
-                    contextMenu.InvokeCommand(info)
-                Else
-                    If Marshal.GetLastWin32Error <> 0 Then
-                        Throw New Win32Exception()
-                    End If
-                End If
-            Finally
-                _contextMenu = Nothing
-                DestroyMenu(hMenu)
-            End Try
-        End Sub
 
         Private Shared Function IContextMenu_GetCommandString(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags, ByRef pwReserved As UInteger) As String
             ' Callers are expected to be using Unicode.
@@ -1015,14 +956,106 @@ Partial Public Class WalkmanLib
                 End Try
             End Try
         End Function
+#End Region
+
+#Region "Instance Methods"
+        Private _contextMenu As IntPtr
+        Private _icontextMenu As IContextMenu
+        Private _icontextMenu2 As IContextMenu2
+        Private _icontextMenu3 As IContextMenu3
+
+        Private Const _firstItem As UInteger = &H1
+        Private Const _maxItems As UInteger = &H7FFF
+
+        Private _lastItem As UInteger = &H7FFF
+        Private _isShown As Boolean = False
 
         Public Event HelpTextChanged(text As String, ex As Exception)
 
+        Public Function IsBuilt() As Boolean
+            Return _icontextMenu IsNot Nothing AndAlso _contextMenu <> IntPtr.Zero
+        End Function
+
+        Public Sub BuildMenu(frmHandle As IntPtr, itemPath As String, Optional allowSpaceFor As UInteger = 0)
+            If IsBuilt() Then DestroyMenu()
+
+            Dim pCM As Object = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu)
+
+            _contextMenu = CreatePopupMenu()
+            If _contextMenu = IntPtr.Zero Then Throw New Win32Exception()
+
+            ' set _icontextMenu after testing CreatePopupMenu, so interface can be freed if there was an error
+            _icontextMenu = DirectCast(pCM, IContextMenu)
+
+            Try
+                _lastItem = _maxItems - allowSpaceFor
+                _icontextMenu.QueryContextMenu(_contextMenu, 0, _firstItem, _lastItem, QueryContextMenuFlags.Normal)
+            Catch
+                ' if QueryContextMenu throws an error, destroy the popupmenu and free _icontextMenu before re-throwing.
+                DestroyMenu(_contextMenu)
+                _contextMenu = IntPtr.Zero
+                _icontextMenu = Nothing
+                Throw
+            End Try
+        End Sub
+
+        Public Sub ShowMenu(frmHandle As IntPtr, pos As Point)
+            If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
+
+            Dim pt As New ComPoint(pos)
+            Dim iCmd As Integer
+
+            _icontextMenu2 = TryCast(_icontextMenu, IContextMenu2) ' casting performs QueryInterface under the hood
+            _icontextMenu3 = TryCast(_icontextMenu, IContextMenu3) ' TryCast returns Nothing if cast failed
+
+            _isShown = True
+            Try
+                iCmd = TrackPopupMenuEx(_contextMenu, TrackPopupMenuExFlags.ReturnCmd, pt.x, pt.y, frmHandle, IntPtr.Zero)
+            Finally
+                _isShown = False
+
+                If _icontextMenu2 IsNot Nothing Then _icontextMenu2 = Nothing
+                If _icontextMenu3 IsNot Nothing Then _icontextMenu3 = Nothing
+            End Try
+
+            If iCmd > 0 Then
+                Dim info As CMInvokeCommandInfoEx = Nothing
+                info.cbSize = CType(Marshal.SizeOf(info), UInteger)
+                info.fMask = CMICMask.Unicode Or CMICMask.PTInvoke
+
+                If My.Computer.Keyboard.CtrlKeyDown Then
+                    info.fMask = info.fMask Or CMICMask.ControlDown
+                End If
+                If My.Computer.Keyboard.ShiftKeyDown Then
+                    info.fMask = info.fMask Or CMICMask.ShiftDown
+                End If
+
+                info.hwnd = frmHandle
+                info.lpVerb = CType(iCmd - _firstItem, IntPtr)
+                info.lpVerbW = CType(iCmd - _firstItem, IntPtr)
+                info.nShow = ShowWindowFlags.ShowNormal
+                info.ptInvoke = pt
+                _icontextMenu.InvokeCommand(info)
+            Else
+                If Marshal.GetLastWin32Error <> 0 Then
+                    Throw New Win32Exception()
+                End If
+            End If
+        End Sub
+
+        Public Sub DestroyMenu()
+            If IsBuilt() Then
+                DestroyMenu(_contextMenu)
+                _contextMenu = IntPtr.Zero
+                _icontextMenu = Nothing ' removing references to an interface automatically calls Marshal.Release
+            End If
+        End Sub
+
         Private Sub OnMenuSelect(item As UInteger)
-            If _contextMenu IsNot Nothing AndAlso item >= CM_FirstItem AndAlso item <= CM_LastItem Then
+            If IsBuilt() AndAlso _isShown AndAlso item >= _firstItem AndAlso item <= _lastItem Then
                 Try
                     RaiseEvent HelpTextChanged(
-                        IContextMenu_GetCommandString(_contextMenu, CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing),
+                        IContextMenu_GetCommandString(_icontextMenu, CType(item - _firstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing),
                         Nothing)
                 Catch ex As Exception
                     RaiseEvent HelpTextChanged(
@@ -1034,7 +1067,7 @@ Partial Public Class WalkmanLib
 
         Const WM_MENUSELECT As Integer = &H11F
         Public Sub HandleWindowMessage(ByRef m As Message)
-            If _contextMenu IsNot Nothing Then ' _contextMenu is only set if the menu is shown
+            If IsBuilt() Then
                 If m.Msg = WM_MENUSELECT Then
                     'simplified HANDLE_WM_MENUSELECT C++ macro
                     Dim wParamUInt As UInteger = CType(m.WParam.ToInt64, UInteger)
@@ -1046,17 +1079,17 @@ Partial Public Class WalkmanLib
                     End If
                 End If
 
-                If _contextMenu3 IsNot Nothing Then
+                If _icontextMenu3 IsNot Nothing Then
                     Dim lres As IntPtr
                     Try
-                        _contextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres)
+                        _icontextMenu3.HandleMenuMsg2(m.Msg, m.WParam, m.LParam, lres)
                         m.Result = lres
                         Return
                     Catch
                     End Try
-                ElseIf _contextMenu2 IsNot Nothing Then
+                ElseIf _icontextMenu2 IsNot Nothing Then
                     Try
-                        _contextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam)
+                        _icontextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam)
                         m.Result = IntPtr.Zero
                         Return
                     Catch
@@ -1064,5 +1097,6 @@ Partial Public Class WalkmanLib
                 End If
             End If
         End Sub
+#End Region
     End Class
 End Class
