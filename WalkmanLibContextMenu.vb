@@ -187,7 +187,7 @@ Partial Public Class WalkmanLib
             VerbW = &H4
             ''' <summary>(From C++ header) icon string (unicode)</summary>
             VerbIconW = &H14
-            ''' <summary>(FRom C++ header) for bit testing - Unicode string</summary>
+            ''' <summary>(From C++ header) for bit testing - Unicode string</summary>
             Unicode = &H4
         End Enum
 
@@ -699,7 +699,12 @@ Partial Public Class WalkmanLib
             ''' <param name="cchMax">Size of the buffer, in characters, to receive the null-terminated string.</param>
             ''' <returns>If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
             <PreserveSig>
-            Function GetCommandString(idCmd As UIntPtr, uType As GetCommandStringFlags, ByRef pReserved As UInteger, pszName As StringBuilder, cchMax As UInteger) As Integer
+            Function GetCommandString(
+                idCmd As UIntPtr,
+                uType As GetCommandStringFlags,
+                ByRef pReserved As UInteger,
+                pszName As IntPtr,
+                cchMax As UInteger) As Integer
         End Interface
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-icontextmenu2
@@ -988,16 +993,66 @@ Partial Public Class WalkmanLib
             End Try
         End Sub
 
+        Private Shared Function IContextMenu_GetCommandString(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags, ByRef pwReserved As UInteger, ByRef commandString As String) As Integer
+            ' Callers are expected to be using Unicode.
+            If Not uFlags.HasFlag(GetCommandStringFlags.Unicode) Then Throw New ArgumentException("Unicode flag expected!", "uFlags")
+
+            ' First try the Unicode message. Preset the output buffer
+            ' with a known value because some handlers return S_OK without
+            ' doing anything.
+            Dim pszUnicode As IntPtr = Marshal.AllocHGlobal(MAX_FILE_PATH * Marshal.SizeOf(Of Int16))
+            Marshal.WriteInt16(pszUnicode, 0)
+
+            ' Some context menu handlers have off-by-one bugs and will
+            ' overflow the output buffer. Specify less buffer size so a
+            ' one-character overflow won't corrupt memory.
+            Dim hr As Integer = contextMenu.GetCommandString(idCmd, uFlags, pwReserved, pszUnicode, MAX_FILE_PATH - 1)
+
+            If hr >= 0 AndAlso Marshal.ReadInt16(pszUnicode) = 0 Then
+                ' Rats, a buggy IContextMenu handler that returned success
+                ' even though it failed.
+                hr = &H80004001 ' E_NOTIMPL
+            End If
+
+            If hr >= 0 Then
+                commandString = Marshal.PtrToStringUni(pszUnicode)
+            End If
+            Marshal.FreeHGlobal(pszUnicode)
+
+            If hr < 0 Then
+                ' try again with ANSI - specify one less buffer size
+                ' to compensate for context menu handlers that overflow by
+                ' one charactor.
+                Dim pszAnsi As IntPtr = Marshal.AllocHGlobal(MAX_FILE_PATH * Marshal.SizeOf(Of Byte))
+                Marshal.WriteByte(pszAnsi, 0)
+
+                hr = contextMenu.GetCommandString(idCmd, uFlags And Not GetCommandStringFlags.Unicode, pwReserved, pszAnsi, MAX_FILE_PATH - 1)
+
+                If hr >= 0 AndAlso Marshal.ReadByte(pszAnsi) = 0 Then
+                    ' Rats, a buggy IContextMenu handler that returned success
+                    ' even though it failed.
+                    hr = &H80004001 ' E_NOTIMPL
+                End If
+
+                If hr >= 0 Then
+                    commandString = Marshal.PtrToStringAnsi(pszAnsi)
+                End If
+                Marshal.FreeHGlobal(pszAnsi)
+            End If
+
+            Return hr
+        End Function
+
         Public Event HelpTextChanged(text As String)
 
         Private Sub OnMenuSelect(item As UInteger)
             If _contextMenu IsNot Nothing AndAlso item >= CM_FirstItem AndAlso item <= CM_LastItem Then
-                Dim buffer As New StringBuilder(MAX_FILE_PATH)
-                Dim hr As Integer = _contextMenu.GetCommandString(CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing, buffer, MAX_FILE_PATH)
+                Dim commandString As String = ""
+                Dim hr As Integer = IContextMenu_GetCommandString(_contextMenu, CType(item - CM_FirstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing, commandString)
                 If hr < 0 Then
-                    buffer.Append("No help available. (Failed to get text)")
+                    commandString = "No help available. (Failed to get text)"
                 End If
-                RaiseEvent HelpTextChanged(buffer.ToString())
+                RaiseEvent HelpTextChanged(commandString)
             End If
         End Sub
 
