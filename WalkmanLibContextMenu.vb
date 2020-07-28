@@ -211,7 +211,7 @@ Partial Public Class WalkmanLib
 
         'https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-icontextmenu-querycontextmenu
         <Flags>
-        Private Enum QueryContextMenuFlags As UInteger
+        Public Enum QueryContextMenuFlags As UInteger
             ''' <summary>Indicates normal operation. A shortcut menu extension, namespace extension, or drag-and-drop handler can add all menu items.</summary>
             Normal = 0
             ''' <summary>
@@ -1004,6 +1004,18 @@ Partial Public Class WalkmanLib
                 End Try
             End Try
         End Function
+
+        Private Shared Function IContextMenu_GetCommandStringOrNull(contextMenu As IContextMenu, idCmd As UIntPtr, uflags As GetCommandStringFlags, ByRef pwReserved As UInteger) As String
+            Dim pszUnicode As IntPtr = Marshal.AllocHGlobal(MAX_FILE_PATH * Marshal.SizeOf(Of Int16))
+            Try
+                contextMenu.GetCommandString(idCmd, uflags, pwReserved, pszUnicode, MAX_FILE_PATH - 1)
+                Return Marshal.PtrToStringUni(pszUnicode)
+            Catch
+                Return Nothing
+            Finally
+                Marshal.FreeHGlobal(pszUnicode)
+            End Try
+        End Function
 #End Region
 
 #Region "Instance Methods"
@@ -1022,12 +1034,13 @@ Partial Public Class WalkmanLib
         Private _isShown As Boolean = False
         Private _disposed As Boolean
         Public Event HelpTextChanged(text As String, ex As Exception)
+        Public Event ItemRenamed()
 
         Public Function IsBuilt() As Boolean
             Return _icontextMenu IsNot Nothing AndAlso _contextMenu <> IntPtr.Zero
         End Function
 
-        Public Function BuildMenu(frmHandle As IntPtr, itemPath As String, Optional allowSpaceFor As UInteger = 0) As ContextMenu
+        Public Function BuildMenu(frmHandle As IntPtr, itemPath As String, Optional allowSpaceFor As UInteger = 0, Optional flags As QueryContextMenuFlags = 0) As ContextMenu
             If IsBuilt() Then DestroyMenu()
 
             Dim pCM As Object = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu)
@@ -1040,7 +1053,7 @@ Partial Public Class WalkmanLib
 
             Try
                 _lastItem = _maxItems - allowSpaceFor
-                _icontextMenu.QueryContextMenu(_contextMenu, 0, _firstItem, _lastItem, QueryContextMenuFlags.Normal)
+                _icontextMenu.QueryContextMenu(_contextMenu, 0, _firstItem, _lastItem, QueryContextMenuFlags.Normal Or flags)
             Catch
                 ' if QueryContextMenu throws an error, destroy the popupmenu and free _icontextMenu before re-throwing.
                 DestroyMenu(_contextMenu)
@@ -1072,6 +1085,12 @@ Partial Public Class WalkmanLib
                 Dim act As Action = _customItemDict.Item(CType(iCmd, UInteger))
                 act()
             Else
+                Dim itemVerb As String = IContextMenu_GetCommandStringOrNull(_icontextMenu, CType(iCmd - _firstItem, UIntPtr), GetCommandStringFlags.VerbW, Nothing)
+                If itemVerb = "rename" Then
+                    RaiseEvent ItemRenamed()
+                    Return
+                End If
+
                 Dim pt As New ComPoint(pos)
                 Dim info As CMInvokeCommandInfoEx = Nothing
 
