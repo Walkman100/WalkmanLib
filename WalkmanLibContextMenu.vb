@@ -11,6 +11,21 @@ Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 
 Partial Public Class WalkmanLib
+    ' Public version of ContextMenu.MenuFlags
+    <Flags>
+    Enum AddItemFlags As UInteger
+        ''' <summary>Disables the menu item and grays it so it cannot be selected.</summary>
+        Disabled = &H1
+        ''' <summary>Places a check mark next to the menu item.</summary>
+        Checked = &H8
+        ''' <summary>Places the menu item on a new column, separated from the old column by a vertical line.</summary>
+        VerticalBreak = &H20
+        ''' <summary>
+        ''' Draws a horizontal dividing line. The line cannot be disabled. The <c>text</c> and <c>action</c> parameters are ignored.
+        ''' </summary>
+        Separator = &H800
+    End Enum
+
     ' based on the articles in https://stackoverflow.com/a/456922/2999220
     ' lots of interface help from https://www.developerfusion.com/article/84363/into-the-iunknown/
     Class ContextMenu
@@ -473,7 +488,7 @@ Partial Public Class WalkmanLib
 
         'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-insertmenuw
         <Flags>
-        Public Enum MenuFlags As UInteger
+        Private Enum MenuFlags As UInteger
             ''' <summary>
             ''' Indicates that the uPosition parameter gives the identifier of the menu item. This flag is the default if neither the
             ''' <see cref="ByCommand"/> nor <see cref="ByPosition"/> flag is specified.
@@ -878,7 +893,7 @@ Partial Public Class WalkmanLib
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
         Private Shared Function InsertMenu(
             hMenu As IntPtr,
-            uPosition As UInteger,
+            uPosition As Integer,
             uFlags As MenuFlags,
             uIDNewItem As UIntPtr,
             <MarshalAs(UnmanagedType.LPWStr)>
@@ -1036,19 +1051,19 @@ Partial Public Class WalkmanLib
             Return Me
         End Function
 
-        Public Sub AddItem(position As UInteger, text As String, action As Action, Optional flags As MenuFlags = 0)
+        Public Sub AddItem(position As Integer, text As String, action As Action, Optional flags As AddItemFlags = 0)
             If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
 
             If Not (_lastItem + _customItemCount) < _maxItems Then
                 Throw New ArgumentOutOfRangeException("BuildMenu.allowSpaceFor", "No space allowed for custom menu item!")
             End If
 
-            flags = flags Or MenuFlags.ByPosition
+            Dim menuFlags As MenuFlags = MenuFlags.ByPosition Or DirectCast(flags, MenuFlags)
             _customItemCount += 1UI
             Dim newItemID As UInteger = _lastItem + _customItemCount
 
             _customItemDict.Add(newItemID, action)
-            InsertMenu(_contextMenu, position, flags, CType(newItemID, UIntPtr), text)
+            InsertMenu(_contextMenu, position, menuFlags, CType(newItemID, UIntPtr), text)
         End Sub
 
         Private Sub RunItem(iCmd As Integer, frmHandle As IntPtr, pos As Point)
