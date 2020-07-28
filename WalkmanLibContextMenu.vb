@@ -29,6 +29,7 @@ Partial Public Class WalkmanLib
     ' based on the articles in https://stackoverflow.com/a/456922/2999220
     ' lots of interface help from https://www.developerfusion.com/article/84363/into-the-iunknown/
     Class ContextMenu
+        Implements IDisposable
 #Region "Native Methods"
 
 #Region "Enums"
@@ -1019,7 +1020,7 @@ Partial Public Class WalkmanLib
         Private _customItemDict As New Dictionary(Of UInteger, Action)
 
         Private _isShown As Boolean = False
-
+        Private _disposed As Boolean
         Public Event HelpTextChanged(text As String, ex As Exception)
 
         Public Function IsBuilt() As Boolean
@@ -1120,16 +1121,6 @@ Partial Public Class WalkmanLib
             End If
         End Sub
 
-        Public Sub DestroyMenu()
-            If IsBuilt() Then
-                _customItemCount = 0
-                _customItemDict.Clear()
-                DestroyMenu(_contextMenu)
-                _contextMenu = IntPtr.Zero
-                _icontextMenu = Nothing ' removing references to an interface automatically calls Marshal.Release
-            End If
-        End Sub
-
         Private Sub OnMenuSelect(item As UInteger)
             If IsBuilt() AndAlso _isShown Then
                 If item >= _firstItem AndAlso item <= _lastItem Then
@@ -1178,6 +1169,50 @@ Partial Public Class WalkmanLib
                 End If
             End If
         End Sub
+
+        Public Sub DestroyMenu()
+            If IsBuilt() Then
+                _customItemCount = 0
+                _customItemDict.Clear()
+                DestroyMenu(_contextMenu)
+                _contextMenu = IntPtr.Zero
+                _icontextMenu = Nothing ' removing references to an interface automatically calls Marshal.Release
+            End If
+        End Sub
+
+#Region "IDisposable Implementation"
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not _disposed Then
+                If disposing Then
+                    ' dispose managed state (managed objects)
+                    _customItemCount = 0
+                    _customItemDict.Clear()
+                End If
+
+                ' free unmanaged resources (unmanaged objects) and override finalizer
+                If _contextMenu <> IntPtr.Zero Then
+                    DestroyMenu(_contextMenu)
+                    _contextMenu = IntPtr.Zero
+                End If
+                _icontextMenu = Nothing
+                _disposed = True
+            End If
+        End Sub
+
+        ' override finalizer only if 'Dispose(disposing As Boolean)' has code to free unmanaged resources
+        Protected Overrides Sub Finalize()
+            ' Do not change this code. Put cleanup code in 'Dispose(disposing As Boolean)' method
+            Dispose(disposing:=False)
+            MyBase.Finalize()
+        End Sub
+
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code. Put cleanup code in 'Dispose(disposing As Boolean)' method
+            Dispose(disposing:=True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
 #End Region
     End Class
 End Class
