@@ -1011,7 +1011,7 @@ Partial Public Class WalkmanLib
             Return _icontextMenu IsNot Nothing AndAlso _contextMenu <> IntPtr.Zero
         End Function
 
-        Public Sub BuildMenu(frmHandle As IntPtr, itemPath As String, Optional allowSpaceFor As UInteger = 0)
+        Public Function BuildMenu(frmHandle As IntPtr, itemPath As String, Optional allowSpaceFor As UInteger = 0) As ContextMenu
             If IsBuilt() Then DestroyMenu()
 
             Dim pCM As Object = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu)
@@ -1032,7 +1032,9 @@ Partial Public Class WalkmanLib
                 _icontextMenu = Nothing
                 Throw
             End Try
-        End Sub
+
+            Return Me
+        End Function
 
         Public Sub AddItem(position As UInteger, text As String, action As Action, Optional flags As MenuFlags = 0)
             If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
@@ -1049,30 +1051,14 @@ Partial Public Class WalkmanLib
             InsertMenu(_contextMenu, position, flags, CType(newItemID, UIntPtr), text)
         End Sub
 
-        Public Sub ShowMenu(frmHandle As IntPtr, pos As Point)
-            If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
-
-            Dim pt As New ComPoint(pos)
-            Dim iCmd As Integer
-
-            _icontextMenu2 = TryCast(_icontextMenu, IContextMenu2) ' casting performs QueryInterface under the hood
-            _icontextMenu3 = TryCast(_icontextMenu, IContextMenu3) ' TryCast returns Nothing if cast failed
-
-            _isShown = True
-            Try
-                iCmd = TrackPopupMenuEx(_contextMenu, TrackPopupMenuExFlags.ReturnCmd, pt.x, pt.y, frmHandle, IntPtr.Zero)
-            Finally
-                _isShown = False
-
-                If _icontextMenu2 IsNot Nothing Then _icontextMenu2 = Nothing
-                If _icontextMenu3 IsNot Nothing Then _icontextMenu3 = Nothing
-            End Try
-
+        Private Sub RunItem(iCmd As Integer, frmHandle As IntPtr, pos As Point)
             If iCmd > _lastItem AndAlso _customItemDict.ContainsKey(CType(iCmd, UInteger)) Then
                 Dim act As Action = _customItemDict.Item(CType(iCmd, UInteger))
                 act()
-            ElseIf iCmd > 0 Then
+            Else
+                Dim pt As New ComPoint(pos)
                 Dim info As CMInvokeCommandInfoEx = Nothing
+
                 info.cbSize = CType(Marshal.SizeOf(info), UInteger)
                 info.fMask = CMICMask.Unicode Or CMICMask.PTInvoke
 
@@ -1089,6 +1075,29 @@ Partial Public Class WalkmanLib
                 info.nShow = ShowWindowFlags.ShowNormal
                 info.ptInvoke = pt
                 _icontextMenu.InvokeCommand(info)
+            End If
+        End Sub
+
+        Public Sub ShowMenu(frmHandle As IntPtr, pos As Point)
+            If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
+
+            Dim iCmd As Integer
+
+            _icontextMenu2 = TryCast(_icontextMenu, IContextMenu2) ' casting performs QueryInterface under the hood
+            _icontextMenu3 = TryCast(_icontextMenu, IContextMenu3) ' TryCast returns Nothing if cast failed
+
+            _isShown = True
+            Try
+                iCmd = TrackPopupMenuEx(_contextMenu, TrackPopupMenuExFlags.ReturnCmd, pos.X, pos.Y, frmHandle, IntPtr.Zero)
+            Finally
+                _isShown = False
+
+                If _icontextMenu2 IsNot Nothing Then _icontextMenu2 = Nothing
+                If _icontextMenu3 IsNot Nothing Then _icontextMenu3 = Nothing
+            End Try
+
+            If iCmd > 0 Then
+                RunItem(iCmd, frmHandle, pos)
             Else
                 If Marshal.GetLastWin32Error <> 0 Then
                     Throw New Win32Exception()
