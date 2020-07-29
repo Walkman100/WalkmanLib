@@ -939,28 +939,42 @@ Partial Public Class WalkmanLib
 #End Region
 
 #Region "Shared Methods"
-        Private Shared Function GetUIObjectOfFile(hwnd As IntPtr, pszPath As String, ByRef rIID As Guid) As Object
+        Private Shared Function GetUIObjectOfFiles(hwnd As IntPtr, paths As String(), ByRef rIID As Guid) As Object
             Dim hr As Integer
-            Dim pIDList As IntPtr
-            Dim sfgao As SFGAO
-
-            hr = SHParseDisplayName(pszPath, Nothing, pIDList, SFGAO.None, sfgao)
-            If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
-
+            Dim apIDList As New List(Of IntPtr)
             Try
-                Dim pSF As Object = Nothing
-                Dim pIDListChild As IntPtr
+                For Each path As String In paths
+                    Dim pIDList As IntPtr
+                    Dim sfgao As SFGAO
 
-                hr = SHBindToParent(pIDList, IID.IShellFolder, pSF, pIDListChild)
-                If hr < 0 Then Return hr
+                    hr = SHParseDisplayName(path, Nothing, pIDList, SFGAO.None, sfgao)
+                    If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
+
+                    apIDList.Add(pIDList)
+                Next
+
+                Dim pSF As Object = Nothing
+                Dim apIDListChild As New List(Of IntPtr)
+                For Each pIDList As IntPtr In apIDList
+                    Dim pSFlocal As Object = Nothing
+                    Dim pIDListChild As IntPtr
+
+                    hr = SHBindToParent(pIDList, IID.IShellFolder, pSFlocal, pIDListChild)
+                    If hr < 0 Then Marshal.ThrowExceptionForHR(hr)
+
+                    If pSF Is Nothing Then pSF = pSFlocal
+                    apIDListChild.Add(pIDListChild)
+                Next
 
                 Dim shellFolder As IShellFolder = DirectCast(pSF, IShellFolder)
                 Dim ppV As Object = Nothing
 
-                shellFolder.GetUIObjectOf(hwnd, 1, New IntPtr() {pIDListChild}, rIID, Nothing, ppV)
+                shellFolder.GetUIObjectOf(hwnd, CType(apIDListChild.Count, UInteger), apIDListChild.ToArray, rIID, Nothing, ppV)
                 Return ppV
             Finally
-                Marshal.FreeCoTaskMem(pIDList)
+                For Each pIDList As IntPtr In apIDList
+                    Marshal.FreeCoTaskMem(pIDList)
+                Next
             End Try
         End Function
 
@@ -1040,10 +1054,10 @@ Partial Public Class WalkmanLib
             Return _icontextMenu IsNot Nothing AndAlso _contextMenu <> IntPtr.Zero
         End Function
 
-        Public Function BuildMenu(frmHandle As IntPtr, itemPath As String, Optional allowSpaceFor As UInteger = 0, Optional flags As QueryContextMenuFlags = 0) As ContextMenu
+        Public Function BuildMenu(frmHandle As IntPtr, itemPaths As String(), Optional allowSpaceFor As UInteger = 0, Optional flags As QueryContextMenuFlags = 0) As ContextMenu
             If IsBuilt() Then DestroyMenu()
 
-            Dim pCM As Object = GetUIObjectOfFile(frmHandle, itemPath, IID.IContextMenu)
+            Dim pCM As Object = GetUIObjectOfFiles(frmHandle, itemPaths, IID.IContextMenu)
 
             _contextMenu = CreatePopupMenu()
             If _contextMenu = IntPtr.Zero Then Throw New Win32Exception()
