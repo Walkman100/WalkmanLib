@@ -151,23 +151,19 @@ Partial Public Class WalkmanLib
                         Return GetErrorResult("Short Flag ""{0}"" requires arguments!", gettingArgFor.shortFlag)
                     End If
 
-                    Dim gotShortFlag As Boolean = False
-                    For Each flagInfo As KeyValuePair(Of String, FlagInfo) In flagDict
-                        If flagInfo.Value.shortFlag = chr Then
-                            If flagInfo.Value.hasArgs Then
-                                gettingArg = True
-                                gettingArgFor = flagInfo.Value
-                            Else
-                                flagInfo.Value.action(Nothing)
-                            End If
-                            gotShortFlag = True
-                            Exit For
+                    Dim flagKV As KeyValuePair(Of String, FlagInfo) = flagDict.FirstOrDefault(Function(x As KeyValuePair(Of String, FlagInfo))
+                                                                                                  Return x.Value.shortFlag = chr
+                                                                                              End Function)
+                    If flagKV.Value IsNot Nothing Then
+                        If flagKV.Value.hasArgs Then
+                            gettingArg = True
+                            gettingArgFor = flagKV.Value
+                        Else
+                            flagKV.Value.action(Nothing)
                         End If
-                    Next
-                    If Not gotShortFlag Then
+                    Else
                         Return GetErrorResult("Unknown Short Flag ""{0}""!", chr)
                     End If
-
                 Next
             ElseIf Not arg.StartsWith("--") AndAlso gettingArg Then
                 gettingArgFor.action(arg)
@@ -195,8 +191,11 @@ Partial Public Class WalkmanLib
                     arg = arg.Remove(arg.IndexOf("="c))
                 End If
 
-                If flagDict.ContainsKey(arg.ToLowerInvariant()) Then
-                    gettingArgFor = flagDict.Item(arg.ToLowerInvariant())
+                Dim flagKV As KeyValuePair(Of String, FlagInfo) = flagDict.FirstOrDefault(Function(x As KeyValuePair(Of String, FlagInfo))
+                                                                                              Return x.Key.ToLowerInvariant = arg.ToLowerInvariant
+                                                                                          End Function)
+                If flagKV.Key IsNot Nothing Then
+                    gettingArgFor = flagKV.Value
                     If gettingArgFor.hasArgs AndAlso flagArg Is Nothing Then
                         Return GetErrorResult("Flag ""{0}"" requires arguments!", arg.ToLowerInvariant())
                     ElseIf gettingArgFor.hasArgs Then
