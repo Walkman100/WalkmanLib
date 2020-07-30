@@ -185,6 +185,7 @@ Namespace Tests
                 If Not Test_ArgHandler5() Then returnVal = False
                 If Not Test_ArgHandler6() Then returnVal = False
                 If Not Test_ArgHandler7() Then returnVal = False
+                If Not Test_ArgHandler8() Then returnVal = False
             End If
 
             If runCustomMsgBoxTests Then

@@ -48,7 +48,7 @@ Namespace Tests
             {"TeSt7", New WalkmanLib.FlagInfo With {
                 .hasArgs = False,
                 .description = "TeSt7",
-                .action = Sub() Console.WriteLine("test7 called")
+                .action = Sub() Console.WriteLine("TeSt7 called")
             }},
             {"help", New WalkmanLib.FlagInfo With {
                 .shortFlag = "h"c,
@@ -177,6 +177,25 @@ Namespace Tests
 
             Using New RedirectConsole(sw)
                 Try
+                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"--test7"}, flagDict, True)
+                    If rtn.gotError Then
+                        Console.WriteLine(rtn.errorInfo)
+                    End If
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "TeSt7 called" & vbNewLine
+
+            Return TestString("ArgHandler7", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler8() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
                     Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"-t", "TEST", "--", "--test3=TEST"}, flagDict, True)
                     If rtn.gotError Then
                         Console.WriteLine(rtn.errorInfo)
@@ -190,7 +209,7 @@ Namespace Tests
 
             Dim expectedOutput As String = "1TEST" & vbNewLine & "--test3=TEST" & vbNewLine
 
-            Return TestString("ArgHandler7", sw.ToString(), expectedOutput)
+            Return TestString("ArgHandler8", sw.ToString(), expectedOutput)
         End Function
     End Module
 End Namespace
