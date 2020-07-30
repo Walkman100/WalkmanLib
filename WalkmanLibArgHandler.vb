@@ -9,19 +9,29 @@ Imports System.Linq
 Imports Microsoft.VisualBasic
 
 Partial Public Class WalkmanLib
+    ''' <summary>Create a dictionary of these to use with the ArgHandler methods</summary>
     Public Class FlagInfo
+        ''' <summary>Optional single character to activate this flag</summary>
         Public shortFlag As Char = Chr(0)
+        ''' <summary>Set to <see langword="True"/> if this flag requires arguments</summary>
         Public hasArgs As Boolean = False
+        ''' <summary>Set to text to describe the flag's argument, if <see cref="hasArgs"/> is <see langword="True"/>. Used in <see cref="EchoHelp"/></summary>
         Public argsInfo As String = Nothing
+        ''' <summary>Description of the flag used in <see cref="EchoHelp"/></summary>
         Public description As String
+        ''' <summary>Routine to run when the command is called. String argument is <see langword="Nothing"/> if <see cref="hasArgs"/> is <see langword="False"/></summary>
         Public action As Action(Of String)
     End Class
 
+#Region "EchoHelp & helpers"
+    ''' <summary>Info on whether the dictionary of items has any short flags, and the max length of those flags</summary>
     Private Class ShortFlagInfo
         Public usesShortFlags As Boolean = False
         Public maxLength As Integer = 0
     End Class
 
+    ''' <summary>Gets whether the supplied dictionary of items has any short flags, and the max length of those flags</summary>
+    ''' <param name="flagDict">Dictionary to operate on</param>
     Private Shared Function getShortFlagInfo(flagDict As Dictionary(Of String, FlagInfo)) As ShortFlagInfo
         Dim retVal As New ShortFlagInfo
 
@@ -43,6 +53,8 @@ Partial Public Class WalkmanLib
         Return retVal
     End Function
 
+    ''' <summary>Gets the maximum length of the flags in the supplied dictionary of items</summary>
+    ''' <param name="flagDict">Dictionary to operate on</param>
     Private Shared Function getMaxFlagLength(flagDict As Dictionary(Of String, FlagInfo)) As Integer
         Dim retVal As Integer = 0
 
@@ -60,6 +72,9 @@ Partial Public Class WalkmanLib
         Return retVal
     End Function
 
+    ''' <summary>Generates and writes help information about the items in the specified dictionary to the console</summary>
+    ''' <param name="flagDict">Dictionary to operate on</param>
+    ''' <param name="flag">Optional flag to show help for. Can be the long or short form</param>
     Public Shared Sub EchoHelp(flagDict As Dictionary(Of String, FlagInfo), Optional flag As String = Nothing)
         If flag Is Nothing Then
             Dim shortFlagInfo As ShortFlagInfo = getShortFlagInfo(flagDict)
@@ -124,13 +139,23 @@ Partial Public Class WalkmanLib
             End If
         End If
     End Sub
+#End Region
 
+#Region "ProcessArgs & helpers"
+    ''' <summary>Return info for ProcessArgs</summary>
     Public Class ResultInfo
+        ''' <summary>Will be <see langword="True"/> if there was an error. <see cref="errorInfo"/> contains the error message</summary>
         Public gotError As Boolean = False
+        ''' <summary>Error message. <see langword="Nothing"/> if no error occurred - check <see cref="gotError"/></summary>
         Public errorInfo As String = Nothing
+        ''' <summary>Parameters after processing arguments has completed. Empty list if there are no parameters or <c>paramsAfterFlags</c> is <see langword="False"/></summary>
         Public extraParams As New List(Of String)
     End Class
 
+    ''' <summary>Internal helper to simplify creating a <see cref="ResultInfo"/> instance, with <c>errorInfo</c> set and <c>gotError = True</c></summary>
+    ''' <param name="errorInfo">String to fill the <see cref="ResultInfo.errorInfo"/> field with</param>
+    ''' <param name="flagName">Optional string to format <paramref name="errorInfo"/> - <c>String.Format</c> will be used if this flag is set</param>
+    ''' <returns></returns>
     Private Shared Function GetErrorResult(errorInfo As String, Optional flagName As String = Nothing) As ResultInfo
         Dim resultInfo As New ResultInfo With {.gotError = True}
         If flagName Is Nothing Then
@@ -141,6 +166,18 @@ Partial Public Class WalkmanLib
         Return resultInfo
     End Function
 
+    ''' <summary>
+    ''' Processes arguments supplied to a program using a supplied Dictionary of flags. If <paramref name="paramsAfterFlags"/> is <see langword="True"/>,
+    ''' <see cref="ResultInfo.extraParams"/> will contain a list of arguments after processing is complete. If there is an incorrect parameter in the supplied string array,
+    ''' <see cref="ResultInfo.gotError"/> will be <see langword="True"/> and <see cref="ResultInfo.errorInfo"/> will contain the error message to display to the user.
+    ''' <br/>Short flags are processed first, and once a long flag is encountered short flag processing is skipped.
+    ''' <br/>"<c>--</c>" can be used to force flag processing to end, and the remainder of the arguments will be considered as extra parameters.
+    ''' <br/>Long flag matching is case-insensitive, while Short flag matching is case-sensitive - characters must match exactly.
+    ''' </summary>
+    ''' <param name="args">Array of argument strings to process</param>
+    ''' <param name="flagDict">Dictionary to operate on</param>
+    ''' <param name="paramsAfterFlags"><see langword="True"/> to allow extra parameters after arguments processing is complete</param>
+    ''' <returns><see cref="ResultInfo"/> class with the result of processing</returns>
     Public Shared Function ProcessArgs(args As String(), flagDict As Dictionary(Of String, FlagInfo), Optional paramsAfterFlags As Boolean = False) As ResultInfo
         Dim processingShortFlags As Boolean = True
         Dim finishedProcessingArgs As Boolean = False
@@ -228,4 +265,5 @@ Partial Public Class WalkmanLib
             .extraParams = extraParams
         }
     End Function
+#End Region
 End Class
