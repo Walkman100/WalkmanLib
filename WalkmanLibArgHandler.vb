@@ -93,9 +93,15 @@ Partial Public Class WalkmanLib
                 Console.WriteLine("--{0}  {1}", longFlag.PadRight(maxFlagLength), flagInfo.Value.description)
             Next
         Else
-            Dim flagKV As KeyValuePair(Of String, FlagInfo) = flagDict.FirstOrDefault(Function(x As KeyValuePair(Of String, FlagInfo))
-                                                                                          Return x.Key.ToLowerInvariant = flag.ToLowerInvariant
-                                                                                      End Function)
+            Dim flagKV As KeyValuePair(Of String, FlagInfo) = flagDict.FirstOrDefault(
+                Function(x As KeyValuePair(Of String, FlagInfo))
+                    If flag.Length = 1 AndAlso x.Value.shortFlag = flag.ToLowerInvariant()(0) Then
+                        Return True
+                    End If
+
+                    Return x.Key.ToLowerInvariant = flag.ToLowerInvariant
+                End Function)
+
             If flagKV.Key IsNot Nothing Then
                 Dim flagInfo As FlagInfo = flagKV.Value
                 Dim longFlag As String = flagKV.Key
