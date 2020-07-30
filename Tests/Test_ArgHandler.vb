@@ -86,14 +86,14 @@ Namespace Tests
 
             Using New RedirectConsole(sw)
                 Try
-                    WalkmanLib.EchoHelp(flagDict, "test3")
+                    WalkmanLib.EchoHelp(flagDict, "t")
                 Catch ex As Exception
                     Console.WriteLine(ex.ToString())
                 End Try
             End Using
 
-            Dim expectedOutput As String = "Long Option       Description" & vbNewLine &
-                                           "--test3=<string>  test3" & vbNewLine
+            Dim expectedOutput As String = "Option        Long Option      Description" & vbNewLine &
+                                           " -t <string>  --test=<string>  test" & vbNewLine
 
             Return TestString("ArgHandler2", sw.ToString(), expectedOutput)
         End Function
