@@ -45,6 +45,11 @@ Namespace Tests
                 .description = "TEST",
                 .action = Sub(arg As String) Console.WriteLine("TEST{0}", arg)
             }},
+            {"TeSt7", New WalkmanLib.FlagInfo With {
+                .hasArgs = False,
+                .description = "TeSt7",
+                .action = Sub() Console.WriteLine("test7 called")
+            }},
             {"help", New WalkmanLib.FlagInfo With {
                 .shortFlag = "h"c,
                 .description = "Show Help",
@@ -70,12 +75,47 @@ Namespace Tests
                                            " -k           --test4           test4" & vbNewLine &
                                            " -T           --test5           test5" & vbNewLine &
                                            "              --TEST=<string>   TEST" & vbNewLine &
+                                           "              --TeSt7           TeSt7" & vbNewLine &
                                            " -h           --help            Show Help" & vbNewLine
 
             Return TestString("ArgHandler1", sw.ToString(), expectedOutput)
         End Function
 
         Function Test_ArgHandler2() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
+                    WalkmanLib.EchoHelp(flagDict, "test3")
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "Long Option       Description" & vbNewLine &
+                                           "--test3=<string>  test3" & vbNewLine
+
+            Return TestString("ArgHandler2", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler3() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
+                    WalkmanLib.EchoHelp(flagDict, "test7")
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "Long Option  Description" & vbNewLine &
+                                           "--TeSt7      TeSt7" & vbNewLine
+
+            Return TestString("ArgHandler3", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler4() As Boolean
             Dim sw As New IO.StringWriter
 
             Using New RedirectConsole(sw)
@@ -91,10 +131,10 @@ Namespace Tests
 
             Dim expectedOutput As String = "Short Flag ""t"" requires arguments!" & vbNewLine
 
-            Return TestString("ArgHandler2", sw.ToString(), expectedOutput)
+            Return TestString("ArgHandler4", sw.ToString(), expectedOutput)
         End Function
 
-        Function Test_ArgHandler3() As Boolean
+        Function Test_ArgHandler5() As Boolean
             Dim sw As New IO.StringWriter
 
             Using New RedirectConsole(sw)
@@ -110,10 +150,10 @@ Namespace Tests
 
             Dim expectedOutput As String = "1TEST" & vbNewLine & "test2 called" & vbNewLine & "3TEST" & vbNewLine
 
-            Return TestString("ArgHandler3", sw.ToString(), expectedOutput)
+            Return TestString("ArgHandler5", sw.ToString(), expectedOutput)
         End Function
 
-        Function Test_ArgHandler4() As Boolean
+        Function Test_ArgHandler6() As Boolean
             Dim sw As New IO.StringWriter
 
             Using New RedirectConsole(sw)
@@ -129,10 +169,10 @@ Namespace Tests
 
             Dim expectedOutput As String = "test5 called" & vbNewLine
 
-            Return TestString("ArgHandler4", sw.ToString(), expectedOutput)
+            Return TestString("ArgHandler6", sw.ToString(), expectedOutput)
         End Function
 
-        Function Test_ArgHandler5() As Boolean
+        Function Test_ArgHandler7() As Boolean
             Dim sw As New IO.StringWriter
 
             Using New RedirectConsole(sw)
@@ -150,7 +190,7 @@ Namespace Tests
 
             Dim expectedOutput As String = "1TEST" & vbNewLine & "--test3=TEST" & vbNewLine
 
-            Return TestString("ArgHandler5", sw.ToString(), expectedOutput)
+            Return TestString("ArgHandler7", sw.ToString(), expectedOutput)
         End Function
     End Module
 End Namespace
