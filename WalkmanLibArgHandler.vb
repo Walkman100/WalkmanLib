@@ -5,6 +5,7 @@ Option Infer Off
 
 Imports System
 Imports System.Collections.Generic
+Imports System.Linq
 Imports Microsoft.VisualBasic
 
 Partial Public Class WalkmanLib
@@ -92,9 +93,12 @@ Partial Public Class WalkmanLib
                 Console.WriteLine("--{0}  {1}", longFlag.PadRight(maxFlagLength), flagInfo.Value.description)
             Next
         Else
-            If flagDict.ContainsKey(flag.ToLowerInvariant()) Then
-                Dim flagInfo As FlagInfo = flagDict.Item(flag.ToLowerInvariant())
-                Dim longFlag As String = flag.ToLowerInvariant()
+            Dim flagKV As KeyValuePair(Of String, FlagInfo) = flagDict.FirstOrDefault(Function(x As KeyValuePair(Of String, FlagInfo))
+                                                                                          Return x.Key.ToLowerInvariant = flag.ToLowerInvariant
+                                                                                      End Function)
+            If flagKV.Key IsNot Nothing Then
+                Dim flagInfo As FlagInfo = flagKV.Value
+                Dim longFlag As String = flagKV.Key
                 If flagInfo.hasArgs Then
                     longFlag &= "=" & flagInfo.argsInfo
                 End If
