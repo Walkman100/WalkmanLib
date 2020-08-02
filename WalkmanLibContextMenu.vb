@@ -939,6 +939,11 @@ Partial Public Class WalkmanLib
 #End Region
 
 #Region "Shared Methods"
+        ''' <summary>Helper function to get an interface associated with files given as paths</summary>
+        ''' <param name="hwnd">A handle to the owner window that the client should specify if it displays a dialog box or message box</param>
+        ''' <param name="paths">Full paths to items to get an interface for. These must be in the same parent directory</param>
+        ''' <param name="rIID"><see cref="IID"/> of the interface to get</param>
+        ''' <returns>Interface of <paramref name="rIID"/> associated with the requested items. DirectCast it to the requested interface.</returns>
         Private Shared Function GetUIObjectOfFiles(hwnd As IntPtr, paths As String(), rIID As Guid) As Object
             Dim hr As Integer
             Dim apIDList As New List(Of IntPtr)
@@ -978,6 +983,11 @@ Partial Public Class WalkmanLib
             End Try
         End Function
 
+        ''' <summary>Helper function to handle the bugs in context menu item implementations</summary>
+        ''' <param name="contextMenu">Interface to operate on</param>
+        ''' <param name="idCmd">ID of the item to operate on</param>
+        ''' <param name="uFlags">The type of requested Unicode string</param>
+        ''' <returns>The Unicode string requested</returns>
         Private Shared Function IContextMenu_GetCommandString(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags) As String
             ' Callers are expected to be using Unicode.
             If Not uFlags.HasFlag(GetCommandStringFlags.Unicode) Then Throw New ArgumentException("Unicode flag expected!", "uFlags")
@@ -1019,6 +1029,11 @@ Partial Public Class WalkmanLib
             End Try
         End Function
 
+        ''' <summary>Helper function to run GetCommandString, without checking the ANSI string, and returning <see langword="Nothing"/> if there was an error</summary>
+        ''' <param name="contextMenu">Interface to operate on</param>
+        ''' <param name="idCmd">ID of the item to operate on</param>
+        ''' <param name="uFlags">The type of requested Unicode string</param>
+        ''' <returns>The Unicode string requested, or <see langword="Nothing"/></returns>
         Private Shared Function IContextMenu_GetCommandStringOrNull(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags) As String
             Dim pszUnicode As IntPtr = Marshal.AllocHGlobal(MAX_FILE_PATH * Marshal.SizeOf(Of Int16))
             Try
@@ -1048,13 +1063,25 @@ Partial Public Class WalkmanLib
         Private _isShown As Boolean = False
         Private _disposed As Boolean
 
+        ''' <summary>Event raised when the help text is changed. Use this to update a statusbar or other info pane</summary>
+        ''' <param name="text">Help text, or <see langword="Nothing"/> if there was an error or no help text</param>
+        ''' <param name="ex">Error if any. Nothing if no error</param>
         Public Event HelpTextChanged(text As String, ex As Exception)
+        ''' <summary>Event raised when the <c>Rename</c> item is selected</summary>
         Public Event ItemRenamed()
 
+        ''' <summary>Gets whether the Context Menu has been built with <see cref="BuildMenu"/></summary>
+        ''' <returns>True if the menu has been built, False if it has been destroyed or not built</returns>
         Public Function IsBuilt() As Boolean
             Return _icontextMenu IsNot Nothing AndAlso _contextMenu <> IntPtr.Zero
         End Function
 
+        ''' <summary>Builds the context menu for a set of items</summary>
+        ''' <param name="frmHandle">Handle to the form that the menu will be shown on</param>
+        ''' <param name="itemPaths">Full paths to items to build a context menu for. These must be in the same parent directory</param>
+        ''' <param name="allowSpaceFor">Amount of space to be kept for Custom Items. The maximum amount of items is 0x7FFF</param>
+        ''' <param name="flags">Flags to use when building the menu, e.g. <see cref="QueryContextMenuFlags.CanRename"/>. <see cref="QueryContextMenuFlags.Explore"/> is recommended</param>
+        ''' <returns>The current instance of <see cref="ContextMenu"/>. Useful to build the context menu in a <see langword="Using"/> block</returns>
         Public Function BuildMenu(frmHandle As IntPtr, itemPaths As String(), Optional allowSpaceFor As UInteger = 0, Optional flags As QueryContextMenuFlags = 0) As ContextMenu
             If IsBuilt() Then DestroyMenu()
 
@@ -1080,6 +1107,14 @@ Partial Public Class WalkmanLib
             End Try
         End Function
 
+        ''' <summary>Adds a custom entry to the currently built context menu. Sufficient space must have been specified in the BuildMenu call</summary>
+        ''' <param name="position">Index of the position in the context menu to add the item. Use -1 for the end of the menu</param>
+        ''' <param name="text">Text to display on the custem entry</param>
+        ''' <param name="action">Action to execute when the user selects the item</param>
+        ''' <param name="flags">
+        ''' Flags to apply to the entry. If <see cref="AddItemFlags.Separator"/> is used, <see langword="Nothing"/>
+        ''' can be supplied for <paramref name="text"/> and <paramref name="action"/>
+        ''' </param>
         Public Sub AddItem(position As Integer, text As String, action As Action, Optional flags As AddItemFlags = 0)
             If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
 
@@ -1095,6 +1130,10 @@ Partial Public Class WalkmanLib
             InsertMenu(_contextMenu, position, menuFlags, CType(newItemID, UIntPtr), text)
         End Sub
 
+        ''' <summary>Performs the user selected entry's action, using the currently built Context Menu</summary>
+        ''' <param name="iCmd">Index of the entry</param>
+        ''' <param name="frmHandle">Handle of the form to associate with the action</param>
+        ''' <param name="pos">Position the Context Menu was displayed at</param>
         Private Sub RunItem(iCmd As Integer, frmHandle As IntPtr, pos As Point)
             If iCmd > _lastItem AndAlso _customItemDict.ContainsKey(CType(iCmd, UInteger)) Then
                 Dim act As Action = _customItemDict.Item(CType(iCmd, UInteger))
@@ -1127,6 +1166,9 @@ Partial Public Class WalkmanLib
             End If
         End Sub
 
+        ''' <summary>Shows the currently built context menu to the user, at the specified point</summary>
+        ''' <param name="frmHandle">Handle to the form to show the menu for</param>
+        ''' <param name="pos">Screen position to show the menu. Use <see cref="Control.PointToScreen"/> on the control to convert event mouse position to screen position</param>
         Public Sub ShowMenu(frmHandle As IntPtr, pos As Point)
             If Not IsBuilt() Then Throw New NotSupportedException("Menu hasn't been built!")
 
@@ -1154,6 +1196,8 @@ Partial Public Class WalkmanLib
             End If
         End Sub
 
+        ''' <summary>Handles menu select events, if the current context menu is built</summary>
+        ''' <param name="item">Index of the item that was selected</param>
         Private Sub OnMenuSelect(item As UInteger)
             If IsBuilt() AndAlso _isShown Then
                 If item >= _firstItem AndAlso item <= _lastItem Then
@@ -1171,6 +1215,8 @@ Partial Public Class WalkmanLib
         End Sub
 
         Private Const WM_MENUSELECT As Integer = &H11F
+        ''' <summary>Handles window messages related to the currently built context menu. Doesn't do anything if the menu isn't built or shown</summary>
+        ''' <param name="m">The message to handle</param>
         Public Sub HandleWindowMessage(ByRef m As Message)
             If IsBuilt() Then
                 If m.Msg = WM_MENUSELECT Then
@@ -1203,6 +1249,7 @@ Partial Public Class WalkmanLib
             End If
         End Sub
 
+        ''' <summary>Explicitly destroys the currently built menu. Use this to free up resources if the context menu won't be rebuilt soon</summary>
         Public Sub DestroyMenu()
             If IsBuilt() Then
                 _customItemCount = 0
