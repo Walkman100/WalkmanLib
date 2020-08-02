@@ -26,7 +26,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets information about the latest release in a GitHub project.</summary>
     ''' <param name="projectName">Name of the project repository.</param>
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
-    ''' <returns>A WalkmanLib.VersionInfo object populated with information about the latest release.</returns>
+    ''' <returns>A <see cref="VersionInfo"/> object populated with information about the latest release.</returns>
     Shared Function GetLatestVersionInfo(projectName As String, Optional projectOwner As String = "Walkman100") As VersionInfo
         ' https://stackoverflow.com/a/2904963/2999220
         ServicePointManager.Expect100Continue = True
@@ -34,12 +34,12 @@ Partial Public Class WalkmanLib
 
         ' https://stackoverflow.com/a/16655779/2999220
         Dim address As String = String.Format("https://api.github.com/repos/{0}/{1}/releases/latest", projectOwner, projectName)
-        Dim client As WebClient = New WebClient()
+        Dim client As New WebClient()
 
         ' https://stackoverflow.com/a/22134980/2999220
         client.Headers.Add("User-Agent", "anything")
 
-        Dim reader As StreamReader = New StreamReader(client.OpenRead(address))
+        Dim reader As New StreamReader(client.OpenRead(address))
         Dim jsonObject As String = reader.ReadToEnd
 
         ' https://stackoverflow.com/a/38944715/2999220
@@ -56,8 +56,8 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets a download link for the latest installer released in a GitHub project.</summary>
     ''' <param name="projectName">Name of the project repository.</param>
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
-    ''' <param name="fileName">Name of the file. Defaults to "$projectName-Installer.exe". Use {0} to replace with the version string.</param>
-    ''' <returns>Download URI in a String.</returns>
+    ''' <param name="fileName">Name of the file. Defaults to "<paramref name="projectName"/>-Installer.exe". Use {0} to replace with the version string.</param>
+    ''' <returns>Download URI in a <see cref="String"/>.</returns>
     Shared Function GetLatestDownloadLink(projectName As String, Optional projectOwner As String = "Walkman100", Optional fileName As String = Nothing) As String
         Dim versionString As String
         versionString = GetLatestVersionInfo(projectName, projectOwner).TagName
@@ -74,7 +74,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets the latest version released in a GitHub project. Note if the tag name is not in version format will throw an Exception.</summary>
     ''' <param name="projectName">Name of the project repository.</param>
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
-    ''' <returns>The latest release version parsed as a System.Version object.</returns>
+    ''' <returns>The latest release version parsed as a <see cref="Version"/> object.</returns>
     Shared Function GetLatestVersion(projectName As String, Optional projectOwner As String = "Walkman100") As Version
         Dim versionString As String
         versionString = GetLatestVersionInfo(projectName, projectOwner).TagName
@@ -88,24 +88,26 @@ Partial Public Class WalkmanLib
 
     ''' <summary>Checks if an update release is available in a GitHub project.</summary>
     ''' <param name="projectName">Name of the project repository.</param>
-    ''' <param name="currentVersion">System.Version to check against.</param>
+    ''' <param name="currentVersion"><see cref="Version"/> to check against.</param>
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
-    ''' <returns>True if latest version is newer than currentVersion, else False.</returns>
+    ''' <returns><see langword="True"/> if latest version is newer than <paramref name="currentVersion"/>, else <see langword="False"/>.</returns>
     Shared Function CheckIfUpdateAvailable(projectName As String, currentVersion As Version, Optional projectOwner As String = "Walkman100") As Boolean
-        Dim latestVersion As Version
-        latestVersion = GetLatestVersion(projectName, projectOwner)
+        Dim latestVersion As Version = GetLatestVersion(projectName, projectOwner)
 
         Return latestVersion > currentVersion
     End Function
 
     ''' <summary>Checks if an update release is available in a GitHub project in a BackgroundWorker.</summary>
     ''' <param name="projectName">Name of the project repository.</param>
-    ''' <param name="currentVersion">System.Version to check against.</param>
-    ''' <param name="checkComplete">Use "New ComponentModel.RunWorkerCompletedEventHandler(AddressOf [returnSub])" and put your return sub in place of returnSub.</param>
+    ''' <param name="currentVersion"><see cref="Version"/> to check against.</param>
+    ''' <param name="checkComplete">Use "<c>New ComponentModel.RunWorkerCompletedEventHandler(AddressOf [returnSub])</c>" and put your return sub in place of <c>returnSub</c>.</param>
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
-    ''' <returns>Create a Sub with the signature "sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs", and within check e.Error for an exception before using "DirectCast(e.Result, Boolean)": True if latest version is newer than currentVersion, else False.</returns>
+    ''' <returns>
+    ''' Create a Sub with the signature "<c>sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs</c>", and within check <c>e.Error</c> for an exception before
+    ''' using "<c>DirectCast(e.Result, Boolean)</c>": <see langword="True"/> if latest version is newer than <paramref name="currentVersion"/>, else <see langword="False"/>.
+    ''' </returns>
     Shared Sub CheckIfUpdateAvailableInBackground(projectName As String, currentVersion As Version, checkComplete As ComponentModel.RunWorkerCompletedEventHandler, Optional projectOwner As String = "Walkman100")
-        Dim bwUpdateCheck As ComponentModel.BackgroundWorker = New ComponentModel.BackgroundWorker()
+        Dim bwUpdateCheck As New ComponentModel.BackgroundWorker()
 
         AddHandler bwUpdateCheck.DoWork, AddressOf BackgroundUpdateCheck
         AddHandler bwUpdateCheck.RunWorkerCompleted, checkComplete
@@ -114,14 +116,15 @@ Partial Public Class WalkmanLib
     End Sub
 
     Private Shared Sub BackgroundUpdateCheck(sender As Object, e As ComponentModel.DoWorkEventArgs)
-        Dim bwArgs(2) As Object ' vb array initialisers are index-based (10 = 11 elements)
-        bwArgs = DirectCast(e.Argument, Object())
+        Dim projectName As String = DirectCast(DirectCast(e.Argument, Object())(0), String)
+        Dim projectOwner As String = DirectCast(DirectCast(e.Argument, Object())(1), String)
+        Dim currentVersion As Version = DirectCast(DirectCast(e.Argument, Object())(2), Version)
 
-        Dim latestVersion As Version = New Version() ' warning squashing
+        Dim latestVersion As New Version() ' warning squashing
         Dim retries As Integer = 0
         Do Until 0 <> 0
             Try
-                latestVersion = GetLatestVersion(DirectCast(bwArgs(0), String), DirectCast(bwArgs(1), String))
+                latestVersion = GetLatestVersion(projectName, projectOwner)
                 Exit Do
             Catch ex As WebException
                 retries += 1
@@ -131,7 +134,7 @@ Partial Public Class WalkmanLib
             End Try
         Loop
 
-        e.Result = latestVersion > DirectCast(bwArgs(2), Version)
+        e.Result = latestVersion > currentVersion
     End Sub
 
     ' Example code to use the background update check:
