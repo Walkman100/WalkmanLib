@@ -939,7 +939,7 @@ Partial Public Class WalkmanLib
 #End Region
 
 #Region "Shared Methods"
-        Private Shared Function GetUIObjectOfFiles(hwnd As IntPtr, paths As String(), ByRef rIID As Guid) As Object
+        Private Shared Function GetUIObjectOfFiles(hwnd As IntPtr, paths As String(), rIID As Guid) As Object
             Dim hr As Integer
             Dim apIDList As New List(Of IntPtr)
             Try
@@ -978,7 +978,7 @@ Partial Public Class WalkmanLib
             End Try
         End Function
 
-        Private Shared Function IContextMenu_GetCommandString(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags, ByRef pwReserved As UInteger) As String
+        Private Shared Function IContextMenu_GetCommandString(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags) As String
             ' Callers are expected to be using Unicode.
             If Not uFlags.HasFlag(GetCommandStringFlags.Unicode) Then Throw New ArgumentException("Unicode flag expected!", "uFlags")
 
@@ -989,7 +989,7 @@ Partial Public Class WalkmanLib
                     Marshal.WriteInt16(pszUnicode, 0)
 
                     ' Some context menu handlers have off-by-one bugs and will overflow the output buffer. Specify less buffer size so a one-character overflow won't corrupt memory.
-                    contextMenu.GetCommandString(idCmd, uFlags, pwReserved, pszUnicode, MAX_FILE_PATH - 1)
+                    contextMenu.GetCommandString(idCmd, uFlags, Nothing, pszUnicode, MAX_FILE_PATH - 1)
 
                     If Marshal.ReadInt16(pszUnicode) = 0 Then
                         ' Rats, a buggy IContextMenu handler that returned success even though it failed.
@@ -1006,7 +1006,7 @@ Partial Public Class WalkmanLib
                 Try
                     Marshal.WriteByte(pszAnsi, 0)
 
-                    contextMenu.GetCommandString(idCmd, uFlags And Not GetCommandStringFlags.Unicode, pwReserved, pszAnsi, MAX_FILE_PATH - 1)
+                    contextMenu.GetCommandString(idCmd, uFlags And Not GetCommandStringFlags.Unicode, Nothing, pszAnsi, MAX_FILE_PATH - 1)
 
                     If Marshal.ReadByte(pszAnsi) = 0 Then
                         Marshal.ThrowExceptionForHR(&H80004001) ' E_NOTIMPL
@@ -1019,10 +1019,10 @@ Partial Public Class WalkmanLib
             End Try
         End Function
 
-        Private Shared Function IContextMenu_GetCommandStringOrNull(contextMenu As IContextMenu, idCmd As UIntPtr, uflags As GetCommandStringFlags, ByRef pwReserved As UInteger) As String
+        Private Shared Function IContextMenu_GetCommandStringOrNull(contextMenu As IContextMenu, idCmd As UIntPtr, uFlags As GetCommandStringFlags) As String
             Dim pszUnicode As IntPtr = Marshal.AllocHGlobal(MAX_FILE_PATH * Marshal.SizeOf(Of Int16))
             Try
-                contextMenu.GetCommandString(idCmd, uflags, pwReserved, pszUnicode, MAX_FILE_PATH - 1)
+                contextMenu.GetCommandString(idCmd, uFlags, Nothing, pszUnicode, MAX_FILE_PATH - 1)
                 Return Marshal.PtrToStringUni(pszUnicode)
             Catch
                 Return Nothing
@@ -1047,6 +1047,7 @@ Partial Public Class WalkmanLib
 
         Private _isShown As Boolean = False
         Private _disposed As Boolean
+
         Public Event HelpTextChanged(text As String, ex As Exception)
         Public Event ItemRenamed()
 
@@ -1068,6 +1069,8 @@ Partial Public Class WalkmanLib
             Try
                 _lastItem = _maxItems - allowSpaceFor
                 _icontextMenu.QueryContextMenu(_contextMenu, 0, _firstItem, _lastItem, QueryContextMenuFlags.Normal Or flags)
+
+                Return Me
             Catch
                 ' if QueryContextMenu throws an error, destroy the popupmenu and free _icontextMenu before re-throwing.
                 DestroyMenu(_contextMenu)
@@ -1075,8 +1078,6 @@ Partial Public Class WalkmanLib
                 _icontextMenu = Nothing
                 Throw
             End Try
-
-            Return Me
         End Function
 
         Public Sub AddItem(position As Integer, text As String, action As Action, Optional flags As AddItemFlags = 0)
@@ -1099,13 +1100,12 @@ Partial Public Class WalkmanLib
                 Dim act As Action = _customItemDict.Item(CType(iCmd, UInteger))
                 act()
             Else
-                Dim itemVerb As String = IContextMenu_GetCommandStringOrNull(_icontextMenu, CType(iCmd - _firstItem, UIntPtr), GetCommandStringFlags.VerbW, Nothing)
+                Dim itemVerb As String = IContextMenu_GetCommandStringOrNull(_icontextMenu, CType(iCmd - _firstItem, UIntPtr), GetCommandStringFlags.VerbW)
                 If itemVerb = "rename" Then
                     RaiseEvent ItemRenamed()
                     Return
                 End If
 
-                Dim pt As New ComPoint(pos)
                 Dim info As CMInvokeCommandInfoEx = Nothing
 
                 info.cbSize = CType(Marshal.SizeOf(info), UInteger)
@@ -1122,7 +1122,7 @@ Partial Public Class WalkmanLib
                 info.lpVerb = CType(iCmd - _firstItem, IntPtr)
                 info.lpVerbW = CType(iCmd - _firstItem, IntPtr)
                 info.nShow = ShowWindowFlags.ShowNormal
-                info.ptInvoke = pt
+                info.ptInvoke = New ComPoint(pos)
                 _icontextMenu.InvokeCommand(info)
             End If
         End Sub
@@ -1159,7 +1159,7 @@ Partial Public Class WalkmanLib
                 If item >= _firstItem AndAlso item <= _lastItem Then
                     Try
                         RaiseEvent HelpTextChanged(
-                            IContextMenu_GetCommandString(_icontextMenu, CType(item - _firstItem, UIntPtr), GetCommandStringFlags.HelpTextW, Nothing),
+                            IContextMenu_GetCommandString(_icontextMenu, CType(item - _firstItem, UIntPtr), GetCommandStringFlags.HelpTextW),
                             Nothing)
                     Catch ex As Exception
                         RaiseEvent HelpTextChanged(Nothing, ex)
