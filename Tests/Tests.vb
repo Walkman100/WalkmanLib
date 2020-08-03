@@ -52,6 +52,14 @@ Namespace Tests
                 If Not Test_Attributes4(rootTestFolder) Then returnVal = False
                 If Not Test_Attributes5() Then returnVal = False
                 If Not Test_Attributes6() Then returnVal = False
+                If Not Test_TimeConvert1() Then returnVal = False
+                If Not Test_TimeConvert2() Then returnVal = False
+                If Not Test_TimeConvert3() Then returnVal = False
+                If Not Test_TimeConvert4() Then returnVal = False
+                If Not Test_TimeConvert5() Then returnVal = False
+                If Not Test_TimeConvert6() Then returnVal = False
+                If Not Test_TimeConvert7() Then returnVal = False
+                If Not Test_TimeConvert8() Then returnVal = False
             End If
 
             If runWin32Tests Then

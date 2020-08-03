@@ -4,7 +4,6 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
-Imports System.ComponentModel
 Imports System.IO
 
 Namespace Tests
