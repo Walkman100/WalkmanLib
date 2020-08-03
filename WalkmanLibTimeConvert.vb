@@ -46,6 +46,11 @@ Partial Public Class WalkmanLib
             value = Truncate(value)
             Return CType(value, ULong)
         End Function
+        ''' <summary>Removes all the digits before the decimal point, using <see cref="Decimal"/> to do the calculation so no precision is lost</summary>
+        ''' <param name="value"><see cref="Double"/> value to get decimals</param>
+        Private Shared Function Digits(value As Double) As Decimal
+            Return CType(value, Decimal) Mod 1
+        End Function
 
         ''' <summary>Converts seconds to a <see cref="TimeInfo"/> struct. Any amount that can covert will be put into higher units</summary>
         ''' <param name="seconds">Seconds to convert</param>
@@ -101,7 +106,7 @@ Partial Public Class WalkmanLib
             Dim minutesUL As ULong = Tr(minutes)
             Dim rtn As TimeInfo = ConvMinutes(minutesUL)
 
-            minutes = minutes Mod 1 ' remove all the digits before the decimal point
+            minutes = Digits(minutes)
             minutes *= _SecondsInMinute
             rtn.Seconds = Tr(minutes)
 
@@ -133,11 +138,11 @@ Partial Public Class WalkmanLib
             Dim hoursUL As ULong = Tr(hours)
             Dim rtn As TimeInfo = ConvHours(hoursUL)
 
-            hours = hours Mod 1 ' remove all the digits before the decimal point
+            hours = Digits(hours)
             hours *= _MinutesInHour
             rtn.Minutes = Tr(hours)
 
-            hours = hours Mod 1
+            hours = Digits(hours)
             hours *= _SecondsInMinute
             rtn.Seconds = Tr(hours)
             Return rtn
@@ -164,15 +169,15 @@ Partial Public Class WalkmanLib
             Dim daysUL As ULong = Tr(days)
             Dim rtn As TimeInfo = ConvDays(daysUL)
 
-            days = days Mod 1 ' remove all the digits before the decimal point
+            days = Digits(days)
             days *= _HoursInDay
             rtn.Hours = Tr(days)
 
-            days = days Mod 1
+            days = Digits(days)
             days *= _MinutesInHour
             rtn.Minutes = Tr(days)
 
-            days = days Mod 1
+            days = Digits(days)
             days *= _SecondsInMinute
             rtn.Seconds = Tr(days)
             Return rtn
@@ -187,19 +192,19 @@ Partial Public Class WalkmanLib
             Dim rtn As TimeInfo
             rtn.Weeks = Tr(weeks)
 
-            weeks = weeks Mod 1 ' remove all the digits before the decimal point
+            weeks = Digits(weeks)
             weeks *= _DaysInWeek
             rtn.Days = Tr(weeks)
 
-            weeks = weeks Mod 1
+            weeks = Digits(weeks)
             weeks *= _HoursInDay
             rtn.Hours = Tr(weeks)
 
-            weeks = weeks Mod 1
+            weeks = Digits(weeks)
             weeks *= _MinutesInHour
             rtn.Minutes = Tr(weeks)
 
-            weeks = weeks Mod 1
+            weeks = Digits(weeks)
             weeks *= _SecondsInMinute
             rtn.Seconds = Tr(weeks)
             Return rtn
