@@ -3,7 +3,6 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
-Imports System
 Imports System.Math
 
 Partial Public Class WalkmanLib
@@ -41,6 +40,16 @@ Partial Public Class WalkmanLib
         Private Const _HoursInWeek As ULong = _HoursInDay * _DaysInWeek
 
 #Region "Single value to multiple"
+        ''' <summary>Truncates and casts a <see cref="Double"/> to <see cref="ULong"/></summary>
+        ''' <param name="value"><see cref="Double"/> value to truncate</param>
+        Private Shared Function Tr(value As Double) As ULong
+            value = Truncate(value)
+            Return CType(value, ULong)
+        End Function
+
+        ''' <summary>Converts seconds to a <see cref="TimeInfo"/> struct. Any amount that can covert will be put into higher units</summary>
+        ''' <param name="seconds">Seconds to convert</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvSeconds(seconds As ULong) As TimeInfo
             Dim rtn As TimeInfo
             If seconds >= _SecondsInWeek Then
@@ -63,6 +72,9 @@ Partial Public Class WalkmanLib
             Return rtn
         End Function
 
+        ''' <summary>Converts minutes to a <see cref="TimeInfo"/> struct, without any lower units. Any amount that can convert will be put into higher units</summary>
+        ''' <param name="minutes">Minutes to convert</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvMinutes(minutes As ULong) As TimeInfo
             Dim rtn As TimeInfo
             If minutes >= _MinutesInWeek Then
@@ -80,19 +92,25 @@ Partial Public Class WalkmanLib
             rtn.Minutes = minutes
             Return rtn
         End Function
+        ''' <summary>Converts minutes to a <see cref="TimeInfo"/> struct, with decimal places converted to seconds. Any amount that can convert will be put into higher units</summary>
+        ''' <param name="minutes">Minutes to convert. This is Abs()'d, so negativity doesn't make a difference</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvMinutesD(minutes As Double) As TimeInfo
             minutes = Abs(minutes)
 
-            Dim minutesUL As ULong = CType(Truncate(minutes), ULong)
+            Dim minutesUL As ULong = Tr(minutes)
             Dim rtn As TimeInfo = ConvMinutes(minutesUL)
 
             minutes = minutes Mod 1 ' remove all the digits before the decimal point
             minutes *= _SecondsInMinute
-            rtn.Seconds = CType(Truncate(minutes), ULong)
+            rtn.Seconds = Tr(minutes)
 
             Return rtn
         End Function
 
+        ''' <summary>Converts hours to a <see cref="TimeInfo"/> struct, without any lower units. Any amount that can convert will be put into higher units</summary>
+        ''' <param name="hours">Hours to convert</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvHours(hours As ULong) As TimeInfo
             Dim rtn As TimeInfo
             If hours >= _HoursInWeek Then
@@ -106,22 +124,28 @@ Partial Public Class WalkmanLib
             rtn.Hours = hours
             Return rtn
         End Function
+        ''' <summary>Converts hours to a <see cref="TimeInfo"/> struct, with decimal places converted to lower units. Any amount that can convert will be put into higher units</summary>
+        ''' <param name="hours">Hours to convert. This is Abs()'d, so negativity doesn't make a difference</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvHoursD(hours As Double) As TimeInfo
             hours = Abs(hours)
 
-            Dim hoursUL As ULong = CType(Truncate(hours), ULong)
+            Dim hoursUL As ULong = Tr(hours)
             Dim rtn As TimeInfo = ConvHours(hoursUL)
 
             hours = hours Mod 1 ' remove all the digits before the decimal point
             hours *= _MinutesInHour
-            rtn.Minutes = CType(Truncate(hours), ULong)
+            rtn.Minutes = Tr(hours)
 
             hours = hours Mod 1
             hours *= _SecondsInMinute
-            rtn.Seconds = CType(Truncate(hours), ULong)
+            rtn.Seconds = Tr(hours)
             Return rtn
         End Function
 
+        ''' <summary>Converts days to a <see cref="TimeInfo"/> struct, without any lower units. Any amount that can convert will be put into higher units (Weeks only)</summary>
+        ''' <param name="days">Days to convert</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvDays(days As ULong) As TimeInfo
             Dim rtn As TimeInfo
             If days >= _DaysInWeek Then
@@ -131,52 +155,61 @@ Partial Public Class WalkmanLib
             rtn.Days = days
             Return rtn
         End Function
+        ''' <summary>Converts days to a <see cref="TimeInfo"/> struct, with decimal places converted to lower units. Any amount that can convert will be put into higher units (Weeks only)</summary>
+        ''' <param name="days">Days to convert. This is Abs()'d, so negativity doesn't make a difference</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvDaysD(days As Double) As TimeInfo
             days = Abs(days)
 
-            Dim daysUL As ULong = CType(Truncate(days), ULong)
+            Dim daysUL As ULong = Tr(days)
             Dim rtn As TimeInfo = ConvDays(daysUL)
 
             days = days Mod 1 ' remove all the digits before the decimal point
             days *= _HoursInDay
-            rtn.Hours = CType(Truncate(days), ULong)
+            rtn.Hours = Tr(days)
 
             days = days Mod 1
             days *= _MinutesInHour
-            rtn.Minutes = CType(Truncate(days), ULong)
+            rtn.Minutes = Tr(days)
 
             days = days Mod 1
             days *= _SecondsInMinute
-            rtn.Seconds = CType(Truncate(days), ULong)
+            rtn.Seconds = Tr(days)
             Return rtn
         End Function
 
+        ''' <summary>Converts Weeks to a <see cref="TimeInfo"/> struct, with decimal places converted to lower units</summary>
+        ''' <param name="weeks">Weeks to convert. This is Abs()'d, so negativity doesn't make a difference</param>
+        ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvWeeksD(weeks As Double) As TimeInfo
             weeks = Abs(weeks)
 
             Dim rtn As TimeInfo
-            rtn.Weeks = CType(Truncate(weeks), ULong)
+            rtn.Weeks = Tr(weeks)
 
             weeks = weeks Mod 1 ' remove all the digits before the decimal point
             weeks *= _DaysInWeek
-            rtn.Days = CType(Truncate(weeks), ULong)
+            rtn.Days = Tr(weeks)
 
             weeks = weeks Mod 1
             weeks *= _HoursInDay
-            rtn.Hours = CType(Truncate(weeks), ULong)
+            rtn.Hours = Tr(weeks)
 
             weeks = weeks Mod 1
             weeks *= _MinutesInHour
-            rtn.Minutes = CType(Truncate(weeks), ULong)
+            rtn.Minutes = Tr(weeks)
 
             weeks = weeks Mod 1
             weeks *= _SecondsInMinute
-            rtn.Seconds = CType(Truncate(weeks), ULong)
+            rtn.Seconds = Tr(weeks)
             Return rtn
         End Function
 #End Region
 
 #Region "Multiple to single value"
+        ''' <summary>Converts a <see cref="TimeInfo"/> struct to seconds</summary>
+        ''' <param name="ti">The <see cref="TimeInfo"/> to convert</param>
+        ''' <returns>Result in seconds</returns>
         Public Shared Function GetSeconds(ti As TimeInfo) As ULong
             Dim rtn As ULong = ti.Seconds
 
@@ -188,6 +221,9 @@ Partial Public Class WalkmanLib
             Return rtn
         End Function
 
+        ''' <summary>Converts a <see cref="TimeInfo"/> struct to minutes, with seconds as decimal places</summary>
+        ''' <param name="ti">The <see cref="TimeInfo"/> to convert</param>
+        ''' <returns>Result in minutes</returns>
         Public Shared Function GetMinutes(ti As TimeInfo) As Double
             Dim rtn As Double = ti.Minutes
 
@@ -199,6 +235,9 @@ Partial Public Class WalkmanLib
             Return rtn
         End Function
 
+        ''' <summary>Converts a <see cref="TimeInfo"/> struct to hours, with smaller units as decimal places</summary>
+        ''' <param name="ti">The <see cref="TimeInfo"/> to convert</param>
+        ''' <returns>Result in hours</returns>
         Public Shared Function GetHours(ti As TimeInfo) As Double
             Dim rtn As Double = ti.Hours
 
@@ -210,6 +249,9 @@ Partial Public Class WalkmanLib
             Return rtn
         End Function
 
+        ''' <summary>Converts a <see cref="TimeInfo"/> struct to days, with smaller units as decimal places</summary>
+        ''' <param name="ti">The <see cref="TimeInfo"/> to convert</param>
+        ''' <returns>Result in days</returns>
         Public Shared Function GetDays(ti As TimeInfo) As Double
             Dim rtn As Double = ti.Days
 
@@ -221,6 +263,9 @@ Partial Public Class WalkmanLib
             Return rtn
         End Function
 
+        ''' <summary>Converts a <see cref="TimeInfo"/> struct to weeks, with smaller units as decimal places</summary>
+        ''' <param name="ti">The <see cref="TimeInfo"/> to convert</param>
+        ''' <returns>Result in weeks</returns>
         Public Shared Function GetWeeks(ti As TimeInfo) As Double
             Dim rtn As Double = ti.Weeks
 
