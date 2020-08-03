@@ -60,6 +60,14 @@ Namespace Tests
                 If Not Test_TimeConvert6() Then returnVal = False
                 If Not Test_TimeConvert7() Then returnVal = False
                 If Not Test_TimeConvert8() Then returnVal = False
+                If Not Test_TimeConvert9() Then returnVal = False
+                If Not Test_TimeConvert10() Then returnVal = False
+                If Not Test_TimeConvert11() Then returnVal = False
+                If Not Test_TimeConvert12() Then returnVal = False
+                If Not Test_TimeConvert13() Then returnVal = False
+                If Not Test_TimeConvert14() Then returnVal = False
+                If Not Test_TimeConvert15() Then returnVal = False
+                If Not Test_TimeConvert16() Then returnVal = False
             End If
 
             If runWin32Tests Then
