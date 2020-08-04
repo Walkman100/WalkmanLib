@@ -160,6 +160,12 @@ Namespace Tests
                 If Not Test_ExtractIcon2(rootTestFolder, projectRoot) Then returnVal = False
                 If Not Test_ExtractIcon3(rootTestFolder) Then returnVal = False
 
+                If Not Test_ContextMenu1(rootTestFolder) Then returnVal = False
+                If Not Test_ContextMenu2(rootTestFolder) Then returnVal = False
+                If Not Test_ContextMenu3(rootTestFolder) Then returnVal = False
+                If Not Test_ContextMenu4(rootTestFolder) Then returnVal = False
+                If Not Test_ContextMenu5(rootTestFolder) Then returnVal = False
+
                 If haveGUIAccess Then
                     If Not Test_PickIconDialog1() Then returnVal = False
                     If Not Test_PickIconDialog2() Then returnVal = False
