@@ -7,11 +7,23 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug|32-bit = Debug|32-bit
+		Release|32-bit = Release|32-bit
+		Debug|64-bit = Debug|64-bit
+		Release|64-bit = Release|64-bit
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Release|Any CPU.Build.0 = Release|Any CPU
 		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Debug|32-bit.Build.0 = Debug|32-bit
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Debug|32-bit.ActiveCfg = Debug|32-bit
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Release|32-bit.Build.0 = Release|32-bit
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Release|32-bit.ActiveCfg = Release|32-bit
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Debug|64-bit.Build.0 = Debug|64-bit
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Debug|64-bit.ActiveCfg = Debug|64-bit
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Release|64-bit.Build.0 = Release|64-bit
+		{93976CEE-F3C4-407F-BB87-1C886EC5AC40}.Release|64-bit.ActiveCfg = Release|64-bit
 	EndGlobalSection
 EndGlobal
