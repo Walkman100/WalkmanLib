@@ -111,7 +111,7 @@ Namespace Tests
                 frm.BringToFront()
 
                 Tasks.Task.Run(Sub()
-                                   Thread.Sleep(400)
+                                   Thread.Sleep(500)
                                    SendKeys.SendWait("{UP 2}")
                                    SendKeys.SendWait("{ENTER}")
                                End Sub)
@@ -136,7 +136,7 @@ Namespace Tests
                 cm.AddItem(-1, "test", AddressOf RenameCallback)
 
                 Tasks.Task.Run(Sub()
-                                   Thread.Sleep(400)
+                                   Thread.Sleep(500)
                                    SendKeys.SendWait("{UP}")
                                    SendKeys.SendWait("{ENTER}")
                                End Sub)
@@ -179,7 +179,7 @@ Namespace Tests
                 frm.BringToFront()
 
                 Tasks.Task.Run(Sub()
-                                   Thread.Sleep(400)
+                                   Thread.Sleep(500)
                                    SendKeys.SendWait("{UP}")
                                    SendKeys.SendWait("{ESC}")
                                End Sub)
