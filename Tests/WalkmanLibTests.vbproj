@@ -50,6 +50,105 @@
   <ItemGroup>
     <Compile Include="Main.vb" />
     <Compile Include="Properties\AssemblyInfo.vb" />
+    <Compile Include="..\WalkmanLibArgHandler.vb">
+      <Link>WalkmanLib\WalkmanLibArgHandler.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibContextMenu.vb">
+      <Link>WalkmanLib\WalkmanLibContextMenu.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibDotNet.vb">
+      <Link>WalkmanLib\WalkmanLibDotNet.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibRestartManager.vb">
+      <Link>WalkmanLib\WalkmanLibRestartManager.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibSystemHandles.vb">
+      <Link>WalkmanLib\WalkmanLibSystemHandles.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibTimeConvert.vb">
+      <Link>WalkmanLib\WalkmanLibTimeConvert.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibUpdates.vb">
+      <Link>WalkmanLib\WalkmanLibUpdates.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibWin32.vb">
+      <Link>WalkmanLib\WalkmanLibWin32.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibWinVersion.vb">
+      <Link>WalkmanLib\WalkmanLibWinVersion.vb</Link>
+    </Compile>
+    <Compile Include="..\Windows7ProgressBar.vb">
+      <Link>WalkmanLib\Windows7ProgressBar.vb</Link>
+    </Compile>
+    <Compile Include="DisposableDirectory.vb">
+      <Link>Tests\DisposableDirectory.vb</Link>
+    </Compile>
+    <Compile Include="DisposableFile.vb">
+      <Link>Tests\DisposableFile.vb</Link>
+    </Compile>
+    <Compile Include="NoException.vb">
+      <Link>Tests\NoException.vb</Link>
+    </Compile>
+    <Compile Include="RedirectConsole.vb">
+      <Link>Tests\RedirectConsole.vb</Link>
+    </Compile>
+    <Compile Include="Tests.vb">
+      <Link>Tests\Tests.vb</Link>
+    </Compile>
+    <Compile Include="Test_ArgHandler.vb">
+      <Link>Tests\Test_ArgHandler.vb</Link>
+    </Compile>
+    <Compile Include="Test_Attributes.vb">
+      <Link>Tests\Test_Attributes.vb</Link>
+    </Compile>
+    <Compile Include="Test_Compression.vb">
+      <Link>Tests\Test_Compression.vb</Link>
+    </Compile>
+    <Compile Include="Test_ContextMenu.vb">
+      <Link>Tests\Test_ContextMenu.vb</Link>
+    </Compile>
+    <Compile Include="Test_CustomMsgBox.vb">
+      <Link>Tests\Test_CustomMsgBox.vb</Link>
+    </Compile>
+    <Compile Include="Test_GetFolderIconPath.vb">
+      <Link>Tests\Test_GetFolderIconPath.vb</Link>
+    </Compile>
+    <Compile Include="Test_GetOpenWith.vb">
+      <Link>Tests\Test_GetOpenWith.vb</Link>
+    </Compile>
+    <Compile Include="Test_Hardlinks.vb">
+      <Link>Tests\Test_Hardlinks.vb</Link>
+    </Compile>
+    <Compile Include="Test_Icons.vb">
+      <Link>Tests\Test_Icons.vb</Link>
+    </Compile>
+    <Compile Include="Test_IsAdmin.vb">
+      <Link>Tests\Test_IsAdmin.vb</Link>
+    </Compile>
+    <Compile Include="Test_IsFileOrDirectory.vb">
+      <Link>Tests\Test_IsFileOrDirectory.vb</Link>
+    </Compile>
+    <Compile Include="Test_Mouse.vb">
+      <Link>Tests\Test_Mouse.vb</Link>
+    </Compile>
+    <Compile Include="Test_RunAndGetOutput.vb">
+      <Link>Tests\Test_RunAndGetOutput.vb</Link>
+    </Compile>
+    <Compile Include="Test_Shortcuts.vb">
+      <Link>Tests\Test_Shortcuts.vb</Link>
+    </Compile>
+    <Compile Include="Test_ShowProperties.vb">
+      <Link>Tests\Test_ShowProperties.vb</Link>
+    </Compile>
+    <Compile Include="Test_Symlinks.vb">
+      <Link>Tests\Test_Symlinks.vb</Link>
+    </Compile>
+    <Compile Include="Test_TimeConvert.vb">
+      <Link>Tests\Test_TimeConvert.vb</Link>
+    </Compile>
+    <Compile Include="Test_Updates.vb">
+      <Link>Tests\Test_Updates.vb</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\App.config" />
