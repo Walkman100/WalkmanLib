@@ -42,6 +42,12 @@
     <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -50,6 +56,13 @@
   <ItemGroup>
     <Compile Include="Main.vb" />
     <Compile Include="Properties\AssemblyInfo.vb" />
+    <Compile Include="..\CustomMsgBox.vb">
+      <Link>WalkmanLib\CustomMsgBox.vb</Link>
+    </Compile>
+    <Compile Include="..\CustomMsgBox.Designer.vb">
+      <Link>WalkmanLib\CustomMsgBox.Designer.vb</Link>
+      <DependentUpon>CustomMsgBox.vb</DependentUpon>
+    </Compile>
     <Compile Include="..\WalkmanLibArgHandler.vb">
       <Link>WalkmanLib\WalkmanLibArgHandler.vb</Link>
     </Compile>
@@ -153,6 +166,23 @@
   <ItemGroup>
     <None Include="Properties\App.config" />
     <None Include="Properties\App.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\CustomMsgBox.resx">
+      <Link>WalkmanLib\CustomMsgBox.resx</Link>
+      <DependentUpon>CustomMsgBox.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="IWshRuntimeLibrary">
+      <Guid>{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
