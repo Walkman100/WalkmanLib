@@ -6,11 +6,12 @@ Option Infer Off
 Imports System
 Imports System.Collections.Generic
 Imports System.IO
-Imports System.Reflection
 
 Namespace Tests
     Module Main
-        Function RunTests(Optional haveGUIAccess As Boolean = True,
+        Function RunTests(projectRoot As String,
+                          Optional rootTestFolder As String = Nothing,
+                          Optional haveGUIAccess As Boolean = True,
                           Optional runCustomMsgBoxTests As Boolean = True,
                           Optional runArgHandlerTests As Boolean = True,
                           Optional runUpdatesTests As Boolean = True,
@@ -18,9 +19,18 @@ Namespace Tests
                           Optional runDotNetTests As Boolean = True) As Boolean
             Dim returnVal As Boolean = True
 
-            Dim rootTestFolder As String = Path.Combine(Directory.GetCurrentDirectory, "tests")
+            If rootTestFolder Is Nothing Then rootTestFolder = Path.Combine(Directory.GetCurrentDirectory, "tests")
             Directory.CreateDirectory(rootTestFolder)
             If Not TestBoolean("CreateDirectory", Directory.Exists(rootTestFolder), True) Then returnVal = False
+
+            If Directory.Exists(rootTestFolder) Then
+                rootTestFolder = New DirectoryInfo(rootTestFolder).FullName
+            Else
+                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.WriteLine("Test folder could not be created, skipping tests!")
+                Console.ResetColor()
+                Return False
+            End If
 
             If runDotNetTests Then
                 If Not Test_GetFolderIconPath1(rootTestFolder) Then returnVal = False
@@ -152,14 +162,9 @@ Namespace Tests
                 If Not Test_HardlinkThrows10(rootTestFolder) Then returnVal = False
                 If Not Test_HardlinkThrows11() Then returnVal = False
                 If Not Test_HardlinkThrows12() Then returnVal = False
-
-                Dim projectRoot As String = New Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath
-                projectRoot = New FileInfo(projectRoot).Directory.Parent.Parent.FullName
-
                 If Not Test_ExtractIcon1(rootTestFolder, projectRoot) Then returnVal = False
                 If Not Test_ExtractIcon2(rootTestFolder, projectRoot) Then returnVal = False
                 If Not Test_ExtractIcon3(rootTestFolder) Then returnVal = False
-
                 If Not Test_ContextMenu1(rootTestFolder) Then returnVal = False
                 If Not Test_ContextMenu2(rootTestFolder) Then returnVal = False
                 If Not Test_ContextMenu3(rootTestFolder) Then returnVal = False

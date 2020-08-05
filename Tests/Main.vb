@@ -5,6 +5,7 @@ Option Infer Off
 
 Imports System
 Imports System.Collections.Generic
+Imports System.Reflection
 
 Module Program
     Private flagDict As New Dictionary(Of String, WalkmanLib.FlagInfo) From {
@@ -16,6 +17,13 @@ Module Program
                           WalkmanLib.EchoHelp(flagDict)
                           Environment.Exit(0)
                       End Sub
+        }},
+        {"TestDir", New WalkmanLib.FlagInfo With {
+            .shortFlag = "f"c,
+            .description = "Folder to use to write test files to. Defaults to the current directory",
+            .hasArgs = True,
+            .argsInfo = "<folderPath>",
+            .action = Sub(input As String) rootTestFolder = input
         }},
         {"GUI", New WalkmanLib.FlagInfo With {
             .shortFlag = "g"c,
@@ -61,6 +69,7 @@ Module Program
         }}
     }
 
+    Private rootTestFolder As String = Nothing
     Private haveGUIAccess As Boolean = False
     Private runDotNetTests As Boolean = True
     Private runWin32Tests As Boolean = True
@@ -91,8 +100,12 @@ Module Program
             ExitE("Unknown parameter supplied!")
         End If
 
-        Console.WriteLine(Environment.NewLine & "All tests completed successfully: " & Tests.RunTests(haveGUIAccess,
-            runCustomMsgBoxTests, runArgHandlerTests, runUpdatesTests, runWin32Tests, runDotNetTests))
+        ' folder where CustomMsgBox.resx is in, used for Test_Icons
+        Dim projectRoot As String = New Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath
+        projectRoot = New IO.FileInfo(projectRoot).Directory.Parent.Parent.Parent.FullName
+
+        Console.WriteLine(Environment.NewLine & "All tests completed successfully: " & Tests.RunTests(projectRoot, rootTestFolder,
+            haveGUIAccess, runCustomMsgBoxTests, runArgHandlerTests, runUpdatesTests, runWin32Tests, runDotNetTests))
 
         Console.Write("Press any key to continue . . . ")
         Console.ReadKey(True)
