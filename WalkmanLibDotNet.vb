@@ -99,7 +99,7 @@ Partial Public Class WalkmanLib
         Try
             SetAttributes(path, fileAttributes)
             Return True
-        Catch ex As UnauthorizedAccessException When Not IsAdmin() AndAlso Not IsNothing(accessDeniedSub)
+        Catch ex As UnauthorizedAccessException When Not IsAdmin() AndAlso accessDeniedSub IsNot Nothing
             accessDeniedSub.Invoke(ex)
             Return False
         Catch ex As Exception
@@ -115,7 +115,7 @@ Partial Public Class WalkmanLib
     'End Sub
     'Sub accessDeniedSub(ex As Exception)
     '    Application.EnableVisualStyles() ' affects when in a console app
-    '    If MsgBox(ex.Message & vbNewLine & vbNewLine & "Try launching <programName> As Administrator?",
+    '    If MsgBox(ex.Message & Environment.NewLine & Environment.NewLine & "Try launching <programName> As Administrator?",
     '      MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Access denied!") = MsgBoxResult.Yes Then
     '        WalkmanLib.RunAsAdmin(Application.StartupPath & "\" & Diagnostics.Process.GetCurrentProcess.ProcessName & ".exe", "<arguments>")
     '        Environment.Exit(0) / Application.Exit() ' depending on whether running in Console or WinForms app, respectively
@@ -201,7 +201,7 @@ Partial Public Class WalkmanLib
             If successMessage <> Nothing Then
                 Application.EnableVisualStyles() ' affects when in a console app
                 If successMessage = "default" Then
-                    MsgBox(text & vbNewLine & "Succesfully copied!", MsgBoxStyle.Information, "Succesfully copied!")
+                    MsgBox(text & Environment.NewLine & "Succesfully copied!", MsgBoxStyle.Information, "Succesfully copied!")
                 Else
                     MsgBox(successMessage, MsgBoxStyle.Information, "Succesfully copied!")
                 End If
@@ -210,7 +210,7 @@ Partial Public Class WalkmanLib
         Catch ex As Exception
             If showErrors Then
                 Application.EnableVisualStyles() ' affects when in a console app
-                MsgBox("Copy failed!" & vbNewLine & "Error: """ & ex.ToString & """", MsgBoxStyle.Critical, "Copy failed!")
+                MsgBox("Copy failed!" & Environment.NewLine & "Error: """ & ex.ToString & """", MsgBoxStyle.Critical, "Copy failed!")
             End If
             Return False
         End Try
@@ -224,7 +224,7 @@ Partial Public Class WalkmanLib
     Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional messagePumpForm As Form = Nothing)
         Application.EnableVisualStyles() ' affects when in a console app
         If showMsgBox Then
-            If MsgBox(errorMessage & ex.Message & vbNewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
+            If MsgBox(errorMessage & ex.Message & Environment.NewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
                 MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") <> MsgBoxResult.Yes Then Exit Sub
         End If
 
@@ -246,35 +246,35 @@ Partial Public Class WalkmanLib
         Try
             txtBugReport.Text = ""
             While ex IsNot Nothing
-                If ex.ToString IsNot Nothing Then           txtBugReport.Text &= "ToString:" & vbNewLine & ex.ToString & vbNewLine & vbNewLine
-                If ex.GetBaseException IsNot Nothing Then   txtBugReport.Text &= "BaseException:" & vbNewLine & ex.GetBaseException.ToString & vbNewLine & vbNewLine
-                If ex.GetType IsNot Nothing Then            txtBugReport.Text &= "Type: " & ex.GetType.ToString & vbNewLine
-                If ex.Message IsNot Nothing Then            txtBugReport.Text &= "Message: " & ex.Message.ToString & vbNewLine & vbNewLine
-                If ex.StackTrace IsNot Nothing Then         txtBugReport.Text &= "StackTrace:" & vbNewLine & ex.StackTrace.ToString & vbNewLine & vbNewLine
+                If ex.ToString IsNot Nothing Then           txtBugReport.Text &= "ToString:" & Environment.NewLine & ex.ToString & Environment.NewLine & Environment.NewLine
+                If ex.GetBaseException IsNot Nothing Then   txtBugReport.Text &= "BaseException:" & Environment.NewLine & ex.GetBaseException.ToString & Environment.NewLine & Environment.NewLine
+                If ex.GetType IsNot Nothing Then            txtBugReport.Text &= "Type: " & ex.GetType.ToString & Environment.NewLine
+                If ex.Message IsNot Nothing Then            txtBugReport.Text &= "Message: " & ex.Message.ToString & Environment.NewLine & Environment.NewLine
+                If ex.StackTrace IsNot Nothing Then         txtBugReport.Text &= "StackTrace:" & Environment.NewLine & ex.StackTrace.ToString & Environment.NewLine & Environment.NewLine
                 If TypeOf ex Is System.ComponentModel.Win32Exception Then
-                                                            txtBugReport.Text &= "ErrorCode: 0x" & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode.ToString("X") & vbNewLine
-                                                            txtBugReport.Text &= "NativeErrorCode: 0x" & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode.ToString("X") & vbNewLine
+                                                            txtBugReport.Text &= "ErrorCode: 0x" & DirectCast(ex, System.ComponentModel.Win32Exception).ErrorCode.ToString("X") & Environment.NewLine
+                                                            txtBugReport.Text &= "NativeErrorCode: 0x" & DirectCast(ex, System.ComponentModel.Win32Exception).NativeErrorCode.ToString("X") & Environment.NewLine
                 End If
                 If TypeOf ex Is FileNotFoundException Then
-                                                            txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & vbNewLine
-                                                            txtBugReport.Text &= "FusionLog: " & DirectCast(ex, FileNotFoundException).FusionLog & vbNewLine
+                                                            txtBugReport.Text &= "FileName: " & DirectCast(ex, FileNotFoundException).FileName & Environment.NewLine
+                                                            txtBugReport.Text &= "FusionLog: " & DirectCast(ex, FileNotFoundException).FusionLog & Environment.NewLine
                 End If
-                If ex.Source IsNot Nothing Then             txtBugReport.Text &= "Source: " & ex.Source.ToString & vbNewLine
-                If ex.TargetSite IsNot Nothing Then         txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & vbNewLine
-                                                            txtBugReport.Text &= "HashCode: 0x" & ex.GetHashCode.ToString("X") & vbNewLine
-                                                            txtBugReport.Text &= "HResult: 0x" & ex.HResult.ToString("X") & vbNewLine & vbNewLine
+                If ex.Source IsNot Nothing Then             txtBugReport.Text &= "Source: " & ex.Source.ToString & Environment.NewLine
+                If ex.TargetSite IsNot Nothing Then         txtBugReport.Text &= "TargetSite: " & ex.TargetSite.ToString & Environment.NewLine
+                                                            txtBugReport.Text &= "HashCode: 0x" & ex.GetHashCode.ToString("X") & Environment.NewLine
+                                                            txtBugReport.Text &= "HResult: 0x" & ex.HResult.ToString("X") & Environment.NewLine & Environment.NewLine
                 For Each key As Object In ex.Data.Keys
-                                                            txtBugReport.Text &= "Data(" & key.ToString() & "): " & ex.Data(key).ToString() & vbNewLine
+                                                            txtBugReport.Text &= "Data(" & key.ToString() & "): " & ex.Data(key).ToString() & Environment.NewLine
                 Next
-                If ex.InnerException IsNot Nothing Then     txtBugReport.Text &= vbNewLine & "InnerException:" & vbNewLine
+                If ex.InnerException IsNot Nothing Then     txtBugReport.Text &= Environment.NewLine & "InnerException:" & Environment.NewLine
                 ex = ex.InnerException
             End While
         Catch ex2 As Exception
-            txtBugReport.Text &= "Error getting exception data!" & vbNewLine & vbNewLine & ex2.ToString()
+            txtBugReport.Text &= "Error getting exception data!" & Environment.NewLine & Environment.NewLine & ex2.ToString()
         End Try
 
         Try
-            If IsNothing(messagePumpForm) Then
+            If messagePumpForm IsNot Nothing Then
                 ' Thanks to https://stackoverflow.com/a/661662/2999220
                 If frmBugReport.InvokeRequired Then
                     frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
@@ -329,11 +329,11 @@ Partial Public Class WalkmanLib
         If mergeStdErr Then
             If Not String.IsNullOrEmpty(stdError) Then
                 If Not String.IsNullOrEmpty(returnString) Then
-                    returnString &= vbNewLine
+                    returnString &= Environment.NewLine
                 End If
 
                 returnString &= "StdErr: " & stdError.Trim()
-                returnString &= vbNewLine & "ExitCode: " & process.ExitCode
+                returnString &= Environment.NewLine & "ExitCode: " & process.ExitCode
             End If
         End If
 

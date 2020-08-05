@@ -8,7 +8,6 @@ Imports System.Collections.Generic
 Imports System.ComponentModel
 Imports System.IO
 Imports System.Runtime.InteropServices
-Imports Microsoft.VisualBasic
 Imports Microsoft.Win32.SafeHandles
 
 Public Enum SymbolicLinkType ' used for CreateSymLink
@@ -568,7 +567,7 @@ Partial Public Class WalkmanLib
             Return False
         Else
             Throw New Exception("Unknown error! PickIconDlg return value: " & result &
-                vbNewLine & "filePath: " & filePath & vbNewLine & "iconIndex: " & iconIndex)
+                Environment.NewLine & "filePath: " & filePath & Environment.NewLine & "iconIndex: " & iconIndex)
         End If
     End Function
 

@@ -7,7 +7,6 @@ Imports System
 Imports System.Collections.Generic
 Imports System.IO
 Imports System.Net
-Imports Microsoft.VisualBasic
 Imports System.Web.Script.Serialization
 ' add a reference to System.Web.Extensions
 
@@ -62,7 +61,7 @@ Partial Public Class WalkmanLib
         Dim versionString As String
         versionString = GetLatestVersionInfo(projectName, projectOwner).TagName
 
-        If IsNothing(fileName) Then
+        If fileName Is Nothing Then
             fileName = projectName & "-Installer.exe"
         Else
             fileName = String.Format(fileName, versionString)

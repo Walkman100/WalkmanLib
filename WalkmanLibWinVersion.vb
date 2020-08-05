@@ -6,7 +6,6 @@ Option Infer Off
 Imports System
 Imports System.Management
 Imports System.Runtime.InteropServices
-Imports Microsoft.VisualBasic
 
 ' Credits:
 '  Main code: https://code.msdn.microsoft.com/windowsapps/Sample-to-demonstrate-how-495e69db
@@ -174,8 +173,8 @@ Partial Public Class WalkmanLib
                 End If
         End Select
 
-        Throw New InvalidOperationException("Unrecognised Windows Version!" & vbNewLine & vbNewLine &
-            "VersionString: " & Environment.OSVersion.VersionString & vbNewLine &
+        Throw New InvalidOperationException("Unrecognised Windows Version!" & Environment.NewLine & Environment.NewLine &
+            "VersionString: " & Environment.OSVersion.VersionString & Environment.NewLine &
             "Version.ToString: " & currentVersion.ToString())
     End Function
 End Class

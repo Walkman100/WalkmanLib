@@ -6,7 +6,6 @@ Option Infer Off
 Imports System
 Imports System.Collections.Generic
 Imports System.Linq
-Imports Microsoft.VisualBasic
 
 Namespace Tests
     Module Tests_ArgHandler
@@ -68,15 +67,15 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "Option        Long Option       Description" & vbNewLine &
-                                           " -t <string>  --test=<string>   test" & vbNewLine &
-                                           "              --test2           test2" & vbNewLine &
-                                           "              --test3=<string>  test3" & vbNewLine &
-                                           " -k           --test4           test4" & vbNewLine &
-                                           " -T           --test5           test5" & vbNewLine &
-                                           "              --TEST=<string>   TEST" & vbNewLine &
-                                           "              --TeSt7           TeSt7" & vbNewLine &
-                                           " -h           --help            Show Help" & vbNewLine
+            Dim expectedOutput As String = "Option        Long Option       Description" & Environment.NewLine &
+                                           " -t <string>  --test=<string>   test" & Environment.NewLine &
+                                           "              --test2           test2" & Environment.NewLine &
+                                           "              --test3=<string>  test3" & Environment.NewLine &
+                                           " -k           --test4           test4" & Environment.NewLine &
+                                           " -T           --test5           test5" & Environment.NewLine &
+                                           "              --TEST=<string>   TEST" & Environment.NewLine &
+                                           "              --TeSt7           TeSt7" & Environment.NewLine &
+                                           " -h           --help            Show Help" & Environment.NewLine
 
             Return TestString("ArgHandler1", sw.ToString(), expectedOutput)
         End Function
@@ -92,8 +91,8 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "Option        Long Option      Description" & vbNewLine &
-                                           " -t <string>  --test=<string>  test" & vbNewLine
+            Dim expectedOutput As String = "Option        Long Option      Description" & Environment.NewLine &
+                                           " -t <string>  --test=<string>  test" & Environment.NewLine
 
             Return TestString("ArgHandler2", sw.ToString(), expectedOutput)
         End Function
@@ -109,8 +108,8 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "Long Option  Description" & vbNewLine &
-                                           "--TeSt7      TeSt7" & vbNewLine
+            Dim expectedOutput As String = "Long Option  Description" & Environment.NewLine &
+                                           "--TeSt7      TeSt7" & Environment.NewLine
 
             Return TestString("ArgHandler3", sw.ToString(), expectedOutput)
         End Function
@@ -129,7 +128,7 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "Short Flag ""t"" requires arguments!" & vbNewLine
+            Dim expectedOutput As String = "Short Flag ""t"" requires arguments!" & Environment.NewLine
 
             Return TestString("ArgHandler4", sw.ToString(), expectedOutput)
         End Function
@@ -148,7 +147,7 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "1TEST" & vbNewLine & "test2 called" & vbNewLine & "3TEST" & vbNewLine
+            Dim expectedOutput As String = "1TEST" & Environment.NewLine & "test2 called" & Environment.NewLine & "3TEST" & Environment.NewLine
 
             Return TestString("ArgHandler5", sw.ToString(), expectedOutput)
         End Function
@@ -167,7 +166,7 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "test5 called" & vbNewLine
+            Dim expectedOutput As String = "test5 called" & Environment.NewLine
 
             Return TestString("ArgHandler6", sw.ToString(), expectedOutput)
         End Function
@@ -186,7 +185,7 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "TeSt7 called" & vbNewLine
+            Dim expectedOutput As String = "TeSt7 called" & Environment.NewLine
 
             Return TestString("ArgHandler7", sw.ToString(), expectedOutput)
         End Function
@@ -207,7 +206,7 @@ Namespace Tests
                 End Try
             End Using
 
-            Dim expectedOutput As String = "1TEST" & vbNewLine & "--test3=TEST" & vbNewLine
+            Dim expectedOutput As String = "1TEST" & Environment.NewLine & "--test3=TEST" & Environment.NewLine
 
             Return TestString("ArgHandler8", sw.ToString(), expectedOutput)
         End Function
