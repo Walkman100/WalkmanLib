@@ -165,8 +165,12 @@ Namespace Tests
                 If Not Test_ContextMenu3(rootTestFolder) Then returnVal = False
                 If Not Test_ContextMenu4(rootTestFolder) Then returnVal = False
                 If Not Test_ContextMenu5(rootTestFolder) Then returnVal = False
+                If Not Test_ContextMenu6(rootTestFolder) Then returnVal = False
 
                 If haveGUIAccess Then
+                    If Not Test_ContextMenuUI1(rootTestFolder) Then returnVal = False
+                    If Not Test_ContextMenuUI2(rootTestFolder) Then returnVal = False
+                    If Not Test_ContextMenuUI3(rootTestFolder) Then returnVal = False
                     If Not Test_PickIconDialog1() Then returnVal = False
                     If Not Test_PickIconDialog2() Then returnVal = False
                     If Not Test_PickIconDialog3() Then returnVal = False
@@ -178,6 +182,7 @@ Namespace Tests
                     If Not Test_Mouse2() Then returnVal = False
                 Else
                     WriteTestSkipped(New List(Of String)({
+                        "ContextMenuUI1", "ContextMenuUI2", "ContextMenuUI3",
                         "PickIconDialog1", "PickIconDialog2", "PickIconDialog3",
                         "ShowProperties1", "ShowProperties2", "ShowProperties3", "ShowProperties4",
                         "Mouse1", "Mouse2"
