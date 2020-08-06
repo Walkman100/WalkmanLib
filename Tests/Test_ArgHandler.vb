@@ -30,8 +30,11 @@ Namespace Tests
             }},
             {"test4", New WalkmanLib.FlagInfo With {
                 .shortFlag = "k"c,
+                .hasArgs = True,
+                .optionalArgs = True,
+                .argsInfo = "[string]",
                 .description = "test4",
-                .action = Sub() Console.WriteLine("test4 called")
+                .action = Sub(arg As String) Console.WriteLine("test4 called: {0}", arg)
             }},
             {"test5", New WalkmanLib.FlagInfo With {
                 .shortFlag = "T"c,
@@ -71,7 +74,7 @@ Namespace Tests
                                            " -t <string>  --test=<string>   test" & Environment.NewLine &
                                            "              --test2           test2" & Environment.NewLine &
                                            "              --test3=<string>  test3" & Environment.NewLine &
-                                           " -k           --test4           test4" & Environment.NewLine &
+                                           " -k [string]  --test4=[string]  test4" & Environment.NewLine &
                                            " -T           --test5           test5" & Environment.NewLine &
                                            "              --TEST=<string>   TEST" & Environment.NewLine &
                                            "              --TeSt7           TeSt7" & Environment.NewLine &
@@ -176,7 +179,7 @@ Namespace Tests
 
             Using New RedirectConsole(sw)
                 Try
-                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"--test7"}, flagDict, True)
+                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"--test7"}, flagDict)
                     If rtn.gotError Then
                         Console.WriteLine(rtn.errorInfo)
                     End If
@@ -209,6 +212,82 @@ Namespace Tests
             Dim expectedOutput As String = "1TEST" & Environment.NewLine & "--test3=TEST" & Environment.NewLine
 
             Return TestString("ArgHandler8", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler9() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
+                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"-k"}, flagDict)
+                    If rtn.gotError Then
+                        Console.WriteLine(rtn.errorInfo)
+                    End If
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "test4 called: " & Environment.NewLine
+
+            Return TestString("ArgHandler9", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler10() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
+                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"-k", "shorttest"}, flagDict)
+                    If rtn.gotError Then
+                        Console.WriteLine(rtn.errorInfo)
+                    End If
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "test4 called: shorttest" & Environment.NewLine
+
+            Return TestString("ArgHandler10", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler11() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
+                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"--test4"}, flagDict)
+                    If rtn.gotError Then
+                        Console.WriteLine(rtn.errorInfo)
+                    End If
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "test4 called: " & Environment.NewLine
+
+            Return TestString("ArgHandler11", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler12() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
+                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"--test4=longtest"}, flagDict)
+                    If rtn.gotError Then
+                        Console.WriteLine(rtn.errorInfo)
+                    End If
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "test4 called: longtest" & Environment.NewLine
+
+            Return TestString("ArgHandler12", sw.ToString(), expectedOutput)
         End Function
     End Module
 End Namespace

@@ -12,9 +12,12 @@ Module Program
         {"help", New WalkmanLib.FlagInfo With {
             .shortFlag = "h"c,
             .description = "Show Help",
-            .action = Sub()
+            .hasArgs = True,
+            .optionalArgs = True,
+            .argsInfo = "[flag]",
+            .action = Sub(input As String)
                           Console.WriteLine("WalkmanLib Tests. Long options are case-insensitive. All options are True by default, except GUI access." & Environment.NewLine)
-                          WalkmanLib.EchoHelp(flagDict)
+                          WalkmanLib.EchoHelp(flagDict, input)
                           Environment.Exit(0)
                       End Sub
         }},
