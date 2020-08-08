@@ -21,8 +21,13 @@ Partial Public Class WalkmanLib
         Public argsInfo As String = Nothing
         ''' <summary>Description of the flag used in <see cref="EchoHelp"/></summary>
         Public description As String
-        ''' <summary>Routine to run when the command is called. String argument is <see langword="Nothing"/> if <see cref="hasArgs"/> is <see langword="False"/></summary>
-        Public action As Action(Of String)
+        ''' <summary>
+        ''' Routine to run when the command is called. String argument will be <see langword="Nothing"/> if <see cref="hasArgs"/> is <see langword="False"/>,
+        ''' or <see cref="optionalArgs"/> is <see langword="True"/> and no argument is supplied.
+        ''' <br />This function should return a <see cref="Boolean"/>, return <see langword="False"/> to stop ProcessArgs args processing.
+        ''' <see cref="ResultInfo.errorInfo"/> will be set to <see langword="Nothing"/>.
+        ''' </summary>
+        Public action As Func(Of String, Boolean)
     End Class
 
 #Region "EchoHelp & helpers"
@@ -199,7 +204,7 @@ Partial Public Class WalkmanLib
             If processingShortFlags AndAlso arg.StartsWith("-") AndAlso arg(1) <> "-"c Then
                 For Each chr As Char In arg.Substring(1)
                     If gettingArg AndAlso gettingArgFor.optionalArgs Then
-                        gettingArgFor.action(Nothing)
+                        If Not gettingArgFor.action(Nothing) Then Return GetErrorResult(Nothing)
                         DisableGettingArg(gettingArg, gettingArgFor, gettingArgForLong)
                     ElseIf gettingArg Then
                         Return GetErrorResult("Short Flag ""{0}"" requires arguments!", gettingArgFor.shortFlag)
@@ -213,19 +218,19 @@ Partial Public Class WalkmanLib
                             gettingArg = True
                             gettingArgFor = flagKV.Value
                         Else
-                            flagKV.Value.action(Nothing)
+                            If Not flagKV.Value.action(Nothing) Then Return GetErrorResult(Nothing)
                         End If
                     Else
                         Return GetErrorResult("Unknown Short Flag ""{0}""!", chr)
                     End If
                 Next
             ElseIf Not arg.StartsWith("--") AndAlso gettingArg Then
-                gettingArgFor.action(arg)
+                If Not gettingArgFor.action(arg) Then Return GetErrorResult(Nothing)
 
                 DisableGettingArg(gettingArg, gettingArgFor, gettingArgForLong)
             ElseIf arg = "--" Then
                 If gettingArg AndAlso gettingArgFor.optionalArgs Then
-                    gettingArgFor.action(Nothing)
+                    If Not gettingArgFor.action(Nothing) Then Return GetErrorResult(Nothing)
                     DisableGettingArg(gettingArg, gettingArgFor, gettingArgForLong)
                 ElseIf gettingArg Then
                     Return GetErrorResult("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
@@ -235,7 +240,7 @@ Partial Public Class WalkmanLib
                 finishedProcessingArgs = True
             ElseIf Not finishedProcessingArgs AndAlso arg.StartsWith("--") Then
                 If gettingArg AndAlso gettingArgFor.optionalArgs Then
-                    gettingArgFor.action(Nothing)
+                    If Not gettingArgFor.action(Nothing) Then Return GetErrorResult(Nothing)
                     DisableGettingArg(gettingArg, gettingArgFor, gettingArgForLong)
                 ElseIf gettingArg Then
                     Return GetErrorResult("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))
@@ -256,13 +261,13 @@ Partial Public Class WalkmanLib
                 If flagKV.Key IsNot Nothing Then
                     gettingArgFor = flagKV.Value
                     If gettingArgFor.hasArgs = False Then
-                        gettingArgFor.action(Nothing)
+                        If Not gettingArgFor.action(Nothing) Then Return GetErrorResult(Nothing)
                     ElseIf flagArg Is Nothing AndAlso gettingArgFor.optionalArgs Then
-                        gettingArgFor.action(Nothing)
+                        If Not gettingArgFor.action(Nothing) Then Return GetErrorResult(Nothing)
                     ElseIf flagArg Is Nothing Then
                         Return GetErrorResult("Flag ""{0}"" requires arguments!", flagKV.Key)
                     Else
-                        gettingArgFor.action(flagArg)
+                        If Not gettingArgFor.action(flagArg) Then Return GetErrorResult(Nothing)
                     End If
                     gettingArgFor = Nothing
                 Else
@@ -276,7 +281,7 @@ Partial Public Class WalkmanLib
         Next
 
         If gettingArg AndAlso gettingArgFor.optionalArgs Then
-            gettingArgFor.action(Nothing)
+            If Not gettingArgFor.action(Nothing) Then Return GetErrorResult(Nothing)
             DisableGettingArg(gettingArg, gettingArgFor, gettingArgForLong)
         ElseIf gettingArg Then
             Return GetErrorResult("Flag ""{0}"" requires arguments!", If(gettingArgForLong, gettingArgFor.shortFlag))

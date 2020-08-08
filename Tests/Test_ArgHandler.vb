@@ -9,24 +9,29 @@ Imports System.Linq
 
 Namespace Tests
     Module Tests_ArgHandler
+        Function WriteAndReturn(text As String, ParamArray toFormat() As String) As Boolean
+            Console.WriteLine(text, toFormat)
+            Return True
+        End Function
+
         Dim flagDict As New Dictionary(Of String, WalkmanLib.FlagInfo) From {
             {"test", New WalkmanLib.FlagInfo With {
                 .shortFlag = "t"c,
                 .hasArgs = True,
                 .argsInfo = "<string>",
                 .description = "test",
-                .action = Sub(arg As String) Console.WriteLine("1{0}", arg)
+                .action = Function(arg As String) WriteAndReturn("1{0}", arg)
             }},
             {"test2", New WalkmanLib.FlagInfo With {
                 .hasArgs = False,
                 .description = "test2",
-                .action = Sub() Console.WriteLine("test2 called")
+                .action = Function() WriteAndReturn("test2 called")
             }},
             {"test3", New WalkmanLib.FlagInfo With {
                 .hasArgs = True,
                 .argsInfo = "<string>",
                 .description = "test3",
-                .action = Sub(arg As String) Console.WriteLine("3{0}", arg)
+                .action = Function(arg As String) WriteAndReturn("3{0}", arg)
             }},
             {"test4", New WalkmanLib.FlagInfo With {
                 .shortFlag = "k"c,
@@ -34,28 +39,31 @@ Namespace Tests
                 .optionalArgs = True,
                 .argsInfo = "[string]",
                 .description = "test4",
-                .action = Sub(arg As String) Console.WriteLine("test4 called: {0}", arg)
+                .action = Function(arg As String) WriteAndReturn("test4 called: {0}", arg)
             }},
             {"test5", New WalkmanLib.FlagInfo With {
                 .shortFlag = "T"c,
                 .description = "test5",
-                .action = Sub() Console.WriteLine("test5 called")
+                .action = Function() WriteAndReturn("test5 called")
             }},
             {"TEST", New WalkmanLib.FlagInfo With {
                 .hasArgs = True,
                 .argsInfo = "<string>",
                 .description = "TEST",
-                .action = Sub(arg As String) Console.WriteLine("TEST{0}", arg)
+                .action = Function(arg As String) WriteAndReturn("TEST{0}", arg)
             }},
             {"TeSt7", New WalkmanLib.FlagInfo With {
                 .hasArgs = False,
                 .description = "TeSt7",
-                .action = Sub() Console.WriteLine("TeSt7 called")
+                .action = Function() WriteAndReturn("TeSt7 called")
             }},
             {"help", New WalkmanLib.FlagInfo With {
                 .shortFlag = "h"c,
                 .description = "Show Help",
-                .action = Sub() WalkmanLib.EchoHelp(flagDict)
+                .action = Function()
+                              WalkmanLib.EchoHelp(flagDict)
+                              Return True
+                          End Function
             }}
         }
 
