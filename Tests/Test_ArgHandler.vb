@@ -57,6 +57,14 @@ Namespace Tests
                 .description = "TeSt7",
                 .action = Function() WriteAndReturn("TeSt7 called")
             }},
+            {"Test8", New WalkmanLib.FlagInfo With {
+                .hasArgs = False,
+                .description = "Test8",
+                .action = Function()
+                              Console.WriteLine("returning false")
+                              Return False
+                          End Function
+            }},
             {"help", New WalkmanLib.FlagInfo With {
                 .shortFlag = "h"c,
                 .description = "Show Help",
@@ -86,6 +94,7 @@ Namespace Tests
                                            " -T           --test5           test5" & Environment.NewLine &
                                            "              --TEST=<string>   TEST" & Environment.NewLine &
                                            "              --TeSt7           TeSt7" & Environment.NewLine &
+                                           "              --Test8           Test8" & Environment.NewLine &
                                            " -h           --help            Show Help" & Environment.NewLine
 
             Return TestString("ArgHandler1", sw.ToString(), expectedOutput)
@@ -296,6 +305,25 @@ Namespace Tests
             Dim expectedOutput As String = "test4 called: longtest" & Environment.NewLine
 
             Return TestString("ArgHandler12", sw.ToString(), expectedOutput)
+        End Function
+
+        Function Test_ArgHandler13() As Boolean
+            Dim sw As New IO.StringWriter
+
+            Using New RedirectConsole(sw)
+                Try
+                    Dim rtn As WalkmanLib.ResultInfo = WalkmanLib.ProcessArgs({"--test8", "--test4", "--test5", "-h"}, flagDict)
+                    If rtn.gotError AndAlso rtn.errorInfo IsNot Nothing Then
+                        Console.WriteLine(rtn.errorInfo)
+                    End If
+                Catch ex As Exception
+                    Console.WriteLine(ex.ToString())
+                End Try
+            End Using
+
+            Dim expectedOutput As String = "returning false" & Environment.NewLine
+
+            Return TestString("ArgHandler13", sw.ToString(), expectedOutput)
         End Function
     End Module
 End Namespace

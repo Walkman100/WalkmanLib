@@ -222,6 +222,7 @@ Namespace Tests
                 If Not Test_ArgHandler10() Then returnVal = False
                 If Not Test_ArgHandler11() Then returnVal = False
                 If Not Test_ArgHandler12() Then returnVal = False
+                If Not Test_ArgHandler13() Then returnVal = False
             End If
 
             If runCustomMsgBoxTests Then
