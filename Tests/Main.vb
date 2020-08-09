@@ -38,42 +38,48 @@ Module Program
             .shortFlag = "g"c,
             .description = "Set to true if GUI access is available",
             .hasArgs = True,
-            .argsInfo = "<true|false>",
-            .action = Function(input As String) DoAndReturn(Sub() haveGUIAccess = getBool(input))
+            .optionalArgs = True,
+            .argsInfo = "[true|false]",
+            .action = Function(input As String) DoAndReturn(Sub() haveGUIAccess = getBool(input, True))
         }},
         {"DotNet", New WalkmanLib.FlagInfo With {
             .shortFlag = "d"c,
             .description = "Set to false to skip running DotNet tests",
             .hasArgs = True,
-            .argsInfo = "<true|false>",
+            .optionalArgs = True,
+            .argsInfo = "[true|false]",
             .action = Function(input As String) DoAndReturn(Sub() runDotNetTests = getBool(input))
         }},
         {"Win32", New WalkmanLib.FlagInfo With {
             .shortFlag = "w"c,
             .description = "Set to false to skip running Win32 tests",
             .hasArgs = True,
-            .argsInfo = "<true|false>",
+            .optionalArgs = True,
+            .argsInfo = "[true|false]",
             .action = Function(input As String) DoAndReturn(Sub() runWin32Tests = getBool(input))
         }},
         {"Updates", New WalkmanLib.FlagInfo With {
             .shortFlag = "u"c,
             .description = "Set to false to skip running Updates tests",
             .hasArgs = True,
-            .argsInfo = "<true|false>",
+            .optionalArgs = True,
+            .argsInfo = "[true|false]",
             .action = Function(input As String) DoAndReturn(Sub() runUpdatesTests = getBool(input))
         }},
         {"ArgHandler", New WalkmanLib.FlagInfo With {
             .shortFlag = "a"c,
             .description = "Set to false to skip running ArgHandler tests",
             .hasArgs = True,
-            .argsInfo = "<true|false>",
+            .optionalArgs = True,
+            .argsInfo = "[true|false]",
             .action = Function(input As String) DoAndReturn(Sub() runArgHandlerTests = getBool(input))
         }},
         {"CustomMsgBox", New WalkmanLib.FlagInfo With {
             .shortFlag = "c"c,
             .description = "Set to false to skip running CustomMsgBox tests",
             .hasArgs = True,
-            .argsInfo = "<true|false>",
+            .optionalArgs = True,
+            .argsInfo = "[true|false]",
             .action = Function(input As String) DoAndReturn(Sub() runCustomMsgBoxTests = getBool(input))
         }}
     }
@@ -86,7 +92,8 @@ Module Program
     Private runArgHandlerTests As Boolean = True
     Private runCustomMsgBoxTests As Boolean = True
 
-    Private Function getBool(input As String) As Boolean
+    Private Function getBool(input As String, Optional [default] As Boolean = False) As Boolean
+        If String.IsNullOrEmpty(input) Then Return [default]
         Dim rtn As Boolean
         If Boolean.TryParse(input, rtn) Then
             Return rtn
