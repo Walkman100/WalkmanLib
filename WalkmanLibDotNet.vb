@@ -40,9 +40,9 @@ Partial Public Class WalkmanLib
     Shared Sub TakeOwnership(path As String)
         Dim pathInfo As PathEnum = IsFileOrDirectory(path)
         If pathInfo.HasFlag(PathEnum.IsFile) Then
-            RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ && icacls """ & path & """ /grant administrators:F && pause")
+            RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ & icacls """ & path & """ /grant administrators:F & pause")
         ElseIf pathInfo.HasFlag(PathEnum.IsDirectory) Then
-            RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ /r /d y && icacls """ & path & """ /grant administrators:F /t && pause")
+            RunAsAdmin("cmd.exe", "/c takeown /f """ & path & """ /r /d y & icacls """ & path & """ /grant administrators:F /t & pause")
         Else
             Throw New ArgumentException("File or Directory at specified path does not exist!", "path")
         End If

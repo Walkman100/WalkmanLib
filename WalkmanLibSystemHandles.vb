@@ -27,7 +27,6 @@ Partial Public Class WalkmanLib
 #Region "Native Methods"
 
 #Region "Enums"
-
         'https://pinvoke.net/default.aspx/Enums.NtStatus
         'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
         Protected Enum NTSTATUS As UInteger
@@ -346,11 +345,9 @@ Partial Public Class WalkmanLib
             DXGK_COMPOSITION_OBJECT
             OTHER
         End Enum
-
 #End Region
 
 #Region "Structs"
-
         'https://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=18975&zep=OpenedFileFinder%2fUtils.h&rzp=%2fKB%2fshell%2fOpenedFileFinder%2f%2fopenedfilefinder_src.zip
         <StructLayout(LayoutKind.Sequential)>
         Protected Structure SYSTEM_HANDLE_INFORMATION
