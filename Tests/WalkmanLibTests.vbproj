@@ -87,6 +87,7 @@
     <Compile Include="Test_Updates.vb" />
     <Compile Include="..\CustomMsgBox.vb">
       <Link>WalkmanLib\CustomMsgBox.vb</Link>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="..\CustomMsgBox.Designer.vb">
       <Link>WalkmanLib\CustomMsgBox.Designer.vb</Link>

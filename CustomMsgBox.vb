@@ -120,7 +120,7 @@ Partial Public Class CustomMsgBoxForm
         End If
 
         Dim resources As New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
-        Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), System.Drawing.Icon)
+        Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), Drawing.Icon)
         If FormLevel <> enumFormLevel.None Then pbxMain.Image = Me.Icon.ToBitmap
         Try
             Me.Icon = Owner.Icon
