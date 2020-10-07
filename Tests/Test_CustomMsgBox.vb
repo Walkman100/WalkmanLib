@@ -3,7 +3,6 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
-Imports System
 Imports System.Threading
 Imports System.Threading.Tasks
 Imports System.Windows.Forms
@@ -27,7 +26,7 @@ Namespace Tests
                          SendKeys.SendWait("{ENTER}")
                      End Sub)
 
-            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", Microsoft.VisualBasic.MsgBoxStyle.YesNoCancel)
+            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", buttons:=MessageBoxButtons.YesNoCancel)
 
             Return TestNumber("CustomMsgBox2", result, DialogResult.Yes)
         End Function
@@ -38,7 +37,7 @@ Namespace Tests
                          SendKeys.SendWait("{ESC}")
                      End Sub)
 
-            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", Microsoft.VisualBasic.MsgBoxStyle.YesNoCancel)
+            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", buttons:=MessageBoxButtons.YesNoCancel)
 
             Return TestNumber("CustomMsgBox3", result, DialogResult.Cancel)
         End Function
@@ -49,7 +48,7 @@ Namespace Tests
                          SendKeys.SendWait("{ENTER}")
                      End Sub)
 
-            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", Microsoft.VisualBasic.MsgBoxStyle.AbortRetryIgnore)
+            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", buttons:=MessageBoxButtons.AbortRetryIgnore)
 
             Return TestNumber("CustomMsgBox4", result, DialogResult.Abort)
         End Function
@@ -60,7 +59,7 @@ Namespace Tests
                          SendKeys.SendWait("{ESC}")
                      End Sub)
 
-            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", Microsoft.VisualBasic.MsgBoxStyle.AbortRetryIgnore)
+            Dim result As DialogResult = WalkmanLib.CustomMsgBox("test", buttons:=MessageBoxButtons.AbortRetryIgnore)
 
             Return TestNumber("CustomMsgBox5", result, DialogResult.Ignore)
         End Function
@@ -71,7 +70,7 @@ Namespace Tests
                          SendKeys.SendWait("{ENTER}")
                      End Sub)
 
-            Dim result As String = WalkmanLib.CustomMsgBox("test", "Test Button One", "Test Button Two")
+            Dim result As String = WalkmanLib.CustomMsgBox("test", Nothing, "Test Button One", "Test Button Two")
 
             Return TestString("CustomMsgBox6", result, "Test Button One")
         End Function
@@ -82,14 +81,14 @@ Namespace Tests
                          SendKeys.SendWait("{ESC}")
                      End Sub)
 
-            Dim result As String = WalkmanLib.CustomMsgBox("test", "Test Button One", "Test Button Two", "Test Button Three")
+            Dim result As String = WalkmanLib.CustomMsgBox("test", Nothing, "Test Button One", "Test Button Two", "Test Button Three")
 
             Return TestString("CustomMsgBox7", result, "Test Button Three")
         End Function
 
         Function Test_CustomMsgBox8() As Boolean
             Task.Run(Sub()
-                         WalkmanLib.CustomMsgBox("test", Title:="TestTitle")
+                         WalkmanLib.CustomMsgBox("test", "TestTitle")
                      End Sub)
 
             Thread.Sleep(700)

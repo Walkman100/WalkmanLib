@@ -5,7 +5,6 @@ Option Infer Off
 
 Imports System
 Imports System.Windows.Forms
-Imports Microsoft.VisualBasic
 
 Public Enum WinVersionStyle
     WinXP
@@ -40,71 +39,40 @@ Partial Public Class CustomMsgBoxForm
         End Set
     End Property
 
-    Private Enum enumFormLevel
-        None
-        Critical
-        Exclamation
-        Information
-        Question
-    End Enum
+    ''' <summary>
+    ''' Only <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/> are valid!
+    ''' </summary>
+    Public Property FormLevel() As MessageBoxIcon
 
-    Dim FormLevel As enumFormLevel = enumFormLevel.None
     Public Button1Text As String = Nothing
     Public Button2Text As String = Nothing
     Public Button3Text As String = Nothing
     Public WinVersion As WinVersionStyle = WinVersionStyle.Win10
     Public DialogResultString As String = Nothing
 
-    Public WriteOnly Property Buttons() As MsgBoxStyle
-        Set(value As MsgBoxStyle)
-            If value <> 0 Then
-                ' MsgBoxStyle members:
-                'Critical = 16
-                'Question = 32
-                'Exclamation = 48
-                'Information = 64
-                ' have to check them in reverse, as only one can be set, but they trigger HasFlags for the values lower
-                If value.HasFlag(MsgBoxStyle.Information) Then
-                    FormLevel = enumFormLevel.Information
-                ElseIf value.HasFlag(MsgBoxStyle.Exclamation) Then
-                    FormLevel = enumFormLevel.Exclamation
-                ElseIf value.HasFlag(MsgBoxStyle.Question) Then
-                    FormLevel = enumFormLevel.Question
-                ElseIf value.HasFlag(MsgBoxStyle.Critical) Then
-                    FormLevel = enumFormLevel.Critical
-                End If
-
-                ' MsgBoxStyle buttons members:
-                'OkOnly = 0
-                'OkCancel = 1
-                'AbortRetryIgnore = 2
-                'YesNoCancel = 3
-                'YesNo = 4
-                'RetryCancel = 5
-                ' same as above, have to check them in reverse as only one can be set
-                If value.HasFlag(MsgBoxStyle.RetryCancel) Then
-                    Button1Text = "Retry"
+    Public WriteOnly Property Buttons() As MessageBoxButtons
+        Set(value As MessageBoxButtons)
+            Select Case value
+                Case MessageBoxButtons.OK
+                    Button1Text = "Ok"
+                Case MessageBoxButtons.OKCancel
+                    Button1Text = "Ok"
                     Button3Text = "Cancel"
-                ElseIf value.HasFlag(MsgBoxStyle.YesNo) Then
-                    Button1Text = "Yes"
-                    Button3Text = "No"
-                ElseIf value.HasFlag(MsgBoxStyle.YesNoCancel) Then
-                    Button1Text = "Yes"
-                    Button2Text = "No"
-                    Button3Text = "Cancel"
-                ElseIf value.HasFlag(MsgBoxStyle.AbortRetryIgnore) Then
+                Case MessageBoxButtons.AbortRetryIgnore
                     Button1Text = "Abort"
                     Button2Text = "Retry"
                     Button3Text = "Ignore"
-                ElseIf value.HasFlag(MsgBoxStyle.OkCancel) Then
-                    Button1Text = "Ok"
+                Case MessageBoxButtons.YesNoCancel
+                    Button1Text = "Yes"
+                    Button2Text = "No"
                     Button3Text = "Cancel"
-                ElseIf value.HasFlag(MsgBoxStyle.OkOnly) Then
-                    Button1Text = "Ok"
-                End If
-            Else
-                Button1Text = "Ok"
-            End If
+                Case MessageBoxButtons.YesNo
+                    Button1Text = "Yes"
+                    Button3Text = "No"
+                Case MessageBoxButtons.RetryCancel
+                    Button1Text = "Retry"
+                    Button3Text = "Cancel"
+            End Select
         End Set
     End Property
 
@@ -121,25 +89,25 @@ Partial Public Class CustomMsgBoxForm
 
         Dim resources As New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
         Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), Drawing.Icon)
-        If FormLevel <> enumFormLevel.None Then pbxMain.Image = Me.Icon.ToBitmap
+        If FormLevel <> MessageBoxIcon.None Then pbxMain.Image = Me.Icon.ToBitmap
         Try
             Me.Icon = Owner.Icon
         Catch
             'Me.Icon = DirectCast(pbxMain.Image, System.Drawing.Image)
             ' doesn't work, and it's already set above anyway
-            If FormLevel = enumFormLevel.None Then
+            If FormLevel = MessageBoxIcon.None Then
                 Me.ShowIcon = False
             End If
         End Try
 
         Select Case FormLevel
-            Case enumFormLevel.Critical
+            Case MessageBoxIcon.Error
                 My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Beep)
-            Case enumFormLevel.Exclamation
+            Case MessageBoxIcon.Exclamation
                 My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Exclamation)
-            Case enumFormLevel.Information
+            Case MessageBoxIcon.Information
                 My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Asterisk)
-            Case enumFormLevel.Question
+            Case MessageBoxIcon.Question
                 My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Question)
         End Select
 
@@ -210,19 +178,21 @@ End Class
 
 Partial Public Class WalkmanLib
     ''' <summary>Shows a custom messagebox</summary>
-    ''' <param name="Prompt">The text to display in the messagebox window</param>
-    ''' <param name="Buttons">Buttons and style of messagebox to show. A bitwise combination of the enumeration values. Default: OkOnly</param>
-    ''' <param name="Title">Title of the messagebox window. If left out or set to Nothing, then title will be set to the owner form title or CustomMsgBox.</param>
-    ''' <param name="WinVersion">Windows version to use style icons from. Default: WinVersionStyle.Win10</param>
-    ''' <param name="ownerForm">Used to set the Window's Icon. Set to Me to copy the current form's icon</param>
+    ''' <param name="text">The text to display in the message box.</param>
+    ''' <param name="caption">The text to display in the title bar of the message box.</param>
+    ''' <param name="buttons">One of the <see cref="MessageBoxButtons"/> values that specifies which buttons to display in the message box.</param>
+    ''' <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
+    ''' <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
+    ''' <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="Me"/> to copy the current form's icon</param>
     ''' <returns>The button the user clicked on.</returns>
-    Shared Function CustomMsgBox(Prompt As String, Optional Buttons As MsgBoxStyle = 0, Optional Title As String = Nothing,
-      Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As DialogResult
+    Shared Function CustomMsgBox(text As String, Optional caption As String = Nothing, Optional buttons As MessageBoxButtons = 0, Optional style As MessageBoxIcon = 0,
+                                  Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As DialogResult
         Dim formToShow As New CustomMsgBoxForm With {
-            .Prompt = Prompt,
-            .Buttons = Buttons,
-            .Title = Title,
-            .WinVersion = WinVersion,
+            .Prompt = text,
+            .Title = caption,
+            .Buttons = buttons,
+            .FormLevel = style,
+            .WinVersion = winVersion,
             .Owner = ownerForm,
             .ShowInTaskbar = False
         }
@@ -230,29 +200,28 @@ Partial Public Class WalkmanLib
     End Function
 
     ''' <summary>Shows a custom messagebox with custom buttons</summary>
-    ''' <param name="Prompt">The text to display in the messagebox window</param>
+    ''' <param name="text">The text to display in the message box.</param>
+    ''' <param name="caption">The text to display in the title bar of the message box.</param>
     ''' <param name="customButton1">Text to show on the first button</param>
-    ''' <param name="customButton2">Text to show on the second button. If left out or set to Nothing, this button will be hidden.</param>
-    ''' <param name="customButton3">Text to show on the third button. If left out or set to Nothing, this button will be hidden.</param>
-    ''' <param name="Style">Style of messagebox to show. Default: 0</param>
-    ''' <param name="Title">Title of the messagebox window. If left out or set to Nothing, then title will be set to the owner form title or CustomMsgBox.</param>
-    ''' <param name="WinVersion">Windows version to use style icons from. Default: WinVersionStyle.Win10</param>
-    ''' <param name="ownerForm">Used to set the Window's Icon. Set to Me to copy the current form's icon</param>
+    ''' <param name="customButton2">Text to show on the second button. If left out or set to <see langword="Nothing"/>, this button will be hidden.</param>
+    ''' <param name="customButton3">Text to show on the third button. If left out or set to <see langword="Nothing"/>, this button will be hidden.</param>
+    ''' <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
+    ''' <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
+    ''' <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="Me"/> to copy the current form's icon</param>
     ''' <returns>Text of the button the user clicked on.</returns>
-    Shared Function CustomMsgBox(Prompt As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing, Optional Style As MsgBoxStyle = 0,
-      Optional Title As String = Nothing, Optional WinVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
+    Shared Function CustomMsgBox(text As String, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing,
+                                  Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
         Dim formToShow As New CustomMsgBoxForm With {
-            .Prompt = Prompt,
-            .Buttons = Style,
+            .Prompt = text,
+            .Title = caption,
             .Button1Text = customButton1,
             .Button2Text = customButton2,
             .Button3Text = customButton3,
-            .Title = Title,
-            .WinVersion = WinVersion,
+            .FormLevel = style,
+            .WinVersion = winVersion,
             .Owner = ownerForm,
             .ShowInTaskbar = False
         }
-        ' .Buttons = Style above is required to set the formlevel
 
         formToShow.ShowDialog()
         Return formToShow.DialogResultString

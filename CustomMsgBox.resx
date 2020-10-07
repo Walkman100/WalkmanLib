@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="Win7_Critical" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="Win7_Error" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAA0AMDAQAAEABABoBgAA1gAAACAgEAABAAQA6AIAAD4HAAAYGBAAAQAEAOgBAAAmCgAAEBAQAAEA
         BAAoAQAADgwAADAwAAABAAgAqA4AADYNAAAgIAAAAQAIAKgIAADeGwAAGBgAAAEACADIBgAAhiQAABAQ
@@ -6016,7 +6016,7 @@
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAEAAIABAADAAwAA8A8AAA==
 </value>
   </data>
-  <data name="Win10_Critical" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="Win10_Error" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAB0AYGAQAAEABADoFgAA1gEAAFBQEAABAAQAqBAAAL4YAABAQBAAAQAEAGgKAABmKQAAMDAQAAEA
         BABoBgAAzjMAACgoEAABAAQAyAQAADY6AAAgIBAAAQAEAOgCAAD+PgAAGBgQAAEABADoAQAA5kEAABQU
@@ -17904,7 +17904,7 @@
         +l9w1/SF2iYfvgAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="WinXP_Critical" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="WinXP_Error" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAYAEBAAAAEAIABoBAAAZgAAACAgAAABACAAqBAAAM4EAAAwMAAAAQAgAKglAAB2FQAAQEAAAAEA
         IAAoQgAAHjsAAICAAAABACAAKAgBAEZ9AAAAAAAAAQAgAJB8AABuhQEAKAAAABAAAAAgAAAAAQAgAAAA
