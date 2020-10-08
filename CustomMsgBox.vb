@@ -39,10 +39,20 @@ Partial Public Class CustomMsgBoxForm
         End Set
     End Property
 
-    ''' <summary>
-    ''' Only <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/> are valid!
-    ''' </summary>
     Public Property FormLevel() As MessageBoxIcon
+    Private Function getFormLevelString() As String
+        Select Case FormLevel
+            Case MessageBoxIcon.Error
+                Return "Error"
+            Case MessageBoxIcon.Question
+                Return "Question"
+            Case MessageBoxIcon.Exclamation
+                Return "Exclamation"
+            Case MessageBoxIcon.Information
+                Return "Information"
+        End Select
+        Return ""
+    End Function
 
     Public Button1Text As String = Nothing
     Public Button2Text As String = Nothing
@@ -88,7 +98,7 @@ Partial Public Class CustomMsgBoxForm
         End If
 
         Dim resources As New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
-        Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & FormLevel.ToString), Drawing.Icon)
+        Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & getFormLevelString()), Drawing.Icon)
         If FormLevel <> MessageBoxIcon.None Then pbxMain.Image = Me.Icon.ToBitmap
         Try
             Me.Icon = Owner.Icon
