@@ -550,6 +550,11 @@ Partial Public Class WalkmanLib
 
 #Region "GetFileIcon"
     ' Link: https://stackoverflow.com/a/24146599/2999220
+    ''' <summary>Retrieves the system icon associated with a file or filetype.</summary>
+    ''' <param name="filePath">Path to the item to get icon for. Set <paramref name="checkFile"/> to <see langword="False"/> to get the filetype icon.</param>
+    ''' <param name="checkFile">Specifies whether to get the icon associated with a specific file, or just for the filetype.</param>
+    ''' <param name="smallIcon"><see langword="False"/> to get a 32x32 icon, <see langword="True"/> to get a 16x16 icon</param>
+    ''' <param name="linkOverlay">Add the system "link" overlay to the icon</param>
     Public Shared Function GetFileIcon(filePath As String, Optional checkFile As Boolean = True, Optional smallIcon As Boolean = True, Optional linkOverlay As Boolean = False) As Drawing.Icon
         Dim flags As SHGetFileInfoFlags = SHGetFileInfoFlags.Icon
         If Not checkFile Then flags = flags Or SHGetFileInfoFlags.UseFileAttributes
@@ -558,9 +563,10 @@ Partial Public Class WalkmanLib
         If linkOverlay Then flags = flags Or SHGetFileInfoFlags.LinkOverlay
 
         Dim shInfo As New SHFILEINFO()
-        If SHGetFileInfo(filePath, 0, shInfo, CType(Marshal.SizeOf(shInfo), UInteger), flags) = 0 Then
+        If SHGetFileInfo(filePath, 0, shInfo, CType(Marshal.SizeOf(shInfo), UInteger), flags) = 0 _
+                OrElse shInfo.hIcon = IntPtr.Zero Then
 
-            Dim errorException As New Win32Exception
+            Dim errorException As New Win32Exception()
             If errorException.NativeErrorCode = 2 Then
                 'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
                 If Not File.Exists(filePath) Then
