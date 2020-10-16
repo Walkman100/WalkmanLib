@@ -30,7 +30,7 @@ Namespace Tests
 
         Private Function Sha1File(filePath As String) As String
             Using fs As New FileStream(filePath, FileMode.Open),
-                  sha1 As SHA1 = SHA1.Create
+                    sha1 As SHA1 = SHA1.Create
                 Dim hash As Byte() = sha1.ComputeHash(fs)
                 Return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()
             End Using

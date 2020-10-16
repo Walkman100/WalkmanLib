@@ -28,6 +28,7 @@ Namespace Tests
 
                          Cursor.Position = New System.Drawing.Point(100, 10)
                          WalkmanLib.MouseClick(MouseButton.RightClick)
+                         Thread.Sleep(10)
                          Cursor.Position = New System.Drawing.Point(150, 140)
                          WalkmanLib.MouseClick(MouseButton.LeftClick)
                      End Sub)

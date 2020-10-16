@@ -161,7 +161,7 @@ Partial Public Class WalkmanLib
             FlagSepVDM = SeeMask.FlagSepVDM
             ''' <summary>
             ''' The implementation of <see cref="IContextMenu.InvokeCommand"/> can spin off a new thread or process to handle
-            ''' the call and does not need to block on completion of the function being invoked. For example, if the verb is "delete" the 
+            ''' the call and does not need to block on completion of the function being invoked. For example, if the verb is "delete" the
             ''' <see cref="IContextMenu.InvokeCommand"/> call may return before all of the items have been deleted. Since this
             ''' is advisory, calling applications that specify this flag cannot guarantee that this request will be honored if they are not familiar with the
             ''' implementation of the verb that they are invoking.
