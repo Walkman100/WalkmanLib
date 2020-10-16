@@ -330,7 +330,7 @@ Partial Public Class WalkmanLib
         Using fs As New FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
             Dim fileInfo As ByHandleFileInformation
             If GetFileInformationByHandle(fs.SafeFileHandle, fileInfo) = False Then
-                Throw New Win32Exception
+                Throw New Win32Exception()
             End If
 
             Return fileInfo.nNumberOfLinks
@@ -546,6 +546,143 @@ Partial Public Class WalkmanLib
         <DispId(&H7D1)>
         Sub Save()
     End Interface
+#End Region
+
+#Region "GetFileIcon"
+    ' Link: https://stackoverflow.com/a/24146599/2999220
+    Public Shared Function GetFileIcon(filePath As String, Optional checkFile As Boolean = True, Optional smallIcon As Boolean = True, Optional linkOverlay As Boolean = False) As Drawing.Icon
+        Dim flags As SHGetFileInfoFlags = SHGetFileInfoFlags.Icon
+        If Not checkFile Then flags = flags Or SHGetFileInfoFlags.UseFileAttributes
+        ''' SHGetFileInfoFlags.LargeIcon is implied unless SmallIcon is set
+        If smallIcon Then flags = flags Or SHGetFileInfoFlags.SmallIcon
+        If linkOverlay Then flags = flags Or SHGetFileInfoFlags.LinkOverlay
+
+        Dim shInfo As New SHFILEINFO()
+        If SHGetFileInfo(filePath, 0, shInfo, CType(Marshal.SizeOf(shInfo), UInteger), flags) = 0 Then
+
+            Dim errorException As New Win32Exception
+            If errorException.NativeErrorCode = 2 Then
+                'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+                If Not File.Exists(filePath) Then
+                    Throw New FileNotFoundException("The file does not exist", filePath, errorException)
+                End If
+            ElseIf errorException.NativeErrorCode = 3 Then
+                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+                If Not Directory.Exists(New FileInfo(filePath).DirectoryName) Then
+                    Throw New DirectoryNotFoundException("The path to the file does not exist", errorException)
+                End If
+            ElseIf errorException.NativeErrorCode = 5 Then
+                'ERROR_ACCESS_DENIED: Access is denied
+                Throw New UnauthorizedAccessException("Access to the file is denied", errorException)
+            End If
+            Throw errorException
+        End If
+
+        Return Drawing.Icon.FromHandle(shInfo.hIcon)
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shgetfileinfow
+    'https://www.pinvoke.net/default.aspx/shell32/SHGetFileInfo.html
+    <DllImport("shell32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function SHGetFileInfo(pszPath As String, dwFileAttributes As FileAttributes, ByRef psfi As SHFILEINFO, cbFileInfo As UInteger, uFlags As SHGetFileInfoFlags) As UInteger
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shfileinfow
+    'https://www.pinvoke.net/default.aspx/Structures/SHFILEINFO.html
+    Private Structure SHFILEINFO
+        Public hIcon As IntPtr
+        Public iIcon As Integer
+        ''' <summary>See <see cref="ContextMenu.SFGAO"/> enum for all values</summary>
+        Public dwAttributes As UInteger
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=260)>
+        Public szDisplayName As String
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=80)>
+        Public szTypeName As String
+    End Structure
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shgetfileinfow#shgfi_addoverlays-0x000000020
+    Private Enum SHGetFileInfoFlags As UInteger
+        ''' <summary>Modify <see cref="Icon"/>, causing the function to retrieve the file's large icon. The <see cref="Icon"/> flag must also be set.</summary>
+        LargeIcon = &H0
+        ''' <summary>
+        ''' Modify <see cref="Icon"/>, causing the function to retrieve the file's small icon.
+        ''' <br/>Also used to modify <see cref="SysIconIndex"/>, causing the function to return the handle to the system image list that contains small icon images.
+        ''' <br/>The <see cref="Icon"/> and/or <see cref="SysIconIndex"/> flag must also be set.
+        ''' </summary>
+        SmallIcon = &H1
+        ''' <summary>
+        ''' Modify <see cref="Icon"/>, causing the function to retrieve the file's open icon.
+        ''' <br/>Also used to modify <see cref="SysIconIndex"/>, causing the function to return the handle to the system image list that contains the file's small open icon.
+        ''' A container object displays an open icon to indicate that the container is open.
+        ''' <br/>The <see cref="Icon"/> and/or <see cref="SysIconIndex"/> flag must also be set.
+        ''' </summary>
+        OpenIcon = &H2
+        ''' <summary>
+        ''' Modify <see cref="Icon"/>, causing the function to retrieve a Shell-sized icon. If this flag is not specified the function
+        ''' sizes the icon according to the system metric values. The <see cref="Icon"/> flag must also be set.
+        ''' </summary>
+        ShellIconSize = &H4
+        ''' <summary>Indicate that <paramref name="SHGetFileInfo.pszPath"/> is the address of an ITEMIDLIST structure rather than a path name.</summary>
+        PIDL = &H8
+        ''' <summary>
+        ''' Indicates that the function should not attempt to access the file specified by <paramref name="SHGetFileInfo.pszPath"/>. Rather, it should act as if the
+        ''' file specified by <paramref name="SHGetFileInfo.pszPath"/> exists with the file attributes passed in <paramref name="SHGetFileInfo.dwFileAttributes"/>.
+        ''' This flag cannot be combined with the <see cref="Attributes"/>, <see cref="ExeType"/>, or <see cref="PIDL"/> flags.
+        ''' </summary>
+        UseFileAttributes = &H10
+        ''' <summary>Apply the appropriate overlays to the file's icon. The <see cref="Icon"/> flag must also be set.</summary>
+        AddOverlays = &H20
+        ''' <summary>
+        ''' Return the index of the overlay icon. The value of the overlay index is returned in the upper eight bits of <see cref="SHFILEINFO.iIcon"/>.
+        ''' This flag requires that the <see cref="Icon"/> be set as well.
+        ''' </summary>
+        OverlayIndex = &H40
+        ''' <summary>
+        ''' Retrieve the handle to the icon that represents the file and the index of the icon within the system image list.
+        ''' The handle is copied to <see cref="SHFILEINFO.hIcon"/>, and the index is copied to <see cref="SHFILEINFO.iIcon"/>.
+        ''' </summary>
+        Icon = &H100
+        ''' <summary>
+        ''' Retrieve the display name for the file, which is the name as it appears in Windows Explorer. The name is copied to <see cref="SHFILEINFO.szDisplayName"/>.
+        ''' The returned display name uses the long file name, if there is one, rather than the 8.3 form of the file name.
+        ''' <br/> Note that the display name can be affected by settings such as whether extensions are shown.
+        ''' </summary>
+        DisplayName = &H200
+        ''' <summary>Retrieve the string that describes the file's type. The string is copied to <see cref="SHFILEINFO.szTypeName"/>.</summary>
+        TypeName = &H400
+        ''' <summary>
+        ''' Retrieve the item attributes. The attributes are copied to <see cref="SHFILEINFO.dwAttributes"/>.
+        ''' These are the same attributes that are obtained from IShellFolder::GetAttributesOf.
+        ''' </summary>
+        Attributes = &H800
+        ''' <summary>
+        ''' Retrieve the name of the file that contains the icon representing the file specified by <paramref name="SHGetFileInfo.pszPath"/>, as returned by the
+        ''' IExtractIcon::GetIconLocation method of the file's icon handler. Also retrieve the icon index within that file.
+        ''' <br/>The name of the file containing the icon is copied to <see cref="SHFILEINFO.szDisplayName"/>. The icon's index is copied to <see cref="SHFILEINFO.iIcon"/>.
+        ''' </summary>
+        IconLocation = &H1000
+        ''' <summary>
+        ''' Retrieve the type of the executable file if <paramref name="SHGetFileInfo.pszPath"/> identifies an executable file.
+        ''' The information is packed into the return value. This flag cannot be specified with any other flags.
+        ''' </summary>
+        ExeType = &H2000
+        ''' <summary>
+        ''' Retrieve the index of a system image list icon. If successful, the index is copied to <see cref="SHFILEINFO.iIcon"/>.
+        ''' The return value is a handle to the system image list. Only those images whose indices are successfully copied to <see cref="SHFILEINFO.iIcon"/> are valid.
+        ''' Attempting to access other images in the system image list will result in undefined behavior.
+        ''' </summary>
+        SysIconIndex = &H4000
+        ''' <summary>Modify <see cref="Icon"/>, causing the function to add the link overlay to the file's icon. The <see cref="Icon"/> flag must also be set.</summary>
+        LinkOverlay = &H8000
+        ''' <summary>Modify <see cref="Icon"/>, causing the function to blend the file's icon with the system highlight color. The <see cref="Icon"/> flag must also be set.</summary>
+        Selected = &H10000
+        ''' <summary>
+        ''' Modify <see cref="Attributes"/> to indicate that <see cref="SHFILEINFO.dwAttributes"/> contains the specific attributes that are desired.
+        ''' These attributes are passed to IShellFolder::GetAttributesOf. If this flag is not specified, 0xFFFFFFFF is passed to IShellFolder::GetAttributesOf,
+        ''' requesting all attributes. This flag cannot be specified with the <see cref="Icon"/> flag.
+        ''' </summary>
+        AttrSpecified = &H20000
+    End Enum
 #End Region
 
 #Region "PickIconDialogShow"
