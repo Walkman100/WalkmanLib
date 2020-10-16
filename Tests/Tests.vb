@@ -169,6 +169,11 @@ Namespace Tests
                 If Not Test_GetFileIcon2(rootTestFolder) Then returnVal = False
                 If Not Test_GetFileIcon3() Then returnVal = False
                 If Not Test_GetFileIcon4() Then returnVal = False
+                If Not Test_GetFileIcon5() Then returnVal = False
+                If Not Test_GetFileIcon6() Then returnVal = False
+                If Not Test_GetFileIcon7() Then returnVal = False
+                If Not Test_GetFileIcon8() Then returnVal = False
+                If Not Test_GetFileIcon9() Then returnVal = False
                 If Not Test_ContextMenu1(rootTestFolder) Then returnVal = False
                 If Not Test_ContextMenu2(rootTestFolder) Then returnVal = False
                 If Not Test_ContextMenu3(rootTestFolder) Then returnVal = False
