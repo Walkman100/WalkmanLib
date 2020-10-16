@@ -72,6 +72,7 @@
     <Compile Include="Test_Compression.vb" />
     <Compile Include="Test_ContextMenu.vb" />
     <Compile Include="Test_CustomMsgBox.vb" />
+    <Compile Include="Test_GetFileIcon.vb" />
     <Compile Include="Test_GetFolderIconPath.vb" />
     <Compile Include="Test_GetOpenWith.vb" />
     <Compile Include="Test_Hardlinks.vb" />
