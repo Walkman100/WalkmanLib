@@ -10,13 +10,6 @@ Imports System.IO
 Imports System.Runtime.InteropServices
 Imports Microsoft.Win32.SafeHandles
 
-Public Enum SymbolicLinkType ' used for CreateSymLink
-    ''' <summary>The target is a file.</summary>
-    File = 0
-    ''' <summary>The target is a directory.</summary>
-    Directory = 1
-End Enum
-
 Public Enum MouseButton ' used for MouseClick
     ''' <summary>Performs a LeftClick by running LeftDown and LeftUp.</summary>
     LeftClick = LeftDown Or LeftUp
@@ -92,13 +85,13 @@ Partial Public Class WalkmanLib
     ''' <summary>Creates a file or directory symbolic link.</summary>
     ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
     ''' <param name="targetPath">Absolute or relative path to the target of the shortcut. If relative, target is relative to the symbolic link file.</param>
-    ''' <param name="targetType">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
-    Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, targetType As SymbolicLinkType)
+    ''' <param name="targetIsDirectory">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
+    Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, Optional targetIsDirectory As Boolean = False)
         ' https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
-        'SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE = 0x02
-        targetType = targetType Or DirectCast(2, SymbolicLinkType)
+        Dim flags As SymbolicLinkFlags = SymbolicLinkFlags.AllowUnprivilegedCreate Or
+                If(targetIsDirectory, SymbolicLinkFlags.Directory, SymbolicLinkFlags.File)
 
-        If CreateSymbolicLink(symlinkPath, targetPath, targetType) = False Then
+        If CreateSymbolicLink(symlinkPath, targetPath, flags) = False Then
             Dim errorException As New Win32Exception
             If errorException.NativeErrorCode = &H03 Then
                 '0x03: ERROR_PATH_NOT_FOUND: The system cannot find the path specified
@@ -125,8 +118,20 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createsymboliclinkw
     'https://www.pinvoke.net/default.aspx/kernel32/CreateSymbolicLink.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkType) As Boolean
+    Private Shared Function CreateSymbolicLink(lpSymlinkFileName As String, lpTargetFileName As String, dwFlags As SymbolicLinkFlags) As Boolean
     End Function
+
+    Private Enum SymbolicLinkFlags ' used for CreateSymLink
+        ''' <summary>The link target is a file.</summary>
+        File = &H00
+        ''' <summary>The link target is a directory.</summary>
+        Directory = &H01
+        ''' <summary>
+        ''' Specify this flag to allow creation of symbolic links when the process is not elevated.
+        ''' <br />Developer Mode must first be enabled on the machine before this option will function.
+        ''' </summary>
+        AllowUnprivilegedCreate = &H02
+    End Enum
 #End Region
 
 #Region "Win32CreateFile"
@@ -558,8 +563,7 @@ Partial Public Class WalkmanLib
     Public Shared Function GetFileIcon(filePath As String, Optional checkFile As Boolean = True, Optional smallIcon As Boolean = True, Optional linkOverlay As Boolean = False) As Drawing.Icon
         Dim flags As SHGetFileInfoFlags = SHGetFileInfoFlags.Icon
         If Not checkFile Then flags = flags Or SHGetFileInfoFlags.UseFileAttributes
-        ''' SHGetFileInfoFlags.LargeIcon is implied unless SmallIcon is set
-        If smallIcon Then flags = flags Or SHGetFileInfoFlags.SmallIcon
+        flags = flags Or If(smallIcon, SHGetFileInfoFlags.SmallIcon, SHGetFileInfoFlags.LargeIcon)
         If linkOverlay Then flags = flags Or SHGetFileInfoFlags.LinkOverlay
 
         Dim shInfo As New SHFILEINFO()
