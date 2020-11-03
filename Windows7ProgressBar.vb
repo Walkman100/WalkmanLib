@@ -175,22 +175,26 @@ Namespace wyDay.Controls
                 End If
             End Set
         End Property
-        '        Public Overrides WriteOnly Property Site() As ISite
-        '            Set
-        '                ' Runs at design time, ensures designer initializes ContainerControl
-        '                MyBase.Site = value
-        '                If value Is Nothing Then
-        '                    Return
-        '                End If
-        '                Dim service As Design.IDesignerHost = TryCast(value.GetService(GetType(Design.IDesignerHost)), Design.IDesignerHost)
-        '                If service Is Nothing Then
-        '                    Return
-        '                End If
-        '                Dim rootComponent As IComponent = service.RootComponent
 
-        '                ContainerControl = TryCast(rootComponent, ContainerControl)
-        '            End Set
-        '        End Property
+        Public Overrides Property Site() As ISite
+            Get
+                Return MyBase.Site
+            End Get
+            Set(value As ISite)
+                ' Runs at design time, ensures designer initializes ContainerControl
+                MyBase.Site = value
+                If value Is Nothing Then
+                    Return
+                End If
+                Dim service As Design.IDesignerHost = TryCast(value.GetService(GetType(Design.IDesignerHost)), Design.IDesignerHost)
+                If service Is Nothing Then
+                    Return
+                End If
+                Dim rootComponent As IComponent = service.RootComponent
+
+                ContainerControl = TryCast(rootComponent, ContainerControl)
+            End Set
+        End Property
 
         Private Sub Windows7ProgressBar_Shown(sender As Object, e As EventArgs)
             If ShowInTaskbar Then
