@@ -38,6 +38,26 @@ Namespace wyDay.Controls
         Paused = &H8
     End Enum
 
+    ''' <summary>
+    ''' The progress bar state for Windows Vista & 7
+    ''' </summary>
+    Public Enum ProgressBarState
+        ''' <summary>
+        ''' Indicates normal progress
+        ''' </summary>
+        Normal = 1
+
+        ''' <summary>
+        ''' Indicates an error in the progress
+        ''' </summary>
+        [Error] = 2
+
+        ''' <summary>
+        ''' Indicates paused progress
+        ''' </summary>
+        Pause = 3
+    End Enum
+
     'Based on Rob Jarett's wrappers for the desktop integration PDC demos.
     <ComImport>
     <Guid("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")>
@@ -139,16 +159,16 @@ Namespace wyDay.Controls
 
         Public Sub New()
         End Sub
-
         Public Sub New(parentControl As ContainerControl)
             ContainerControl = parentControl
         End Sub
+
         Public Property ContainerControl() As ContainerControl
             Get
                 Return ownerForm
             End Get
-            Set
-                ownerForm = Value
+            Set(value As ContainerControl)
+                ownerForm = value
 
                 If Not ownerForm.Visible Then
                     AddHandler DirectCast(ownerForm, Form).Shown, AddressOf Windows7ProgressBar_Shown
@@ -192,9 +212,9 @@ Namespace wyDay.Controls
             Get
                 Return m_showInTaskbar
             End Get
-            Set
-                If m_showInTaskbar <> Value Then
-                    m_showInTaskbar = Value
+            Set(value As Boolean)
+                If m_showInTaskbar <> value Then
+                    m_showInTaskbar = value
 
                     ' send signal to the taskbar.
                     If ownerForm IsNot Nothing Then
@@ -216,8 +236,8 @@ Namespace wyDay.Controls
             Get
                 Return MyBase.Value
             End Get
-            Set
-                MyBase.Value = Value
+            Set(value As Integer)
+                MyBase.Value = value
 
                 ' send signal to the taskbar.
                 SetValueInTB()
@@ -232,8 +252,8 @@ Namespace wyDay.Controls
             Get
                 Return MyBase.Style
             End Get
-            Set
-                MyBase.Style = Value
+            Set(value As ProgressBarStyle)
+                MyBase.Style = value
 
                 ' set the style of the progress bar
                 If m_showInTaskbar AndAlso ownerForm IsNot Nothing Then
@@ -250,8 +270,8 @@ Namespace wyDay.Controls
             Get
                 Return m_State
             End Get
-            Set
-                m_State = Value
+            Set(value As ProgressBarState)
+                m_State = value
 
                 Dim wasMarquee As Boolean = Style = ProgressBarStyle.Marquee
 
@@ -261,7 +281,7 @@ Namespace wyDay.Controls
                 End If
 
                 ' set the progress bar state (Normal, Error, Paused)
-                Windows7Taskbar.SendMessage(Handle, &H410, Value, 0)
+                Windows7Taskbar.SendMessage(Handle, &H410, value, 0)
 
                 If wasMarquee Then
                     ' the Taskbar PB value needs to be reset
@@ -296,10 +316,10 @@ Namespace wyDay.Controls
 
         Private Sub SetValueInTB()
             If m_showInTaskbar Then
-                Dim maximum__1 As ULong = CULng(Maximum - Minimum)
-                Dim progress As ULong = CULng(Value - Minimum)
+                Dim _maximum As ULong = CULng(Maximum - Minimum)
+                Dim _progress As ULong = CULng(Value - Minimum)
 
-                Windows7Taskbar.SetProgressValue(ownerForm.Handle, progress, maximum__1)
+                Windows7Taskbar.SetProgressValue(ownerForm.Handle, _progress, _maximum)
             End If
         End Sub
 
@@ -323,24 +343,4 @@ Namespace wyDay.Controls
             Windows7Taskbar.SetProgressState(ownerForm.Handle, thmState)
         End Sub
     End Class
-
-    ''' <summary>
-    ''' The progress bar state for Windows Vista & 7
-    ''' </summary>
-    Public Enum ProgressBarState
-        ''' <summary>
-        ''' Indicates normal progress
-        ''' </summary>
-        Normal = 1
-
-        ''' <summary>
-        ''' Indicates an error in the progress
-        ''' </summary>
-        [Error] = 2
-
-        ''' <summary>
-        ''' Indicates paused progress
-        ''' </summary>
-        Pause = 3
-    End Enum
 End Namespace
