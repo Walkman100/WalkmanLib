@@ -39,9 +39,9 @@ Namespace wyDay.Controls
     End Enum
 
     'Based on Rob Jarett's wrappers for the desktop integration PDC demos.
-    <ComImportAttribute>
-    <GuidAttribute("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")>
-    <InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)>
+    <ComImport>
+    <Guid("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")>
+    <InterfaceType(ComInterfaceType.InterfaceIsIUnknown)>
     Friend Interface ITaskbarList3
         ' ITaskbarList
         <PreserveSig>
@@ -58,14 +58,14 @@ Namespace wyDay.Controls
         <PreserveSig>
         Sub MarkFullscreenWindow(hwnd As IntPtr, <MarshalAs(UnmanagedType.Bool)> fFullscreen As Boolean)
         ' ITaskbarList3
-        Sub SetProgressValue(hwnd As IntPtr, ullCompleted As UInt64, ullTotal As UInt64)
+        Sub SetProgressValue(hwnd As IntPtr, ullCompleted As ULong, ullTotal As ULong)
         Sub SetProgressState(hwnd As IntPtr, tbpFlags As ThumbnailProgressState)
         ' yadda, yadda - there's more to the interface, but we don't need it.
     End Interface
 
-    <GuidAttribute("56FDF344-FD6D-11d0-958A-006097C9A090")>
-    <ClassInterfaceAttribute(ClassInterfaceType.None)>
-    <ComImportAttribute>
+    <Guid("56FDF344-FD6D-11d0-958A-006097C9A090")>
+    <ClassInterface(ClassInterfaceType.None)>
+    <ComImport>
     Friend Class CTaskbarList
     End Class
 
@@ -172,7 +172,7 @@ Namespace wyDay.Controls
         '            End Set
         '        End Property
 
-        Private Sub Windows7ProgressBar_Shown(sender As Object, e As System.EventArgs)
+        Private Sub Windows7ProgressBar_Shown(sender As Object, e As EventArgs)
             If ShowInTaskbar Then
                 If Style <> ProgressBarStyle.Marquee Then
                     SetValueInTB()
@@ -261,7 +261,7 @@ Namespace wyDay.Controls
                 End If
 
                 ' set the progress bar state (Normal, Error, Paused)
-                Windows7Taskbar.SendMessage(Handle, &H410, CInt(Value), 0)
+                Windows7Taskbar.SendMessage(Handle, &H410, Value, 0)
 
                 If wasMarquee Then
                     ' the Taskbar PB value needs to be reset
