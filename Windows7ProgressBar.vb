@@ -5,6 +5,7 @@ Option Infer Off
 
 Imports System
 Imports System.ComponentModel
+Imports System.ComponentModel.Design
 Imports System.Drawing
 Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
@@ -186,7 +187,7 @@ Namespace wyDay.Controls
                 If value Is Nothing Then
                     Return
                 End If
-                Dim service As Design.IDesignerHost = TryCast(value.GetService(GetType(Design.IDesignerHost)), Design.IDesignerHost)
+                Dim service As IDesignerHost = TryCast(value.GetService(GetType(IDesignerHost)), IDesignerHost)
                 If service Is Nothing Then
                     Return
                 End If
