@@ -82,15 +82,17 @@ Partial Public Class WalkmanLib
     ''' <summary>Generates and writes help information about the items in the specified dictionary to the console</summary>
     ''' <param name="flagDict">Dictionary to operate on</param>
     ''' <param name="flag">Optional flag to show help for. Can be the long or short form</param>
-    Public Shared Sub EchoHelp(flagDict As Dictionary(Of String, FlagInfo), Optional flag As String = Nothing)
+    ''' <param name="output">Optional TextWriter to write the output to. Defaults to <see cref="Console.Error"/>.</param>
+    Public Shared Sub EchoHelp(flagDict As Dictionary(Of String, FlagInfo), Optional flag As String = Nothing, Optional output As IO.TextWriter = Nothing)
+        If output Is Nothing Then output = Console.Error
         If flag Is Nothing Then
             Dim shortFlagInfo As ShortFlagInfo = getShortFlagInfo(flagDict)
             Dim maxFlagLength As Integer = getMaxFlagLength(flagDict)
 
             If shortFlagInfo.usesShortFlags Then
-                Console.WriteLine("{0}  {1}  {2}", "Option".PadRight(shortFlagInfo.maxLength + 2), "Long Option".PadRight(maxFlagLength + 2), "Description")
+                output.WriteLine("{0}  {1}  {2}", "Option".PadRight(shortFlagInfo.maxLength + 2), "Long Option".PadRight(maxFlagLength + 2), "Description")
             Else
-                Console.WriteLine("{0}  {1}", "Long Option".PadRight(maxFlagLength + 2), "Description")
+                output.WriteLine("{0}  {1}", "Long Option".PadRight(maxFlagLength + 2), "Description")
             End If
 
             For Each flagInfo As KeyValuePair(Of String, FlagInfo) In flagDict
@@ -101,9 +103,9 @@ Partial Public Class WalkmanLib
                     Else
                         shortFlag = flagInfo.Value.shortFlag.ToString().PadRight(shortFlagInfo.maxLength)
                     End If
-                    Console.Write(" -{0}  ", shortFlag)
+                    output.Write(" -{0}  ", shortFlag)
                 ElseIf shortFlagInfo.usesShortFlags Then
-                    Console.Write(" ".PadRight(shortFlagInfo.maxLength + 2) & "  ")
+                    output.Write(" ".PadRight(shortFlagInfo.maxLength + 2) & "  ")
                 End If
 
                 Dim longFlag As String
@@ -112,7 +114,7 @@ Partial Public Class WalkmanLib
                 Else
                     longFlag = flagInfo.Key
                 End If
-                Console.WriteLine("--{0}  {1}", longFlag.PadRight(maxFlagLength), flagInfo.Value.description)
+                output.WriteLine("--{0}  {1}", longFlag.PadRight(maxFlagLength), flagInfo.Value.description)
             Next
         Else
             Dim flagKV As KeyValuePair(Of String, FlagInfo) = flagDict.FirstOrDefault(
@@ -133,16 +135,16 @@ Partial Public Class WalkmanLib
 
                 If flagInfo.shortFlag <> Chr(0) Then
                     Dim optionPad As Integer = 4 + If(flagInfo.argsInfo, "").Length
-                    Console.WriteLine("{0}  {1}  {2}", "Option".PadRight(optionPad), "Long Option".PadRight(longFlag.Length + 2), "Description")
+                    output.WriteLine("{0}  {1}  {2}", "Option".PadRight(optionPad), "Long Option".PadRight(longFlag.Length + 2), "Description")
 
-                    Console.Write(" -{0} {1}  ", flagInfo.shortFlag, If(flagInfo.argsInfo, "").PadRight(2))
+                    output.Write(" -{0} {1}  ", flagInfo.shortFlag, If(flagInfo.argsInfo, "").PadRight(2))
                 Else
-                    Console.WriteLine("{0}  {1}", "Long Option".PadRight(longFlag.Length + 2), "Description")
+                    output.WriteLine("{0}  {1}", "Long Option".PadRight(longFlag.Length + 2), "Description")
                 End If
 
-                Console.WriteLine("--{0}  {1}", longFlag.PadRight(9), flagInfo.description)
+                output.WriteLine("--{0}  {1}", longFlag.PadRight(9), flagInfo.description)
             Else
-                Console.WriteLine("Flag ""{0}"" not found!", flag)
+                output.WriteLine("Flag ""{0}"" not found!", flag)
             End If
         End If
     End Sub
