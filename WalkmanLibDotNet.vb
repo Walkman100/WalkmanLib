@@ -274,7 +274,7 @@ Partial Public Class WalkmanLib
         End Try
 
         Try
-            If messagePumpForm IsNot Nothing Then
+            If messagePumpForm Is Nothing Then
                 ' Thanks to https://stackoverflow.com/a/661662/2999220
                 If frmBugReport.InvokeRequired Then
                     frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))

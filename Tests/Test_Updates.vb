@@ -57,7 +57,7 @@ Namespace Tests
         Dim delegateCallComplete As Boolean
         Dim delegateReturn As String
         Sub UpdateCheckReturn(sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs)
-            If Microsoft.VisualBasic.IsNothing(e.Error) Then
+            If e.Error Is Nothing Then
                 delegateReturn = "Update available: " & DirectCast(e.Result, Boolean)
             Else
                 delegateReturn = "Error checking for updates: " & e.Error.Message

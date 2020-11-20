@@ -79,7 +79,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets the current Windows version. NOTE: To get an accurate version on Windows versions above 8, 
     ''' you will need to embed a manifest as per https://msdn.microsoft.com/E7A1A16A-95B3-4B45-81AD-A19E33F15AE4
     ''' (https://docs.microsoft.com/en-us/windows/desktop/SysInfo/targeting-your-application-at-windows-8-1)</summary>
-    ''' <returns>A Windows version of type (currentNamespace).WindowsVersion</returns>
+    ''' <returns>A Windows version of type <see cref="WindowsVersion"/></returns>
     Shared Function GetWindowsVersion() As WindowsVersion
         Dim currentVersion As Version = Environment.OSVersion.Version
 
