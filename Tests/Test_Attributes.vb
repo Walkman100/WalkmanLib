@@ -114,8 +114,14 @@ Namespace Tests
 
             WalkmanLib.SetAttribute(testPath, FileAttributes.Hidden, AddressOf Test_Attributes6_delegate)
 
+            Dim count As Integer = 0
             Do Until delegateHasBeenCalled = True
                 Thread.Sleep(10)
+
+                count += 1
+                If count > 1000 Then
+                    Exit Do
+                End If
             Loop
 
             Return TestType("Attributes6", delegateEx.GetType(), GetType(UnauthorizedAccessException))

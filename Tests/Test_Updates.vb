@@ -47,8 +47,14 @@ Namespace Tests
 
             WalkmanLib.CheckIfUpdateAvailableInBackground(projectName, New Version(0, 9, 9), New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
 
+            Dim count As Integer = 0
             Do Until delegateCallComplete
                 Thread.Sleep(100)
+
+                count += 1
+                If count > 100 Then
+                    Exit Do
+                End If
             Loop
 
             Return TestString("Updates8", delegateReturn, "Update available: True")
@@ -98,8 +104,14 @@ Namespace Tests
 
             WalkmanLib.CheckIfUpdateAvailableInBackground("NonExistantProject", New Version(0, 9, 9), New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
 
+            Dim count As Integer = 0
             Do Until delegateCallComplete
                 Thread.Sleep(100)
+
+                count += 1
+                If count > 100 Then
+                    Exit Do
+                End If
             Loop
 
             Return TestString("UpdateThrows3", delegateReturn, "Error checking for updates: The remote server returned an error: (404) Not Found.")
