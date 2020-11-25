@@ -150,6 +150,12 @@ Partial Public Class CustomMsgBoxForm
         Else
             btnCancel.Visible = False
         End If
+
+        If Me.Owner IsNot Nothing Then
+            Me.CenterToParent()
+        Else
+            Me.CenterToScreen()
+        End If
     End Sub
 
     Private Function GetDialogResult(buttonText As String) As DialogResult
