@@ -945,4 +945,45 @@ Partial Public Class WalkmanLib
         Public hProcess As IntPtr
     End Structure
 #End Region
+
+#Region "WaitForWindow"
+    ''' <summary>Waits until a window matching search parameters closes</summary>
+    ''' <param name="windowName">The window name (the window's title). If this parameter is <see langword="Nothing"/>, all window names match.</param>
+    ''' <param name="windowClass">
+    ''' Specifies the window class name. The class name can be any name registered with RegisterClass or RegisterClassEx, or any of the predefined control-class names.
+    ''' <br/>If <paramref name="windowClass"/> is <see langword="Nothing"/>, it finds any window whose title matches the <paramref name="windowName"/> parameter.
+    ''' </param>
+    ''' <param name="timeout">Seconds to wait before returning</param>
+    ''' <returns><see langword="True"/> if the timeout expired, <see langword="False"/> if the window was closed.</returns>
+    Shared Function WaitForWindow(windowName As String, Optional windowClass As String = Nothing, Optional timeout As Integer = -1) As Boolean
+        Dim hWnd As IntPtr = FindWindow(windowClass, windowName)
+        If hWnd = IntPtr.Zero Then
+            Dim errorException As New Win32Exception()
+            If errorException.NativeErrorCode = 0 Then
+                'ERROR_SUCCESS: The operation completed successfully.
+                Throw New ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException)
+            End If
+            Throw errorException
+        End If
+
+        Do While IsWindow(hWnd) AndAlso timeout <> 0
+            Threading.Thread.Sleep(1000)
+            If timeout > 0 Then timeout -= 1
+        Loop
+
+        Return timeout = 0
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindoww
+    'https://www.pinvoke.net/default.aspx/user32/FindWindow.html
+    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function FindWindow(lpClassName As String, lpWindowName As String) As IntPtr
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-iswindow
+    'https://www.pinvoke.net/default.aspx/user32/IsWindow.html
+    <DllImport("user32.dll", SetLastError:=True)>
+    Private Shared Function IsWindow(hWnd As IntPtr) As Boolean
+    End Function
+#End Region
 End Class

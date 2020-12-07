@@ -86,6 +86,7 @@
     <Compile Include="Test_Symlinks.vb" />
     <Compile Include="Test_TimeConvert.vb" />
     <Compile Include="Test_Updates.vb" />
+    <Compile Include="Test_WaitFor.vb" />
     <Compile Include="..\CustomMsgBox.vb">
       <Link>WalkmanLib\CustomMsgBox.vb</Link>
       <SubType>Form</SubType>
