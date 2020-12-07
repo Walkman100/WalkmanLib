@@ -172,6 +172,7 @@ Partial Public Class WalkmanLib
                                        hTemplateFile As IntPtr) As SafeFileHandle
     End Function
 
+    'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew#FILE_ATTRIBUTE_ARCHIVE
     <Flags>
     Public Enum Win32FileAttribute As UInteger
         None =                          0
@@ -234,17 +235,17 @@ Partial Public Class WalkmanLib
         ''' <summary>
         ''' Access is intended to be sequential from beginning to end. The system can use this as a hint to optimize file caching.
         ''' <br />This flag should not be used if read-behind (that is, reverse scans) will be used.
-        ''' <br />This flag has no effect if the file system does not support cached I/O And <see cref="NoBuffering"/>.
+        ''' <br />This flag has no effect if the file system does not support cached I/O And <see cref="FlagNoBuffering"/>.
         ''' </summary>
         FlagSequentialScan =            &H08000000
         ''' <summary>
         ''' Access is intended to be random. The system can use this as a hint to optimize file caching.
-        ''' <br />This flag has no effect if the file system does not support cached I/O And <see cref="NoBuffering"/>.
+        ''' <br />This flag has no effect if the file system does not support cached I/O And <see cref="FlagNoBuffering"/>.
         ''' </summary>
         FlagRandomAccess =              &H10000000
         ''' <summary>
         ''' The file or device is being opened with no system caching for data reads and writes. This flag does not affect hard disk caching or memory mapped files.
-        ''' <br />There are strict requirements for successfully working with files opened with CreateFile Using the <see cref="NoBuffering"/> flag.
+        ''' <br />There are strict requirements for successfully working with files opened with CreateFile Using the <see cref="FlagNoBuffering"/> flag.
         ''' </summary>
         FlagNoBuffering =               &H20000000
         ''' <summary>
@@ -258,47 +259,51 @@ Partial Public Class WalkmanLib
         FlagWriteThrough =              &H80000000UI
     End Enum
 
+    'https://docs.microsoft.com/en-us/windows/win32/fileio/file-access-rights-constants
+    'https://docs.microsoft.com/en-us/windows/win32/fileio/file-security-and-access-rights
+    'https://docs.microsoft.com/en-us/windows/win32/secauthz/access-mask#code-try-1
     <Flags>
     Public Enum Win32FileAccess As UInteger
         None =                      0
-        ''' <summary>[File & Pipe]</summary>
+        ''' <summary>[File &amp; Pipe]</summary>
         FileReadData =              &H00000001
         ''' <summary>[Directory]</summary>
-        FileListDirectory =         &H00000001
-        ''' <summary>[File & Pipe]</summary>
+        DirListDirectory =          &H00000001
+        ''' <summary>[File &amp; Pipe]</summary>
         FileWriteData =             &H00000002
         ''' <summary>[Directory]</summary>
-        FileAddFile =               &H00000002
+        DirAddFile =                &H00000002
         ''' <summary>[File] The right to append data to the file. (For local files, write operations will not overwrite
         ''' existing data if this flag is specified without <see cref="FileWriteData"/>.)
         ''' </summary>
         FileAppendData =            &H00000004
         ''' <summary>[Directory]</summary>
-        FileAddSubdirectory =       &H00000004
+        DirAddSubdirectory =        &H00000004
         ''' <summary>[Pipe]</summary>
-        FileCreatePipeInstance =    &H00000004
-        ''' <summary>[File & Directory]</summary>
-        FileReadEA =                &H00000008
-        ''' <summary>[File & Directory]</summary>
-        FileWriteEA =               &H00000010
+        PipeCreateInstance =        &H00000004
+        ''' <summary>[File &amp; Directory]</summary>
+        ReadEA =                    &H00000008
+        ''' <summary>[File &amp; Directory]</summary>
+        WriteEA =                   &H00000010
         ''' <summary>[File]</summary>
         FileExecute =               &H00000020
         ''' <summary>[Directory] The right to traverse the directory. By default, users are assigned the BYPASS_TRAVERSE_CHECKING privilege, which ignores the <see cref="Traverse"/> access right.</summary>
-        FileTraverse =              &H00000020
+        DirTraverse =               &H00000020
         ''' <summary>[Directory] The right to delete a directory and all the files it contains, including read-only files.</summary>
-        FileDeleteChild =           &H00000040
+        DirDeleteChild =            &H00000040
         ''' <summary>[All]</summary>
-        FileReadAttributes =        &H00000080
+        ReadAttributes =            &H00000080
         ''' <summary>[All]</summary>
-        FileWriteAttributes =       &H00000100
+        WriteAttributes =           &H00000100
+        ''' <summary>[All]</summary>
         Delete =                    &H00010000
         ''' <summary>Read access to the owner, group, and discretionary access control list (DACL) of the security descriptor.</summary>
         ReadControl =               &H00020000
         ''' <summary>Write access to the discretionary access control list (DACL).</summary>
         WriteDac =                  &H00040000
-        ''' <summary>Write access to owner.</summary>
+        ''' <summary>Write access to owner. Required to change the owner in the security descriptor for the object.</summary>
         WriteOwner =                &H00080000
-        ''' <summary>Synchronize access.</summary>
+        ''' <summary>Synchronize access. This enables a thread to wait until the object is in the signaled state.</summary>
         Synchronize =               &H00100000
         StandardRightsRequired =    &H000F0000
         StandardRightsRead =        ReadControl
@@ -317,9 +322,9 @@ Partial Public Class WalkmanLib
         GenericExecute =            &H20000000
         GenericWrite =              &H40000000
         GenericRead =               &H80000000UI
-        FileGenericRead =           StandardRightsRead Or FileReadData Or FileReadAttributes Or FileReadEA Or Synchronize
-        FileGenericWrite =          StandardRightsWrite Or FileWriteData Or FileWriteAttributes Or FileWriteEA Or FileAppendData Or Synchronize
-        FileGenericExecute =        StandardRightsExecute Or FileReadAttributes Or FileExecute Or Synchronize
+        FileGenericRead =           StandardRightsRead Or FileReadData Or ReadAttributes Or ReadEA Or Synchronize
+        FileGenericWrite =          StandardRightsWrite Or FileWriteData Or WriteAttributes Or WriteEA Or FileAppendData Or Synchronize
+        FileGenericExecute =        StandardRightsExecute Or ReadAttributes Or FileExecute Or Synchronize
         FileAllAccess =             StandardRightsRequired Or Synchronize Or &H1FF ' 1FF is everything before Delete (not including)
     End Enum
 #End Region
@@ -445,7 +450,7 @@ Partial Public Class WalkmanLib
     Shared Function GetSymlinkTarget(path As String) As String
         Dim returnString As String = ""
 
-        Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.FileReadEA,
+        Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.ReadEA,
                                                         FileShare.ReadWrite Or FileShare.Delete, FileMode.Open,
                                                         Win32FileAttribute.FlagBackupSemantics)
             Dim stringBuilderTarget As New Text.StringBuilder(MAX_FILE_PATH)
