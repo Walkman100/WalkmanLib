@@ -986,4 +986,145 @@ Partial Public Class WalkmanLib
     Private Shared Function IsWindow(hWnd As IntPtr) As Boolean
     End Function
 #End Region
+
+#Region "WaitForWindowByThread"
+    ''' <summary>
+    ''' Waits until the thread hosting a window matching the specified parameters exits.
+    ''' This is more efficient than <see cref="WaitForWindow"/>, but requires the Window/Thread to be running in the current process.
+    ''' </summary>
+    ''' <param name="windowName">The window name (the window's title). If this parameter is <see langword="Nothing"/>, all window names match.</param>
+    ''' <param name="windowClass">
+    ''' Specifies the window class name. The class name can be any name registered with RegisterClass or RegisterClassEx, or any of the predefined control-class names.
+    ''' <br/>If <paramref name="windowClass"/> is <see langword="Nothing"/>, it finds any window whose title matches the <paramref name="windowName"/> parameter.
+    ''' </param>
+    ''' <param name="timeout">Miliseconds to wait before returning. The Default value is Infinite.</param>
+    ''' <returns><see langword="True"/> if the timeout expired, <see langword="False"/> if the thread exited.</returns>
+    Shared Function WaitForWindowByThread(windowName As String, Optional windowClass As String = Nothing, Optional timeout As UInteger = WFSO_INFINITE) As Boolean
+        ' Get window handle
+        Dim hWnd As IntPtr = FindWindow(windowClass, windowName)
+        If hWnd = IntPtr.Zero Then
+            Dim errorException As New Win32Exception()
+            If errorException.NativeErrorCode = 0 Then
+                'ERROR_SUCCESS: The operation completed successfully.
+                Throw New ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException)
+            End If
+            Throw errorException
+        End If
+
+        ' Get threadID for window handle
+        Dim tID As UInteger = GetWindowThreadProcessId(hWnd, Nothing)
+        If Not tID > 0 Then
+            Throw New Win32Exception()
+        End If
+
+        ' Get thread handle for threadID
+        Using handle As SafeFileHandle = OpenThread(ThreadAccess.Synchronize, False, tID)
+            If handle.IsInvalid Then
+                Throw New Win32Exception()
+            Else
+
+                ' Wait for handle with specified timeout
+                Select Case WaitForSingleObject(handle.DangerousGetHandle, timeout)
+                    Case WFSO_Val.WAIT_OBJECT_0
+                        ' success condition
+                    Case WFSO_Val.WAIT_ABANDONED
+                        ' thread exited without releasing mutex object
+                    Case WFSO_Val.WAIT_TIMEOUT
+                        Return True
+                    Case WFSO_Val.WAIT_FAILED
+                        Throw New Win32Exception()
+                End Select
+
+            End If
+        End Using
+
+        Return False
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid
+    'https://www.pinvoke.net/default.aspx/user32/GetWindowThreadProcessId.html
+    <DllImport("user32.dll", SetLastError:=True)>
+    Private Shared Function GetWindowThreadProcessId(hWnd As IntPtr, ByRef lpdwProcessId As UInteger) As UInteger
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openthread
+    'https://www.pinvoke.net/default.aspx/kernel32/OpenThread.html
+    <DllImport("kernel32.dll", SetLastError:=True)>
+    Private Shared Function OpenThread(dwDesiredAccess As ThreadAccess, bInheritHandle As Boolean, dwThreadId As UInteger) As SafeFileHandle
+    End Function
+    ' SafeFileHandle has the same IsInvalid() and ReleaseHandle() members as SafeAccessTokenHandle, which is only available in .Net 4.6
+
+    'https://docs.microsoft.com/en-us/windows/win32/procthread/thread-security-and-access-rights
+    <Flags>
+    Private Enum ThreadAccess As UInteger
+        ''' <summary>Required to terminate a thread using TerminateThread.</summary>
+        Terminate = &H1
+        ''' <summary>Required to suspend or resume a thread (see SuspendThread and ResumeThread)</summary>
+        SuspendResume = &H2
+        ''' <summary>Required to read the context of a thread using GetThreadContext.</summary>
+        GetContext = &H8
+        ''' <summary>Required to write the context of a thread using SetThreadContext.</summary>
+        SetContext = &H10
+        ''' <summary>Required to set certain information in the thread object.</summary>
+        SetInformation = &H20
+        ''' <summary>Required to read certain information from the thread object, such as the exit code.</summary>
+        QueryInformation = &H40
+        ''' <summary>Required to set the impersonation token for a thread using SetThreadToken.</summary>
+        SetThreadToken = &H80
+        ''' <summary>Required to use a thread's security information directly without calling it by using a communication mechanism that provides impersonation services.</summary>
+        Impersonate = &H100
+        ''' <summary>Required for a server thread that impersonates a client.</summary>
+        DirectImpersonation = &H200
+        ''' <summary>Required to set certain information in the thread object. A handle that has the <see cref="SetInformation"/> access right is automatically granted <see cref="SetLimitedInformation"/>.</summary>
+        SetLimitedInformation = &H400
+        ''' <summary>Required to read certain information from the thread objects. A handle that has the <see cref="QueryInformation"/> access right is automatically granted <see cref="QueryLimitedInformation"/>.</summary>
+        QueryLimitedInformation = &H800
+        ''' <summary>(Found in WINNT.H header file)</summary>
+        [Resume] = &H1000
+        ''' <summary>Required to delete the object.</summary>
+        Delete = &H10000
+        ''' <summary>Read access to the owner, group, and discretionary access control list (DACL) of the security descriptor.</summary>
+        ReadControl = &H20000
+        ''' <summary>Write access to the discretionary access control list (DACL).</summary>
+        WriteDac = &H40000
+        ''' <summary>Write access to owner. Required to change the owner in the security descriptor for the object.</summary>
+        WriteOwner = &H80000
+        ''' <summary>Synchronize access. This enables a thread to wait until the object is in the signaled state.</summary>
+        Synchronize = Win32FileAccess.Synchronize
+        ''' <summary>
+        ''' All possible access rights for a thread object. For Windows Server 2008/Windows Vista and up.
+        ''' If this flag is specified on Windows Server 2003/Windows XP or below, the function specifying this flag fails with ERROR_ACCESS_DENIED.
+        ''' </summary>
+        AllAccess_VistaAndUp = Win32FileAccess.StandardRightsRequired Or Win32FileAccess.Synchronize Or &HFFFF
+        ''' <summary>
+        ''' All possible access rights for a thread object. For Windows Server 2003/Windows XP and below.
+        ''' If this flag is specified on Windows Server 2008/Windows Vista and up, every possible access right is not granted.
+        ''' </summary>
+        AllAccess_XPAndBelow = Win32FileAccess.StandardRightsRequired Or Win32FileAccess.Synchronize Or &H3FF
+    End Enum
+
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject
+    'https://www.pinvoke.net/default.aspx/kernel32.waitforsingleobject
+    <DllImport("kernel32.dll", SetLastError:=True)>
+    Private Shared Function WaitForSingleObject(handle As IntPtr, milliseconds As UInteger) As WFSO_Val
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject#return-value
+    Private Enum WFSO_Val As UInteger
+        ''' <summary>The state of the specified object is signaled.</summary>
+        WAIT_OBJECT_0 = &H0UI
+        ''' <summary>
+        ''' The specified object is a mutex object that was not released by the thread that owned the mutex object before the owning thread terminated.
+        ''' Ownership of the mutex object is granted to the calling thread and the mutex state is set to nonsignaled.
+        ''' If the mutex was protecting persistent state information, you should check it for consistency.
+        ''' </summary>
+        WAIT_ABANDONED = &H80UI
+        ''' <summary>The time-out interval elapsed, and the object's state is nonsignaled.</summary>
+        WAIT_TIMEOUT = &H102UI
+        ''' <summary>The function has failed. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.</summary>
+        WAIT_FAILED = &HFFFFFFFFUI
+    End Enum
+    Private Const WFSO_INFINITE As UInteger = &HFFFFFFFFUI
+#End Region
 End Class

@@ -31,5 +31,22 @@ Namespace Tests
 
             Return TestBoolean("WaitForWindow1", result, False)
         End Function
+
+        Function Test_WaitForWindow2() As Boolean
+            If WalkmanLib.ShowProperties(Path.Combine(Environment.SystemDirectory, "shell32.dll")) = False Then
+                Return TestString("WaitForWindow2", "ShowProperties returned False", "ShowProperties returned True")
+            End If
+
+            Task.Run(Sub()
+                         Thread.Sleep(700)
+                         SendKeys.SendWait("{ESC}")
+                     End Sub)
+
+            Thread.Sleep(400)
+
+            Dim result As Boolean = WalkmanLib.WaitForWindowByThread(shell32WindowName, shell32WindowClass, 40 * 1000)
+
+            Return TestBoolean("WaitForWindow2", result, False)
+        End Function
     End Module
 End Namespace
