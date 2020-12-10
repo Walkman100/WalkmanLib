@@ -47,10 +47,14 @@ Namespace Tests
             Dim waitDone As Boolean = False
             Dim countExited As Boolean = False
             Dim waitTimeout As Integer = 40
-            Task.Run(Sub()
-                         Console.Write("Waiting for Shell thread to exit. This is expected to take a while, please wait: ")
-                         WalkmanLib.ConsoleProgress(0, waitTimeout, waitDone, countExited)
-                     End Sub)
+            If Not Console.IsOutputRedirected Then
+                Task.Run(Sub()
+                             Console.Write("Waiting for Shell thread to exit. This is expected to take a while, please wait: ")
+                             WalkmanLib.ConsoleProgress(0, waitTimeout, waitDone, countExited)
+                         End Sub)
+            Else
+                countExited = True
+            End If
 
             Dim result As Boolean = True
             Try
@@ -60,7 +64,7 @@ Namespace Tests
                 Do Until countExited
                     Thread.Sleep(1)
                 Loop
-                Console.WriteLine()
+                If Not Console.IsOutputRedirected Then Console.WriteLine()
             End Try
 
             Return TestBoolean("WaitForWindow2", result, False)

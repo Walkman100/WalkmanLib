@@ -123,9 +123,11 @@ Module Program
         Console.WriteLine(Environment.NewLine & "All tests completed successfully: " & Tests.RunTests(projectRoot, rootTestFolder,
             haveGUIAccess, runCustomMsgBoxTests, runArgHandlerTests, runUpdatesTests, runWin32Tests, runDotNetTests))
 
-        Console.Write("Press any key to continue . . . ")
-        Console.ReadKey(True)
-        Console.WriteLine()
+        If Not Console.IsOutputRedirected Then
+            Console.Write("Press any key to continue . . . ")
+            Console.ReadKey(True)
+            Console.WriteLine()
+        End If
     End Sub
 
     Sub ExitE(msg As String, Optional formatItem As String = Nothing)
