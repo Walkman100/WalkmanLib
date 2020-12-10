@@ -44,7 +44,24 @@ Namespace Tests
 
             Thread.Sleep(400)
 
-            Dim result As Boolean = WalkmanLib.WaitForWindowByThread(shell32WindowName, shell32WindowClass, 40 * 1000)
+            Dim waitDone As Boolean = False
+            Dim countExited As Boolean = False
+            Dim waitTimeout As Integer = 40
+            Task.Run(Sub()
+                         Console.Write("Waiting for Shell thread to exit. This is expected to take a while, please wait: ")
+                         WalkmanLib.ConsoleProgress(0, waitTimeout, waitDone, countExited)
+                     End Sub)
+
+            Dim result As Boolean = True
+            Try
+                result = WalkmanLib.WaitForWindowByThread(shell32WindowName, shell32WindowClass, CType(waitTimeout, UInteger) * 1000UI)
+            Finally
+                waitDone = True
+                Do Until countExited
+                    Thread.Sleep(1)
+                Loop
+                Console.WriteLine()
+            End Try
 
             Return TestBoolean("WaitForWindow2", result, False)
         End Function

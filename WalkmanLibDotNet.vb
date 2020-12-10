@@ -157,6 +157,31 @@ Partial Public Class WalkmanLib
         WriteAllBytes(shortcutPath, shortcutBytes)
     End Sub
 
+    ''' <summary>Writes text to console to report a progress count</summary>
+    ''' <param name="start">Number to start at. Must be less than <paramref name="end"/>.</param>
+    ''' <param name="end">Number to end at. Must be more than <paramref name="start"/>.</param>
+    ''' <param name="stop">ByRef boolean used to stop the count from an external method.</param>
+    ''' <param name="stopped">ByRef boolean used to signal that counting has stopped.</param>
+    ''' <returns><see langword="True"/> if the count reached <paramref name="end"/>, <see langword="False"/> if <paramref name="stop"/> was used to cancel.</returns>
+    Shared Function ConsoleProgress(start As Integer, [end] As Integer, ByRef [stop] As Boolean, ByRef stopped As Boolean) As Boolean
+        Dim currentCount As Integer = start
+        Dim stopLength As Integer = [end].ToString().Length ' could also use: CType(Math.Floor(Math.Log10([end]) + 1), Integer)
+
+        Console.Write(currentCount.ToString().PadLeft(stopLength) & " / " & [end])
+        Console.CursorLeft -= stopLength + 3
+
+        Do Until [stop] OrElse currentCount = [end]
+            Threading.Thread.Sleep(1000)
+            currentCount += 1
+
+            Console.CursorLeft -= stopLength
+            Console.Write(currentCount.ToString().PadLeft(stopLength))
+        Loop
+
+        stopped = True
+        Return currentCount = [end]
+    End Function
+
     ''' <summary>
     ''' Gets whether a specified <paramref name="path"/> exists. `NotFound` is returned on invalid chars.
     ''' Return value will contain `Exists` if <paramref name="path"/> refers to a valid drive,
