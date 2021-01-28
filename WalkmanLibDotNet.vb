@@ -208,8 +208,11 @@ Partial Public Class WalkmanLib
             If New DriveInfo(path).Name = New FileInfo(path).FullName Then
                 rtn = rtn Or PathEnum.Exists Or PathEnum.IsDrive
             End If
-        Catch ex As ArgumentException
-            ' New DriveInfo() and New FileInfo() throw exceptions on invalid path sequence
+        Catch ex As Exception When _
+                TypeOf ex Is ArgumentException OrElse
+                TypeOf ex Is NotSupportedException
+            ' New DriveInfo() and New FileInfo() throw ArgumentException on invalid path sequence
+            ' NotSupportedException is thrown for AlternateDataStreams
         End Try
 
         Return rtn
