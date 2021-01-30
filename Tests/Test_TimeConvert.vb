@@ -3,8 +3,6 @@ Option Strict On
 Option Compare Binary
 Option Infer Off
 
-Imports System
-
 Namespace Tests
     Module Tests_TimeConvert
         Function Test_TimeConvert1() As Boolean

@@ -212,7 +212,7 @@ Partial Public Class WalkmanLib
             .Owner = ownerForm,
             .ShowInTaskbar = False
         }
-        Return formToShow.ShowDialog
+        Return formToShow.ShowDialog()
     End Function
 
     ''' <summary>Shows a custom messagebox with custom buttons</summary>
