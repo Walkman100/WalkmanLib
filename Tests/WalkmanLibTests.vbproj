@@ -19,25 +19,25 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>False</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '32-bit' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '64-bit' ">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
     <DebugSymbols>True</DebugSymbols>
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
-    <DefineConstants>DEBUG=1,TRACE=1</DefineConstants>
+    <DefineConstants>NoOokii=1,DEBUG=1,TRACE=1</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>Full</DebugType>
     <Optimize>True</Optimize>
-    <DefineConstants>TRACE=1</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == '32-bit' ">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == '64-bit' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <DefineConstants>NoOokii=1,TRACE=1</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -83,6 +83,7 @@
     <Compile Include="Test_RunAndGetOutput.vb" />
     <Compile Include="Test_Shortcuts.vb" />
     <Compile Include="Test_ShowProperties.vb" />
+    <Compile Include="Test_StreamCopy.vb" />
     <Compile Include="Test_Symlinks.vb" />
     <Compile Include="Test_TimeConvert.vb" />
     <Compile Include="Test_Updates.vb" />
@@ -106,6 +107,9 @@
     </Compile>
     <Compile Include="..\WalkmanLibRestartManager.vb">
       <Link>WalkmanLib\WalkmanLibRestartManager.vb</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibStreamCopy.vb">
+      <Link>WalkmanLib\WalkmanLibStreamCopy.vb</Link>
     </Compile>
     <Compile Include="..\WalkmanLibSystemHandles.vb">
       <Link>WalkmanLib\WalkmanLibSystemHandles.vb</Link>

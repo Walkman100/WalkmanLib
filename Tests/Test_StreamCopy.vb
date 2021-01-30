@@ -8,6 +8,27 @@ Imports System.IO
 
 Namespace Tests
     Module Tests_StreamCopy
+#If NoOokii Then
+
+        Function Test_StreamCopy1(rootTestFolder As String) As Boolean
+            WriteTestSkipped(New Collections.Generic.List(Of String)({"StreamCopy1",
+                                                                      "StreamCopy2",
+                                                                      "StreamCopyThrows1",
+                                                                      "StreamCopyThrows2"}), "No Ookii.Dialogs available")
+            Return True
+        End Function
+        Function Test_StreamCopy2(rootTestFolder As String) As Boolean
+            Return True
+        End Function
+        Function Test_StreamCopyThrows1() As Boolean
+            Return True
+        End Function
+        Function Test_StreamCopyThrows2(rootTestFolder As String) As Boolean
+            Return True
+        End Function
+
+#Else     ' disable if NoOokii is defined (default for tests project)
+
         Function Test_StreamCopy1(rootTestFolder As String) As Boolean
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy1"))
                 Dim randByteAmount As Integer = 1024
@@ -69,5 +90,7 @@ Namespace Tests
             End Try
             Return TestType("StreamCopyThrows2", ex.GetType(), GetType(InvalidOperationException))
         End Function
+
+#End If
     End Module
 End Namespace

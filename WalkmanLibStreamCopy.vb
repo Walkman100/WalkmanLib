@@ -8,6 +8,9 @@ Imports System.ComponentModel
 Imports System.IO
 
 Partial Public Class WalkmanLib
+
+    ' disable if NoOokii is defined (default for tests project)
+#If NoOokii = 0 Then
     ''' <summary>
     ''' Asynchronously Copy a stream with a progress dialog. Uses <see cref="Ookii.Dialogs.ProgressDialog"/> for the dialog.
     ''' <br />NOTE: As this function exits when the copy process starts, the streams must NOT be closed e.g. by a <see langword="Using"/> statement.
@@ -90,4 +93,5 @@ Partial Public Class WalkmanLib
             Throw e.Error
         End If
     End Sub
+#End If
 End Class
