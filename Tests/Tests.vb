@@ -78,6 +78,10 @@ Namespace Tests
                 If Not Test_TimeConvert14() Then returnVal = False
                 If Not Test_TimeConvert15() Then returnVal = False
                 If Not Test_TimeConvert16() Then returnVal = False
+                'If Not Test_StreamCopy1(rootTestFolder) Then returnVal = False
+                'If Not Test_StreamCopy2(rootTestFolder) Then returnVal = False
+                'If Not Test_StreamCopyThrows1() Then returnVal = False
+                'If Not Test_StreamCopyThrows2(rootTestFolder) Then returnVal = False
             End If
 
             If runWin32Tests Then
