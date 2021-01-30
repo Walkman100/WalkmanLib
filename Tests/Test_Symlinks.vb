@@ -15,7 +15,7 @@ Namespace Tests
                 Dim mklinkOutput As String = WalkmanLib.RunAndGetOutput("cmd", "/c mklink " & symlinkPath & " symlinks1Source", rootTestFolder)
 
                 Using testFile As New DisposableFile(symlinkPath, False)
-                    Return TestString("Symlinks1", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource.filePath)
+                    Return TestString("Symlinks1", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
         End Function
@@ -32,7 +32,7 @@ Namespace Tests
                 WalkmanLib.CreateSymLink(symlinkPath, "symlinks3Source.txt", False)
 
                 Using testFile As New DisposableFile(symlinkPath, False)
-                    Return TestString("Symlinks3", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource.filePath)
+                    Return TestString("Symlinks3", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
         End Function
@@ -44,7 +44,7 @@ Namespace Tests
                 WalkmanLib.CreateSymLink(symlinkPath, "symlinks4Source", True)
 
                 Using testSymlink As New DisposableDirectory(symlinkPath, False)
-                    Return TestString("Symlinks4", WalkmanLib.GetSymlinkTarget(symlinkPath), testDirSource.dirPath)
+                    Return TestString("Symlinks4", WalkmanLib.GetSymlinkTarget(symlinkPath), testDirSource)
                 End Using
             End Using
         End Function
@@ -73,31 +73,31 @@ Namespace Tests
 
         Function Test_Symlinks7(rootTestFolder As String) As Boolean
             Using testDirRoot As New DisposableDirectory(Path.Combine(rootTestFolder, "symlinks7Root")),
-                  testFileSource As New DisposableFile(Path.Combine(testDirRoot.dirPath, "symlinks7Source.txt"))
+                  testFileSource As New DisposableFile(Path.Combine(testDirRoot, "symlinks7Source.txt"))
 
                 Dim symlinkPath As String = Path.Combine(rootTestFolder, "symlinks7.txt")
-                Dim symlinkTarget As String = Path.Combine(Path.GetFileName(testDirRoot.dirPath), Path.GetFileName(testFileSource.filePath))
+                Dim symlinkTarget As String = Path.Combine(Path.GetFileName(testDirRoot), Path.GetFileName(testFileSource))
 
                 WalkmanLib.CreateSymLink(symlinkPath, symlinkTarget, False)
 
                 Using testSymlink As New DisposableFile(symlinkPath, False)
-                    Return TestString("Symlinks7", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource.filePath)
+                    Return TestString("Symlinks7", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
         End Function
 
         Function Test_Symlinks8(rootTestFolder As String) As Boolean
             Using testDirSource As New DisposableDirectory(Path.Combine(rootTestFolder, "symlinks8Source")),
-                  testFileSource As New DisposableFile(Path.Combine(testDirSource.dirPath, "symlinks8Source.txt")),
+                  testFileSource As New DisposableFile(Path.Combine(testDirSource, "symlinks8Source.txt")),
                   testDirTarget As New DisposableDirectory(Path.Combine(rootTestFolder, "symlinks8Target"))
 
-                Dim symlinkPath As String = Path.Combine(testDirTarget.dirPath, "symlinks8.txt")
-                Dim symlinkTarget As String = Path.Combine("..", Path.GetFileName(testDirSource.dirPath), Path.GetFileName(testFileSource.filePath))
+                Dim symlinkPath As String = Path.Combine(testDirTarget, "symlinks8.txt")
+                Dim symlinkTarget As String = Path.Combine("..", Path.GetFileName(testDirSource), Path.GetFileName(testFileSource))
 
                 WalkmanLib.CreateSymLink(symlinkPath, symlinkTarget, False)
 
                 Using testSymlink As New DisposableFile(symlinkPath, False)
-                    Return TestString("Symlinks8", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource.filePath)
+                    Return TestString("Symlinks8", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
         End Function
@@ -125,7 +125,7 @@ Namespace Tests
         Function Test_SymlinkThrows2(rootTestFolder As String) As Boolean
             Dim symlinkPath As String = Path.Combine(rootTestFolder, "symlinkThrows2.txt")
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows2Source.txt"))
-                WalkmanLib.CreateSymLink(symlinkPath, testFileSource.filePath, False)
+                WalkmanLib.CreateSymLink(symlinkPath, testFileSource, False)
             End Using
 
             If Not File.Exists(symlinkPath) Then
@@ -146,7 +146,7 @@ Namespace Tests
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows3Source.txt"))
                 Dim ex As Exception = New NoException
                 Try
-                    WalkmanLib.CreateSymLink(Path.Combine(rootTestFolder, "nonExistantFolder", "symlinkThrows3.txt"), testFile.filePath, False)
+                    WalkmanLib.CreateSymLink(Path.Combine(rootTestFolder, "nonExistantFolder", "symlinkThrows3.txt"), testFile, False)
                 Catch ex2 As Exception
                     ex = ex2
                 End Try
@@ -159,7 +159,7 @@ Namespace Tests
                   testFile As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows4Source.txt"))
                 Dim ex As Exception = New NoException
                 Try
-                    WalkmanLib.CreateSymLink(symlinkPath.filePath, testFile.filePath, False)
+                    WalkmanLib.CreateSymLink(symlinkPath, testFile, False)
                 Catch ex2 As Exception
                     ex = ex2
                 End Try
@@ -171,7 +171,7 @@ Namespace Tests
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows5.txt"))
                 Dim ex As Exception = New NoException
                 Try
-                    WalkmanLib.CreateSymLink(Path.Combine(Environment.SystemDirectory, "symlinkThrows5.txt"), testFile.filePath, False)
+                    WalkmanLib.CreateSymLink(Path.Combine(Environment.SystemDirectory, "symlinkThrows5.txt"), testFile, False)
                 Catch ex2 As Exception
                     ex = ex2
                 End Try

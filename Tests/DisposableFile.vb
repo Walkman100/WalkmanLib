@@ -37,6 +37,10 @@ Namespace Tests
             Return filePath
         End Function
 
+        Public Shared Widening Operator CType(v As DisposableFile) As String
+            Return v.filePath
+        End Operator
+
         Protected Overridable Overloads Sub Dispose(disposing As Boolean)
             If Not disposed Then
                 If disposing Then DeleteFileIfExists(filePath)

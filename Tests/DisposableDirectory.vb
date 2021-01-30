@@ -33,6 +33,10 @@ Namespace Tests
             Return dirPath
         End Function
 
+        Public Shared Widening Operator CType(v As DisposableDirectory) As String
+            Return v.dirPath
+        End Operator
+
         Protected Overridable Overloads Sub Dispose(disposing As Boolean)
             If Not disposed Then
                 Try

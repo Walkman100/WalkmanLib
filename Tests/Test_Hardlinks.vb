@@ -12,7 +12,7 @@ Namespace Tests
     Module Tests_Hardlinks
         Function Test_Hardlinks1(rootTestFolder As String) As Boolean
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks1Source.txt"))
-                File.WriteAllText(testFileSource.filePath, "testText")
+                File.WriteAllText(testFileSource, "testText")
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks1.txt")
                 Environment.CurrentDirectory = rootTestFolder
 
@@ -26,10 +26,10 @@ Namespace Tests
 
         Function Test_Hardlinks2(rootTestFolder As String) As Boolean
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks2Source.txt"))
-                File.WriteAllText(testFileSource.filePath, "testText")
+                File.WriteAllText(testFileSource, "testText")
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks2.txt")
 
-                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource)
 
                 Using testHardlink As New DisposableFile(hardlinkPath, False)
                     Return TestString("Hardlinks2", File.ReadAllText(hardlinkPath), "testText")
@@ -39,11 +39,11 @@ Namespace Tests
 
         Function Test_Hardlinks3(rootTestFolder As String) As Boolean
             Using testDirRoot As New DisposableDirectory(Path.Combine(rootTestFolder, "hardlinks3Root")),
-                  testFileSource As New DisposableFile(Path.Combine(testDirRoot.dirPath, "hardlinks3Source.txt"))
+                  testFileSource As New DisposableFile(Path.Combine(testDirRoot, "hardlinks3Source.txt"))
 
-                File.WriteAllText(testFileSource.filePath, "testText")
+                File.WriteAllText(testFileSource, "testText")
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks3.txt")
-                Dim hardlinkTarget As String = Path.Combine(Path.GetFileName(testDirRoot.dirPath), Path.GetFileName(testFileSource.filePath))
+                Dim hardlinkTarget As String = Path.Combine(Path.GetFileName(testDirRoot), Path.GetFileName(testFileSource))
                 Environment.CurrentDirectory = rootTestFolder
 
                 WalkmanLib.CreateHardLink(hardlinkPath, hardlinkTarget)
@@ -58,10 +58,10 @@ Namespace Tests
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks4Source.txt")),
                   testDirTarget As New DisposableDirectory(Path.Combine(rootTestFolder, "hardlinks4Target"))
 
-                File.WriteAllText(testFileSource.filePath, "testText")
-                Dim hardlinkPath As String = Path.Combine(testDirTarget.dirPath, "hardlinks4.txt")
-                Dim hardlinkTarget As String = Path.Combine("..", Path.GetFileName(testFileSource.filePath))
-                Environment.CurrentDirectory = testDirTarget.dirPath
+                File.WriteAllText(testFileSource, "testText")
+                Dim hardlinkPath As String = Path.Combine(testDirTarget, "hardlinks4.txt")
+                Dim hardlinkTarget As String = Path.Combine("..", Path.GetFileName(testFileSource))
+                Environment.CurrentDirectory = testDirTarget
 
                 WalkmanLib.CreateHardLink(hardlinkPath, hardlinkTarget)
 
@@ -74,13 +74,13 @@ Namespace Tests
 
         Function Test_Hardlinks5(rootTestFolder As String) As Boolean
             Using testDirSource As New DisposableDirectory(Path.Combine(rootTestFolder, "hardlinks5Source")),
-                  testFileSource As New DisposableFile(Path.Combine(testDirSource.dirPath, "hardlinks5Source.txt")),
+                  testFileSource As New DisposableFile(Path.Combine(testDirSource, "hardlinks5Source.txt")),
                   testDirTarget As New DisposableDirectory(Path.Combine(rootTestFolder, "hardlinks5Target"))
 
-                File.WriteAllText(testFileSource.filePath, "testText")
-                Dim hardlinkPath As String = Path.Combine(testDirTarget.dirPath, "hardlinks5.txt")
-                Dim hardlinkTarget As String = Path.Combine("..", Path.GetFileName(testDirSource.dirPath), Path.GetFileName(testFileSource.filePath))
-                Environment.CurrentDirectory = testDirTarget.dirPath
+                File.WriteAllText(testFileSource, "testText")
+                Dim hardlinkPath As String = Path.Combine(testDirTarget, "hardlinks5.txt")
+                Dim hardlinkTarget As String = Path.Combine("..", Path.GetFileName(testDirSource), Path.GetFileName(testFileSource))
+                Environment.CurrentDirectory = testDirTarget
 
                 WalkmanLib.CreateHardLink(hardlinkPath, hardlinkTarget)
 
@@ -105,7 +105,7 @@ Namespace Tests
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "hardlinkThrows2Source.txt"))
                 Dim ex As Exception = New NoException
                 Try
-                    WalkmanLib.CreateHardLink(Path.Combine(rootTestFolder, "nonExistantFolder", "hardlinkThrows2.txt"), testFile.filePath)
+                    WalkmanLib.CreateHardLink(Path.Combine(rootTestFolder, "nonExistantFolder", "hardlinkThrows2.txt"), testFile)
                 Catch ex2 As Exception
                     ex = ex2
                 End Try
@@ -118,7 +118,7 @@ Namespace Tests
                   testFile As New DisposableFile(Path.Combine(rootTestFolder, "hardlinkThrows3.txt"))
                 Dim ex As Exception = New NoException
                 Try
-                    WalkmanLib.CreateHardLink(testFile.filePath, testSource.filePath)
+                    WalkmanLib.CreateHardLink(testFile, testSource)
                 Catch ex2 As Exception
                     ex = ex2
                 End Try
@@ -130,7 +130,7 @@ Namespace Tests
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "hardlinkThrows4Source.txt"))
                 Dim ex As Exception = New NoException
                 Try
-                    WalkmanLib.CreateHardLink(Path.Combine(Environment.SystemDirectory, "symlinkThrows3.txt"), testFile.filePath)
+                    WalkmanLib.CreateHardLink(Path.Combine(Environment.SystemDirectory, "symlinkThrows3.txt"), testFile)
                 Catch ex2 As Exception
                     ex = ex2
                 End Try
@@ -142,7 +142,7 @@ Namespace Tests
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks6Source.txt"))
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks6.txt")
 
-                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource)
 
                 Using testHardlink As New DisposableFile(hardlinkPath, False)
                     Return TestNumber("Hardlinks6", WalkmanLib.GetHardlinkCount(hardlinkPath), 2)
@@ -154,10 +154,10 @@ Namespace Tests
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks7Source.txt"))
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks7.txt")
 
-                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource)
 
                 Using testHardlink As New DisposableFile(hardlinkPath, False)
-                    Return TestNumber("Hardlinks7", WalkmanLib.GetHardlinkCount(testFileSource.filePath), 2)
+                    Return TestNumber("Hardlinks7", WalkmanLib.GetHardlinkCount(testFileSource), 2)
                 End Using
             End Using
         End Function
@@ -166,7 +166,7 @@ Namespace Tests
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks8Source.txt"))
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks8.txt")
 
-                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource)
 
                 Using testHardlink As New DisposableFile(hardlinkPath, False)
                     Dim lstLinks As List(Of String) = WalkmanLib.GetHardlinkLinks(hardlinkPath).ToList
@@ -180,7 +180,7 @@ Namespace Tests
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks9Source.txt"))
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks9.txt")
 
-                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource)
 
                 Using testHardlink As New DisposableFile(hardlinkPath, False)
                     Dim lstLinks As List(Of String) = WalkmanLib.GetHardlinkLinks(hardlinkPath).ToList
@@ -188,7 +188,7 @@ Namespace Tests
                                                                 Return x.EndsWith("Source.txt")
                                                             End Function)
 
-                    Return TestString("Hardlinks9", linkPath, testFileSource.filePath)
+                    Return TestString("Hardlinks9", linkPath, testFileSource)
                 End Using
             End Using
         End Function
@@ -197,15 +197,15 @@ Namespace Tests
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "hardlinks10Source.txt"))
                 Dim hardlinkPath As String = Path.Combine(rootTestFolder, "hardlinks10.txt")
 
-                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource.filePath)
+                WalkmanLib.CreateHardLink(hardlinkPath, testFileSource)
 
                 Using testHardlink As New DisposableFile(hardlinkPath, False)
-                    Dim lstLinks As List(Of String) = WalkmanLib.GetHardlinkLinks(testFileSource.filePath).ToList
+                    Dim lstLinks As List(Of String) = WalkmanLib.GetHardlinkLinks(testFileSource).ToList
                     Dim linkPath As String = lstLinks.First(Function(x As String)
                                                                 Return x.EndsWith("Source.txt")
                                                             End Function)
 
-                    Return TestString("Hardlinks10", linkPath, testFileSource.filePath)
+                    Return TestString("Hardlinks10", linkPath, testFileSource)
                 End Using
             End Using
         End Function

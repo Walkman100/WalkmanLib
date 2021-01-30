@@ -14,7 +14,7 @@ Namespace Tests
         Function Test_ContextMenu1(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "contextMenu1.txt")),
                   cm As New WalkmanLib.ContextMenu()
-                cm.BuildMenu(IntPtr.Zero, {testFile.filePath})
+                cm.BuildMenu(IntPtr.Zero, {testFile})
 
                 Return TestBoolean("ContextMenu1", cm.IsBuilt(), True)
             End Using
@@ -23,7 +23,7 @@ Namespace Tests
         Function Test_ContextMenu2(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "contextMenu2.txt")),
                   cm As New WalkmanLib.ContextMenu()
-                cm.BuildMenu(IntPtr.Zero, {testFile.filePath})
+                cm.BuildMenu(IntPtr.Zero, {testFile})
                 cm.DestroyMenu()
 
                 Return TestBoolean("ContextMenu2", cm.IsBuilt(), False)
@@ -47,7 +47,7 @@ Namespace Tests
         Function Test_ContextMenu4(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "contextMenu4.txt")),
                   cm As New WalkmanLib.ContextMenu()
-                cm.BuildMenu(IntPtr.Zero, {testFile.filePath})
+                cm.BuildMenu(IntPtr.Zero, {testFile})
 
                 Dim ex As Exception = New NoException
                 Try
@@ -63,7 +63,7 @@ Namespace Tests
         Function Test_ContextMenu5(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "contextMenu5.txt")),
                   cm As New WalkmanLib.ContextMenu()
-                cm.BuildMenu(IntPtr.Zero, {testFile.filePath}, 2)
+                cm.BuildMenu(IntPtr.Zero, {testFile}, 2)
 
                 Dim ex As Exception = New NoException
                 Try
@@ -79,7 +79,7 @@ Namespace Tests
         Function Test_ContextMenu6(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "contextMenu6.txt")),
                   cm As New WalkmanLib.ContextMenu()
-                cm.BuildMenu(IntPtr.Zero, {testFile.filePath})
+                cm.BuildMenu(IntPtr.Zero, {testFile})
 
                 Try
                     cm.ShowMenu(IntPtr.Zero, New Drawing.Point(0, 0))
@@ -107,7 +107,7 @@ Namespace Tests
 
                 Tasks.Task.Run(Sub() Application.Run(frm))
 
-                cm.BuildMenu(frm.Handle, {testFile.filePath}, flags:=WalkmanLib.ContextMenu.QueryContextMenuFlags.CanRename)
+                cm.BuildMenu(frm.Handle, {testFile}, flags:=WalkmanLib.ContextMenu.QueryContextMenuFlags.CanRename)
                 frm.BringToFront()
 
                 Tasks.Task.Run(Sub()
@@ -129,7 +129,7 @@ Namespace Tests
 
                 Tasks.Task.Run(Sub() Application.Run(frm))
 
-                cm.BuildMenu(frm.Handle, {testFile.filePath}, 10)
+                cm.BuildMenu(frm.Handle, {testFile}, 10)
                 frm.BringToFront()
 
                 renameCalled = False
@@ -175,7 +175,7 @@ Namespace Tests
 
                 Tasks.Task.Run(Sub() Application.Run(frm))
 
-                frm.cm.BuildMenu(frm.Handle, {testFile.filePath})
+                frm.cm.BuildMenu(frm.Handle, {testFile})
                 frm.BringToFront()
 
                 Tasks.Task.Run(Sub()

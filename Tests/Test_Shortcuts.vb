@@ -44,7 +44,7 @@ Namespace Tests
 
         Function Test_Shortcuts4(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "shortcuts4.lnk"), False, False)
-                Return TestString("Shortcuts4", WalkmanLib.CreateShortcut(testFile.filePath), testFile.filePath)
+                Return TestString("Shortcuts4", WalkmanLib.CreateShortcut(testFile), testFile)
             End Using
         End Function
 

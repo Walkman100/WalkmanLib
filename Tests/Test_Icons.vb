@@ -44,12 +44,12 @@ Namespace Tests
 
             Using extractedIcon As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon1.ico"), False, False)
                 Try
-                    ExtractResXIcon(resXlocation, "Win7_Information", extractedIcon.filePath)
+                    ExtractResXIcon(resXlocation, "Win7_Information", extractedIcon)
                 Catch ex As Exception
                     Return TestType("ExtractIcon1", ex.GetType, GetType(NoException))
                 End Try
 
-                Return TestString("ExtractIcon1", Sha1File(extractedIcon.filePath), "54055a0a6d465f465a444af7e784f93373376775")
+                Return TestString("ExtractIcon1", Sha1File(extractedIcon), "54055a0a6d465f465a444af7e784f93373376775")
             End Using
         End Function
 
@@ -61,22 +61,22 @@ Namespace Tests
 
             Using resXextractedIcon As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon2.ico"), False, False)
                 Try
-                    ExtractResXIcon(resXlocation, "Win7_Information", resXextractedIcon.filePath)
+                    ExtractResXIcon(resXlocation, "Win7_Information", resXextractedIcon)
                 Catch ex As Exception
                     Return TestType("ExtractIcon2", ex.GetType, GetType(NoException))
                 End Try
 
                 Dim extractedIcon As Icon
                 Try
-                    extractedIcon = WalkmanLib.ExtractIconByIndex(resXextractedIcon.filePath, 0, 256)
+                    extractedIcon = WalkmanLib.ExtractIconByIndex(resXextractedIcon, 0, 256)
                 Catch ex As Exception
                     Return TestType("ExtractIcon2", ex.GetType, GetType(NoException))
                 End Try
 
                 Using extractedIconByIndex As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon2ByIndex.png"), False, False)
-                    extractedIcon.ToBitmap.Save(extractedIconByIndex.filePath)
+                    extractedIcon.ToBitmap.Save(extractedIconByIndex)
 
-                    Return TestString("ExtractIcon2", Sha1File(extractedIconByIndex.filePath), "5c6f21ec3f34bd07dec4e38dc9d83cdfa3ce5915")
+                    Return TestString("ExtractIcon2", Sha1File(extractedIconByIndex), "5c6f21ec3f34bd07dec4e38dc9d83cdfa3ce5915")
                 End Using
             End Using
         End Function
@@ -90,9 +90,9 @@ Namespace Tests
             End Try
 
             Using targetIcon As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon3.png"), False, False)
-                extractedIcon.ToBitmap.Save(targetIcon.filePath)
+                extractedIcon.ToBitmap.Save(targetIcon)
 
-                Return TestString("ExtractIcon3", Sha1File(targetIcon.filePath), "b1419f59aea45aa1b1aee38d3d77cdaae9ff3916")
+                Return TestString("ExtractIcon3", Sha1File(targetIcon), "b1419f59aea45aa1b1aee38d3d77cdaae9ff3916")
             End Using
         End Function
 

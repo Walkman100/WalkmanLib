@@ -9,13 +9,13 @@ Namespace Tests
     Module Tests_IsFileOrDirectory
         Function Test_IsFileOrDirectory1(rootTestFolder As String) As Boolean
             Using testDir As New DisposableDirectory(Path.Combine(rootTestFolder, "isFileOrDirectory1"))
-                Return TestNumber("IsFileOrDirectory1", WalkmanLib.IsFileOrDirectory(testDir.dirPath), PathEnum.Exists Or PathEnum.IsDirectory)
+                Return TestNumber("IsFileOrDirectory1", WalkmanLib.IsFileOrDirectory(testDir), PathEnum.Exists Or PathEnum.IsDirectory)
             End Using
         End Function
 
         Function Test_IsFileOrDirectory2(rootTestFolder As String) As Boolean
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "isFileOrDirectory2.txt"))
-                Return TestNumber("IsFileOrDirectory2", WalkmanLib.IsFileOrDirectory(testFile.filePath), PathEnum.Exists Or PathEnum.IsFile)
+                Return TestNumber("IsFileOrDirectory2", WalkmanLib.IsFileOrDirectory(testFile), PathEnum.Exists Or PathEnum.IsFile)
             End Using
         End Function
 

@@ -15,9 +15,9 @@ Namespace Tests
             Dim ico As Icon = WalkmanLib.GetFileIcon(Environment.GetEnvironmentVariable("WinDir"))
 
             Using savedImage As New DisposableFile(Path.Combine(rootTestFolder, "getFileIcon1.png"), False, False)
-                ico.ToBitmap().Save(savedImage.filePath)
+                ico.ToBitmap().Save(savedImage)
 
-                Return TestBoolean("GetFileIcon1", File.Exists(savedImage.filePath), True)
+                Return TestBoolean("GetFileIcon1", File.Exists(savedImage), True)
             End Using
         End Function
 
@@ -25,9 +25,9 @@ Namespace Tests
             Dim ico As Icon = WalkmanLib.GetFileIcon(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "explorer.exe"))
 
             Using savedImage As New DisposableFile(Path.Combine(rootTestFolder, "getFileIcon2.png"), False, False)
-                ico.ToBitmap().Save(savedImage.filePath)
+                ico.ToBitmap().Save(savedImage)
 
-                Return TestBoolean("GetFileIcon2", File.Exists(savedImage.filePath), True)
+                Return TestBoolean("GetFileIcon2", File.Exists(savedImage), True)
             End Using
         End Function
 
