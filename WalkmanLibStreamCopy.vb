@@ -20,7 +20,9 @@ Partial Public Class WalkmanLib
     ''' <param name="target">Stream to copy to. Must support Writing</param>
     ''' <param name="description">Optional description to display in the ProgressDialog.</param>
     ''' <param name="title">Optional title to use for the ProgressDialog.</param>
-    Shared Sub StreamCopy(source As Stream, target As Stream, Optional description As String = " ", Optional title As String = "Copy")
+    ''' <param name="onComplete">Optional event handler to run when the Asnyc operation is complete</param>
+    Shared Sub StreamCopy(source As Stream, target As Stream, Optional description As String = " ", Optional title As String = "Copying...",
+                          Optional onComplete As RunWorkerCompletedEventHandler = Nothing)
         If source Is Nothing Then Throw New ArgumentNullException("source")
         If target Is Nothing Then Throw New ArgumentNullException("target")
 
@@ -44,7 +46,7 @@ Partial Public Class WalkmanLib
         }
 
         AddHandler progressDialog.DoWork, AddressOf doStreamCopy
-        AddHandler progressDialog.RunWorkerCompleted, AddressOf streamCopyCompleted
+        AddHandler progressDialog.RunWorkerCompleted, onComplete
 
         progressDialog.Show(New Object() {progressDialog, source, target})
     End Sub
@@ -72,7 +74,7 @@ Partial Public Class WalkmanLib
 
             While size < len
                 If progressDialog.CancellationPending Then
-                    Exit While
+                    Throw New OperationCanceledException("Operation was canceled by the user")
                 End If
 
                 newPercent = CType(size / flen * 100, Integer)
@@ -88,24 +90,15 @@ Partial Public Class WalkmanLib
                 size += bytesRead
 
                 If progressDialog.CancellationPending Then
-                    Exit While
+                    Throw New OperationCanceledException("Operation was canceled by the user")
                 End If
             End While
             If writer IsNot Nothing Then writer.Wait()
-
-            progressDialog.ReportProgress(100, "Flushing data to disk...", Nothing)
         Finally
+            progressDialog.ReportProgress(100, "Flushing data to disk...", Nothing)
             If sourceStream IsNot Nothing Then sourceStream.Dispose()
             If targetStream IsNot Nothing Then targetStream.Dispose()
         End Try
-    End Sub
-
-    Private Shared Sub streamCopyCompleted(sender As Object, e As RunWorkerCompletedEventArgs)
-        If e.Cancelled Then
-            Throw New OperationCanceledException("Stream copy was Cancelled")
-        ElseIf e.Error IsNot Nothing Then
-            Throw e.Error
-        End If
     End Sub
 
 #End If

@@ -13,11 +13,15 @@ Namespace Tests
         Function Test_StreamCopy1(rootTestFolder As String) As Boolean
             WriteTestSkipped(New Collections.Generic.List(Of String)({"StreamCopy1",
                                                                       "StreamCopy2",
+                                                                      "StreamCopy3",
                                                                       "StreamCopyThrows1",
                                                                       "StreamCopyThrows2"}), "No Ookii.Dialogs available")
             Return True
         End Function
         Function Test_StreamCopy2(rootTestFolder As String) As Boolean
+            Return True
+        End Function
+        Function Test_StreamCopy3(rootTestFolder As String) As Boolean
             Return True
         End Function
         Function Test_StreamCopyThrows1() As Boolean
@@ -64,11 +68,33 @@ Namespace Tests
 
                 Dim randBytes(8) As Byte
                 Call New Random().NextBytes(randBytes)
+                File.WriteAllText(testFileSource, Convert.ToBase64String(randBytes), Text.Encoding.ASCII)
+
+                Dim returned As Boolean = False
+
+                Dim source As FileStream = File.OpenRead(testFileSource)
+                Dim target As FileStream = File.OpenWrite(testFileTarget)
+
+                Threading.Tasks.Task.Run(Sub()
+                                             WalkmanLib.StreamCopy(source, target, onComplete:=Sub() returned = True)
+                                         End Sub)
+                Threading.Thread.Sleep(100)
+
+                Return TestBoolean("StreamCopy2", returned, True)
+            End Using
+        End Function
+
+        Function Test_StreamCopy3(rootTestFolder As String) As Boolean
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy3Source")),
+                    testFileTarget As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy3Target"))
+
+                Dim randBytes(8) As Byte
+                Call New Random().NextBytes(randBytes)
                 File.WriteAllText(testFileTarget, Convert.ToBase64String(randBytes), Text.Encoding.ASCII)
 
                 WalkmanLib.StreamCopy(File.OpenRead(testFileSource), File.OpenWrite(testFileTarget))
 
-                Return TestString("StreamCopy2", File.ReadAllText(testFileTarget), "")
+                Return TestString("StreamCopy3", File.ReadAllText(testFileTarget), "")
             End Using
         End Function
 

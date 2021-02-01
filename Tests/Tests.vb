@@ -80,6 +80,7 @@ Namespace Tests
                 If Not Test_TimeConvert16() Then returnVal = False
                 If Not Test_StreamCopy1(rootTestFolder) Then returnVal = False
                 If Not Test_StreamCopy2(rootTestFolder) Then returnVal = False
+                If Not Test_StreamCopy3(rootTestFolder) Then returnVal = False
                 If Not Test_StreamCopyThrows1() Then returnVal = False
                 If Not Test_StreamCopyThrows2(rootTestFolder) Then returnVal = False
             End If
