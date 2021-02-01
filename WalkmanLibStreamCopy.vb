@@ -8,9 +8,9 @@ Imports System.ComponentModel
 Imports System.IO
 
 Partial Public Class WalkmanLib
-
     ' disable if NoOokii is defined (default for tests project)
 #If NoOokii = 0 Then
+
     ''' <summary>
     ''' Asynchronously Copy a stream with a progress dialog. Uses <see cref="Ookii.Dialogs.ProgressDialog"/> for the dialog.
     ''' <br />NOTE: As this function exits when the copy process starts, the streams must NOT be closed e.g. by a <see langword="Using"/> statement.
@@ -56,28 +56,42 @@ Partial Public Class WalkmanLib
         Dim sourceStream As Stream = DirectCast(inputs(1), Stream)
         Dim targetStream As Stream = DirectCast(inputs(2), Stream)
 
-        Try
-            Dim bufferSize As Integer = 4096
+        Try ' double-buffer code/idea thanks to https://stackoverflow.com/a/26556205/2999220
+            Dim bufferSize As Integer = 1024 * 1024
             Dim buffer(bufferSize) As Byte
+            Dim buffer2(bufferSize) As Byte
+            Dim swap As Boolean = False
             Dim oldPercent As Integer = 0
-            For index As Long = 0 To sourceStream.Length Step bufferSize
+            Dim newPercent As Integer = 0
+            Dim bytesRead As Integer = 0
+
+            Dim len As Long = sourceStream.Length
+            Dim flen As Single = len
+            Dim writer As Threading.Tasks.Task = Nothing
+            Dim size As Long = 0
+
+            While size < len
                 If progressDialog.CancellationPending Then
-                    Exit For
+                    Exit While
                 End If
 
-                Dim read As Integer = sourceStream.Read(buffer, 0, bufferSize)
-                targetStream.Write(buffer, 0, read)
-
-                Dim progressPercent As Integer = CType(index / sourceStream.Length * 100, Integer)
-                If progressPercent > oldPercent Then
-                    progressDialog.ReportProgress(progressPercent, "Progress: " & progressPercent & "%", Nothing)
-                    oldPercent = progressPercent
+                newPercent = CType(size / flen * 100, Integer)
+                If newPercent <> oldPercent Then
+                    progressDialog.ReportProgress(newPercent, "Progress: " & newPercent & "%", Nothing)
+                    oldPercent = newPercent
                 End If
+
+                bytesRead = sourceStream.Read(If(swap, buffer, buffer2), 0, bufferSize)
+                If writer IsNot Nothing Then writer.Wait()
+                writer = targetStream.WriteAsync(If(swap, buffer, buffer2), 0, bytesRead)
+                swap = Not swap
+                size += bytesRead
 
                 If progressDialog.CancellationPending Then
-                    Exit For
+                    Exit While
                 End If
-            Next
+            End While
+            If writer IsNot Nothing Then writer.Wait()
 
             progressDialog.ReportProgress(100, "Flushing data to disk...", Nothing)
         Finally
@@ -93,5 +107,6 @@ Partial Public Class WalkmanLib
             Throw e.Error
         End If
     End Sub
+
 #End If
 End Class

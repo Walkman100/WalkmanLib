@@ -30,7 +30,7 @@ Namespace Tests
 #Else     ' disable if NoOokii is defined (default for tests project)
 
         Function Test_StreamCopy1(rootTestFolder As String) As Boolean
-            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy1"))
+            Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy1Source"))
                 Dim randByteAmount As Integer = 1024
                 Dim randBytes(randByteAmount) As Byte
                 Call New Random().NextBytes(randBytes)
@@ -43,7 +43,13 @@ Namespace Tests
                     Dim target As FileStream = New FileStream(testFileTarget, FileMode.Truncate)
 
                     Threading.Tasks.Task.Run(Sub()
-                                                 WalkmanLib.StreamCopy(source, target)
+                                                 Try
+                                                     WalkmanLib.StreamCopy(source, target)
+                                                 Catch ' StreamCopy Disposes the streams if copy started successfully, if it didn't then we manually close them
+                                                     source.Dispose()
+                                                     target.Dispose()
+                                                     Throw
+                                                 End Try
                                              End Sub)
                     Threading.Thread.Sleep(200)
 
