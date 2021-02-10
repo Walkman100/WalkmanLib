@@ -959,10 +959,12 @@ Partial Public Class WalkmanLib
         Dim hWnd As IntPtr = FindWindow(windowClass, windowName)
         If hWnd = IntPtr.Zero Then
             Dim errorException As New Win32Exception()
-            If errorException.NativeErrorCode = 0 Then
-                'ERROR_SUCCESS: The operation completed successfully.
+            If errorException.NativeErrorCode = 0 OrElse errorException.NativeErrorCode = 1400 Then
+                '0: ERROR_SUCCESS: The operation completed successfully.
+                '1400: ERROR_INVALID_WINDOW_HANDLE: Invalid window handle.
                 Throw New ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException)
             End If
+
             Throw errorException
         End If
 
