@@ -793,9 +793,9 @@ Partial Public Class WalkmanLib
         End If
 
         Try
-            Using hFile As SafeFileHandle = Win32CreateFile(path,
-                                                            Win32FileAccess.FileGenericRead Or Win32FileAccess.FileGenericWrite,
-                                                            FileShare.None, FileMode.Open, Win32FileAttribute.FlagBackupSemantics)
+            Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.FileGenericRead Or Win32FileAccess.FileGenericWrite,
+                                                            FileShare.ReadWrite Or FileShare.Delete,
+                                                            FileMode.Open, Win32FileAttribute.FlagBackupSemantics)
                 Return DeviceIoControl(hFile.DangerousGetHandle, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
             End Using
         Catch ex As Exception
