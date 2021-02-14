@@ -8,7 +8,6 @@ Imports System.IO
 Imports System.IO.File
 Imports System.Security.Principal
 Imports System.Windows.Forms
-Imports Microsoft.VisualBasic
 
 ' used for IsFileOrDirectory
 <Flags>
@@ -25,7 +24,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Opens the Open With dialog box for a file path.</summary>
     ''' <param name="path">The file to open with a program.</param>
     Shared Sub OpenWith(path As String)
-        Shell("rundll32 shell32.dll,OpenAs_RunDLL " & path, AppWinStyle.NormalFocus, True, 500)
+        Microsoft.VisualBasic.Shell("rundll32 shell32.dll,OpenAs_RunDLL " & path, Microsoft.VisualBasic.AppWinStyle.NormalFocus, True, 500)
     End Sub
 
     ''' <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
@@ -229,16 +228,16 @@ Partial Public Class WalkmanLib
             If successMessage <> Nothing Then
                 Application.EnableVisualStyles() ' affects when in a console app
                 If successMessage = "default" Then
-                    MsgBox(text & Environment.NewLine & "Succesfully copied!", MsgBoxStyle.Information, "Succesfully copied!")
+                    MessageBox.Show(text & Environment.NewLine & "Succesfully copied!", "Succesfully copied!", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Else
-                    MsgBox(successMessage, MsgBoxStyle.Information, "Succesfully copied!")
+                    MessageBox.Show(successMessage, "Succesfully copied!", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End If
             Return True
         Catch ex As Exception
             If showErrors Then
                 Application.EnableVisualStyles() ' affects when in a console app
-                MsgBox("Copy failed!" & Environment.NewLine & "Error: """ & ex.ToString & """", MsgBoxStyle.Critical, "Copy failed!")
+                MessageBox.Show("Copy failed!" & Environment.NewLine & "Error: """ & ex.ToString & """", "Copy failed!", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End If
             Return False
         End Try
@@ -313,8 +312,8 @@ Partial Public Class WalkmanLib
     Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional messagePumpForm As Form = Nothing)
         Application.EnableVisualStyles() ' affects when in a console app
         If showMsgBox Then
-            If MsgBox(errorMessage & ex.Message & Environment.NewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
-                MsgBoxStyle.YesNo Or MsgBoxStyle.Exclamation, "Error!") <> MsgBoxResult.Yes Then Exit Sub
+            If MessageBox.Show(errorMessage & ex.Message & Environment.NewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
+                               "Error!", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) <> DialogResult.Yes Then Exit Sub
         End If
 
         Dim frmBugReport As New Form With {
@@ -374,7 +373,7 @@ Partial Public Class WalkmanLib
                 messagePumpForm.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
             End If
         Catch ex2 As Exception
-            MsgBox("Error showing window: " & ex2.ToString, MsgBoxStyle.Exclamation)
+            MessageBox.Show("Error showing window: " & ex2.ToString, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         End Try
     End Sub
 
@@ -473,8 +472,8 @@ Partial Public Class WalkmanLib
                 isAbsolute = True
                 parsedIconPath = Environment.ExpandEnvironmentVariables(parsedIconPath)
             Else
-                For i As Integer = 1 To 26 ' The Chr() below will give all letters from A to Z
-                    If parsedIconPath.StartsWith(Chr(i + 64) & Path.VolumeSeparatorChar & Path.DirectorySeparatorChar, True, Nothing) Then
+                For i As Integer = 1 To 26 ' The Convert.ToChar() below will give all letters from A to Z
+                    If parsedIconPath.StartsWith(Convert.ToChar(i + 64) & Path.VolumeSeparatorChar & Path.DirectorySeparatorChar, True, Nothing) Then
                         isAbsolute = True
                         Exit For
                     End If
