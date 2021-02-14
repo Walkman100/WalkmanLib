@@ -308,8 +308,7 @@ Partial Public Class WalkmanLib
     ''' <param name="ex">The System.Exception to show details about.</param>
     ''' <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
     ''' <param name="showMsgBox">True to show the error message prompt to show the full stacktrace or not, False to just show the window immediately</param>
-    ''' <param name="messagePumpForm">Include this to show the window properly from a background thread. Use `Me` from a WinForms app.</param>
-    Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional messagePumpForm As Form = Nothing)
+    Shared Sub ErrorDialog(ex As Exception, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True)
         Application.EnableVisualStyles() ' affects when in a console app
         If showMsgBox Then
             If MessageBox.Show(errorMessage & ex.Message & Environment.NewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
@@ -362,16 +361,19 @@ Partial Public Class WalkmanLib
         End Try
 
         Try
-            If messagePumpForm Is Nothing Then
-                ' Thanks to https://stackoverflow.com/a/661662/2999220
-                If frmBugReport.InvokeRequired Then
-                    frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
-                Else
-                    frmBugReport.Show()
-                End If
-            Else
-                messagePumpForm.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
-            End If
+            ' show the dialog in a different thread with an unassociated MessagePump
+            Threading.Tasks.Task.Run(Sub() frmBugReport.ShowDialog())
+
+            'If messagePumpForm Is Nothing Then
+            '    ' Thanks to https://stackoverflow.com/a/661662/2999220
+            '    If frmBugReport.InvokeRequired Then
+            '        frmBugReport.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
+            '    Else
+            '        frmBugReport.Show()
+            '    End If
+            'Else
+            '    messagePumpForm.Invoke(DirectCast(Sub() frmBugReport.Show(), MethodInvoker))
+            'End If
         Catch ex2 As Exception
             MessageBox.Show("Error showing window: " & ex2.ToString, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         End Try
