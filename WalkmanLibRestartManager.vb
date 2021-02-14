@@ -22,9 +22,9 @@ Partial Public Class WalkmanLib
     ''' Contains methods to get processes using a specified file, using the Windows RestartManager APIs
     ''' </summary>
     Public NotInheritable Class RestartManager
-        Private Const CCH_RM_MAX_APP_NAME As Integer = 255
-        Private Const CCH_RM_MAX_SVC_NAME As Integer = 63
-        Private Const ERROR_MORE_DATA As Integer = 234
+        Private Const CCH_RM_MAX_APP_NAME As Integer = &HFF
+        Private Const CCH_RM_MAX_SVC_NAME As Integer = &H3F
+        Private Const ERROR_MORE_DATA As Integer = &HEA
 
         'https://docs.microsoft.com/en-us/windows/win32/api/restartmanager/ns-restartmanager-rm_process_info
         <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
@@ -140,16 +140,14 @@ Partial Public Class WalkmanLib
         ''' </summary>
         ''' <param name="path">Path to the file to get processes for</param>
         ''' <returns>Collections.Generic.List(Of Process) that are using the file</returns>
-        Public Shared Function GetLockingProcesses(path As String) As List(Of Process)
-            Dim processes As New List(Of Process)
+        Public Shared Iterator Function GetLockingProcesses(path As String) As IEnumerable(Of Process)
             For Each pI As ProcessInfo In GetLockingProcessInfos(path)
                 Try
                     Dim processToAdd As Process = Process.GetProcessById(CType(pI.Process.ProcessID, Integer))
-                    processes.Add(processToAdd)
+                    Yield processToAdd
                 Catch ex As ArgumentException
                 End Try
             Next
-            Return processes
         End Function
     End Class
 
@@ -158,7 +156,7 @@ Partial Public Class WalkmanLib
     ''' </summary>
     ''' <param name="path">Path to the file to get processes for</param>
     ''' <returns>Collections.Generic.List(Of Process) that are using the file</returns>
-    Shared Function GetLockingProcessesRM(path As String) As List(Of Process)
+    Shared Function GetLockingProcessesRM(path As String) As IEnumerable(Of Process)
         Return RestartManager.GetLockingProcesses(path)
     End Function
 End Class
