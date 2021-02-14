@@ -244,6 +244,43 @@ Partial Public Class WalkmanLib
         End Try
     End Function
 
+    Shared Function GetWalkmanUtilsPath() As String
+        'first check startup path
+        Dim rtn As String = Path.Combine(Application.StartupPath, "WalkmanUtils")
+        If Directory.Exists(rtn) Then
+            Return rtn
+        End If
+
+        'then registry
+        'if 64-bit app: HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\WalkmanUtils InstallLocation
+        'if 32-bit app: HKLM\Software            \Microsoft\Windows\CurrentVersion\Uninstall\WalkmanUtils InstallLocation
+        Dim keyPath As String = "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WalkmanUtils\"
+
+        ' always use 32-bit view
+        Dim localKey As Microsoft.Win32.RegistryKey = Microsoft.Win32.RegistryKey.OpenBaseKey(
+                Microsoft.Win32.RegistryHive.LocalMachine, Microsoft.Win32.RegistryView.Registry32)
+        localKey = localKey.OpenSubKey(keyPath)
+
+        If localKey IsNot Nothing AndAlso localKey.GetValue("InstallLocation") IsNot Nothing Then
+            rtn = localKey.GetValue("InstallLocation").ToString()
+            If Directory.Exists(rtn) Then
+                Return rtn.TrimEnd(Path.DirectorySeparatorChar)
+            End If
+        End If
+
+        'fall back to check %ProgramFiles%\WalkmanOSS\WalkmanUtils
+        rtn = Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles"), "WalkmanOSS", "WalkmanUtils")
+        If Directory.Exists(rtn) Then
+            Return rtn
+        End If '        and %ProgramFiles(x86)%\WalkmanOSS\WalkmanUtils
+        rtn = Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "WalkmanOSS", "WalkmanUtils")
+        If Directory.Exists(rtn) Then
+            Return rtn
+        End If
+
+        Throw New DirectoryNotFoundException("WalkmanUtils path not found in application's path, Installed location or default folder in Program Files")
+    End Function
+
     ''' <summary>Shows an error message for an exception, and asks the user if they want to display the full error in a copyable window.</summary>
     ''' <param name="ex">The System.Exception to show details about.</param>
     ''' <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
