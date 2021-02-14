@@ -244,7 +244,17 @@ Partial Public Class WalkmanLib
         End Try
     End Function
 
-    Shared Function GetWalkmanUtilsPath() As String
+    ''' <summary>
+    ''' Gets path to a WalkmanUtils install. First tries in the same folder as the running application,
+    ''' then the location saved in the registry, then a default fallback in Program Files.
+    ''' <br />Throws <see cref="DirectoryNotFoundException"/> on no install found.
+    ''' </summary>
+    ''' <param name="minimumVersion">
+    ''' Optional version to check against installed version.
+    ''' Only checked with installed WalkmanUtils, and only presents a Continue message to the user. Throws <see cref="OperationCanceledException"/> on user abort.
+    ''' </param>
+    ''' <returns>Directory containing a WalkmanUtils installation. Module presence is not checked.</returns>
+    Shared Function GetWalkmanUtilsPath(Optional minimumVersion As Version = Nothing) As String
         'first check startup path
         Dim rtn As String = Path.Combine(Application.StartupPath, "WalkmanUtils")
         If Directory.Exists(rtn) Then
@@ -264,6 +274,20 @@ Partial Public Class WalkmanLib
         If localKey IsNot Nothing AndAlso localKey.GetValue("InstallLocation") IsNot Nothing Then
             rtn = localKey.GetValue("InstallLocation").ToString()
             If Directory.Exists(rtn) Then
+
+                If minimumVersion IsNot Nothing Then
+                    Dim gotVersion As Version = Nothing
+                    If Version.TryParse(localKey.GetValue("DisplayVersion").ToString(), gotVersion) Then
+                        If gotVersion < minimumVersion AndAlso MessageBox.Show("Currently Installed WalkmanUtils version is out of date! Use anyway?",
+                                                                           "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) = DialogResult.No Then
+                            Throw New OperationCanceledException
+                        End If
+                    ElseIf MessageBox.Show("Got Invalid Version from WalkmanUtils install info! Continue anyway?",
+                                           "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) = DialogResult.No Then
+                        Throw New OperationCanceledException
+                    End If
+                End If
+
                 Return rtn.TrimEnd(Path.DirectorySeparatorChar)
             End If
         End If
