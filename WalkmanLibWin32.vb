@@ -329,6 +329,82 @@ Partial Public Class WalkmanLib
     End Enum
 #End Region
 
+#Region "CreateJunction"
+    ' Link: https://www.codeproject.com/Articles/15633/Manipulating-NTFS-Junction-Points-in-NET
+    Public Shared Sub CreateJunction(junctionPath As String, targetPath As String, Optional replace As Boolean = False)
+        'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/c8e77b37-3909-4fe6-a4ea-2b9d423b1ee4
+        Const IO_REPARSE_TAG_MOUNT_POINT As UInteger = &HA0000003UI
+        'https://docs.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_set_reparse_point
+        Const FSCTL_SET_REPARSE_POINT As UInteger = &H900A4
+        'This prefix indicates to NTFS that the path is to be treated as a non-interpreted path in the virtual file system.
+        Const NonInterpretedPathPrefix As String = "\??\"
+
+        If Directory.Exists(junctionPath) Then
+            If Not replace Then Throw New IOException("Directory already exists and overwrite parameter is false.")
+        Else
+            Directory.CreateDirectory(junctionPath)
+        End If
+        targetPath = Path.GetFullPath(targetPath)
+
+        Using reparsePointHandle As SafeFileHandle = Win32CreateFile(junctionPath, Win32FileAccess.GenericWrite, FileShare.Read Or FileShare.Write Or FileShare.Delete, FileMode.Open, Win32FileAttribute.FlagBackupSemantics Or Win32FileAttribute.FlagOpenReparsePoint)
+            If Marshal.GetLastWin32Error() <> 0 Then Throw New IOException("Unable to open reparse point.", New Win32Exception())
+
+            Dim targetDirBytes As Byte() = Text.Encoding.Unicode.GetBytes(NonInterpretedPathPrefix & targetPath)
+            Dim reparseDataBuffer As New ReparseDataBuffer With {
+                .ReparseTag = IO_REPARSE_TAG_MOUNT_POINT,
+                .ReparseDataLength = CType(targetDirBytes.Length + 12, UShort),
+                .SubstituteNameOffset = 0,
+                .SubstituteNameLength = CType(targetDirBytes.Length, UShort),
+                .PrintNameOffset = CType(targetDirBytes.Length + 2, UShort),
+                .PrintNameLength = 0,
+                .PathBuffer = New Byte(16367) {}
+            }
+
+            Array.Copy(targetDirBytes, reparseDataBuffer.PathBuffer, targetDirBytes.Length)
+
+            Dim result As Boolean = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, reparseDataBuffer, CType(targetDirBytes.Length + 20, UShort), IntPtr.Zero, 0, 0, IntPtr.Zero)
+
+            If Not result Then Throw New IOException("Unable to create junction point.", New Win32Exception())
+        End Using
+    End Sub
+
+    'https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol
+    'https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function DeviceIoControl(hDevice As SafeFileHandle, dwIoControlCode As UInteger,
+                                            <[In]> ByRef lpInBuffer As ReparseDataBuffer, nInBufferSize As UInteger,
+                                            <Out> ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
+                                            ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
+    End Function
+
+    'https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_reparse_data_buffer
+    ' Because the tag we're using is IO_REPARSE_TAG_MOUNT_POINT, we use the MountPointReparseBuffer struct in the DUMMYUNIONNAME union.
+    'https://www.pinvoke.net/default.aspx/Structures/REPARSE_DATA_BUFFER.html
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure ReparseDataBuffer
+        ''' <summary>Reparse point tag. Must be a Microsoft reparse point tag.</summary>
+        Public ReparseTag As UInteger
+        ''' <summary>Size, in bytes, of the reparse data in the buffer that <see cref="PathBuffer"/> points to.</summary>
+        Public ReparseDataLength As UShort
+        ''' <summary>Reserved; do not use.</summary>
+        Private Reserved As UShort
+        ''' <summary>Offset, in bytes, of the substitute name string in the <see cref="PathBuffer"/> array.</summary>
+        Public SubstituteNameOffset As UShort
+        ''' <summary>Length, in bytes, of the substitute name string. If this string is null-terminated, <see cref="SubstituteNameLength"/> does not include space for the null character.</summary>
+        Public SubstituteNameLength As UShort
+        ''' <summary>Offset, in bytes, of the print name string in the <see cref="PathBuffer"/> array.</summary>
+        Public PrintNameOffset As UShort
+        ''' <summary>Length, in bytes, of the print name string. If this string is null-terminated, <see cref="PrintNameLength"/> does not include space for the null character.</summary>
+        Public PrintNameLength As UShort
+        ''' <summary>
+        ''' A buffer containing the unicode-encoded path string. The path string contains the substitute name
+        ''' string and print name string. The substitute name and print name strings can appear in any order.
+        ''' </summary>
+        <MarshalAs(UnmanagedType.ByValArray, SizeConst:=16368)>
+        Public PathBuffer As Byte()
+    End Structure
+#End Region
+
 #Region "GetHardlinkCount"
     ' Link: https://serverfault.com/questions/758496/get-hardlink-count-for-a-file-on-windows-without-fsutil-which-requires-admin
     ' Link: https://devblogs.microsoft.com/vbteam/to-compare-two-filenames-lucian-wischik/
