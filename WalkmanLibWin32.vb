@@ -46,7 +46,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Creates a hardlink to an existing file.</summary>
     ''' <param name="symlinkPath">Path to the hardlink file to create.</param>
     ''' <param name="targetPath">Absolute or relative path to the existing file to link to. If relative, target is relative to current directory.</param>
-    Shared Sub CreateHardLink(hardlinkPath As String, existingFilePath As String)
+    Public Shared Sub CreateHardLink(hardlinkPath As String, existingFilePath As String)
         If CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) = False Then
 
             Dim errorException As New Win32Exception
@@ -86,7 +86,7 @@ Partial Public Class WalkmanLib
     ''' <param name="symlinkPath">Path to the symbolic link file to create.</param>
     ''' <param name="targetPath">Absolute or relative path to the target of the shortcut. If relative, target is relative to the symbolic link file.</param>
     ''' <param name="targetIsDirectory">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
-    Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, Optional targetIsDirectory As Boolean = False)
+    Public Shared Sub CreateSymLink(symlinkPath As String, targetPath As String, Optional targetIsDirectory As Boolean = False)
         ' https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
         Dim flags As SymbolicLinkFlags = SymbolicLinkFlags.AllowUnprivilegedCreate Or
                 If(targetIsDirectory, SymbolicLinkFlags.Directory, SymbolicLinkFlags.File)
@@ -135,7 +135,7 @@ Partial Public Class WalkmanLib
 #End Region
 
 #Region "Win32CreateFile"
-    Shared Function Win32CreateFile(fileName As String, fileAccess As Win32FileAccess, shareMode As FileShare,
+    Public Shared Function Win32CreateFile(fileName As String, fileAccess As Win32FileAccess, shareMode As FileShare,
                                     fileMode As FileMode, flagsAndAttributes As Win32FileAttribute) As SafeFileHandle
         Dim handle As SafeFileHandle = CreateFile(fileName, fileAccess, shareMode, IntPtr.Zero, fileMode, flagsAndAttributes, IntPtr.Zero)
 
@@ -335,7 +335,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets the count of hardlinks of a file.</summary>
     ''' <param name="path">Path to the file to get the hardlink count of.</param>
     ''' <returns>Count of links to a file. The count includes the current link (0 would be a deleted file)</returns>
-    Shared Function GetHardlinkCount(path As String) As UInteger
+    Public Shared Function GetHardlinkCount(path As String) As UInteger
         ' don't need to use Win32CreateFile as that's needed for directories
         Using fs As New FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
             Dim fileInfo As ByHandleFileInformation
@@ -376,7 +376,7 @@ Partial Public Class WalkmanLib
     ''' To ensure this handle is closed, ensure all the links are retrieved.</summary>
     ''' <param name="path">Path to the file to get links for. This path does not include the drive identifier.</param>
     ''' <returns>All a file's links.</returns>
-    Shared Iterator Function GetHardlinkLinks(path As String) As IEnumerable(Of String)
+    Public Shared Iterator Function GetHardlinkLinks(path As String) As IEnumerable(Of String)
         Dim INVALID_HANDLE_VALUE As IntPtr = New IntPtr(&HFFFFFFFF)
         Dim stringBuilderTarget As New Text.StringBuilder(MAX_FILE_PATH)
         Dim hFind As IntPtr = FindFirstFileName(path, 0, MAX_FILE_PATH, stringBuilderTarget)
@@ -447,14 +447,14 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
     ''' <param name="path">Path to the symlink to get the target of.</param>
     ''' <returns>The fully qualified path to the target.</returns>
-    Shared Function GetSymlinkTarget(path As String) As String
+    Public Shared Function GetSymlinkTarget(path As String) As String
         Dim returnString As String = ""
 
         Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.ReadEA,
-                                                        FileShare.ReadWrite Or FileShare.Delete, FileMode.Open,
+                                                        FileShare.Read Or FileShare.Write Or FileShare.Delete, FileMode.Open,
                                                         Win32FileAttribute.FlagBackupSemantics)
             Dim stringBuilderTarget As New Text.StringBuilder(MAX_FILE_PATH)
-            Dim result As UInteger = GetFinalPathNameByHandle(hFile.DangerousGetHandle, stringBuilderTarget, MAX_FILE_PATH, 0)
+            Dim result As UInteger = GetFinalPathNameByHandle(hFile, stringBuilderTarget, MAX_FILE_PATH, 0)
 
             If result = 0 Then Throw New Win32Exception()
             returnString = stringBuilderTarget.ToString()
@@ -471,7 +471,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfinalpathnamebyhandlew
     'https://www.pinvoke.net/default.aspx/shell32/GetFinalPathNameByHandle.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function GetFinalPathNameByHandle(hFile As IntPtr, lpszFilePath As Text.StringBuilder,
+    Private Shared Function GetFinalPathNameByHandle(hFile As SafeFileHandle, lpszFilePath As Text.StringBuilder,
                                                      cchFilePath As UInteger, dwFlags As UInteger) As UInteger
     End Function
 #End Region
@@ -482,7 +482,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets a shortcut property object to retrieve info about a shortcut.</summary>
     ''' <param name="shortcutPath">Path to the shortcut file.</param>
     ''' <returns>Shortcut object of type IWshShortcut - either use WalkmanLib.IWshShortcut or ComImport your own interface.</returns>
-    Shared Function GetShortcutInfo(shortcutPath As String) As IWshShortcut
+    Public Shared Function GetShortcutInfo(shortcutPath As String) As IWshShortcut
         Dim WSH_Type As Type = Type.GetTypeFromProgID("WScript.Shell")
         Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
 
@@ -504,8 +504,8 @@ Partial Public Class WalkmanLib
     ''' <param name="shortcutKey">Hotkey used to launch the shortcut - see the end of https://ss64.com/vb/shortcut.html.</param>
     ''' <param name="windowStyle">System.Windows.Forms.FormWindowState to show the launched program in.</param>
     ''' <returns>Full path to the created shortcut.</returns>
-    Shared Function CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing,
-        Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As Windows.Forms.FormWindowState = Windows.Forms.FormWindowState.Normal) As String
+    Public Shared Function CreateShortcut(shortcutPath As String, Optional targetPath As String = Nothing, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing,
+            Optional iconPath As String = Nothing, Optional comment As String = Nothing, Optional shortcutKey As String = Nothing, Optional windowStyle As Windows.Forms.FormWindowState = Windows.Forms.FormWindowState.Normal) As String
         Dim shortcutObject As IWshShortcut = GetShortcutInfo(shortcutPath)
 
         If targetPath <> Nothing Then       shortcutObject.TargetPath       = targetPath
@@ -530,7 +530,7 @@ Partial Public Class WalkmanLib
 
     ''' <summary>Interface for handling WScript.Shell shortcut objects. Use with <see cref="GetShortcutInfo(String)"/> As IWshShortcut</summary>
     <ComImport, TypeLibType(&H1040S), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")>
-    Interface IWshShortcut
+    Public Interface IWshShortcut
         <DispId(0)>
         ReadOnly Property FullName() As String
         <DispId(&H3E8)>
@@ -708,7 +708,7 @@ Partial Public Class WalkmanLib
     ''' <param name="iconIndex">Initial Index to be preselected. Use the same variable to get the selected index.</param>
     ''' <param name="OwnerHandle">Use Me.Handle to make the PickIconDialog show as a Dialog - i.e. blocking your applications interface until dialog is closed.</param>
     ''' <returns>True if accepted, False if cancelled.</returns>
-    Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
+    Public Shared Function PickIconDialogShow(ByRef filePath As String, ByRef iconIndex As Integer, Optional OwnerHandle As IntPtr = Nothing) As Boolean
         Dim stringBuilderTarget As New Text.StringBuilder(filePath, MAX_FILE_PATH)
         Dim result As Integer = PickIconDlg(OwnerHandle, stringBuilderTarget, MAX_FILE_PATH, iconIndex)
 
@@ -737,7 +737,7 @@ Partial Public Class WalkmanLib
     ''' <param name="iconIndex">Index to extract the icon from. If this is a positive number, it refers to the zero-based position of the icon in the file. If this is a negative number, it refers to the icon's resource ID.</param>
     ''' <param name="iconSize">Size of icon to extract. Size is measured in pixels. Pass 0 to specify default icon size. Default: 0.</param>
     ''' <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
-    Shared Function ExtractIconByIndex(filePath As String, iconIndex As Integer, Optional iconSize As UInteger = 0) As Drawing.Icon
+    Public Shared Function ExtractIconByIndex(filePath As String, iconIndex As Integer, Optional iconSize As UInteger = 0) As Drawing.Icon
         If Not File.Exists(filePath) Then Throw New FileNotFoundException("File """ & filePath & """ not found!")
 
         Dim hiconLarge As IntPtr
@@ -765,7 +765,7 @@ Partial Public Class WalkmanLib
     ''' <param name="path">Path to the file or directory to compress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
     ''' <returns>Whether the file or directory was compressed successfully or not.</returns>
-    Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
+    Public Shared Function CompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, True, showWindow)
     End Function
 
@@ -773,7 +773,7 @@ Partial Public Class WalkmanLib
     ''' <param name="path">Path to the file or directory to decompress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not.</param>
     ''' <returns>Whether the file or directory was decompressed successfully or not.</returns>
-    Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
+    Public Shared Function UncompressFile(path As String, Optional showWindow As Boolean = True) As Boolean
         Return SetCompression(path, False, showWindow)
     End Function
 
@@ -784,7 +784,7 @@ Partial Public Class WalkmanLib
     ''' <param name="compress">True to compress, False to decompress.</param>
     ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
     ''' <returns>Whether the file or directory was (de)compressed successfully or not.</returns>
-    Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
+    Public Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
         Dim lpInBuffer As Short
         If compress Then
             lpInBuffer = 1
@@ -796,7 +796,7 @@ Partial Public Class WalkmanLib
             Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.FileGenericRead Or Win32FileAccess.FileGenericWrite,
                                                             FileShare.ReadWrite Or FileShare.Delete,
                                                             FileMode.Open, Win32FileAttribute.FlagBackupSemantics)
-                Return DeviceIoControl(hFile.DangerousGetHandle, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
+                Return DeviceIoControl(hFile, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
             End Using
         Catch ex As Exception
             Return False
@@ -806,7 +806,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol
     'https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function DeviceIoControl(hDevice As IntPtr, dwIoControlCode As UInteger,
+    Private Shared Function DeviceIoControl(hDevice As SafeFileHandle, dwIoControlCode As UInteger,
                                             <[In]> ByRef lpInBuffer As Short, nInBufferSize As UInteger,
                                             <Out> ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
                                             ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
@@ -820,7 +820,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>
     ''' <param name="path">Path to the file to get size for.</param>
     ''' <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
-    Shared Function GetCompressedSize(path As String) As Double
+    Public Shared Function GetCompressedSize(path As String) As Double
         Dim sizeMultiplier As UInteger
         Dim fileLength As Long = Convert.ToInt64(GetCompressedFileSize(path, sizeMultiplier))
         If fileLength = &HFFFFFFFF Then
@@ -843,7 +843,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets the path to the program specified to open a file.</summary>
     ''' <param name="filePath">The file to get the OpenWith program for.</param>
     ''' <returns>OpenWith program path, "Filetype not associated!" if none, or "File not found!"</returns>
-    Shared Function GetOpenWith(filePath As String) As String
+    Public Shared Function GetOpenWith(filePath As String) As String
         If Not File.Exists(filePath) Then
             Return "File not found!"
         End If
@@ -873,7 +873,7 @@ Partial Public Class WalkmanLib
     ' Link: http://pinvoke.net/default.aspx/user32.mouse_event (Additional buttons)
     ''' <summary>Performs a mouse click at the current cursor position.</summary>
     ''' <param name="button">MouseButton to press.</param>
-    Shared Sub MouseClick(button As MouseButton)
+    Public Shared Sub MouseClick(button As MouseButton)
         mouse_event(button, 0, 0, 0, 0)
 
         'Const MOUSEEVENTF_MOVE = &H1
@@ -903,7 +903,7 @@ Partial Public Class WalkmanLib
     ''' <param name="path">The path to show the window for.</param>
     ''' <param name="tab">Optional tab to open to. Beware, this name is Windows version-specific!</param>
     ''' <returns>Whether the properties window was shown successfully or not.</returns>
-    Shared Function ShowProperties(path As String, Optional tab As String = Nothing) As Boolean
+    Public Shared Function ShowProperties(path As String, Optional tab As String = Nothing) As Boolean
         Dim info As New ShellExecuteInfo
         info.cbSize = CType(Marshal.SizeOf(info), UInteger)
         info.lpVerb = "properties"
@@ -955,7 +955,7 @@ Partial Public Class WalkmanLib
     ''' </param>
     ''' <param name="timeout">Seconds to wait before returning</param>
     ''' <returns><see langword="True"/> if the timeout expired, <see langword="False"/> if the window was closed.</returns>
-    Shared Function WaitForWindow(windowName As String, Optional windowClass As String = Nothing, Optional timeout As Integer = -1) As Boolean
+    Public Shared Function WaitForWindow(windowName As String, Optional windowClass As String = Nothing, Optional timeout As Integer = -1) As Boolean
         Dim hWnd As IntPtr = FindWindow(windowClass, windowName)
         If hWnd = IntPtr.Zero Then
             Dim errorException As New Win32Exception()
@@ -1001,7 +1001,7 @@ Partial Public Class WalkmanLib
     ''' </param>
     ''' <param name="timeout">Miliseconds to wait before returning. The Default value is Infinite.</param>
     ''' <returns><see langword="True"/> if the timeout expired, <see langword="False"/> if the thread exited.</returns>
-    Shared Function WaitForWindowByThread(windowName As String, Optional windowClass As String = Nothing, Optional timeout As UInteger = WFSO_INFINITE) As Boolean
+    Public Shared Function WaitForWindowByThread(windowName As String, Optional windowClass As String = Nothing, Optional timeout As UInteger = WFSO_INFINITE) As Boolean
         ' Get window handle
         Dim hWnd As IntPtr = FindWindow(windowClass, windowName)
         If hWnd = IntPtr.Zero Then

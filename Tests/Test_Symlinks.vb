@@ -12,7 +12,7 @@ Namespace Tests
             Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "symlinks1Source"))
                 Dim symlinkPath As String = Path.Combine(rootTestFolder, "symlinks1")
 
-                Dim mklinkOutput As String = WalkmanLib.RunAndGetOutput("cmd", "/c mklink " & symlinkPath & " symlinks1Source", rootTestFolder)
+                Dim mklinkOutput As String = WalkmanLib.RunAndGetOutput("cmd", arguments:="/c mklink " & symlinkPath & " symlinks1Source", workingDirectory:=rootTestFolder)
 
                 Using testFile As New DisposableFile(symlinkPath, False)
                     Return TestString("Symlinks1", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
