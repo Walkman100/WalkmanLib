@@ -785,18 +785,13 @@ Partial Public Class WalkmanLib
     ''' <param name="showWindow">Whether to show the compression status window or not (TODO).</param>
     ''' <returns>Whether the file or directory was (de)compressed successfully or not.</returns>
     Public Shared Function SetCompression(path As String, compress As Boolean, Optional showWindow As Boolean = True) As Boolean
-        Dim lpInBuffer As Short
-        If compress Then
-            lpInBuffer = 1
-        Else
-            lpInBuffer = 0
-        End If
+        Dim lpInBuffer As IntPtr = CType(If(compress, 1, 0), IntPtr)
 
         Try
             Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.FileGenericRead Or Win32FileAccess.FileGenericWrite,
                                                             FileShare.ReadWrite Or FileShare.Delete,
                                                             FileMode.Open, Win32FileAttribute.FlagBackupSemantics)
-                Return DeviceIoControl(hFile, &H9C040, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
+                Return DeviceIoControl(hFile, FSCTL.SET_COMPRESSION, lpInBuffer, 2, IntPtr.Zero, 0, 0, IntPtr.Zero)
             End Using
         Catch ex As Exception
             Return False
@@ -806,11 +801,17 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol
     'https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function DeviceIoControl(hDevice As SafeFileHandle, dwIoControlCode As UInteger,
-                                            <[In]> ByRef lpInBuffer As Short, nInBufferSize As UInteger,
+    Private Shared Function DeviceIoControl(hDevice As SafeFileHandle, dwIoControlCode As FSCTL,
+                                            <[In]> ByRef lpInBuffer As IntPtr, nInBufferSize As UInteger,
                                             <Out> ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
                                             ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
     End Function
+
+    <Flags>
+    Private Enum FSCTL As UInteger
+        'https://docs.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_set_compression
+        SET_COMPRESSION = &H9C040
+    End Enum
 #End Region
 
 #Region "GetCompressedSize"
