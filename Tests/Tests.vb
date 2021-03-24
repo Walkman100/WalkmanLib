@@ -145,6 +145,13 @@ Namespace Tests
                 If Not Test_SymlinkThrows3(rootTestFolder) Then returnVal = False
                 If Not Test_SymlinkThrows4(rootTestFolder) Then returnVal = False
                 If Not Test_SymlinkThrows5(rootTestFolder) Then returnVal = False
+                If Not Test_Junctions1(rootTestFolder) Then returnVal = False
+                If Not Test_Junctions2(rootTestFolder) Then returnVal = False
+                If Not Test_Junctions3(rootTestFolder) Then returnVal = False
+                If Not Test_Junctions4(rootTestFolder) Then returnVal = False
+                If Not Test_Junctions5(rootTestFolder) Then returnVal = False
+                If Not Test_JunctionThrows1(rootTestFolder) Then returnVal = False
+                If Not Test_JunctionThrows2(rootTestFolder) Then returnVal = False
                 If Not Test_Hardlinks1(rootTestFolder) Then returnVal = False
                 If Not Test_Hardlinks2(rootTestFolder) Then returnVal = False
                 If Not Test_Hardlinks3(rootTestFolder) Then returnVal = False

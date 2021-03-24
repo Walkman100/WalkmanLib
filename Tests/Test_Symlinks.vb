@@ -14,7 +14,7 @@ Namespace Tests
 
                 Dim mklinkOutput As String = WalkmanLib.RunAndGetOutput("cmd", arguments:="/c mklink " & symlinkPath & " symlinks1Source", workingDirectory:=rootTestFolder)
 
-                Using testFile As New DisposableFile(symlinkPath, False)
+                Using New DisposableFile(symlinkPath, False)
                     Return TestString("Symlinks1", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
@@ -31,7 +31,7 @@ Namespace Tests
 
                 WalkmanLib.CreateSymLink(symlinkPath, "symlinks3Source.txt", False)
 
-                Using testFile As New DisposableFile(symlinkPath, False)
+                Using New DisposableFile(symlinkPath, False)
                     Return TestString("Symlinks3", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
@@ -43,7 +43,7 @@ Namespace Tests
 
                 WalkmanLib.CreateSymLink(symlinkPath, "symlinks4Source", True)
 
-                Using testSymlink As New DisposableDirectory(symlinkPath, False)
+                Using New DisposableDirectory(symlinkPath, False)
                     Return TestString("Symlinks4", WalkmanLib.GetSymlinkTarget(symlinkPath), testDirSource)
                 End Using
             End Using
@@ -55,7 +55,7 @@ Namespace Tests
 
             WalkmanLib.CreateSymLink(symlinkPath, testDirSource, True)
 
-            Using testSymlink As New DisposableDirectory(symlinkPath, False)
+            Using New DisposableDirectory(symlinkPath, False)
                 Return TestString("Symlinks5", WalkmanLib.GetSymlinkTarget(symlinkPath), testDirSource)
             End Using
         End Function
@@ -66,7 +66,7 @@ Namespace Tests
 
             WalkmanLib.CreateSymLink(symlinkPath, testDirSource, True)
 
-            Using testSymlink As New DisposableDirectory(symlinkPath, False)
+            Using New DisposableDirectory(symlinkPath, False)
                 Return TestString("Symlinks6", WalkmanLib.GetSymlinkTarget(symlinkPath), rootTestFolder)
             End Using
         End Function
@@ -80,7 +80,7 @@ Namespace Tests
 
                 WalkmanLib.CreateSymLink(symlinkPath, symlinkTarget, False)
 
-                Using testSymlink As New DisposableFile(symlinkPath, False)
+                Using New DisposableFile(symlinkPath, False)
                     Return TestString("Symlinks7", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
@@ -96,7 +96,7 @@ Namespace Tests
 
                 WalkmanLib.CreateSymLink(symlinkPath, symlinkTarget, False)
 
-                Using testSymlink As New DisposableFile(symlinkPath, False)
+                Using New DisposableFile(symlinkPath, False)
                     Return TestString("Symlinks8", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource)
                 End Using
             End Using
@@ -146,7 +146,7 @@ Namespace Tests
             Using testFile As New DisposableFile(Path.Combine(rootTestFolder, "symlinkThrows3Source.txt"))
                 Dim ex As Exception = New NoException
                 Try
-                    WalkmanLib.CreateSymLink(Path.Combine(rootTestFolder, "nonExistantFolder", "symlinkThrows3.txt"), testFile, False)
+                    WalkmanLib.CreateSymLink(Path.Combine(rootTestFolder, "nonExistantFolder", "symlinkThrows3Source.txt"), testFile, False)
                 Catch ex2 As Exception
                     ex = ex2
                 End Try

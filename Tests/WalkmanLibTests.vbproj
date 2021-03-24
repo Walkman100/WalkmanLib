@@ -67,6 +67,7 @@
     <Compile Include="NoException.vb" />
     <Compile Include="RedirectConsole.vb" />
     <Compile Include="Tests.vb" />
+    <Compile Include="Test_Junctions.vb" />
     <Compile Include="Test_ArgHandler.vb" />
     <Compile Include="Test_Attributes.vb" />
     <Compile Include="Test_Compression.vb" />
