@@ -350,19 +350,18 @@ Partial Public Class WalkmanLib
             If Marshal.GetLastWin32Error() <> 0 Then Throw New IOException("Unable to open reparse point.", New Win32Exception())
 
             ' unicode string is 2 bytes per character, so *2 to get byte length
-            Dim byteLength As Integer = targetPath.Length * 2
-
+            Dim byteLength As UShort = CType(targetPath.Length * 2, UShort)
             Dim reparseDataBuffer As New ReparseDataBuffer With {
                 .ReparseTag = IO_REPARSE_TAG_MOUNT_POINT,
-                .ReparseDataLength = CType(byteLength + 12, UShort),
+                .ReparseDataLength = byteLength + 12US,
                 .SubstituteNameOffset = 0,
-                .SubstituteNameLength = CType(byteLength, UShort),
-                .PrintNameOffset = CType(byteLength + 2, UShort),
+                .SubstituteNameLength = byteLength,
+                .PrintNameOffset = byteLength + 2US,
                 .PrintNameLength = 0,
                 .PathBuffer = targetPath
             }
 
-            Dim result As Boolean = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, reparseDataBuffer, CType(byteLength + 20, UShort), IntPtr.Zero, 0, 0, IntPtr.Zero)
+            Dim result As Boolean = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, reparseDataBuffer, byteLength + 20US, IntPtr.Zero, 0, 0, IntPtr.Zero)
             If Not result Then Throw New IOException("Unable to create junction point.", New Win32Exception())
         End Using
     End Sub
