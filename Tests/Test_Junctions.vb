@@ -59,13 +59,10 @@ Namespace Tests
             Using testDir As New DisposableDirectory(Path.Combine(rootTestFolder, "junctions5Source")),
                   parentDir As New DisposableDirectory(Path.Combine(rootTestFolder, "nonExistantDirectory"), False),
                   junctionPath As New DisposableDirectory(Path.Combine(parentDir, "junction5Target"), False)
-                Dim ex As Exception = New NoException
-                Try
-                    WalkmanLib.CreateJunction(junctionPath, testDir)
-                Catch ex2 As Exception
-                    ex = ex2
-                End Try
-                Return TestType("Junctions5", ex.GetType, GetType(NoException))
+
+                WalkmanLib.CreateJunction(junctionPath, testDir)
+
+                Return TestString("Junctions5", WalkmanLib.GetSymlinkTarget(junctionPath), testDir)
             End Using
         End Function
 

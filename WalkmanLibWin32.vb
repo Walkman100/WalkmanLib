@@ -344,26 +344,25 @@ Partial Public Class WalkmanLib
         Else
             Directory.CreateDirectory(junctionPath)
         End If
-        targetPath = Path.GetFullPath(targetPath)
+        targetPath = NonInterpretedPathPrefix & Path.GetFullPath(targetPath)
 
         Using reparsePointHandle As SafeFileHandle = Win32CreateFile(junctionPath, Win32FileAccess.GenericWrite, FileShare.Read Or FileShare.Write Or FileShare.Delete, FileMode.Open, Win32FileAttribute.FlagBackupSemantics Or Win32FileAttribute.FlagOpenReparsePoint)
             If Marshal.GetLastWin32Error() <> 0 Then Throw New IOException("Unable to open reparse point.", New Win32Exception())
 
-            Dim targetDirBytes As Byte() = Text.Encoding.Unicode.GetBytes(NonInterpretedPathPrefix & targetPath)
+            ' unicode string is 2 bytes per character, so *2 to get byte length
+            Dim byteLength As Integer = targetPath.Length * 2
+
             Dim reparseDataBuffer As New ReparseDataBuffer With {
                 .ReparseTag = IO_REPARSE_TAG_MOUNT_POINT,
-                .ReparseDataLength = CType(targetDirBytes.Length + 12, UShort),
+                .ReparseDataLength = CType(byteLength + 12, UShort),
                 .SubstituteNameOffset = 0,
-                .SubstituteNameLength = CType(targetDirBytes.Length, UShort),
-                .PrintNameOffset = CType(targetDirBytes.Length + 2, UShort),
+                .SubstituteNameLength = CType(byteLength, UShort),
+                .PrintNameOffset = CType(byteLength + 2, UShort),
                 .PrintNameLength = 0,
-                .PathBuffer = New Byte(16367) {}
+                .PathBuffer = targetPath
             }
 
-            Array.Copy(targetDirBytes, reparseDataBuffer.PathBuffer, targetDirBytes.Length)
-
-            Dim result As Boolean = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, reparseDataBuffer, CType(targetDirBytes.Length + 20, UShort), IntPtr.Zero, 0, 0, IntPtr.Zero)
-
+            Dim result As Boolean = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, reparseDataBuffer, CType(byteLength + 20, UShort), IntPtr.Zero, 0, 0, IntPtr.Zero)
             If Not result Then Throw New IOException("Unable to create junction point.", New Win32Exception())
         End Using
     End Sub
@@ -380,7 +379,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_reparse_data_buffer
     ' Because the tag we're using is IO_REPARSE_TAG_MOUNT_POINT, we use the MountPointReparseBuffer struct in the DUMMYUNIONNAME union.
     'https://www.pinvoke.net/default.aspx/Structures/REPARSE_DATA_BUFFER.html
-    <StructLayout(LayoutKind.Sequential)>
+    <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
     Private Structure ReparseDataBuffer
         ''' <summary>Reparse point tag. Must be a Microsoft reparse point tag.</summary>
         Public ReparseTag As UInteger
@@ -400,8 +399,10 @@ Partial Public Class WalkmanLib
         ''' A buffer containing the unicode-encoded path string. The path string contains the substitute name
         ''' string and print name string. The substitute name and print name strings can appear in any order.
         ''' </summary>
-        <MarshalAs(UnmanagedType.ByValArray, SizeConst:=16368)>
-        Public PathBuffer As Byte()
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=8184)>
+        Friend PathBuffer As String
+        ' with <MarshalAs(UnmanagedType.ByValArray, SizeConst:=16368)> Public PathBuffer As Byte()
+        ' 16368 is the amount of bytes. since a unicode string uses 2 bytes per character, constain to 16368/2 = 8184 characters.
     End Structure
 #End Region
 
