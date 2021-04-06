@@ -29,7 +29,7 @@ Partial Class CustomMsgBoxForm
         Me.btnAnswerMid = New System.Windows.Forms.Button()
         Me.btnCancel = New System.Windows.Forms.Button()
         Me.splitContainer = New System.Windows.Forms.SplitContainer()
-        Me.lblMain = New System.Windows.Forms.Label()
+        Me.txtMain = New System.Windows.Forms.TextBox()
         Me.pbxMain = New System.Windows.Forms.PictureBox()
         CType(Me.splitContainer,System.ComponentModel.ISupportInitialize).BeginInit
         Me.splitContainer.Panel1.SuspendLayout
@@ -83,7 +83,7 @@ Partial Class CustomMsgBoxForm
         'splitContainer.Panel1
         '
         Me.splitContainer.Panel1.BackColor = System.Drawing.SystemColors.Window
-        Me.splitContainer.Panel1.Controls.Add(Me.lblMain)
+        Me.splitContainer.Panel1.Controls.Add(Me.txtMain)
         Me.splitContainer.Panel1.Controls.Add(Me.pbxMain)
         '
         'splitContainer.Panel2
@@ -96,18 +96,21 @@ Partial Class CustomMsgBoxForm
         Me.splitContainer.SplitterWidth = 1
         Me.splitContainer.TabIndex = 0
         '
-        'lblMain
+        'txtMain
         '
-        Me.lblMain.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left)  _
+        Me.txtMain.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left)  _
                         Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
-        Me.lblMain.AutoSize = true
-        Me.lblMain.Location = New System.Drawing.Point(59, 34)
-        Me.lblMain.MaximumSize = New System.Drawing.Size(334, 0)
-        Me.lblMain.MinimumSize = New System.Drawing.Size(334, 13)
-        Me.lblMain.Name = "lblMain"
-        Me.lblMain.Size = New System.Drawing.Size(334, 13)
-        Me.lblMain.TabIndex = 0
-        Me.lblMain.Text = "text"
+        Me.txtMain.BackColor = System.Drawing.SystemColors.Window
+        Me.txtMain.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.txtMain.Location = New System.Drawing.Point(59, 34)
+        Me.txtMain.MaximumSize = New System.Drawing.Size(334, 0)
+        Me.txtMain.MinimumSize = New System.Drawing.Size(334, 13)
+        Me.txtMain.Multiline = true
+        Me.txtMain.Name = "txtMain"
+        Me.txtMain.ReadOnly = true
+        Me.txtMain.Size = New System.Drawing.Size(334, 13)
+        Me.txtMain.TabIndex = 0
+        Me.txtMain.Text = "text"
         '
         'pbxMain
         '
@@ -141,7 +144,7 @@ Partial Class CustomMsgBoxForm
         CType(Me.pbxMain,System.ComponentModel.ISupportInitialize).EndInit
         Me.ResumeLayout(false)
     End Sub
-    Private lblMain As System.Windows.Forms.Label
+    Private txtMain As System.Windows.Forms.TextBox
     Private pbxMain As System.Windows.Forms.PictureBox
     Private splitContainer As System.Windows.Forms.SplitContainer
     Private WithEvents btnCancel As System.Windows.Forms.Button

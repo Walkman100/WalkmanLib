@@ -23,10 +23,10 @@ Partial Public Class CustomMsgBoxForm
 
     Public Property Prompt() As String
         Get
-            Return lblMain.Text
+            Return txtMain.Text
         End Get
         Set(value As String)
-            lblMain.Text = value
+            txtMain.Text = value
         End Set
     End Property
 
@@ -121,8 +121,14 @@ Partial Public Class CustomMsgBoxForm
                 My.Computer.Audio.PlaySystemSound(Media.SystemSounds.Question)
         End Select
 
-        If lblMain.Height > 13 Then
-            Me.Height = 162 + (lblMain.Height - 13)
+        ' as TextBox doesn't have an AutoSize property like Label does, we have to do it manually
+        Using g As Drawing.Graphics = txtMain.CreateGraphics()
+            Dim sizeF As Drawing.SizeF = g.MeasureString(txtMain.Text, txtMain.Font, New Drawing.SizeF(txtMain.MaximumSize.Width, Single.MaxValue))
+            txtMain.Height = CType(Math.Round(sizeF.Height / txtMain.Font.Height), Integer) * txtMain.Font.Height ' restrain to line height
+        End Using
+
+        If txtMain.Height > 13 Then
+            Me.Height = 162 + (txtMain.Height - 13)
         End If
 
         If Button1Text <> Nothing Then
@@ -156,6 +162,7 @@ Partial Public Class CustomMsgBoxForm
         Else
             Me.CenterToScreen()
         End If
+        btnAccept.Select()
     End Sub
 
     Private Function GetDialogResult(buttonText As String) As DialogResult
