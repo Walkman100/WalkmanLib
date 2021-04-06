@@ -39,6 +39,12 @@ Partial Public Class CustomMsgBoxForm
         End Set
     End Property
 
+    Public ReadOnly Property MainText() As TextBox
+        Get
+            Return txtMain
+        End Get
+    End Property
+
     Public Property FormLevel() As MessageBoxIcon
     Private Function getFormLevelString() As String
         Select Case FormLevel
@@ -99,7 +105,7 @@ Partial Public Class CustomMsgBoxForm
 
         Dim resources As New System.ComponentModel.ComponentResourceManager(GetType(CustomMsgBoxForm))
         Me.Icon = DirectCast(resources.GetObject(WinVersion.ToString & "_" & getFormLevelString()), Drawing.Icon)
-        If FormLevel <> MessageBoxIcon.None Then pbxMain.Image = Me.Icon.ToBitmap
+        If FormLevel <> MessageBoxIcon.None Then pbxMain.Image = Me.Icon.ToBitmap()
         Try
             Me.Icon = Owner.Icon
         Catch
