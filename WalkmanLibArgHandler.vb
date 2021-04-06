@@ -6,13 +6,14 @@ Option Infer Off
 Imports System
 Imports System.Collections.Generic
 Imports System.Linq
-Imports Microsoft.VisualBasic
 
 Partial Public Class WalkmanLib
+    Public Const NullChar As Char = Microsoft.VisualBasic.ControlChars.NullChar
+
     ''' <summary>Create a dictionary of these to use with the ArgHandler methods</summary>
     Public Class FlagInfo
         ''' <summary>Optional single character to activate this flag</summary>
-        Public shortFlag As Char = Chr(0)
+        Public shortFlag As Char = NullChar
         ''' <summary>Set to <see langword="True"/> if this flag requires arguments</summary>
         Public hasArgs As Boolean = False
         ''' <summary>Set to <see langword="True"/> if this flag's arguments are optional</summary>
@@ -43,7 +44,7 @@ Partial Public Class WalkmanLib
         Dim retVal As New ShortFlagInfo
 
         For Each flagInfo As KeyValuePair(Of String, FlagInfo) In flagDict
-            If flagInfo.Value.shortFlag <> Chr(0) Then
+            If flagInfo.Value.shortFlag <> NullChar Then
                 retVal.usesShortFlags = True
 
                 Dim flagLength As Integer = 1
@@ -96,7 +97,7 @@ Partial Public Class WalkmanLib
             End If
 
             For Each flagInfo As KeyValuePair(Of String, FlagInfo) In flagDict
-                If flagInfo.Value.shortFlag <> Chr(0) Then
+                If flagInfo.Value.shortFlag <> NullChar Then
                     Dim shortFlag As String
                     If flagInfo.Value.hasArgs Then
                         shortFlag = (flagInfo.Value.shortFlag & " " & flagInfo.Value.argsInfo).PadRight(shortFlagInfo.maxLength)
@@ -133,7 +134,7 @@ Partial Public Class WalkmanLib
                     longFlag &= "=" & flagInfo.argsInfo
                 End If
 
-                If flagInfo.shortFlag <> Chr(0) Then
+                If flagInfo.shortFlag <> NullChar Then
                     Dim optionPad As Integer = 4 + If(flagInfo.argsInfo, "").Length
                     output.WriteLine("{0}  {1}  {2}", "Option".PadRight(optionPad), "Long Option".PadRight(longFlag.Length + 2), "Description")
 
