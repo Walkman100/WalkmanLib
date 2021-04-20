@@ -49,7 +49,7 @@ Namespace Tests
                     Return TestType("ExtractIcon1", ex.GetType, GetType(NoException))
                 End Try
 
-                Return TestString("ExtractIcon1", Sha1File(extractedIcon), "54055a0a6d465f465a444af7e784f93373376775")
+                Return TestString("ExtractIcon1", Sha1File(extractedIcon), "f61833aa0ecdcecc32911c2346fe93821683acff")
             End Using
         End Function
 
@@ -76,7 +76,7 @@ Namespace Tests
                 Using extractedIconByIndex As New DisposableFile(Path.Combine(rootTestFolder, "extractIcon2ByIndex.png"), False, False)
                     extractedIcon.ToBitmap.Save(extractedIconByIndex)
 
-                    Return TestString("ExtractIcon2", Sha1File(extractedIconByIndex), "5c6f21ec3f34bd07dec4e38dc9d83cdfa3ce5915")
+                    Return TestString("ExtractIcon2", Sha1File(extractedIconByIndex), "bb1495a09780ca0cda8abd8957fe99fbe724a4d7")
                 End Using
             End Using
         End Function

@@ -233,7 +233,7 @@ Namespace Tests
         Function Test_HardlinkThrows7() As Boolean
             Dim ex As Exception = New NoException
             Try
-                WalkmanLib.GetHardlinkCount(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "MEMORY.DMP"))
+                WalkmanLib.GetHardlinkCount(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "Temp", "MpCmdRun.log"))
             Catch ex2 As Exception
                 ex = ex2
             End Try
@@ -273,7 +273,7 @@ Namespace Tests
         Function Test_HardlinkThrows11() As Boolean
             Dim ex As Exception = New NoException
             Try
-                WalkmanLib.GetHardlinkLinks(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "MEMORY.DMP")).ToList
+                WalkmanLib.GetHardlinkLinks(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "Temp", "MpCmdRun.log")).ToList
             Catch ex2 As Exception
                 ex = ex2
             End Try
