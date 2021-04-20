@@ -45,7 +45,7 @@ Namespace Tests
             delegateCallComplete = False
             delegateReturn = Nothing
 
-            WalkmanLib.CheckIfUpdateAvailableInBackground(projectName, New Version(0, 9, 9), New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
+            WalkmanLib.CheckIfUpdateAvailableInBackground(projectName, New Version(0, 9, 9), AddressOf UpdateCheckReturn)
 
             Dim count As Integer = 0
             Do Until delegateCallComplete
@@ -102,7 +102,7 @@ Namespace Tests
             delegateCallComplete = False
             delegateReturn = Nothing
 
-            WalkmanLib.CheckIfUpdateAvailableInBackground("NonExistantProject", New Version(0, 9, 9), New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
+            WalkmanLib.CheckIfUpdateAvailableInBackground("NonExistantProject", New Version(0, 9, 9), AddressOf UpdateCheckReturn)
 
             Dim count As Integer = 0
             Do Until delegateCallComplete

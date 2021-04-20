@@ -99,7 +99,7 @@ Partial Public Class WalkmanLib
     ''' <summary>Checks if an update release is available in a GitHub project in a BackgroundWorker.</summary>
     ''' <param name="projectName">Name of the project repository.</param>
     ''' <param name="currentVersion"><see cref="Version"/> to check against.</param>
-    ''' <param name="checkComplete">Use "<c>New ComponentModel.RunWorkerCompletedEventHandler(AddressOf [returnSub])</c>" and put your return sub in place of <c>returnSub</c>.</param>
+    ''' <param name="checkComplete">Use "<c>AddressOf [returnSub]</c>" and put your return sub in place of <c>returnSub</c> (see Returns info).</param>
     ''' <param name="projectOwner">Owner of the project repository. Default: Walkman100</param>
     ''' <returns>
     ''' Create a Sub with the signature "<c>sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs</c>", and within check <c>e.Error</c> for an exception before
@@ -138,10 +138,10 @@ Partial Public Class WalkmanLib
 
     ' Example code to use the background update check:
     'Sub Main()
-    '    WalkmanLib.CheckIfUpdateAvailableInBackground(projectName, My.Application.Info.Version, New ComponentModel.RunWorkerCompletedEventHandler(AddressOf UpdateCheckReturn))
+    '    WalkmanLib.CheckIfUpdateAvailableInBackground(projectName, My.Application.Info.Version, AddressOf UpdateCheckReturn)
     'End Sub
     'Sub UpdateCheckReturn(sender As Object, e As ComponentModel.RunWorkerCompletedEventArgs)
-    '    If Microsoft.VisualBasic.IsNothing(e.Error) Then
+    '    If e.Error Is Nothing Then
     '        Console.WriteLine("Update available: " & DirectCast(e.Result, Boolean))
     '    Else
     '        Console.WriteLine("Error checking for updates: " & e.Error.Message)

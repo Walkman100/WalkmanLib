@@ -182,7 +182,7 @@ Partial Public Class WalkmanLib
         AttributeDirectory =            &H00000010
         AttributeArchive =              &H00000020
         AttributeDevice =               &H00000040
-        AttributNormal =                &H00000080
+        AttributeNormal =               &H00000080
         AttributeTemporary =            &H00000100
         AttributeSparseFile =           &H00000200
         AttributeReparsePoint =         &H00000400
@@ -371,8 +371,8 @@ Partial Public Class WalkmanLib
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function DeviceIoControl(hDevice As SafeFileHandle, dwIoControlCode As UInteger,
                                             <[In]> ByRef lpInBuffer As ReparseDataBuffer, nInBufferSize As UInteger,
-                                            <Out> ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
-                                            ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
+                                            lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
+                                            <Out> ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
     End Function
 
     'https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_reparse_data_buffer
@@ -401,7 +401,7 @@ Partial Public Class WalkmanLib
         <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=8184)>
         Friend PathBuffer As String
         ' with <MarshalAs(UnmanagedType.ByValArray, SizeConst:=16368)> Public PathBuffer As Byte()
-        ' 16368 is the amount of bytes. since a unicode string uses 2 bytes per character, constain to 16368/2 = 8184 characters.
+        ' 16368 is the amount of bytes. since a unicode string uses 2 bytes per character, constrain to 16368/2 = 8184 characters.
     End Structure
 #End Region
 
@@ -881,8 +881,8 @@ Partial Public Class WalkmanLib
     <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
     Private Shared Function DeviceIoControl(hDevice As SafeFileHandle, dwIoControlCode As UInteger,
                                             <[In]> ByRef lpInBuffer As UShort, nInBufferSize As UInteger,
-                                            <Out> ByRef lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
-                                            ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
+                                            lpOutBuffer As IntPtr, nOutBufferSize As UInteger,
+                                            <Out> ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
     End Function
 #End Region
 
