@@ -9,12 +9,13 @@ Imports System.Linq
 Imports System.Windows.Forms
 
 Partial Public Class WalkmanLib
-    Shared Sub ApplyTheme(theme As Theme, form As Form)
+#Region "ApplyTheme"
+    Shared Sub ApplyTheme(theme As Theme, form As Form, Optional allowSetOwnerDraw As Boolean = False)
         form.ForeColor = theme.FormFG
         form.BackColor = theme.FormBG
-        ApplyTheme(theme, form.Controls)
+        ApplyTheme(theme, form.Controls, allowSetOwnerDraw)
     End Sub
-    Shared Sub ApplyTheme(theme As Theme, controls As Collections.IEnumerable)
+    Shared Sub ApplyTheme(theme As Theme, controls As Collections.IEnumerable, Optional allowSetOwnerDraw As Boolean = False)
         '                                 for ToolStripItemCollection
         For Each item As ToolStripItem In controls.OfType(Of ToolStripItem)
             Select Case item.GetType()
@@ -29,13 +30,13 @@ Partial Public Class WalkmanLib
                     item.BackColor = theme.ToolStripDropDownButtonBG
                     DirectCast(item, ToolStripDropDownButton).DropDown.ForeColor = theme.ToolStripDropDownFG
                     DirectCast(item, ToolStripDropDownButton).DropDown.BackColor = theme.ToolStripDropDownBG
-                    ApplyTheme(theme, DirectCast(item, ToolStripDropDownButton).DropDownItems)
+                    ApplyTheme(theme, DirectCast(item, ToolStripDropDownButton).DropDownItems, allowSetOwnerDraw)
                 Case GetType(ToolStripMenuItem) ' inherits ToolStripDropDownItem
                     item.ForeColor = theme.ToolStripMenuItemFG
                     item.BackColor = theme.ToolStripMenuItemBG
                     DirectCast(item, ToolStripMenuItem).DropDown.ForeColor = theme.ToolStripDropDownFG
                     DirectCast(item, ToolStripMenuItem).DropDown.BackColor = theme.ToolStripDropDownBG
-                    ApplyTheme(theme, DirectCast(item, ToolStripMenuItem).DropDownItems)
+                    ApplyTheme(theme, DirectCast(item, ToolStripMenuItem).DropDownItems, allowSetOwnerDraw)
                 Case GetType(ToolStripProgressBar)
                     item.ForeColor = theme.ToolStripProgressBarFG
                     item.BackColor = theme.ToolStripProgressBarBG
@@ -50,7 +51,7 @@ Partial Public Class WalkmanLib
                     item.BackColor = theme.ToolStripSplitButtonBG
                     DirectCast(item, ToolStripSplitButton).DropDown.ForeColor = theme.ToolStripDropDownFG
                     DirectCast(item, ToolStripSplitButton).DropDown.BackColor = theme.ToolStripDropDownBG
-                    ApplyTheme(theme, DirectCast(item, ToolStripSplitButton).DropDownItems)
+                    ApplyTheme(theme, DirectCast(item, ToolStripSplitButton).DropDownItems, allowSetOwnerDraw)
                 Case GetType(ToolStripTextBox)
                     item.ForeColor = theme.ToolStripTextBoxFG
                     item.BackColor = theme.ToolStripTextBoxBG
@@ -101,6 +102,7 @@ Partial Public Class WalkmanLib
                     ctl.ForeColor = theme.DomainUpDownFG
                     ctl.BackColor = theme.DomainUpDownBG
                 Case GetType(ListView)
+                    If allowSetOwnerDraw Then DirectCast(ctl, ListView).OwnerDraw = theme.ListViewOwnerDraw
                     ctl.ForeColor = theme.ListViewFG
                     ctl.BackColor = theme.ListViewBG
                 Case GetType(ListBox)
@@ -128,45 +130,47 @@ Partial Public Class WalkmanLib
                 Case GetType(GroupBox)
                     ctl.ForeColor = theme.GroupBoxFG
                     ctl.BackColor = theme.GroupBoxBG
-                    ApplyTheme(theme, DirectCast(ctl, GroupBox).Controls)
+                    ApplyTheme(theme, DirectCast(ctl, GroupBox).Controls, allowSetOwnerDraw)
 
                 Case GetType(SplitContainer)
                     ctl.ForeColor = theme.SplitContainerFG
                     ctl.BackColor = theme.SplitContainerBG
-                    ApplyTheme(theme, DirectCast(ctl, SplitContainer).Controls)
+                    ApplyTheme(theme, DirectCast(ctl, SplitContainer).Controls, allowSetOwnerDraw)
                 Case GetType(SplitterPanel)
                     ctl.ForeColor = theme.SplitterPanelFG
                     ctl.BackColor = theme.SplitterPanelBG
-                    ApplyTheme(theme, DirectCast(ctl, SplitterPanel).Controls)
+                    ApplyTheme(theme, DirectCast(ctl, SplitterPanel).Controls, allowSetOwnerDraw)
 
                 Case GetType(TabControl)
+                    If allowSetOwnerDraw Then DirectCast(ctl, TabControl).DrawMode =
+                        If(theme.TabControlOwnerDraw, TabDrawMode.OwnerDrawFixed, TabDrawMode.Normal)
                     ctl.ForeColor = theme.TabControlFG
                     ctl.BackColor = theme.TabControlBG
-                    ApplyTheme(theme, DirectCast(ctl, TabControl).Controls)
+                    ApplyTheme(theme, DirectCast(ctl, TabControl).Controls, allowSetOwnerDraw)
                 Case GetType(TabPage)
                     ctl.ForeColor = theme.TabPageFG
                     ctl.BackColor = theme.TabPageBG
                     If theme.TabPageBG = Color.Transparent Then
                         DirectCast(ctl, TabPage).UseVisualStyleBackColor = True
                     End If
-                    ApplyTheme(theme, DirectCast(ctl, TabPage).Controls)
+                    ApplyTheme(theme, DirectCast(ctl, TabPage).Controls, allowSetOwnerDraw)
 
                 Case GetType(MenuStrip)
                     ctl.ForeColor = theme.MenuStripFG
                     ctl.BackColor = theme.MenuStripBG
-                    ApplyTheme(theme, DirectCast(ctl, MenuStrip).Items)
+                    ApplyTheme(theme, DirectCast(ctl, MenuStrip).Items, allowSetOwnerDraw)
                 Case GetType(StatusStrip)
                     ctl.ForeColor = theme.StatusStripFG
                     ctl.BackColor = theme.StatusStripBG
-                    ApplyTheme(theme, DirectCast(ctl, StatusStrip).Items)
+                    ApplyTheme(theme, DirectCast(ctl, StatusStrip).Items, allowSetOwnerDraw)
                 Case GetType(ToolStrip)
                     ctl.ForeColor = theme.ToolStripFG
                     ctl.BackColor = theme.ToolStripBG
-                    ApplyTheme(theme, DirectCast(ctl, ToolStrip).Items)
+                    ApplyTheme(theme, DirectCast(ctl, ToolStrip).Items, allowSetOwnerDraw)
                 Case GetType(ContextMenuStrip)
                     ctl.ForeColor = theme.ContextMenuStripFG
                     ctl.BackColor = theme.ContextMenuStripBG
-                    ApplyTheme(theme, DirectCast(ctl, ContextMenuStrip).Items)
+                    ApplyTheme(theme, DirectCast(ctl, ContextMenuStrip).Items, allowSetOwnerDraw)
 
                 Case Else
                     ctl.ForeColor = theme.OtherFG
@@ -174,7 +178,9 @@ Partial Public Class WalkmanLib
             End Select
         Next
     End Sub
+#End Region
 
+#Region "Theme class"
     Public Class Theme
         Public FormFG As Color
         Public FormBG As Color
@@ -203,6 +209,7 @@ Partial Public Class WalkmanLib
         Public DomainUpDownBG As Color
         Public ListViewFG As Color
         Public ListViewBG As Color
+        Public ListViewOwnerDraw As Boolean
         Public ListBoxFG As Color
         Public ListBoxBG As Color
         Public CheckedListBoxFG As Color
@@ -250,6 +257,7 @@ Partial Public Class WalkmanLib
         Public SplitterPanelBG As Color
         Public TabControlFG As Color
         Public TabControlBG As Color
+        Public TabControlOwnerDraw As Boolean
         Public TabPageFG As Color
         Public TabPageBG As Color
         Public ProgressBarFG As Color
@@ -346,7 +354,10 @@ Partial Public Class WalkmanLib
                     .TrackBarBG = SystemColors.Control,
                     .TreeViewNodeLineColor = Color.Black,
                     .OtherFG = SystemColors.ControlText,
-                    .OtherBG = SystemColors.Control
+                    .OtherBG = SystemColors.Control,
+ _
+                    .ListViewOwnerDraw = False,
+                    .TabControlOwnerDraw = False
                 }
             End Get
         End Property
@@ -437,7 +448,10 @@ Partial Public Class WalkmanLib
                     .TrackBarBG = SystemColors.ControlText,
                     .TreeViewNodeLineColor = SystemColors.Window,
                     .OtherFG = SystemColors.Control,
-                    .OtherBG = SystemColors.ControlText
+                    .OtherBG = SystemColors.ControlText,
+ _
+                    .ListViewOwnerDraw = True,
+                    .TabControlOwnerDraw = True
                 }
             End Get
         End Property
@@ -528,9 +542,152 @@ Partial Public Class WalkmanLib
                     .TrackBarBG = Color.Magenta,
                     .TreeViewNodeLineColor = Color.Green,
                     .OtherFG = Color.Blue,
-                    .OtherBG = Color.Magenta
+                    .OtherBG = Color.Magenta,
+ _
+                    .ListViewOwnerDraw = True,
+                    .TabControlOwnerDraw = True
                 }
             End Get
         End Property
     End Class
+#End Region
+
+#Region "CustomPaint class"
+    Class CustomPaint
+        Public Shared Sub ListView_DrawDefaultItem(sender As Object, e As DrawListViewItemEventArgs)
+            e.DrawDefault = True
+        End Sub
+        Public Shared Sub ListView_DrawDefaultSubItem(sender As Object, e As DrawListViewSubItemEventArgs)
+            e.DrawDefault = True
+        End Sub
+
+        Public Class ListViewColors
+            Public ColumnText As Color
+            Public ColumnBackground As Color
+        End Class
+        Public Shared Sub ListView_DrawCustomColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs, Optional colors As ListViewColors = Nothing)
+            ' https://stackoverflow.com/a/42181044/2999220
+            Dim listView As ListView = DirectCast(sender, ListView)
+            If colors Is Nothing Then colors = DirectCast(listView.Tag, ListViewColors)
+
+            Using sf As New StringFormat() With {
+                    .LineAlignment = StringAlignment.Center,
+                    .FormatFlags = StringFormatFlags.NoWrap,
+                    .Trimming = StringTrimming.EllipsisCharacter
+                }
+                Select Case e.Header.TextAlign
+                    Case HorizontalAlignment.Left
+                        sf.Alignment = If(listView.RightToLeft = RightToLeft.No, StringAlignment.Near, StringAlignment.Far)
+                    Case HorizontalAlignment.Right
+                        sf.Alignment = If(listView.RightToLeft = RightToLeft.Yes, StringAlignment.Near, StringAlignment.Far)
+                    Case HorizontalAlignment.Center
+                        sf.Alignment = StringAlignment.Center
+                End Select
+
+                Dim colRect As New Rectangle() With {
+                    .X = e.Bounds.X + 1,
+                    .Y = e.Bounds.Y + 1,
+                    .Width = e.Bounds.Width - 1,
+                    .Height = e.Bounds.Height
+                }
+
+                e.Graphics.FillRectangle(New SolidBrush(colors.ColumnBackground), colRect)
+                e.Graphics.DrawString(e.Header.Text, listView.Font, New SolidBrush(colors.ColumnText), colRect, sf)
+            End Using
+        End Sub
+
+        Public Class TabControlColors
+            Public TabText As Color
+            Public ActiveTab As Color
+            Public InactiveTab As Color
+            Public TabStripBackground As Color
+        End Class
+        Public Shared Sub TabControl_DrawCustomItem(sender As Object, e As DrawItemEventArgs, Optional colors As TabControlColors = Nothing)
+            Dim tabCtl As TabControl = DirectCast(sender, TabControl)
+            If colors Is Nothing Then colors = DirectCast(tabCtl.Tag, TabControlColors)
+
+            ' draw tab strip background
+
+            Dim firstTabRect As Rectangle = tabCtl.GetTabRect(0)
+            Dim tabStripBounds As Rectangle = tabCtl.Bounds
+            Dim allTabBounds As Rectangle = firstTabRect
+
+            If tabCtl.Alignment = TabAlignment.Top Then
+                tabStripBounds.Y = 0
+            ElseIf tabCtl.Alignment = TabAlignment.Bottom Then
+                tabStripBounds.Y = firstTabRect.Y
+            ElseIf tabCtl.Alignment = TabAlignment.Left Then
+                tabStripBounds.X = 0
+            ElseIf tabCtl.Alignment = TabAlignment.Right Then
+                tabStripBounds.X = firstTabRect.X
+            End If
+
+            If tabCtl.Alignment = TabAlignment.Top OrElse tabCtl.Alignment = TabAlignment.Bottom Then
+                tabStripBounds.X = 0
+                tabStripBounds.Height = firstTabRect.Height + 2
+
+                allTabBounds.Width = 0
+                For Each tabPage As TabPage In tabCtl.TabPages
+                    allTabBounds.Width += tabCtl.GetTabRect(tabCtl.TabPages.IndexOf(tabPage)).Width
+                Next
+            ElseIf tabCtl.Alignment = TabAlignment.Left OrElse tabCtl.Alignment = TabAlignment.Right Then
+                tabStripBounds.Y = 0
+                tabStripBounds.Width = firstTabRect.Width + 2
+
+                allTabBounds.Height = 0
+                For Each tabPage As TabPage In tabCtl.TabPages
+                    allTabBounds.Height += tabCtl.GetTabRect(tabCtl.TabPages.IndexOf(tabPage)).Height
+                Next
+            End If
+
+            Dim tabStripBackground As New Region(tabStripBounds)
+            tabStripBackground.Xor(allTabBounds)
+            Dim brush As New SolidBrush(colors.TabStripBackground)
+            e.Graphics.FillRegion(brush, tabStripBackground)
+
+            ' draw tab background
+
+            Dim backgroundBrush As Brush = New SolidBrush(colors.InactiveTab)
+            Dim tabRect As Rectangle = tabCtl.GetTabRect(e.Index)
+            If tabCtl.SelectedIndex = e.Index Then
+                backgroundBrush = New SolidBrush(colors.ActiveTab)
+                If tabCtl.Alignment = TabAlignment.Top Then
+                    tabRect.Height += 2
+                ElseIf tabCtl.Alignment = TabAlignment.Bottom Then
+                    tabRect.Y -= 2
+                    tabRect.Height += 2
+                ElseIf tabCtl.Alignment = TabAlignment.Left Then
+                    tabRect.Width += 2
+                ElseIf tabCtl.Alignment = TabAlignment.Right Then
+                    tabRect.X -= 2
+                    tabRect.Width += 2
+                End If
+            End If
+            e.Graphics.FillRectangle(backgroundBrush, tabRect)
+
+            ' draw tab text
+
+            Using sf As New StringFormat() With {
+                    .Alignment = StringAlignment.Center,
+                    .LineAlignment = StringAlignment.Center
+                }
+                tabRect = tabCtl.GetTabRect(e.Index)
+
+                If tabCtl.Alignment = TabAlignment.Top Then
+                    If tabCtl.SelectedIndex = e.Index Then tabRect.Y -= 1 Else tabRect.Y += 1
+                ElseIf tabCtl.Alignment = TabAlignment.Bottom Then
+                    If tabCtl.SelectedIndex = e.Index Then tabRect.Y += 1 Else tabRect.Y -= 1
+                ElseIf tabCtl.Alignment = TabAlignment.Left Then
+                    sf.FormatFlags = StringFormatFlags.DirectionVertical
+                    If tabCtl.SelectedIndex = e.Index Then tabRect.X -= 2
+                ElseIf tabCtl.Alignment = TabAlignment.Right Then
+                    sf.FormatFlags = StringFormatFlags.DirectionVertical
+                    If tabCtl.SelectedIndex <> e.Index Then tabRect.X -= 2
+                End If
+
+                e.Graphics.DrawString(tabCtl.TabPages(e.Index).Text, tabCtl.Font, New SolidBrush(colors.TabText), tabRect, sf)
+            End Using
+        End Sub
+    End Class
+#End Region
 End Class
