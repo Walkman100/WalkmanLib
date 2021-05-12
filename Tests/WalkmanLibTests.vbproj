@@ -115,6 +115,9 @@
     <Compile Include="..\WalkmanLibSystemHandles.vb">
       <Link>WalkmanLib\WalkmanLibSystemHandles.vb</Link>
     </Compile>
+    <Compile Include="..\WalkmanLibTheming.vb">
+      <Link>WalkmanLib\WalkmanLibTheming.vb</Link>
+    </Compile>
     <Compile Include="..\WalkmanLibTimeConvert.vb">
       <Link>WalkmanLib\WalkmanLibTimeConvert.vb</Link>
     </Compile>
