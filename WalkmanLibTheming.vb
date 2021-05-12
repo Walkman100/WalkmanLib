@@ -210,6 +210,7 @@ Partial Public Class WalkmanLib
         Public ListViewFG As Color
         Public ListViewBG As Color
         Public ListViewOwnerDraw As Boolean
+        Public ListViewColumnColors As CustomPaint.ListViewColors
         Public ListBoxFG As Color
         Public ListBoxBG As Color
         Public CheckedListBoxFG As Color
@@ -258,6 +259,7 @@ Partial Public Class WalkmanLib
         Public TabControlFG As Color
         Public TabControlBG As Color
         Public TabControlOwnerDraw As Boolean
+        Public TabControlTabColors As CustomPaint.TabControlColors
         Public TabPageFG As Color
         Public TabPageBG As Color
         Public ProgressBarFG As Color
@@ -357,7 +359,17 @@ Partial Public Class WalkmanLib
                     .OtherBG = SystemColors.Control,
  _
                     .ListViewOwnerDraw = False,
-                    .TabControlOwnerDraw = False
+                    .TabControlOwnerDraw = False,
+                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                        .ColumnText = SystemColors.ControlText,
+                        .ColumnBackground = SystemColors.Window
+                    },
+                    .TabControlTabColors = New CustomPaint.TabControlColors With {
+                        .TabText = SystemColors.ControlText,
+                        .ActiveTab = SystemColors.Control,
+                        .InactiveTab = SystemColors.Control,
+                        .TabStripBackground = SystemColors.Control
+                    }
                 }
             End Get
         End Property
@@ -451,7 +463,17 @@ Partial Public Class WalkmanLib
                     .OtherBG = SystemColors.ControlText,
  _
                     .ListViewOwnerDraw = True,
-                    .TabControlOwnerDraw = True
+                    .TabControlOwnerDraw = True,
+                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                        .ColumnText = SystemColors.Control,
+                        .ColumnBackground = SystemColors.ControlText
+                    },
+                    .TabControlTabColors = New CustomPaint.TabControlColors With {
+                        .TabText = SystemColors.Control,
+                        .ActiveTab = SystemColors.ControlText,
+                        .InactiveTab = SystemColors.ControlDarkDark,
+                        .TabStripBackground = SystemColors.ControlText
+                    }
                 }
             End Get
         End Property
@@ -545,7 +567,17 @@ Partial Public Class WalkmanLib
                     .OtherBG = Color.Magenta,
  _
                     .ListViewOwnerDraw = True,
-                    .TabControlOwnerDraw = True
+                    .TabControlOwnerDraw = True,
+                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                        .ColumnText = Color.Blue,
+                        .ColumnBackground = Color.Magenta
+                    },
+                    .TabControlTabColors = New CustomPaint.TabControlColors With {
+                        .TabText = Color.Blue,
+                        .ActiveTab = Color.Magenta,
+                        .InactiveTab = Color.Violet,
+                        .TabStripBackground = Color.Magenta
+                    }
                 }
             End Get
         End Property
