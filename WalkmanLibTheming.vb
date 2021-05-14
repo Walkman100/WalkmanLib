@@ -271,6 +271,30 @@ Partial Public Class WalkmanLib
         Public OtherFG As Color
         Public OtherBG As Color
 
+        Public Shared Operator <>(left As Theme, right As Theme) As Boolean
+            Return Not left.Equals(right)
+        End Operator
+        Public Shared Operator =(left As Theme, right As Theme) As Boolean
+            Return left.Equals(right)
+        End Operator
+        Public Overrides Function Equals(obj As Object) As Boolean
+            If obj Is Nothing Then Return False
+
+            Dim srcType As Type = [GetType]()
+            Dim dstType As Type = obj.GetType
+            If srcType IsNot dstType Then Return False
+
+            For Each fi As Reflection.FieldInfo In srcType.GetFields(Reflection.BindingFlags.Public Or Reflection.BindingFlags.Instance)
+                Dim srcValue As Object = srcType.GetField(fi.Name).GetValue(Me)
+                Dim dstValue As Object = dstType.GetField(fi.Name).GetValue(obj)
+
+                If srcValue IsNot dstValue AndAlso (srcValue Is Nothing OrElse Not srcValue.Equals(dstValue)) Then
+                    Return False
+                End If
+            Next
+            Return True
+        End Function
+
         Public Shared ReadOnly Property [Default] As Theme
             Get
                 Return New Theme With {
@@ -801,14 +825,19 @@ Partial Public Class WalkmanLib
             e.DrawDefault = True
         End Sub
 
-        Public Class ListViewColors
+        Public Structure ListViewColors
             Public ColumnText As Color
             Public ColumnBackground As Color
-        End Class
-        Public Shared Sub ListView_DrawCustomColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs, Optional colors As ListViewColors = Nothing)
+        End Structure
+        Public Shared Sub ListView_DrawCustomColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs, Optional listViewColors? As ListViewColors = Nothing)
             ' https://stackoverflow.com/a/42181044/2999220
             Dim listView As ListView = DirectCast(sender, ListView)
-            If colors Is Nothing Then colors = DirectCast(listView.Tag, ListViewColors)
+            Dim colors As ListViewColors
+            If listViewColors.HasValue Then
+                colors = listViewColors.Value
+            Else
+                colors = DirectCast(listView.Tag, ListViewColors)
+            End If
 
             Using sf As New StringFormat() With {
                     .LineAlignment = StringAlignment.Center,
@@ -836,15 +865,20 @@ Partial Public Class WalkmanLib
             End Using
         End Sub
 
-        Public Class TabControlColors
+        Public Structure TabControlColors
             Public TabText As Color
             Public ActiveTab As Color
             Public InactiveTab As Color
             Public TabStripBackground As Color
-        End Class
-        Public Shared Sub TabControl_DrawCustomItem(sender As Object, e As DrawItemEventArgs, Optional colors As TabControlColors = Nothing)
+        End Structure
+        Public Shared Sub TabControl_DrawCustomItem(sender As Object, e As DrawItemEventArgs, Optional tabControlColors? As TabControlColors = Nothing)
             Dim tabCtl As TabControl = DirectCast(sender, TabControl)
-            If colors Is Nothing Then colors = DirectCast(tabCtl.Tag, TabControlColors)
+            Dim colors As TabControlColors
+            If tabControlColors.HasValue Then
+                colors = tabControlColors.Value
+            Else
+                colors = DirectCast(tabCtl.Tag, TabControlColors)
+            End If
 
             ' draw tab strip background
 
