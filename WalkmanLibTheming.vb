@@ -218,6 +218,26 @@ Partial Public Class WalkmanLib
         Public TreeViewFG As Color
         Public TreeViewBG As Color
         Public TreeViewNodeLineColor As Color
+        Public PictureBoxFG As Color
+        Public PictureBoxBG As Color
+        Public TrackBarFG As Color
+        Public TrackBarBG As Color
+        Public ProgressBarFG As Color
+        Public ProgressBarBG As Color
+        Public PropertyGridFG As Color
+        Public PropertyGridBG As Color
+        Public GroupBoxFG As Color
+        Public GroupBoxBG As Color
+        Public SplitContainerFG As Color
+        Public SplitContainerBG As Color
+        Public SplitterPanelFG As Color
+        Public SplitterPanelBG As Color
+        Public TabControlFG As Color
+        Public TabControlBG As Color
+        Public TabControlOwnerDraw As Boolean
+        Public TabControlTabColors As CustomPaint.TabControlColors
+        Public TabPageFG As Color
+        Public TabPageBG As Color
         Public MenuStripFG As Color
         Public MenuStripBG As Color
         Public StatusStripFG As Color
@@ -226,6 +246,7 @@ Partial Public Class WalkmanLib
         Public ToolStripBG As Color
         Public ContextMenuStripFG As Color
         Public ContextMenuStripBG As Color
+
         Public ToolStripButtonFG As Color
         Public ToolStripButtonBG As Color
         Public ToolStripComboBoxFG As Color
@@ -246,26 +267,6 @@ Partial Public Class WalkmanLib
         Public ToolStripSplitButtonBG As Color
         Public ToolStripTextBoxFG As Color
         Public ToolStripTextBoxBG As Color
-        Public PropertyGridFG As Color
-        Public PropertyGridBG As Color
-        Public PictureBoxFG As Color
-        Public PictureBoxBG As Color
-        Public GroupBoxFG As Color
-        Public GroupBoxBG As Color
-        Public SplitContainerFG As Color
-        Public SplitContainerBG As Color
-        Public SplitterPanelFG As Color
-        Public SplitterPanelBG As Color
-        Public TabControlFG As Color
-        Public TabControlBG As Color
-        Public TabControlOwnerDraw As Boolean
-        Public TabControlTabColors As CustomPaint.TabControlColors
-        Public TabPageFG As Color
-        Public TabPageBG As Color
-        Public ProgressBarFG As Color
-        Public ProgressBarBG As Color
-        Public TrackBarFG As Color
-        Public TrackBarBG As Color
 
         Public OtherFG As Color
         Public OtherBG As Color
@@ -478,90 +479,297 @@ Partial Public Class WalkmanLib
             End Get
         End Property
 
+        Public Shared ReadOnly Property SystemDark As Theme
+            Get
+                Return New Theme With {
+                    .FormFG = SystemColors.Control,
+                    .FormBG = SystemColors.ControlDarkDark,
+                    .ButtonFG = SystemColors.Control,
+                    .ButtonBG = SystemColors.ControlDarkDark,
+                    .CheckBoxFG = SystemColors.Control,
+                    .CheckBoxBG = SystemColors.ControlDarkDark,
+                    .CheckedListBoxFG = SystemColors.Control,
+                    .CheckedListBoxBG = SystemColors.ControlDarkDark,
+                    .ComboBoxFG = SystemColors.Control,
+                    .ComboBoxBG = SystemColors.ControlDarkDark,
+                    .ContextMenuStripFG = SystemColors.Control,
+                    .ContextMenuStripBG = SystemColors.ControlDarkDark,
+                    .DomainUpDownFG = SystemColors.Control,
+                    .DomainUpDownBG = SystemColors.ControlDarkDark,
+                    .GroupBoxFG = SystemColors.Control,
+                    .GroupBoxBG = SystemColors.ControlDarkDark,
+                    .LabelFG = SystemColors.Control,
+                    .LabelBG = SystemColors.ControlDarkDark,
+                    .LinkLabelFG = SystemColors.Control,
+                    .LinkLabelBG = SystemColors.ControlDarkDark,
+                    .LinkLabelLinkColor = Color.FromArgb(&HFF0000FF),
+                    .LinkLabelVisitedLinkColor = Color.FromArgb(&HFF800080),
+                    .LinkLabelActiveLinkColor = Color.Red,
+                    .ListBoxFG = SystemColors.Control,
+                    .ListBoxBG = SystemColors.ControlDarkDark,
+                    .ListViewFG = SystemColors.Control,
+                    .ListViewBG = SystemColors.ControlDarkDark,
+                    .MenuStripFG = SystemColors.Control,
+                    .MenuStripBG = SystemColors.ControlDarkDark,
+                    .NumericUpDownFG = SystemColors.Control,
+                    .NumericUpDownBG = SystemColors.ControlDarkDark,
+                    .PictureBoxFG = SystemColors.Control,
+                    .PictureBoxBG = SystemColors.ControlDarkDark,
+                    .ProgressBarFG = SystemColors.Control,
+                    .ProgressBarBG = SystemColors.ControlDarkDark,
+                    .PropertyGridFG = SystemColors.Control,
+                    .PropertyGridBG = SystemColors.ControlDarkDark,
+                    .RadioButtonFG = SystemColors.Control,
+                    .RadioButtonBG = SystemColors.ControlDarkDark,
+                    .SplitContainerFG = SystemColors.Control,
+                    .SplitContainerBG = SystemColors.ControlDarkDark,
+                    .SplitterPanelFG = SystemColors.Control,
+                    .SplitterPanelBG = SystemColors.ControlDarkDark,
+                    .StatusStripFG = SystemColors.Control,
+                    .StatusStripBG = SystemColors.ControlDarkDark,
+                    .TabControlFG = SystemColors.Control,
+                    .TabControlBG = SystemColors.ControlDarkDark,
+                    .TabPageFG = SystemColors.Control,
+                    .TabPageBG = SystemColors.ControlDarkDark,
+                    .TextBoxFG = SystemColors.Control,
+                    .TextBoxBG = SystemColors.ControlDarkDark,
+                    .TextBoxReadOnlyFG = SystemColors.Control,
+                    .TextBoxReadOnlyBG = SystemColors.ControlDarkDark,
+                    .ToolStripFG = SystemColors.Control,
+                    .ToolStripBG = SystemColors.ControlDarkDark,
+                    .ToolStripButtonFG = SystemColors.Control,
+                    .ToolStripButtonBG = SystemColors.ControlDarkDark,
+                    .ToolStripComboBoxFG = SystemColors.Control,
+                    .ToolStripComboBoxBG = SystemColors.ControlDarkDark,
+                    .ToolStripDropDownFG = SystemColors.Control,
+                    .ToolStripDropDownBG = SystemColors.ControlDarkDark,
+                    .ToolStripDropDownButtonFG = SystemColors.Control,
+                    .ToolStripDropDownButtonBG = SystemColors.ControlDarkDark,
+                    .ToolStripMenuItemFG = SystemColors.Control,
+                    .ToolStripMenuItemBG = SystemColors.ControlDarkDark,
+                    .ToolStripProgressBarFG = SystemColors.Control,
+                    .ToolStripProgressBarBG = SystemColors.ControlDarkDark,
+                    .ToolStripSeparatorFG = SystemColors.Control,
+                    .ToolStripSeparatorBG = SystemColors.ControlDarkDark,
+                    .ToolStripSplitButtonFG = SystemColors.Control,
+                    .ToolStripSplitButtonBG = SystemColors.ControlDarkDark,
+                    .ToolStripStatusLabelFG = SystemColors.Control,
+                    .ToolStripStatusLabelBG = SystemColors.ControlDarkDark,
+                    .ToolStripTextBoxFG = SystemColors.Control,
+                    .ToolStripTextBoxBG = SystemColors.ControlDarkDark,
+                    .TrackBarFG = SystemColors.Control,
+                    .TrackBarBG = SystemColors.ControlDarkDark,
+                    .TreeViewFG = SystemColors.Control,
+                    .TreeViewBG = SystemColors.ControlDarkDark,
+                    .TreeViewNodeLineColor = SystemColors.Window,
+                    .OtherFG = SystemColors.Control,
+                    .OtherBG = SystemColors.ControlDarkDark,
+ _
+                    .ListViewOwnerDraw = False,
+                    .TabControlOwnerDraw = False,
+                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                        .ColumnText = SystemColors.Control,
+                        .ColumnBackground = SystemColors.ControlDarkDark
+                    },
+                    .TabControlTabColors = New CustomPaint.TabControlColors With {
+                        .TabText = SystemColors.Control,
+                        .ActiveTab = SystemColors.ControlDarkDark,
+                        .InactiveTab = SystemColors.ControlDark,
+                        .TabStripBackground = SystemColors.ControlDarkDark
+                    }
+                }
+            End Get
+        End Property
+
+        Public Shared ReadOnly Property Dark As Theme
+            Get
+                Dim textColor As Color = Color.FromArgb(&HFFCFCFCF)
+                Dim backColor As Color = Color.FromArgb(&HFF303030)
+                Dim altTextColor As Color = Color.FromArgb(&HFFFFFFFF)
+                Dim altBackColor As Color = Color.FromArgb(&HFF515259)
+
+                Return New Theme With {
+                    .FormFG = textColor,
+                    .FormBG = backColor,
+                    .ButtonFG = textColor,
+                    .ButtonBG = backColor,
+                    .CheckBoxFG = textColor,
+                    .CheckBoxBG = backColor,
+                    .CheckedListBoxFG = textColor,
+                    .CheckedListBoxBG = backColor,
+                    .ComboBoxFG = textColor,
+                    .ComboBoxBG = backColor,
+                    .ContextMenuStripFG = altTextColor,
+                    .ContextMenuStripBG = altBackColor,
+                    .DomainUpDownFG = textColor,
+                    .DomainUpDownBG = backColor,
+                    .GroupBoxFG = textColor,
+                    .GroupBoxBG = backColor,
+                    .LabelFG = textColor,
+                    .LabelBG = backColor,
+                    .LinkLabelFG = textColor,
+                    .LinkLabelBG = backColor,
+                    .LinkLabelLinkColor = Color.Cyan,
+                    .LinkLabelVisitedLinkColor = Color.Purple,
+                    .LinkLabelActiveLinkColor = Color.Red,
+                    .ListBoxFG = textColor,
+                    .ListBoxBG = backColor,
+                    .ListViewFG = textColor,
+                    .ListViewBG = backColor,
+                    .MenuStripFG = altTextColor,
+                    .MenuStripBG = altBackColor,
+                    .NumericUpDownFG = textColor,
+                    .NumericUpDownBG = backColor,
+                    .PictureBoxFG = textColor,
+                    .PictureBoxBG = backColor,
+                    .ProgressBarFG = textColor,
+                    .ProgressBarBG = backColor,
+                    .PropertyGridFG = textColor,
+                    .PropertyGridBG = backColor,
+                    .RadioButtonFG = textColor,
+                    .RadioButtonBG = backColor,
+                    .SplitContainerFG = textColor,
+                    .SplitContainerBG = backColor,
+                    .SplitterPanelFG = textColor,
+                    .SplitterPanelBG = backColor,
+                    .StatusStripFG = altTextColor,
+                    .StatusStripBG = altBackColor,
+                    .TabControlFG = textColor,
+                    .TabControlBG = backColor,
+                    .TabPageFG = textColor,
+                    .TabPageBG = backColor,
+                    .TextBoxFG = textColor,
+                    .TextBoxBG = backColor,
+                    .TextBoxReadOnlyFG = textColor,
+                    .TextBoxReadOnlyBG = Color.FromArgb(&HFF202020),
+                    .ToolStripFG = altTextColor,
+                    .ToolStripBG = altBackColor,
+                    .ToolStripButtonFG = altTextColor,
+                    .ToolStripButtonBG = altBackColor,
+                    .ToolStripComboBoxFG = altTextColor,
+                    .ToolStripComboBoxBG = altBackColor,
+                    .ToolStripDropDownFG = altTextColor,
+                    .ToolStripDropDownBG = altBackColor,
+                    .ToolStripDropDownButtonFG = altTextColor,
+                    .ToolStripDropDownButtonBG = altBackColor,
+                    .ToolStripMenuItemFG = altTextColor,
+                    .ToolStripMenuItemBG = altBackColor,
+                    .ToolStripProgressBarFG = altTextColor,
+                    .ToolStripProgressBarBG = altBackColor,
+                    .ToolStripSeparatorFG = altTextColor,
+                    .ToolStripSeparatorBG = altBackColor,
+                    .ToolStripSplitButtonFG = altTextColor,
+                    .ToolStripSplitButtonBG = altBackColor,
+                    .ToolStripStatusLabelFG = altTextColor,
+                    .ToolStripStatusLabelBG = altBackColor,
+                    .ToolStripTextBoxFG = altTextColor,
+                    .ToolStripTextBoxBG = altBackColor,
+                    .TrackBarFG = textColor,
+                    .TrackBarBG = backColor,
+                    .TreeViewFG = textColor,
+                    .TreeViewBG = backColor,
+                    .TreeViewNodeLineColor = textColor,
+                    .OtherFG = textColor,
+                    .OtherBG = backColor,
+ _
+                    .ListViewOwnerDraw = False,
+                    .TabControlOwnerDraw = False,
+                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                        .ColumnText = textColor,
+                        .ColumnBackground = backColor
+                    },
+                    .TabControlTabColors = New CustomPaint.TabControlColors With {
+                        .TabText = textColor,
+                        .ActiveTab = backColor,
+                        .InactiveTab = altBackColor,
+                        .TabStripBackground = backColor
+                    }
+                }
+            End Get
+        End Property
+
         Public Shared ReadOnly Property Test As Theme
             Get
                 Return New Theme With {
-                    .ComboBoxFG = Color.Blue,
-                    .ComboBoxBG = Color.Magenta,
-                    .CheckedListBoxFG = Color.Blue,
-                    .CheckedListBoxBG = Color.Magenta,
-                    .DomainUpDownFG = Color.Blue,
-                    .DomainUpDownBG = Color.Magenta,
-                    .ListViewFG = Color.Blue,
-                    .ListViewBG = Color.Magenta,
-                    .ListBoxFG = Color.Blue,
-                    .ListBoxBG = Color.Magenta,
-                    .NumericUpDownFG = Color.Blue,
-                    .NumericUpDownBG = Color.Magenta,
-                    .TextBoxFG = Color.Blue,
-                    .TextBoxBG = Color.Magenta,
-                    .ToolStripComboBoxFG = Color.Blue,
-                    .ToolStripComboBoxBG = Color.Magenta,
-                    .ToolStripTextBoxFG = Color.Blue,
-                    .ToolStripTextBoxBG = Color.Magenta,
-                    .TreeViewFG = Color.Blue,
-                    .TreeViewBG = Color.Magenta,
- _
                     .FormFG = Color.Blue,
                     .FormBG = Color.Magenta,
                     .ButtonFG = Color.Blue,
                     .ButtonBG = Color.Magenta,
                     .CheckBoxFG = Color.Blue,
                     .CheckBoxBG = Color.Magenta,
+                    .CheckedListBoxFG = Color.Blue,
+                    .CheckedListBoxBG = Color.Magenta,
+                    .ComboBoxFG = Color.Blue,
+                    .ComboBoxBG = Color.Magenta,
                     .ContextMenuStripFG = Color.Blue,
                     .ContextMenuStripBG = Color.Magenta,
+                    .DomainUpDownFG = Color.Blue,
+                    .DomainUpDownBG = Color.Magenta,
                     .GroupBoxFG = Color.Blue,
                     .GroupBoxBG = Color.Magenta,
                     .LabelFG = Color.Blue,
                     .LabelBG = Color.Magenta,
                     .LinkLabelFG = Color.Blue,
                     .LinkLabelBG = Color.Magenta,
+                    .LinkLabelLinkColor = Color.Maroon,
+                    .LinkLabelVisitedLinkColor = Color.Purple,
+                    .LinkLabelActiveLinkColor = Color.Green,
+                    .ListBoxFG = Color.Blue,
+                    .ListBoxBG = Color.Magenta,
+                    .ListViewFG = Color.Blue,
+                    .ListViewBG = Color.Magenta,
                     .MenuStripFG = Color.Blue,
                     .MenuStripBG = Color.Magenta,
-                    .PropertyGridFG = Color.Blue,
-                    .PropertyGridBG = Color.Magenta,
+                    .NumericUpDownFG = Color.Blue,
+                    .NumericUpDownBG = Color.Magenta,
                     .PictureBoxFG = Color.Blue,
                     .PictureBoxBG = Color.Magenta,
+                    .ProgressBarFG = Color.Blue,
+                    .ProgressBarBG = Color.Magenta,
+                    .PropertyGridFG = Color.Blue,
+                    .PropertyGridBG = Color.Magenta,
                     .RadioButtonFG = Color.Blue,
                     .RadioButtonBG = Color.Magenta,
-                    .StatusStripFG = Color.Blue,
-                    .StatusStripBG = Color.Magenta,
                     .SplitContainerFG = Color.Blue,
                     .SplitContainerBG = Color.Magenta,
                     .SplitterPanelFG = Color.Blue,
                     .SplitterPanelBG = Color.Magenta,
+                    .StatusStripFG = Color.Blue,
+                    .StatusStripBG = Color.Magenta,
+                    .TabControlFG = Color.Blue,
+                    .TabControlBG = Color.Magenta,
+                    .TabPageFG = Color.Blue,
+                    .TabPageBG = Color.Magenta,
+                    .TextBoxFG = Color.Blue,
+                    .TextBoxBG = Color.Magenta,
+                    .TextBoxReadOnlyFG = Color.Blue,
+                    .TextBoxReadOnlyBG = Color.Magenta,
                     .ToolStripFG = Color.Blue,
                     .ToolStripBG = Color.Magenta,
                     .ToolStripButtonFG = Color.Blue,
                     .ToolStripButtonBG = Color.Magenta,
+                    .ToolStripComboBoxFG = Color.Blue,
+                    .ToolStripComboBoxBG = Color.Magenta,
                     .ToolStripDropDownFG = Color.Blue,
                     .ToolStripDropDownBG = Color.Magenta,
                     .ToolStripDropDownButtonFG = Color.Blue,
                     .ToolStripDropDownButtonBG = Color.Magenta,
                     .ToolStripMenuItemFG = Color.Blue,
                     .ToolStripMenuItemBG = Color.Magenta,
-                    .ToolStripStatusLabelFG = Color.Blue,
-                    .ToolStripStatusLabelBG = Color.Magenta,
-                    .ToolStripSplitButtonFG = Color.Blue,
-                    .ToolStripSplitButtonBG = Color.Magenta,
-                    .TabControlFG = Color.Blue,
-                    .TabControlBG = Color.Magenta,
- _
-                    .LinkLabelLinkColor = Color.Maroon,
-                    .LinkLabelVisitedLinkColor = Color.Purple,
-                    .LinkLabelActiveLinkColor = Color.Green,
-                    .ProgressBarFG = Color.Blue,
-                    .ProgressBarBG = Color.Magenta,
-                    .TabPageFG = Color.Blue,
-                    .TabPageBG = Color.Magenta,
-                    .TextBoxReadOnlyFG = Color.Blue,
-                    .TextBoxReadOnlyBG = Color.Magenta,
                     .ToolStripProgressBarFG = Color.Blue,
                     .ToolStripProgressBarBG = Color.Magenta,
                     .ToolStripSeparatorFG = Color.Blue,
                     .ToolStripSeparatorBG = Color.Magenta,
+                    .ToolStripSplitButtonFG = Color.Blue,
+                    .ToolStripSplitButtonBG = Color.Magenta,
+                    .ToolStripStatusLabelFG = Color.Blue,
+                    .ToolStripStatusLabelBG = Color.Magenta,
+                    .ToolStripTextBoxFG = Color.Blue,
+                    .ToolStripTextBoxBG = Color.Magenta,
                     .TrackBarFG = Color.Blue,
                     .TrackBarBG = Color.Magenta,
+                    .TreeViewFG = Color.Blue,
+                    .TreeViewBG = Color.Magenta,
                     .TreeViewNodeLineColor = Color.Green,
                     .OtherFG = Color.Blue,
                     .OtherBG = Color.Magenta,
