@@ -700,7 +700,7 @@ Partial Public Class WalkmanLib
                     .TabControlOwnerDraw = False,
                     .ListViewColumnColors = New CustomPaint.ListViewColors With {
                         .ColumnText = textColor,
-                        .ColumnBackground = backColor
+                        .ColumnBackground = Color.FromArgb(&HFF444449)
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = textColor,
