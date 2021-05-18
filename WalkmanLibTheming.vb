@@ -255,6 +255,7 @@ Partial Public Class WalkmanLib
         Public ToolStripDropDownBG As Color
         Public ToolStripDropDownButtonFG As Color
         Public ToolStripDropDownButtonBG As Color
+        Public ToolStripItemDisabledText As Color
         Public ToolStripMenuItemFG As Color
         Public ToolStripMenuItemBG As Color
         Public ToolStripProgressBarFG As Color
@@ -394,7 +395,8 @@ Partial Public Class WalkmanLib
                         .ActiveTab = SystemColors.Control,
                         .InactiveTab = SystemColors.Control,
                         .TabStripBackground = SystemColors.Control
-                    }
+                    },
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFF6D6D6D)
                 }
             End Get
         End Property
@@ -498,7 +500,8 @@ Partial Public Class WalkmanLib
                         .ActiveTab = SystemColors.ControlText,
                         .InactiveTab = SystemColors.ControlDarkDark,
                         .TabStripBackground = SystemColors.ControlText
-                    }
+                    },
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2)
                 }
             End Get
         End Property
@@ -600,7 +603,8 @@ Partial Public Class WalkmanLib
                         .ActiveTab = SystemColors.ControlDarkDark,
                         .InactiveTab = SystemColors.ControlDark,
                         .TabStripBackground = SystemColors.ControlDarkDark
-                    }
+                    },
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2)
                 }
             End Get
         End Property
@@ -707,7 +711,8 @@ Partial Public Class WalkmanLib
                         .ActiveTab = backColor,
                         .InactiveTab = altBackColor,
                         .TabStripBackground = backColor
-                    }
+                    },
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2)
                 }
             End Get
         End Property
@@ -809,7 +814,8 @@ Partial Public Class WalkmanLib
                         .ActiveTab = Color.Magenta,
                         .InactiveTab = Color.Violet,
                         .TabStripBackground = Color.Magenta
-                    }
+                    },
+                    .ToolStripItemDisabledText = Color.Green
                 }
             End Get
         End Property
@@ -962,6 +968,45 @@ Partial Public Class WalkmanLib
                 e.Graphics.DrawString(tabCtl.TabPages(e.Index).Text, tabCtl.Font, New SolidBrush(colors.TabText), tabRect, sf)
             End Using
         End Sub
+
+        Public Class ToolStripSystemRendererWithDisabled
+            Inherits ToolStripSystemRenderer
+
+            Private ReadOnly getDisabledColor As Func(Of ToolStripItem, Color) = Function(e) DirectCast(e.Tag, Color)
+            Public Sub New()
+            End Sub
+            Public Sub New(getDisabledColor As Func(Of ToolStripItem, Color))
+                Me.getDisabledColor = getDisabledColor
+            End Sub
+            Public Sub New(disabledColor As Color)
+                Me.getDisabledColor = Function() disabledColor
+            End Sub
+
+            Protected Overrides Sub OnRenderItemText(e As ToolStripItemTextRenderEventArgs)
+                'https://bytes.com/topic/visual-basic-net/answers/590331-specify-custom-disabled-text-color-toolstripprofessionalrendere
+                If e.Item.Enabled Then
+                    MyBase.OnRenderItemText(e)
+                Else
+                    Dim color As Color = If(e.Item.Enabled, e.TextColor, getDisabledColor(e.Item))
+
+                    Dim textRectangle As Rectangle = e.TextRectangle
+                    If (e.TextDirection <> ToolStripTextDirection.Horizontal) AndAlso (textRectangle.Width > 0) AndAlso (textRectangle.Height > 0) Then
+                        Dim size As Size = New Size(width:=textRectangle.Height, height:=textRectangle.Width)
+
+                        Using bitmap As Bitmap = New Bitmap(size.Width, size.Height, Imaging.PixelFormat.Format32bppPArgb),
+                                g As Graphics = Graphics.FromImage(bitmap)
+                            g.TextRenderingHint = Text.TextRenderingHint.AntiAlias
+                            TextRenderer.DrawText(g, e.Text, e.TextFont, New Rectangle(Point.Empty, size), color, e.TextFormat)
+
+                            bitmap.RotateFlip(If(e.TextDirection = ToolStripTextDirection.Vertical90, RotateFlipType.Rotate90FlipNone, RotateFlipType.Rotate270FlipNone))
+                            e.Graphics.DrawImage(bitmap, textRectangle)
+                        End Using
+                    Else
+                        TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont, textRectangle, color, e.TextFormat)
+                    End If
+                End If
+            End Sub
+        End Class
     End Class
 #End Region
 End Class
