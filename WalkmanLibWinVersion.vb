@@ -173,8 +173,7 @@ Partial Public Class WalkmanLib
                 End If
         End Select
 
-        Throw New InvalidOperationException("Unrecognised Windows Version!" & Environment.NewLine & Environment.NewLine &
-            "VersionString: " & Environment.OSVersion.VersionString & Environment.NewLine &
-            "Version.ToString: " & currentVersion.ToString())
+        Throw New InvalidOperationException(String.Format("Unrecognised Windows Version!{0}{0}VersionString: {1}{0}Version.ToString: {2}",
+                                                          Environment.NewLine, Environment.OSVersion.VersionString, currentVersion.ToString()))
     End Function
 End Class
