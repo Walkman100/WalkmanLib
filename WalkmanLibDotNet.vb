@@ -20,6 +20,36 @@ Public Enum PathEnum
 End Enum
 
 Partial Public Class WalkmanLib
+    Public Enum OS
+        Other
+        Windows
+        Linux
+        MacOS
+    End Enum
+
+    Shared Function GetOS() As OS
+        ' ideally, the following would be used, but it was only added in .Net Framework v4.7.1:
+        'If Runtime.InteropServices.RuntimeInformation.IsOSPlatform(Runtime.InteropServices.OSPlatform.Windows) Then
+        '    Return "Windows"
+        'ElseIf Runtime.InteropServices.RuntimeInformation.IsOSPlatform(Runtime.InteropServices.OSPlatform.Linux) Then
+        '    Return "Linux"
+        'ElseIf Runtime.InteropServices.RuntimeInformation.IsOSPlatform(Runtime.InteropServices.OSPlatform.OSX) Then
+        '    Return "MacOS"
+        'End If
+
+        If Environment.OSVersion.Platform = PlatformID.Win32NT Then
+            Return OS.Windows
+        ElseIf Environment.OSVersion.Platform = PlatformID.Unix Then
+            Dim unameOutput As String = RunAndGetOutput("uname")
+            If unameOutput = "Linux" Then
+                Return OS.Linux
+            ElseIf unameOutput = "Darwin" Then
+                Return OS.MacOS
+            End If
+        End If
+
+        Return OS.Other
+    End Function
 
     ''' <summary>Opens the Open With dialog box for a file path.</summary>
     ''' <param name="path">The file to open with a program.</param>
