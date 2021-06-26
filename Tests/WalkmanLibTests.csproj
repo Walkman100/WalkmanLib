@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{21B3ED85-3F9C-0F8E-39DF-D6F60C5298E0}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Exe</OutputType>
+    <MyType>Console</MyType>
+    <RootNamespace>WalkmanLibTests</RootNamespace>
+    <AssemblyName>WalkmanLibTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <LangVersion>9.0</LangVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <OptionInfer>On</OptionInfer>
+    <ApplicationManifest>Properties\App.manifest</ApplicationManifest>
+    <NoWin32Manifest>False</NoWin32Manifest>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>False</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '32-bit' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '64-bit' ">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>NoOokii,DEBUG,TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>NoOokii,TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Main.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DisposableDirectory.cs" />
+    <Compile Include="DisposableFile.cs" />
+    <Compile Include="NoException.cs" />
+    <Compile Include="RedirectConsole.cs" />
+    <Compile Include="Tests.cs" />
+    <Compile Include="Test_Junctions.cs" />
+    <Compile Include="Test_ArgHandler.cs" />
+    <Compile Include="Test_Attributes.cs" />
+    <Compile Include="Test_Compression.cs" />
+    <Compile Include="Test_ContextMenu.cs" />
+    <Compile Include="Test_CustomMsgBox.cs" />
+    <Compile Include="Test_GetFileIcon.cs" />
+    <Compile Include="Test_GetFolderIconPath.cs" />
+    <Compile Include="Test_GetOpenWith.cs" />
+    <Compile Include="Test_Hardlinks.cs" />
+    <Compile Include="Test_Icons.cs" />
+    <Compile Include="Test_IsAdmin.cs" />
+    <Compile Include="Test_IsFileOrDirectory.cs" />
+    <Compile Include="Test_Mouse.cs" />
+    <Compile Include="Test_RunAndGetOutput.cs" />
+    <Compile Include="Test_Shortcuts.cs" />
+    <Compile Include="Test_ShowProperties.cs" />
+    <Compile Include="Test_StreamCopy.cs" />
+    <Compile Include="Test_Symlinks.cs" />
+    <Compile Include="Test_TimeConvert.cs" />
+    <Compile Include="Test_Updates.cs" />
+    <Compile Include="Test_WaitFor.cs" />
+    <Compile Include="..\CustomMsgBox.cs">
+      <Link>WalkmanLib\CustomMsgBox.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\CustomMsgBox.Designer.cs">
+      <Link>WalkmanLib\CustomMsgBox.Designer.cs</Link>
+      <DependentUpon>CustomMsgBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\WalkmanLibArgHandler.cs">
+      <Link>WalkmanLib\WalkmanLibArgHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibContextMenu.cs">
+      <Link>WalkmanLib\WalkmanLibContextMenu.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibDotNet.cs">
+      <Link>WalkmanLib\WalkmanLibDotNet.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibRestartManager.cs">
+      <Link>WalkmanLib\WalkmanLibRestartManager.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibStreamCopy.cs">
+      <Link>WalkmanLib\WalkmanLibStreamCopy.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibSystemHandles.cs">
+      <Link>WalkmanLib\WalkmanLibSystemHandles.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibTheming.cs">
+      <Link>WalkmanLib\WalkmanLibTheming.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibTimeConvert.cs">
+      <Link>WalkmanLib\WalkmanLibTimeConvert.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibUpdates.cs">
+      <Link>WalkmanLib\WalkmanLibUpdates.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibWin32.cs">
+      <Link>WalkmanLib\WalkmanLibWin32.cs</Link>
+    </Compile>
+    <Compile Include="..\WalkmanLibWinVersion.cs">
+      <Link>WalkmanLib\WalkmanLibWinVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\Windows7ProgressBar.cs">
+      <Link>WalkmanLib\Windows7ProgressBar.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\App.config" />
+    <None Include="Properties\App.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\CustomMsgBox.resx">
+      <Link>WalkmanLib\CustomMsgBox.resx</Link>
+      <DependentUpon>CustomMsgBox.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="IWshRuntimeLibrary">
+      <Guid>{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
