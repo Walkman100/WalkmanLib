@@ -124,13 +124,13 @@ public partial class CustomMsgBoxForm {
 
         switch (FormLevel) {
             case MessageBoxIcon.Error:
-                WalkmanLibTests.My.MyProject.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Beep); break;
+                System.Media.SystemSounds.Beep.Play(); break;
             case MessageBoxIcon.Exclamation:
-                WalkmanLibTests.My.MyProject.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Exclamation); break;
+                System.Media.SystemSounds.Exclamation.Play(); break;
             case MessageBoxIcon.Information:
-                WalkmanLibTests.My.MyProject.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Asterisk); break;
+                System.Media.SystemSounds.Asterisk.Play(); break;
             case MessageBoxIcon.Question:
-                WalkmanLibTests.My.MyProject.Computer.Audio.PlaySystemSound(System.Media.SystemSounds.Question); break;
+                System.Media.SystemSounds.Question.Play(); break;
         }
 
         // as TextBox doesn't have an AutoSize property like Label does, we have to do it manually
