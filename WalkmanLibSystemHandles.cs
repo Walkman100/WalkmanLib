@@ -503,14 +503,16 @@ public partial class WalkmanLib {
             uint length = 0x1000;
             IntPtr ptr = IntPtr.Zero;
             try {
-                while (true) {
+                bool keepLooping = true;
+                while (keepLooping) {
                     ptr = Marshal.AllocHGlobal((int)length);
                     uint wantedLength;
                     switch (NtQuerySystemInformation(
                             SYSTEM_INFORMATION_CLASS.SystemHandleInformation, 
                             ptr, length, out wantedLength)) {
                         case NTSTATUS.STATUS_SUCCESS: {
-                            break while;
+                            keepLooping = false;
+                            break;
                         }
                         case NTSTATUS.STATUS_INFO_LENGTH_MISMATCH: {
                             length = Math.Max(length, wantedLength);

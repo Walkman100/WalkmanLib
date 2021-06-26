@@ -45,7 +45,7 @@ namespace Tests {
             if (!Console.IsOutputRedirected) {
                 Task.Run(() => {
                     Console.Write("Waiting for Shell thread to exit. This is expected to take a while, please wait: ");
-                    WalkmanLib.ConsoleProgress(0, waitTimeout, ref waitDone, ref countExited);
+                    WalkmanLib.ConsoleProgress(0, waitTimeout, ref waitDone, out countExited);
                 });
             } else {
                 countExited = true;
