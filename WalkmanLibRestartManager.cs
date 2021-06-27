@@ -91,8 +91,7 @@ public partial class WalkmanLib {
             ref uint lpdwRebootReasons);
 
         public static ProcessInfo[] GetLockingProcessInfos(string path) {
-            uint handle;
-            if (RmStartSession(out handle, 0, Guid.NewGuid().ToString()) != 0) {
+            if (RmStartSession(out uint handle, 0, Guid.NewGuid().ToString()) != 0) {
                 throw new Exception("Could not begin session. Unable to determine file lockers.", new Win32Exception());
             }
 

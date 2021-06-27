@@ -54,19 +54,19 @@ public partial class WalkmanLib {
             var rtn = new TimeInfo();
             if (seconds >= _SecondsInWeek) {
                 rtn.Weeks = seconds / _SecondsInWeek;
-                seconds = seconds % _SecondsInWeek;
+                seconds %= _SecondsInWeek;
             }
             if (seconds >= _SecondsInDay) {
                 rtn.Days = seconds / _SecondsInDay;
-                seconds = seconds % _SecondsInDay;
+                seconds %= _SecondsInDay;
             }
             if (seconds >= _SecondsInHour) {
                 rtn.Hours = seconds / _SecondsInHour;
-                seconds = seconds % _SecondsInHour;
+                seconds %= _SecondsInHour;
             }
             if (seconds >= _SecondsInMinute) {
                 rtn.Minutes = seconds / _SecondsInMinute;
-                seconds = seconds % _SecondsInMinute;
+                seconds %= _SecondsInMinute;
             }
             rtn.Seconds = seconds;
             return rtn;
@@ -79,15 +79,15 @@ public partial class WalkmanLib {
             var rtn = new TimeInfo();
             if (minutes >= _MinutesInWeek) {
                 rtn.Weeks = minutes / _MinutesInWeek;
-                minutes = minutes % _MinutesInWeek;
+                minutes %= _MinutesInWeek;
             }
             if (minutes >= _MinutesInDay) {
                 rtn.Days = minutes / _MinutesInDay;
-                minutes = minutes % _MinutesInDay;
+                minutes %= _MinutesInDay;
             }
             if (minutes >= _MinutesInHour) {
                 rtn.Hours = minutes / _MinutesInHour;
-                minutes = minutes % _MinutesInHour;
+                minutes %= _MinutesInHour;
             }
             rtn.Minutes = minutes;
             return rtn;
@@ -115,12 +115,12 @@ public partial class WalkmanLib {
             var rtn = new TimeInfo();
             if (hours >= _HoursInWeek) {
                 rtn.Weeks = hours / _HoursInWeek;
-                hours = hours % _HoursInWeek;
+                hours %= _HoursInWeek;
             }
 
             if (hours >= _HoursInDay) {
                 rtn.Days = hours / _HoursInDay;
-                hours = hours % _HoursInDay;
+                hours %= _HoursInDay;
             }
             rtn.Hours = hours;
             return rtn;
@@ -151,7 +151,7 @@ public partial class WalkmanLib {
             var rtn = new TimeInfo();
             if (days >= _DaysInWeek) {
                 rtn.Weeks = days / _DaysInWeek;
-                days = days % _DaysInWeek;
+                days %= _DaysInWeek;
             }
             rtn.Days = days;
             return rtn;

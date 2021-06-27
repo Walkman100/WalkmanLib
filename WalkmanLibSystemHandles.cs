@@ -506,10 +506,9 @@ public partial class WalkmanLib {
                 bool keepLooping = true;
                 while (keepLooping) {
                     ptr = Marshal.AllocHGlobal((int)length);
-                    uint wantedLength;
                     switch (NtQuerySystemInformation(
-                            SYSTEM_INFORMATION_CLASS.SystemHandleInformation, 
-                            ptr, length, out wantedLength)) {
+                            SYSTEM_INFORMATION_CLASS.SystemHandleInformation,
+                            ptr, length, out uint wantedLength)) {
                         case NTSTATUS.STATUS_SUCCESS: {
                             keepLooping = false;
                             break;
@@ -558,76 +557,42 @@ public partial class WalkmanLib {
             public SYSTEM_HANDLE_TYPE Type;
         }
 
-        private static ConcurrentDictionary<byte, string> rawTypeMap = new();
+        private static readonly ConcurrentDictionary<byte, string> rawTypeMap = new();
 
-        private static SYSTEM_HANDLE_TYPE HandleTypeFromString(string typeString) {
-            switch (typeString) {
-                case var @case when @case == null:
-                    return SYSTEM_HANDLE_TYPE.UNKNOWN;
-                case "Directory":
-                    return SYSTEM_HANDLE_TYPE.DIRECTORY;
-                case "SymbolicLink":
-                    return SYSTEM_HANDLE_TYPE.SYMBOLIC_LINK;
-                case "Token":
-                    return SYSTEM_HANDLE_TYPE.TOKEN;
-                case "Process":
-                    return SYSTEM_HANDLE_TYPE.PROCESS;
-                case "Thread":
-                    return SYSTEM_HANDLE_TYPE.THREAD;
-                case "Job":
-                    return SYSTEM_HANDLE_TYPE.JOB;
-                case "Event":
-                    return SYSTEM_HANDLE_TYPE.EVENT;
-                case "Mutant":
-                    return SYSTEM_HANDLE_TYPE.MUTANT;
-                case "Semaphore":
-                    return SYSTEM_HANDLE_TYPE.SEMAPHORE;
-                case "Timer":
-                    return SYSTEM_HANDLE_TYPE.TIMER;
-                case "WindowStation":
-                    return SYSTEM_HANDLE_TYPE.WINDOW_STATION;
-                case "Desktop":
-                    return SYSTEM_HANDLE_TYPE.DESKTOP;
-                case "Section":
-                    return SYSTEM_HANDLE_TYPE.SECTION;
-                case "Key":
-                    return SYSTEM_HANDLE_TYPE.KEY;
-                case "IoCompletion":
-                    return SYSTEM_HANDLE_TYPE.IO_COMPLETION;
-                case "File":
-                    return SYSTEM_HANDLE_TYPE.FILE;
-                case "TpWorkerFactory":
-                    return SYSTEM_HANDLE_TYPE.TP_WORKER_FACTORY;
-                case "ALPC Port":
-                    return SYSTEM_HANDLE_TYPE.ALPC_PORT;
-                case "KeyedEvent":
-                    return SYSTEM_HANDLE_TYPE.KEYED_EVENT;
-                case "Session":
-                    return SYSTEM_HANDLE_TYPE.SESSION;
-                case "IoCompletionReserve":
-                    return SYSTEM_HANDLE_TYPE.IO_COMPLETION_RESERVE;
-                case "WmiGuid":
-                    return SYSTEM_HANDLE_TYPE.WMI_GUID;
-                case "UserApcReserve":
-                    return SYSTEM_HANDLE_TYPE.USER_APC_RESERVE;
-                case "IRTimer":
-                    return SYSTEM_HANDLE_TYPE.IR_TIMER;
-                case "Composition":
-                    return SYSTEM_HANDLE_TYPE.COMPOSITION;
-                case "WaitCompletionPacket":
-                    return SYSTEM_HANDLE_TYPE.WAIT_COMPLETION_PACKET;
-                case "DxgkSharedResource":
-                    return SYSTEM_HANDLE_TYPE.DXGK_SHARED_RESOURCE;
-                case "DxgkSharedSyncObject":
-                    return SYSTEM_HANDLE_TYPE.DXGK_SHARED_SYNC_OBJECT;
-                case "DxgkDisplayManagerObject":
-                    return SYSTEM_HANDLE_TYPE.DXGK_DISPLAY_MANAGER_OBJECT;
-                case "DxgkCompositionObject":
-                    return SYSTEM_HANDLE_TYPE.DXGK_COMPOSITION_OBJECT;
-                default:
-                    return SYSTEM_HANDLE_TYPE.OTHER;
-            }
-        }
+        private static SYSTEM_HANDLE_TYPE HandleTypeFromString(string typeString) => typeString switch {
+            var @case when @case == null => SYSTEM_HANDLE_TYPE.UNKNOWN,
+            "Directory" => SYSTEM_HANDLE_TYPE.DIRECTORY,
+            "SymbolicLink" => SYSTEM_HANDLE_TYPE.SYMBOLIC_LINK,
+            "Token" => SYSTEM_HANDLE_TYPE.TOKEN,
+            "Process" => SYSTEM_HANDLE_TYPE.PROCESS,
+            "Thread" => SYSTEM_HANDLE_TYPE.THREAD,
+            "Job" => SYSTEM_HANDLE_TYPE.JOB,
+            "Event" => SYSTEM_HANDLE_TYPE.EVENT,
+            "Mutant" => SYSTEM_HANDLE_TYPE.MUTANT,
+            "Semaphore" => SYSTEM_HANDLE_TYPE.SEMAPHORE,
+            "Timer" => SYSTEM_HANDLE_TYPE.TIMER,
+            "WindowStation" => SYSTEM_HANDLE_TYPE.WINDOW_STATION,
+            "Desktop" => SYSTEM_HANDLE_TYPE.DESKTOP,
+            "Section" => SYSTEM_HANDLE_TYPE.SECTION,
+            "Key" => SYSTEM_HANDLE_TYPE.KEY,
+            "IoCompletion" => SYSTEM_HANDLE_TYPE.IO_COMPLETION,
+            "File" => SYSTEM_HANDLE_TYPE.FILE,
+            "TpWorkerFactory" => SYSTEM_HANDLE_TYPE.TP_WORKER_FACTORY,
+            "ALPC Port" => SYSTEM_HANDLE_TYPE.ALPC_PORT,
+            "KeyedEvent" => SYSTEM_HANDLE_TYPE.KEYED_EVENT,
+            "Session" => SYSTEM_HANDLE_TYPE.SESSION,
+            "IoCompletionReserve" => SYSTEM_HANDLE_TYPE.IO_COMPLETION_RESERVE,
+            "WmiGuid" => SYSTEM_HANDLE_TYPE.WMI_GUID,
+            "UserApcReserve" => SYSTEM_HANDLE_TYPE.USER_APC_RESERVE,
+            "IRTimer" => SYSTEM_HANDLE_TYPE.IR_TIMER,
+            "Composition" => SYSTEM_HANDLE_TYPE.COMPOSITION,
+            "WaitCompletionPacket" => SYSTEM_HANDLE_TYPE.WAIT_COMPLETION_PACKET,
+            "DxgkSharedResource" => SYSTEM_HANDLE_TYPE.DXGK_SHARED_RESOURCE,
+            "DxgkSharedSyncObject" => SYSTEM_HANDLE_TYPE.DXGK_SHARED_SYNC_OBJECT,
+            "DxgkDisplayManagerObject" => SYSTEM_HANDLE_TYPE.DXGK_DISPLAY_MANAGER_OBJECT,
+            "DxgkCompositionObject" => SYSTEM_HANDLE_TYPE.DXGK_COMPOSITION_OBJECT,
+            _ => SYSTEM_HANDLE_TYPE.OTHER,
+        };
 
         /// <summary>
         /// Gets the handle type and name, and puts the other properties into more user-friendly fields.
@@ -672,8 +637,7 @@ public partial class WalkmanLib {
 
                 // Get the object type if it hasn't been retrieved from cache map above
                 if (!rawTypeMap.ContainsKey(handleInfo.RawType)) {
-                    uint length;
-                    NtQueryObject(handleDuplicate, OBJECT_INFORMATION_CLASS.ObjectTypeInformation, IntPtr.Zero, 0, out length);
+                    NtQueryObject(handleDuplicate, OBJECT_INFORMATION_CLASS.ObjectTypeInformation, IntPtr.Zero, 0, out uint length);
 
                     IntPtr ptr = IntPtr.Zero;
                     try {
@@ -708,8 +672,7 @@ public partial class WalkmanLib {
                         !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x1A019F && handleInfo.Flags == 0x00                       ) && 
                         !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x1A019F && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT)
                             ))) { // don't query some objects that get stuck (NtQueryObject hangs on NamedPipes)
-                    uint length;
-                    NtQueryObject(handleDuplicate, OBJECT_INFORMATION_CLASS.ObjectNameInformation, IntPtr.Zero, 0, out length);
+                    NtQueryObject(handleDuplicate, OBJECT_INFORMATION_CLASS.ObjectNameInformation, IntPtr.Zero, 0, out uint length);
 
                     var ptr = IntPtr.Zero;
                     try {
@@ -827,8 +790,7 @@ public partial class WalkmanLib {
             // search in reverse, to catch network shares that are mapped before returning general network path
             while (i > 0 && devicePath.LastIndexOf('\\', i - 1) != -1) {
                 i = devicePath.LastIndexOf('\\', i - 1);
-                string drive = "";
-                if (deviceMap.TryGetValue(devicePath.Remove(i), out drive)) {
+                if (deviceMap.TryGetValue(devicePath.Remove(i), out string drive)) {
                     return string.Concat(drive, devicePath.Substring(i));
                 }
             }

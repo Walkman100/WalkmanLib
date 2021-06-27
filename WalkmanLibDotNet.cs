@@ -300,13 +300,12 @@ public partial class WalkmanLib {
             if (Directory.Exists(rtn)) {
 
                 if (minimumVersion != null) {
-                    Version gotVersion;
-                    if (Version.TryParse(localKey.GetValue("DisplayVersion").ToString(), out gotVersion)) {
+                    if (Version.TryParse(localKey.GetValue("DisplayVersion").ToString(), out Version gotVersion)) {
                         if (gotVersion < minimumVersion && MessageBox.Show("Currently Installed WalkmanUtils version is out of date! Use anyway?",
                                                             "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
                             throw new OperationCanceledException();
                         }
-                    } else if (MessageBox.Show("Got Invalid Version from WalkmanUtils install info! Continue anyway?", 
+                    } else if (MessageBox.Show("Got Invalid Version from WalkmanUtils install info! Continue anyway?",
                                 "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
                         throw new OperationCanceledException();
                     }
@@ -363,13 +362,13 @@ public partial class WalkmanLib {
                 if (ex.GetType() != null)                    txtBugReport.Text += "Type: " + ex.GetType().ToString() + Environment.NewLine;
                 if (ex.Message != null)                    txtBugReport.Text += "Message: " + ex.Message.ToString() + Environment.NewLine + Environment.NewLine;
                 if (ex.StackTrace != null)                    txtBugReport.Text += "StackTrace:" + Environment.NewLine + ex.StackTrace.ToString() + Environment.NewLine + Environment.NewLine;
-                if (ex is System.ComponentModel.Win32Exception) {
-                    txtBugReport.Text += "ErrorCode: 0x" + ((System.ComponentModel.Win32Exception)ex).ErrorCode.ToString("X") + Environment.NewLine;
-                    txtBugReport.Text += "NativeErrorCode: 0x" + ((System.ComponentModel.Win32Exception)ex).NativeErrorCode.ToString("X") + Environment.NewLine;
+                if (ex is System.ComponentModel.Win32Exception win32ex) {
+                    txtBugReport.Text += "ErrorCode: 0x" + win32ex.ErrorCode.ToString("X") + Environment.NewLine;
+                    txtBugReport.Text += "NativeErrorCode: 0x" + win32ex.NativeErrorCode.ToString("X") + Environment.NewLine;
                 }
-                if (ex is FileNotFoundException) {
-                    txtBugReport.Text += "FileName: " + ((FileNotFoundException)ex).FileName + Environment.NewLine;
-                    txtBugReport.Text += "FusionLog: " + ((FileNotFoundException)ex).FusionLog + Environment.NewLine;
+                if (ex is FileNotFoundException fileNotFoundEx) {
+                    txtBugReport.Text += "FileName: " + fileNotFoundEx.FileName + Environment.NewLine;
+                    txtBugReport.Text += "FusionLog: " + fileNotFoundEx.FusionLog + Environment.NewLine;
                 }
                 if (ex.Source != null)                    txtBugReport.Text += "Source: " + ex.Source.ToString() + Environment.NewLine;
                 if (ex.TargetSite != null)                    txtBugReport.Text += "TargetSite: " + ex.TargetSite.ToString() + Environment.NewLine;

@@ -114,7 +114,7 @@ public partial class WalkmanLib {
         string projectOwner = (string)((object[])e.Argument)[1];
         Version currentVersion = (Version)((object[])e.Argument)[2];
 
-        var latestVersion = new Version(); // warning squashing
+        Version latestVersion;
         int retries = 0;
         while (true) {
             try {

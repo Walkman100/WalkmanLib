@@ -636,13 +636,13 @@ public partial class WalkmanLib {
     public static System.Drawing.Icon GetFileIcon(string filePath, bool checkFile = true, bool smallIcon = true, bool linkOverlay = false) {
         SHGetFileInfoFlags flags = SHGetFileInfoFlags.Icon;
         if (!checkFile)
-            flags = flags | SHGetFileInfoFlags.UseFileAttributes;
-        flags = flags | (smallIcon ? SHGetFileInfoFlags.SmallIcon : SHGetFileInfoFlags.LargeIcon);
+            flags |= SHGetFileInfoFlags.UseFileAttributes;
+        flags |= (smallIcon ? SHGetFileInfoFlags.SmallIcon : SHGetFileInfoFlags.LargeIcon);
         if (linkOverlay)
-            flags = flags | SHGetFileInfoFlags.LinkOverlay;
-        
+            flags |= SHGetFileInfoFlags.LinkOverlay;
+
         var shInfo = new SHFILEINFO();
-        if (SHGetFileInfo(filePath, 0, ref shInfo, (uint)Marshal.SizeOf(shInfo), flags) == 0 
+        if (SHGetFileInfo(filePath, 0, ref shInfo, (uint)Marshal.SizeOf(shInfo), flags) == 0
                 || shInfo.hIcon == IntPtr.Zero) {
 
             var errorException = new Win32Exception();
@@ -809,8 +809,7 @@ public partial class WalkmanLib {
         if (!File.Exists(filePath))
             throw new FileNotFoundException("File \"" + filePath + "\" not found!");
 
-        IntPtr hiconLarge;
-        int HRESULT = SHDefExtractIcon(filePath, iconIndex, 0, out hiconLarge, out _, iconSize);
+        int HRESULT = SHDefExtractIcon(filePath, iconIndex, 0, out IntPtr hiconLarge, out _, iconSize);
 
         if (HRESULT == 0) {           // S_OK: Success
             return System.Drawing.Icon.FromHandle(hiconLarge);
@@ -885,8 +884,7 @@ public partial class WalkmanLib {
     /// <param name="path">Path to the file to get size for.</param>
     /// <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
     public static double GetCompressedSize(string path) {
-        uint sizeMultiplier;
-        long fileLength = Convert.ToInt64(GetCompressedFileSize(path, out sizeMultiplier));
+        long fileLength = Convert.ToInt64(GetCompressedFileSize(path, out uint sizeMultiplier));
         if (fileLength == 0xFFFFFFFFL) {
             var errorException = new Win32Exception();
             if (errorException.NativeErrorCode != 0)

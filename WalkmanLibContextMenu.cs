@@ -933,10 +933,7 @@ public partial class WalkmanLib {
             var apIDList = new List<IntPtr>();
             try {
                 foreach (string path in paths) {
-                    IntPtr pIDList;
-                    SFGAO sfgao;
-
-                    hr = SHParseDisplayName(path, default, out pIDList, SFGAO.None, out sfgao);
+                    hr = SHParseDisplayName(path, default, out IntPtr pIDList, SFGAO.None, out SFGAO sfgao);
                     if (hr < 0) Marshal.ThrowExceptionForHR(hr);
 
                     apIDList.Add(pIDList);
@@ -945,11 +942,8 @@ public partial class WalkmanLib {
                 object pSF = null;
                 var apIDListChild = new List<IntPtr>();
                 foreach (IntPtr pIDList in apIDList) {
-                    object pSFlocal = null;
-                    IntPtr pIDListChild;
-
                     Guid tmpGuidCopy = IID.IShellFolder;
-                    hr = SHBindToParent(pIDList, ref tmpGuidCopy, out pSFlocal, out pIDListChild);
+                    hr = SHBindToParent(pIDList, ref tmpGuidCopy, out object pSFlocal, out IntPtr pIDListChild);
                     if (hr < 0) Marshal.ThrowExceptionForHR(hr);
 
                     if (pSF == null) pSF = pSFlocal;
@@ -957,9 +951,8 @@ public partial class WalkmanLib {
                 }
 
                 var shellFolder = (IShellFolder)pSF;
-                object ppV;
 
-                shellFolder.GetUIObjectOf(hwnd, (uint)apIDListChild.Count, apIDListChild.ToArray(), ref rIID, out _, out ppV);
+                shellFolder.GetUIObjectOf(hwnd, (uint)apIDListChild.Count, apIDListChild.ToArray(), ref rIID, out _, out object ppV);
                 return ppV;
             } finally {
                 foreach (IntPtr pIDList in apIDList) {
@@ -1043,7 +1036,7 @@ public partial class WalkmanLib {
 
         private uint _lastItem = _maxItems;
         private uint _customItemCount = 0;
-        private Dictionary<uint, Action> _customItemDict = new();
+        private readonly Dictionary<uint, Action> _customItemDict = new();
 
         private bool _isShown = false;
         private bool _disposed;
@@ -1138,10 +1131,10 @@ public partial class WalkmanLib {
                 info.fMask = CMICMask.Unicode | CMICMask.PTInvoke;
 
                 if (Control.ModifierKeys.HasFlag(Keys.Control)) {
-                    info.fMask = info.fMask | CMICMask.ControlDown;
+                    info.fMask |= CMICMask.ControlDown;
                 }
                 if (Control.ModifierKeys.HasFlag(Keys.Shift)) {
-                    info.fMask = info.fMask | CMICMask.ShiftDown;
+                    info.fMask |= CMICMask.ShiftDown;
                 }
 
                 info.hwnd = frmHandle;

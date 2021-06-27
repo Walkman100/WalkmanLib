@@ -43,17 +43,13 @@ public partial class CustomMsgBoxForm {
 
     public MessageBoxIcon FormLevel { get; set; }
     private string getFormLevelString() {
-        switch (FormLevel) {
-            case MessageBoxIcon.Error:
-                return "Error";
-            case MessageBoxIcon.Question:
-                return "Question";
-            case MessageBoxIcon.Exclamation:
-                return "Exclamation";
-            case MessageBoxIcon.Information:
-                return "Information";
-        }
-        return "";
+        return FormLevel switch {
+            MessageBoxIcon.Error => "Error",
+            MessageBoxIcon.Question => "Question",
+            MessageBoxIcon.Exclamation => "Exclamation",
+            MessageBoxIcon.Information => "Information",
+            _ => ""
+        };
     }
 
     public string Button1Text = null;
@@ -177,14 +173,8 @@ public partial class CustomMsgBoxForm {
         btnAccept.Select();
     }
 
-    private DialogResult GetDialogResult(string buttonText) {
-        DialogResult result;
-        if (Enum.TryParse(buttonText, true, out result)) {
-            return result;
-        } else {
-            return DialogResult.None;
-        }
-    }
+    private DialogResult GetDialogResult(string buttonText) =>
+        Enum.TryParse(buttonText, true, out DialogResult result) ? result : DialogResult.None;
 
     private void Accept_Click() {
         this.DialogResult = GetDialogResult(Button1Text);
