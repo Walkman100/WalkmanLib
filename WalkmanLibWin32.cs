@@ -446,7 +446,7 @@ public partial class WalkmanLib {
     /// <param name="path">Path to the file to get links for. This path does not include the drive identifier.</param>
     /// <returns>All a file's links.</returns>
     public static IEnumerable<string> GetHardlinkLinks(string path) {
-        var INVALID_HANDLE_VALUE = new IntPtr(0xFFFFFFFF);
+        var INVALID_HANDLE_VALUE = new IntPtr(unchecked((int)0xFFFFFFFF));
         var stringBuilderTarget = new System.Text.StringBuilder(MAX_FILE_PATH);
         uint lpdwStringLength = MAX_FILE_PATH;
         IntPtr hFind = FindFirstFileName(path, 0, ref lpdwStringLength, stringBuilderTarget);
