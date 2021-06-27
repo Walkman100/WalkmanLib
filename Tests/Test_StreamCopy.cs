@@ -22,95 +22,94 @@ namespace Tests {
 
 #else     // disable if NoOokii is defined (default for tests project)
 
-                Function Test_StreamCopy1(rootTestFolder As String) As Boolean
-                    Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy1Source"))
-                        Dim randByteAmount As Integer = 1024
-                        Dim randBytes(randByteAmount) As Byte
-                        Call New Random().NextBytes(randBytes)
+        public static bool Test_StreamCopy1(string rootTestFolder) {
+            using (var testFileSource = new DisposableFile(Path.Combine(rootTestFolder, "streamCopy1Source"))) {
+                int randByteAmount = 1024;
+                byte[] randBytes = new byte[randByteAmount];
+                //byte[] randBytes = new byte[checked(randByteAmount + 1)];
+                new Random().NextBytes(randBytes);
 
-                        Dim fileText As String = Convert.ToBase64String(randBytes)
-                        File.WriteAllText(testFileSource, fileText, Text.Encoding.ASCII)
+                string fileText = Convert.ToBase64String(randBytes);
+                File.WriteAllText(testFileSource, fileText, System.Text.Encoding.ASCII);
 
-                        Using testFileTarget As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy1Target"))
-                            Dim source As FileStream = New FileStream(testFileSource, FileMode.Open)
-                            Dim target As FileStream = New FileStream(testFileTarget, FileMode.Truncate)
+                using (var testFileTarget = new DisposableFile(Path.Combine(rootTestFolder, "streamCopy1Target"))) {
+                    var source = new FileStream(testFileSource, FileMode.Open);
+                    var target = new FileStream(testFileTarget, FileMode.Truncate);
 
-                            Threading.Tasks.Task.Run(Sub()
-                                                         Try
-                                                             WalkmanLib.StreamCopy(source, target)
-                                                         Catch ' StreamCopy Disposes the streams if copy started successfully, if it didn't then we manually close them
-                                                             source.Dispose()
-                                                             target.Dispose()
-                                                             Throw
-                                                         End Try
-                                                     End Sub)
-                            Threading.Thread.Sleep(200)
+                    System.Threading.Tasks.Task.Run(() => {
+                        try {
+                            WalkmanLib.StreamCopy(source, target);
+                        } catch (Exception) { // StreamCopy Disposes the streams if copy started successfully, if it didn't then we manually close them
+                            source.Dispose();
+                            target.Dispose();
+                            throw;
+                        }
+                    });
+                    System.Threading.Thread.Sleep(200);
 
-                            Return TestString("StreamCopy1", File.ReadAllText(testFileTarget), fileText)
-                        End Using
-                    End Using
-                End Function
+                    return GeneralFunctions.TestString("StreamCopy1", File.ReadAllText(testFileTarget), fileText);
+                }
+            }
+        }
 
-                Function Test_StreamCopy2(rootTestFolder As String) As Boolean
-                    Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy2Source")),
-                            testFileTarget As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy2Target"))
+        public static bool Test_StreamCopy2(string rootTestFolder) {
+            using (var testFileSource = new DisposableFile(Path.Combine(rootTestFolder, "streamCopy2Source")))
+            using (var testFileTarget = new DisposableFile(Path.Combine(rootTestFolder, "streamCopy2Target"))) {
+                byte[] randBytes = new byte[8];
+                new Random().NextBytes(randBytes);
+                File.WriteAllText(testFileSource, Convert.ToBase64String(randBytes), System.Text.Encoding.ASCII);
 
-                        Dim randBytes(8) As Byte
-                        Call New Random().NextBytes(randBytes)
-                        File.WriteAllText(testFileSource, Convert.ToBase64String(randBytes), Text.Encoding.ASCII)
+                bool returned = false;
 
-                        Dim returned As Boolean = False
+                FileStream source = File.OpenRead(testFileSource);
+                FileStream target = File.OpenWrite(testFileTarget);
 
-                        Dim source As FileStream = File.OpenRead(testFileSource)
-                        Dim target As FileStream = File.OpenWrite(testFileTarget)
+                System.Threading.Tasks.Task.Run(() => {
+                    WalkmanLib.StreamCopy(source, target, onComplete: (_, _) => returned = true);
+                });
+                System.Threading.Thread.Sleep(100);
 
-                        Threading.Tasks.Task.Run(Sub()
-                                                     WalkmanLib.StreamCopy(source, target, onComplete:=Sub() returned = True)
-                                                 End Sub)
-                        Threading.Thread.Sleep(100)
+                return GeneralFunctions.TestBoolean("StreamCopy2", returned, true);
+            }
+        }
 
-                        Return TestBoolean("StreamCopy2", returned, True)
-                    End Using
-                End Function
+        public static bool Test_StreamCopy3(string rootTestFolder) {
+            using (var testFileSource = new DisposableFile(Path.Combine(rootTestFolder, "streamCopy3Source")))
+            using (var testFileTarget = new DisposableFile(Path.Combine(rootTestFolder, "streamCopy3Target"))) {
+                byte[] randBytes = new byte[8];
+                new Random().NextBytes(randBytes);
+                File.WriteAllText(testFileTarget, Convert.ToBase64String(randBytes), System.Text.Encoding.ASCII);
 
-                Function Test_StreamCopy3(rootTestFolder As String) As Boolean
-                    Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy3Source")),
-                            testFileTarget As New DisposableFile(Path.Combine(rootTestFolder, "streamCopy3Target"))
+                WalkmanLib.StreamCopy(File.OpenRead(testFileSource), File.OpenWrite(testFileTarget));
 
-                        Dim randBytes(8) As Byte
-                        Call New Random().NextBytes(randBytes)
-                        File.WriteAllText(testFileTarget, Convert.ToBase64String(randBytes), Text.Encoding.ASCII)
+                return GeneralFunctions.TestString("StreamCopy3", File.ReadAllText(testFileTarget), "");
+            }
+        }
 
-                        WalkmanLib.StreamCopy(File.OpenRead(testFileSource), File.OpenWrite(testFileTarget))
+        public static bool Test_StreamCopyThrows1() {
+            Exception ex = new NoException();
+            try {
+                WalkmanLib.StreamCopy(null, null);
+            } catch (Exception ex2) {
+                ex = ex2;
+            }
+            return GeneralFunctions.TestType("StreamCopyThrows1", ex.GetType(), typeof(ArgumentNullException));
+        }
 
-                        Return TestString("StreamCopy3", File.ReadAllText(testFileTarget), "")
-                    End Using
-                End Function
-
-                Function Test_StreamCopyThrows1() As Boolean
-                    Dim ex As Exception = New NoException
-                    Try
-                        WalkmanLib.StreamCopy(Nothing, Nothing)
-                    Catch ex2 As Exception
-                        ex = ex2
-                    End Try
-                    Return TestType("StreamCopyThrows1", ex.GetType(), GetType(ArgumentNullException))
-                End Function
-
-                Function Test_StreamCopyThrows2(rootTestFolder As String) As Boolean
-                    Dim ex As Exception = New NoException
-                    Try
-                        Using testFileSource As New DisposableFile(Path.Combine(rootTestFolder, "streamCopyThrows2Source")),
-                                testFileTarget As New DisposableFile(Path.Combine(rootTestFolder, "streamCopyThrows2Target")),
-                                source As FileStream = File.OpenWrite(testFileSource),
-                                target As FileStream = File.OpenRead(testFileTarget)
-                            WalkmanLib.StreamCopy(source, target)
-                        End Using
-                    Catch ex2 As Exception
-                        ex = ex2
-                    End Try
-                    Return TestType("StreamCopyThrows2", ex.GetType(), GetType(InvalidOperationException))
-                End Function
+        public static bool Test_StreamCopyThrows2(string rootTestFolder) {
+            Exception ex = new NoException();
+            try {
+                using (var testFileSource = new DisposableFile(Path.Combine(rootTestFolder, "streamCopyThrows2Source")))
+                using (var testFileTarget = new DisposableFile(Path.Combine(rootTestFolder, "streamCopyThrows2Target")))
+                using (FileStream source = File.OpenWrite(testFileSource))
+                using (FileStream target = File.OpenRead(testFileTarget)) {
+                    WalkmanLib.StreamCopy(source, target);
+                }
+            } catch (Exception ex2) {
+                ex = ex2;
+            }
+            return GeneralFunctions.TestType("StreamCopyThrows2", ex.GetType(), typeof(InvalidOperationException));
+        }
 
 #endif
     }

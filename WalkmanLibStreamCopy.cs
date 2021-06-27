@@ -6,95 +6,95 @@ public partial class WalkmanLib {
     // disable if NoOokii is defined (default for tests project)
 #if !NoOokii
 
-        ''' <summary>
-        ''' Asynchronously Copy a stream with a progress dialog. Uses <see cref="Ookii.Dialogs.ProgressDialog"/> for the dialog.
-        ''' <br />NOTE: As this function exits when the copy process starts, the streams must NOT be closed e.g. by a <see langword="Using"/> statement.
-        ''' Streams are always disposed if this function succeeds in starting the dialog.
-        ''' </summary>
-        ''' <param name="source">Stream to copy from. Must support Reading</param>
-        ''' <param name="target">Stream to copy to. Must support Writing</param>
-        ''' <param name="description">Optional description to display in the ProgressDialog.</param>
-        ''' <param name="title">Optional title to use for the ProgressDialog.</param>
-        ''' <param name="onComplete">Optional event handler to run when the Asnyc operation is complete</param>
-        Shared Sub StreamCopy(source As Stream, target As Stream, Optional description As String = " ", Optional title As String = "Copying...",
-                              Optional onComplete As RunWorkerCompletedEventHandler = Nothing)
-            If source Is Nothing Then Throw New ArgumentNullException("source")
-            If target Is Nothing Then Throw New ArgumentNullException("target")
+    /// <summary>
+    /// Asynchronously Copy a stream with a progress dialog. Uses <see cref="Ookii.Dialogs.ProgressDialog"/> for the dialog.
+    /// <br />NOTE: As this function exits when the copy process starts, the streams must NOT be closed e.g. by a <see langword="using"/> statement.
+    /// Streams are always disposed if this function succeeds in starting the dialog.
+    /// </summary>
+    /// <param name="source">Stream to copy from. Must support Reading</param>
+    /// <param name="target">Stream to copy to. Must support Writing</param>
+    /// <param name="description">Optional description to display in the ProgressDialog.</param>
+    /// <param name="title">Optional title to use for the ProgressDialog.</param>
+    /// <param name="onComplete">Optional event handler to run when the Asnyc operation is complete</param>
+    public static void StreamCopy(Stream source, Stream target, string description = " ", string title = "Copying...",
+                                  RunWorkerCompletedEventHandler onComplete = null) {
+        if (source == null) throw new ArgumentNullException("source");
+        if (target == null) throw new ArgumentNullException("target");
 
-            If Not source.CanRead OrElse Not target.CanWrite Then
-                Throw New InvalidOperationException("Either Read from Source or Write to Target isn't possible!")
-            ElseIf source.Length = 0 Then
-                target.Write(New Byte() {}, 0, 0)
-                target.SetLength(0)
+        if (!source.CanRead || !target.CanWrite) {
+            throw new InvalidOperationException("Either Read from Source or Write to Target isn't possible!");
+        } else if (source.Length == 0) {
+            target.Write(new byte[0], 0, 0);
+            target.SetLength(0);
 
-                source.Dispose()
-                target.Dispose()
-                Return
-            End If
+            source.Dispose();
+            target.Dispose();
+            return;
+        }
 
-            Dim progressDialog As New Ookii.Dialogs.ProgressDialog With {
-                .Text = " ",
-                .Description = description,
-                .WindowTitle = title,
-                .CancellationText = "Cancelling...",
-                .ShowTimeRemaining = True
+        var progressDialog = new Ookii.Dialogs.ProgressDialog {
+            Text = " ",
+            Description = description,
+            WindowTitle = title,
+            CancellationText = "Cancelling...",
+            ShowTimeRemaining = true
+        };
+
+        progressDialog.DoWork += doStreamCopy;
+        progressDialog.RunWorkerCompleted += onComplete;
+
+        progressDialog.Show(new object[] {progressDialog, source, target});
+    }
+
+    private static void doStreamCopy(object sender, DoWorkEventArgs e) {
+        object[] inputs = (object[])e.Argument;
+
+        var progressDialog = (Ookii.Dialogs.ProgressDialog)inputs[0];
+        var sourceStream = (Stream)inputs[1];
+        var targetStream = (Stream)inputs[2];
+
+        try { // double-buffer code/idea thanks to https://stackoverflow.com/a/26556205/2999220
+            int bufferSize = 1024 * 1024;
+            byte[] buffer = new byte[bufferSize];
+            byte[] buffer2 = new byte[bufferSize];
+            //byte[] buffer = new byte[bufferSize + 1];
+            //byte[] buffer2 = new byte[bufferSize + 1];
+            bool swap = false;
+            int oldPercent = 0;
+            int newPercent = 0;
+            int bytesRead = 0;
+
+            long len = sourceStream.Length;
+            float flen = len;
+            System.Threading.Tasks.Task writer = null;
+            long size = 0;
+
+            while (size < len) {
+                if (progressDialog.CancellationPending)
+                    throw new OperationCanceledException("Operation was canceled by the user");
+
+                newPercent = (int)(size / flen * 100);
+                if (newPercent != oldPercent) {
+                    progressDialog.ReportProgress(newPercent, "Progress: " + newPercent + "%", null);
+                    oldPercent = newPercent;
+                }
+
+                bytesRead = sourceStream.Read(swap ? buffer : buffer2, 0, bufferSize);
+                if (writer != null) writer.Wait();
+                writer = targetStream.WriteAsync(swap ? buffer : buffer2, 0, bytesRead);
+                swap = !swap;
+                size += bytesRead;
+
+                if (progressDialog.CancellationPending)
+                    throw new OperationCanceledException("Operation was canceled by the user");
             }
-
-            AddHandler progressDialog.DoWork, AddressOf doStreamCopy
-            AddHandler progressDialog.RunWorkerCompleted, onComplete
-
-            progressDialog.Show(New Object() {progressDialog, source, target})
-        End Sub
-
-        Private Shared Sub doStreamCopy(sender As Object, e As DoWorkEventArgs)
-            Dim inputs As Object() = DirectCast(e.Argument, Object())
-
-            Dim progressDialog As Ookii.Dialogs.ProgressDialog = DirectCast(inputs(0), Ookii.Dialogs.ProgressDialog)
-            Dim sourceStream As Stream = DirectCast(inputs(1), Stream)
-            Dim targetStream As Stream = DirectCast(inputs(2), Stream)
-
-            Try ' double-buffer code/idea thanks to https://stackoverflow.com/a/26556205/2999220
-                Dim bufferSize As Integer = 1024 * 1024
-                Dim buffer(bufferSize) As Byte
-                Dim buffer2(bufferSize) As Byte
-                Dim swap As Boolean = False
-                Dim oldPercent As Integer = 0
-                Dim newPercent As Integer = 0
-                Dim bytesRead As Integer = 0
-
-                Dim len As Long = sourceStream.Length
-                Dim flen As Single = len
-                Dim writer As Threading.Tasks.Task = Nothing
-                Dim size As Long = 0
-
-                While size < len
-                    If progressDialog.CancellationPending Then
-                        Throw New OperationCanceledException("Operation was canceled by the user")
-                    End If
-
-                    newPercent = CType(size / flen * 100, Integer)
-                    If newPercent <> oldPercent Then
-                        progressDialog.ReportProgress(newPercent, "Progress: " & newPercent & "%", Nothing)
-                        oldPercent = newPercent
-                    End If
-
-                    bytesRead = sourceStream.Read(If(swap, buffer, buffer2), 0, bufferSize)
-                    If writer IsNot Nothing Then writer.Wait()
-                    writer = targetStream.WriteAsync(If(swap, buffer, buffer2), 0, bytesRead)
-                    swap = Not swap
-                    size += bytesRead
-
-                    If progressDialog.CancellationPending Then
-                        Throw New OperationCanceledException("Operation was canceled by the user")
-                    End If
-                End While
-                If writer IsNot Nothing Then writer.Wait()
-            Finally
-                progressDialog.ReportProgress(100, "Flushing data to disk...", Nothing)
-                If sourceStream IsNot Nothing Then sourceStream.Dispose()
-                If targetStream IsNot Nothing Then targetStream.Dispose()
-            End Try
-        End Sub
+            if (writer != null) writer.Wait();
+        } finally {
+            progressDialog.ReportProgress(100, "Flushing data to disk...", null);
+            if (sourceStream != null) sourceStream.Dispose();
+            if (targetStream != null) targetStream.Dispose();
+        }
+    }
 
 #endif
 }
