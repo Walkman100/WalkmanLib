@@ -417,8 +417,8 @@ Partial Public Class WalkmanLib
     ''' <param name="mergeStdErr">Whether to merge StdErr with StdOut in the function's result (Return String). Default: True</param>
     ''' <param name="StdErrReturn">Reference to a System.String variable to populate with StdErr, if any.</param>
     ''' <param name="ExitCode">Reference to a Integer variable to populate with the program's Exit Code.</param>
-    ''' <returns>If mergeStdErr is False, Returns StdOut. If mergeStdErr is True and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.</returns>
-    ''' To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to False.
+    ''' <returns>If mergeStdErr is False, Returns StdOut. If mergeStdErr is True and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.
+    ''' To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to False.</returns>
     Shared Function RunAndGetOutput(fileName As String, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing,
       Optional mergeStdErr As Boolean = True, Optional ByRef stdErrReturn As String = "", Optional ByRef exitCode As Integer = -1) As String
         Dim process As New Diagnostics.Process()
@@ -486,11 +486,11 @@ Partial Public Class WalkmanLib
                     If line.StartsWith("IconResource=", True, Nothing) Then
                         parsedIconPath = line.Substring(13)
                         gotIcon = True
-                    ElseIf line.StartsWith("IconFile=", True, Nothing) And gotIcon = False Then
+                    ElseIf line.StartsWith("IconFile=", True, Nothing) AndAlso gotIcon = False Then
                         parsedIconPath = line.Substring(9)
                         lookingForIconIndex = True
                         gotIcon = True
-                    ElseIf line.StartsWith("IconIndex=", True, Nothing) And lookingForIconIndex Then
+                    ElseIf line.StartsWith("IconIndex=", True, Nothing) AndAlso lookingForIconIndex Then
                         parsedIconPath = parsedIconPath & "," & line.Substring(10)
                         lookingForIconIndex = False
                     End If

@@ -52,7 +52,7 @@ Partial Public Class WalkmanLib
             Return CType(value, Decimal) Mod 1
         End Function
 
-        ''' <summary>Converts seconds to a <see cref="TimeInfo"/> struct. Any amount that can covert will be put into higher units</summary>
+        ''' <summary>Converts seconds to a <see cref="TimeInfo"/> struct. Any amount that can convert will be put into higher units</summary>
         ''' <param name="seconds">Seconds to convert</param>
         ''' <returns><see cref="TimeInfo"/> struct with values filled in</returns>
         Public Shared Function ConvSeconds(seconds As ULong) As TimeInfo

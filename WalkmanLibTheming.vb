@@ -991,9 +991,9 @@ Partial Public Class WalkmanLib
 
                     Dim textRectangle As Rectangle = e.TextRectangle
                     If (e.TextDirection <> ToolStripTextDirection.Horizontal) AndAlso (textRectangle.Width > 0) AndAlso (textRectangle.Height > 0) Then
-                        Dim size As Size = New Size(width:=textRectangle.Height, height:=textRectangle.Width)
+                        Dim size As New Size(width:=textRectangle.Height, height:=textRectangle.Width)
 
-                        Using bitmap As Bitmap = New Bitmap(size.Width, size.Height, Imaging.PixelFormat.Format32bppPArgb),
+                        Using bitmap As New Bitmap(size.Width, size.Height, Imaging.PixelFormat.Format32bppPArgb),
                                 g As Graphics = Graphics.FromImage(bitmap)
                             g.TextRenderingHint = Text.TextRenderingHint.AntiAlias
                             TextRenderer.DrawText(g, e.Text, e.TextFont, New Rectangle(Point.Empty, size), color, e.TextFormat)
