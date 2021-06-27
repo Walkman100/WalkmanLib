@@ -23,15 +23,13 @@ namespace Tests {
         }
 
         public static bool Test_RunAndGetOutput4() {
-            int exitCode;
-            WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c exit 5", exitCode: out exitCode);
+            WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c exit 5", exitCode: out int exitCode);
 
             return GeneralFunctions.TestNumber("RunAndGetOutput4", exitCode, 5);
         }
 
         public static bool Test_RunAndGetOutput5() {
-            string stdErr = null;
-            WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c echo hi >&2", mergeStdErr: false, stdErrReturn: out stdErr);
+            WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c echo hi >&2", mergeStdErr: false, stdErrReturn: out string stdErr);
 
             return GeneralFunctions.TestString("RunAndGetOutput5", stdErr, "hi");
         }

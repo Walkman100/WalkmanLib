@@ -81,9 +81,8 @@ namespace Tests {
                 WalkmanLib.GetLatestVersionInfo("NonExistantProject");
                 return GeneralFunctions.TestType("UpdateThrows2", typeof(NoException), typeof(WebException));
             } catch (WebException ex) {
-                if (ex.Response is HttpWebResponse) {
-                    var response = (HttpWebResponse)ex.Response;
-                    // expected result. all other Return Test* are unexpected.
+                if (ex.Response is HttpWebResponse response) {
+                    // expected result. all other return Test* are unexpected.
                     return GeneralFunctions.TestNumber("UpdateThrows2", (int)response.StatusCode, (int)HttpStatusCode.NotFound);
                 } else {
                     return GeneralFunctions.TestType("UpdateThrows2", ex.Response.GetType(), typeof(HttpWebResponse));

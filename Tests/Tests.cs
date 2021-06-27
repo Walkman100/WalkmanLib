@@ -310,9 +310,7 @@ namespace Tests {
 
         private const string formatString = "0.############################";
         // https://stackoverflow.com/a/9391762/2999220
-        private static string ConvertDouble(double input) {
-            return input.ToString(formatString);
-        }
+        private static string ConvertDouble(double input) => input.ToString(formatString);
 
         public static bool TestType(string functionName, Type input, Type expected) {
             if (input == expected) {
