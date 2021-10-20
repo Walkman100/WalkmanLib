@@ -834,6 +834,8 @@ public partial class WalkmanLib {
             public Color ColumnText;
             public Color ColumnBackground;
         }
+        // in c#, event handler signatures must exactly match the event delegate signature
+        public static void ListView_DrawCustomColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e) => ListView_DrawCustomColumnHeader(sender, e, null);
         public static void ListView_DrawCustomColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e, ListViewColors? listViewColors = null) {
             // https://stackoverflow.com/a/42181044/2999220
             var listView = (ListView)sender;
