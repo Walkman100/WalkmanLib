@@ -154,7 +154,7 @@ public partial class WalkmanLib {
         /// <summary>Error message. <see langword="null"/> if no error occurred - check <see cref="gotError"/></summary>
         public string errorInfo = null;
         /// <summary>Parameters after processing arguments has completed. Empty list if there are no parameters or <paramref name="ProcessArgs.paramsAfterFlags"/> is <see langword="false"/></summary>
-        public List<string> extraParams = new();
+        public List<string> extraParams = new List<string>();
     }
 
     /// <summary>Internal helper to simplify creating a <see cref="ResultInfo"/> instance, with <c>errorInfo</c> set and <c>gotError = true</c></summary>

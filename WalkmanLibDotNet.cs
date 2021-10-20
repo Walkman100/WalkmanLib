@@ -46,11 +46,14 @@ public partial class WalkmanLib {
         return OS.Other;
     }
 
+#if NETCOREAPP
+#else
     /// <summary>Opens the Open With dialog box for a file path.</summary>
     /// <param name="path">The file to open with a program.</param>
     public static void OpenWith(string path) {
         Microsoft.VisualBasic.Interaction.Shell("rundll32 shell32.dll,OpenAs_RunDLL " + path, Microsoft.VisualBasic.AppWinStyle.NormalFocus, true, 500);
     }
+#endif
 
     /// <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
     /// <returns>true if running with administrator permissions, false if not</returns>
