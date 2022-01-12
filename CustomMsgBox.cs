@@ -9,7 +9,7 @@ public enum WinVersionStyle {
 
 public partial class CustomMsgBoxForm {
     public CustomMsgBoxForm() {
-        this.Shown += (_, _) => MeShown();
+        this.Shown += (_, __) => MeShown();
         Application.EnableVisualStyles();
         // The Me.InitializeComponent call is required for Windows Forms designer support.
         InitializeComponent();
