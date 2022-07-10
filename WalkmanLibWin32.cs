@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 
 public enum MouseButton { // used for MouseClick
@@ -33,7 +34,8 @@ public enum MouseButton { // used for MouseClick
 }
 
 public partial class WalkmanLib {
-    private const int MAX_FILE_PATH = 32767; // Maximum LongFileName length
+    /// <summary>Maximum LongFileName length</summary>
+    public const int MAX_FILE_PATH = 32767;
 
     #region CreateHardLink
     // Link: http://pinvoke.net/default.aspx/kernel32.CreateHardLink
@@ -440,7 +442,7 @@ public partial class WalkmanLib {
     /// <returns>All a file's links.</returns>
     public static IEnumerable<string> GetHardlinkLinks(string path) {
         var INVALID_HANDLE_VALUE = new IntPtr(unchecked((int)0xFFFFFFFF));
-        var stringBuilderTarget = new System.Text.StringBuilder(MAX_FILE_PATH);
+        var stringBuilderTarget = new StringBuilder(MAX_FILE_PATH);
         uint lpdwStringLength = MAX_FILE_PATH;
         IntPtr hFind = FindFirstFileName(path, 0, ref lpdwStringLength, stringBuilderTarget);
 
@@ -491,11 +493,11 @@ public partial class WalkmanLib {
 
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilenamew
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern IntPtr FindFirstFileName(string lpFileName, uint dwFlags, [In, Out] ref uint lpdwStringLength, System.Text.StringBuilder pLinkName);
+    private static extern IntPtr FindFirstFileName(string lpFileName, uint dwFlags, [In, Out] ref uint lpdwStringLength, StringBuilder pLinkName);
 
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextfilenamew
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern bool FindNextFileName(IntPtr hFindStream, ref uint lpdwStringLength, System.Text.StringBuilder pLinkName);
+    private static extern bool FindNextFileName(IntPtr hFindStream, ref uint lpdwStringLength, StringBuilder pLinkName);
 
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findclose
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -513,7 +515,7 @@ public partial class WalkmanLib {
         using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.ReadEA,
                                                       FileShare.Read | FileShare.Write | FileShare.Delete, FileMode.Open,
                                                       Win32FileAttribute.FlagBackupSemantics)) {
-            var stringBuilderTarget = new System.Text.StringBuilder(MAX_FILE_PATH);
+            var stringBuilderTarget = new StringBuilder(MAX_FILE_PATH);
             uint result = GetFinalPathNameByHandle(hFile, stringBuilderTarget, MAX_FILE_PATH, 0);
 
             if (result == 0)
@@ -531,7 +533,7 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfinalpathnamebyhandlew
     // https://www.pinvoke.net/default.aspx/shell32/GetFinalPathNameByHandle.html
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern uint GetFinalPathNameByHandle(SafeFileHandle hFile, System.Text.StringBuilder lpszFilePath,
+    private static extern uint GetFinalPathNameByHandle(SafeFileHandle hFile, StringBuilder lpszFilePath,
                                                         uint cchFilePath, uint dwFlags);
     #endregion
 
@@ -772,7 +774,7 @@ public partial class WalkmanLib {
     /// <param name="OwnerHandle">Use this.Handle to make the PickIconDialog show as a Dialog - i.e. blocking your applications interface until dialog is closed.</param>
     /// <returns>true if accepted, false if cancelled.</returns>
     public static bool PickIconDialogShow(ref string filePath, ref int iconIndex, IntPtr OwnerHandle = default) {
-        var stringBuilderTarget = new System.Text.StringBuilder(filePath, MAX_FILE_PATH);
+        var stringBuilderTarget = new StringBuilder(filePath, MAX_FILE_PATH);
         int result = PickIconDlg(OwnerHandle, stringBuilderTarget, MAX_FILE_PATH, ref iconIndex);
 
         filePath = stringBuilderTarget.ToString();
@@ -788,7 +790,7 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-pickicondlg
     // https://www.pinvoke.net/default.aspx/shell32/PickIconDlg.html
     [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern int PickIconDlg(IntPtr hwndOwner, System.Text.StringBuilder pszIconPath, uint cchIconPath, [In, Out] ref int piIconIndex);
+    private static extern int PickIconDlg(IntPtr hwndOwner, StringBuilder pszIconPath, uint cchIconPath, [In, Out] ref int piIconIndex);
     #endregion
 
     #region ExtractIconByIndex
@@ -904,7 +906,7 @@ public partial class WalkmanLib {
         }
 
         var FileProperties = new FileInfo(filePath);
-        var stringBuilderTarget = new System.Text.StringBuilder(MAX_FILE_PATH);
+        var stringBuilderTarget = new StringBuilder(MAX_FILE_PATH);
 
         FindExecutable(FileProperties.Name, FileProperties.DirectoryName + Path.DirectorySeparatorChar, stringBuilderTarget);
         string returnString = stringBuilderTarget.ToString();
@@ -919,7 +921,7 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-findexecutablew
     // https://www.pinvoke.net/default.aspx/shell32/FindExecutable.html
     [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern long FindExecutable(string lpFile, string lpDirectory, System.Text.StringBuilder lpResult);
+    private static extern long FindExecutable(string lpFile, string lpDirectory, StringBuilder lpResult);
     #endregion
 
     #region MouseClick
