@@ -780,7 +780,7 @@ public partial class WalkmanLib {
         else if (result == 0)
             return false;
         else
-            throw new Exception($"Unknown error! PickIconDlg return value: {result}" +
+            throw new ApplicationException($"Unknown error! PickIconDlg return value: {result}" +
                 $"{Environment.NewLine}filePath: {filePath}{Environment.NewLine}iconIndex: {iconIndex}");
     }
 
@@ -799,7 +799,7 @@ public partial class WalkmanLib {
     /// <returns>The <see cref="System.Drawing.Icon"/> representation of the image that is contained in the specified file.</returns>
     public static System.Drawing.Icon ExtractIconByIndex(string filePath, int iconIndex, uint iconSize = 0) {
         if (!File.Exists(filePath))
-            throw new FileNotFoundException("File \"" + filePath + "\" not found!");
+            throw new FileNotFoundException($"File not found!", filePath);
 
         int result = SHDefExtractIcon(filePath, iconIndex, 0, out IntPtr hiconLarge, out _, iconSize);
 
@@ -848,14 +848,10 @@ public partial class WalkmanLib {
         const uint FSCTL_SET_COMPRESSION = 0x9C040;
         ushort lpInBuffer = compress ? (ushort)1 : (ushort)0;
 
-        try {
-            using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.FileGenericRead | Win32FileAccess.FileGenericWrite,
-                                                          FileShare.ReadWrite | FileShare.Delete,
-                                                          FileMode.Open, Win32FileAttribute.FlagBackupSemantics)) {
-                return DeviceIoControl(hFile, FSCTL_SET_COMPRESSION, ref lpInBuffer, 2, IntPtr.Zero, 0, out _, IntPtr.Zero);
-            }
-        } catch (Exception) {
-            return false;
+        using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.FileGenericRead | Win32FileAccess.FileGenericWrite,
+                                                      FileShare.ReadWrite | FileShare.Delete,
+                                                      FileMode.Open, Win32FileAttribute.FlagBackupSemantics)) {
+            return DeviceIoControl(hFile, FSCTL_SET_COMPRESSION, ref lpInBuffer, 2, IntPtr.Zero, 0, out _, IntPtr.Zero);
         }
     }
 
@@ -897,21 +893,12 @@ public partial class WalkmanLib {
     /// <param name="filePath">The file to get the OpenWith program for.</param>
     /// <returns>OpenWith program path, "Filetype not associated!" if none, or "File not found!"</returns>
     public static string GetOpenWith(string filePath) {
-        if (!File.Exists(filePath)) {
-            return "File not found!";
-        }
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"File not found!", filePath);
 
-        var FileProperties = new FileInfo(filePath);
         var stringBuilderTarget = new StringBuilder(MAX_FILE_PATH);
-
-        FindExecutable(FileProperties.Name, FileProperties.DirectoryName + Path.DirectorySeparatorChar, stringBuilderTarget);
-        string returnString = stringBuilderTarget.ToString();
-
-        if (string.IsNullOrEmpty(returnString)) {
-            return "Filetype not associated!";
-        } else {
-            return returnString;
-        }
+        FindExecutable(Path.GetFileName(filePath), Path.GetDirectoryName(filePath) + Path.DirectorySeparatorChar, stringBuilderTarget);
+        return stringBuilderTarget.ToString();
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-findexecutablew
