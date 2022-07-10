@@ -240,13 +240,23 @@ namespace Tests {
         }
 
         public static bool Test_Compression13(string rootTestFolder) {
-            string testPath = Path.Combine(rootTestFolder, "compression13.txt");
-            return GeneralFunctions.TestBoolean("Compression13", WalkmanLib.SetCompression(testPath, true), false);
+            Exception ex = new NoException();
+            try {
+                WalkmanLib.SetCompression(Path.Combine(rootTestFolder, "compression13.txt"), true);
+            } catch (Exception ex2) {
+                ex = ex2;
+            }
+            return GeneralFunctions.TestType("Compression13", ex.GetType(), typeof(FileNotFoundException));
         }
 
         public static bool Test_Compression14() {
-            string testPath = Path.Combine(Environment.SystemDirectory, "shell32.dll");
-            return GeneralFunctions.TestBoolean("Compression14", WalkmanLib.SetCompression(testPath, true), false);
+            Exception ex = new NoException();
+            try {
+                WalkmanLib.SetCompression(Path.Combine(Environment.SystemDirectory, "shell32.dll"), true);
+            } catch (Exception ex2) {
+                ex = ex2;
+            }
+            return GeneralFunctions.TestType("Compression14", ex.GetType(), typeof(UnauthorizedAccessException));
         }
     }
 }

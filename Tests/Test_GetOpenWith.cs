@@ -36,49 +36,53 @@ namespace Tests {
 
         public static bool Test_GetOpenWith4(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "testOpenWith4.randomextension"))) {
-                return GeneralFunctions.TestString("GetOpenWith4", WalkmanLib.GetOpenWith(testFile), 
-                                                   "Filetype not associated!");
+                return GeneralFunctions.TestString("GetOpenWith4", WalkmanLib.GetOpenWith(testFile), string.Empty);
             }
         }
 
         public static bool Test_GetOpenWith5(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "testOpenWith5.txt"))) {
-                return GeneralFunctions.TestString("GetOpenWith5", WalkmanLib.GetOpenWith(testFile).ToLower(), 
+                return GeneralFunctions.TestString("GetOpenWith5", WalkmanLib.GetOpenWith(testFile).ToLower(),
                                                    Path.Combine(Environment.SystemDirectory, "notepad.exe").ToLower());
             }
         }
 
         public static bool Test_GetOpenWith6(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "testOpenWith6.url"))) {
-                return GeneralFunctions.TestString("GetOpenWith6", WalkmanLib.GetOpenWith(testFile).ToLower(), 
+                return GeneralFunctions.TestString("GetOpenWith6", WalkmanLib.GetOpenWith(testFile).ToLower(),
                                                    Path.Combine(Environment.SystemDirectory, "ieframe.dll").ToLower());
             }
         }
 
         public static bool Test_GetOpenWith7(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "testOpenWith7.vbs"))) {
-                return GeneralFunctions.TestString("GetOpenWith7", WalkmanLib.GetOpenWith(testFile).ToLower(), 
+                return GeneralFunctions.TestString("GetOpenWith7", WalkmanLib.GetOpenWith(testFile).ToLower(),
                                                    Path.Combine(Environment.SystemDirectory, "wscript.exe").ToLower());
             }
         }
 
         public static bool Test_GetOpenWith8(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "testOpenWith8.cat"))) {
-                return GeneralFunctions.TestString("GetOpenWith8", WalkmanLib.GetOpenWith(testFile).ToLower(), 
+                return GeneralFunctions.TestString("GetOpenWith8", WalkmanLib.GetOpenWith(testFile).ToLower(),
                                                    Path.Combine(Environment.SystemDirectory, "cryptext.dll").ToLower());
             }
         }
 
         public static bool Test_GetOpenWith9(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "testOpenWith9.cer"))) {
-                return GeneralFunctions.TestString("GetOpenWith9", WalkmanLib.GetOpenWith(testFile).ToLower(), 
+                return GeneralFunctions.TestString("GetOpenWith9", WalkmanLib.GetOpenWith(testFile).ToLower(),
                                                    Path.Combine(Environment.SystemDirectory, "cryptext.dll").ToLower());
             }
         }
 
         public static bool Test_GetOpenWith10(string rootTestFolder) {
-            string testPath = Path.Combine(rootTestFolder, "testOpenWith10.txt");
-            return GeneralFunctions.TestString("GetOpenWith10", WalkmanLib.GetOpenWith(testPath), "File not found!");
+            Exception ex = new NoException();
+            try {
+                WalkmanLib.GetOpenWith(Path.Combine(rootTestFolder, "testOpenWith10.txt"));
+            } catch (Exception ex2) {
+                ex = ex2;
+            }
+            return GeneralFunctions.TestType("GetOpenWith10", ex.GetType(), typeof(FileNotFoundException));
         }
     }
 }
