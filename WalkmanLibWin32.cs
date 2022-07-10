@@ -47,19 +47,16 @@ public partial class WalkmanLib {
             var errorException = new Win32Exception();
             if (errorException.NativeErrorCode == 2) {
                 // ERROR_FILE_NOT_FOUND: The system cannot find the file specified
-                if (!File.Exists(existingFilePath)) {
+                if (!File.Exists(existingFilePath))
                     throw new FileNotFoundException("The hardlink target does not exist", existingFilePath, errorException);
-                }
             } else if (errorException.NativeErrorCode == 3) {
                 // ERROR_PATH_NOT_FOUND: The system cannot find the path specified
-                if (!Directory.Exists(new FileInfo(hardlinkPath).DirectoryName)) { // "New FileInfo(hardlinkPath)" throws an exception on invalid characters in path - perfect!
+                if (!Directory.Exists(new FileInfo(hardlinkPath).DirectoryName))  // "New FileInfo(hardlinkPath)" throws an exception on invalid characters in path - perfect!
                     throw new DirectoryNotFoundException("The path to the new hardlink does not exist", errorException);
-                }
             } else if (errorException.NativeErrorCode == 183) {
                 // ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
-                if (File.Exists(hardlinkPath) | Directory.Exists(hardlinkPath)) {
+                if (File.Exists(hardlinkPath) | Directory.Exists(hardlinkPath))
                     throw new IOException("The hardlink path already exists", errorException);
-                }
             } else if (errorException.NativeErrorCode == 5) {
                 // ERROR_ACCESS_DENIED: Access is denied
                 throw new UnauthorizedAccessException("Access to the new hardlink path is denied", errorException);
@@ -82,21 +79,18 @@ public partial class WalkmanLib {
     /// <param name="targetIsDirectory">Type of the target. If incorrect target type is supplied, the system will act as if the target doesn't exist.</param>
     public static void CreateSymLink(string symlinkPath, string targetPath, bool targetIsDirectory = false) {
         // https://blogs.windows.com/windowsdeveloper/2016/12/02/symlinks-windows-10/
-        SymbolicLinkFlags flags = SymbolicLinkFlags.AllowUnprivilegedCreate | 
-            (targetIsDirectory ? SymbolicLinkFlags.Directory : SymbolicLinkFlags.File);
+        SymbolicLinkFlags flags = SymbolicLinkFlags.AllowUnprivilegedCreate | (targetIsDirectory ? SymbolicLinkFlags.Directory : SymbolicLinkFlags.File);
 
         if (CreateSymbolicLink(symlinkPath, targetPath, flags) == false) {
             var errorException = new Win32Exception();
             if (errorException.NativeErrorCode == 0x03) {
                 // 0x03: ERROR_PATH_NOT_FOUND: The system cannot find the path specified
-                if (!Directory.Exists(new FileInfo(symlinkPath).DirectoryName)) { // "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
+                if (!Directory.Exists(new FileInfo(symlinkPath).DirectoryName))  // "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
                     throw new DirectoryNotFoundException("The path to the symbolic link does not exist", errorException);
-                }
             } else if (errorException.NativeErrorCode == 0xB7) {
                 // 0xB7: ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
-                if (File.Exists(symlinkPath) | Directory.Exists(symlinkPath)) {
+                if (File.Exists(symlinkPath) | Directory.Exists(symlinkPath))
                     throw new IOException("The symbolic link path already exists", errorException);
-                }
             } else if (errorException.NativeErrorCode == 0x05) {
                 // 0x05: ERROR_ACCESS_DENIED: Access is denied
                 throw new UnauthorizedAccessException("Access to the symbolic link path is denied", errorException);
@@ -128,7 +122,7 @@ public partial class WalkmanLib {
     #endregion
 
     #region Win32CreateFile
-    public static SafeFileHandle Win32CreateFile(string fileName, Win32FileAccess fileAccess, FileShare shareMode, 
+    public static SafeFileHandle Win32CreateFile(string fileName, Win32FileAccess fileAccess, FileShare shareMode,
                                                  FileMode fileMode, Win32FileAttribute flagsAndAttributes) {
         SafeFileHandle handle = CreateFile(fileName, fileAccess, shareMode, IntPtr.Zero, fileMode, flagsAndAttributes, IntPtr.Zero);
 
@@ -159,9 +153,9 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
     // https://www.pinvoke.net/default.aspx/kernel32/CreateFile.html
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern SafeFileHandle CreateFile(string lpFileName, Win32FileAccess dwDesiredAccess, 
-                                                    FileShare dwShareMode, IntPtr lpSecurityAttributes, 
-                                                    FileMode dwCreationDisposition, Win32FileAttribute dwFlagsAndAttributes, 
+    private static extern SafeFileHandle CreateFile(string lpFileName, Win32FileAccess dwDesiredAccess,
+                                                    FileShare dwShareMode, IntPtr lpSecurityAttributes,
+                                                    FileMode dwCreationDisposition, Win32FileAttribute dwFlagsAndAttributes,
                                                     IntPtr hTemplateFile);
 
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew#FILE_ATTRIBUTE_ARCHIVE
@@ -364,9 +358,9 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol
     // https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode, 
-                                            [In] ref ReparseDataBuffer lpInBuffer, uint nInBufferSize, 
-                                            IntPtr lpOutBuffer, uint nOutBufferSize, 
+    private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode,
+                                            [In] ref ReparseDataBuffer lpInBuffer, uint nInBufferSize,
+                                            IntPtr lpOutBuffer, uint nOutBufferSize,
                                             out uint lpBytesReturned, IntPtr lpOverlapped);
 
     // https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_reparse_data_buffer
@@ -408,10 +402,9 @@ public partial class WalkmanLib {
     public static uint GetHardlinkCount(string path) {
         // don't need to use Win32CreateFile as that's needed for directories
         using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
-            ByHandleFileInformation fileInfo = default;
-            if (GetFileInformationByHandle(fs.SafeFileHandle, ref fileInfo) == false) {
+            var fileInfo = default(ByHandleFileInformation);
+            if (GetFileInformationByHandle(fs.SafeFileHandle, ref fileInfo) == false)
                 throw new Win32Exception();
-            }
 
             return fileInfo.nNumberOfLinks;
         }
@@ -474,8 +467,8 @@ public partial class WalkmanLib {
         try {
             // link path doesn't include drive letter by default
             string pathRoot = Path.GetPathRoot(path);
-            yield return stringBuilderTarget.ToString()[0] == Path.DirectorySeparatorChar ? 
-                Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1)) : 
+            yield return stringBuilderTarget.ToString()[0] == Path.DirectorySeparatorChar ?
+                Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1)) :
                 stringBuilderTarget.ToString();
 
             lpdwStringLength = MAX_FILE_PATH;
@@ -517,8 +510,8 @@ public partial class WalkmanLib {
     public static string GetSymlinkTarget(string path) {
         string returnString = "";
 
-        using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.ReadEA, 
-                                                      FileShare.Read | FileShare.Write | FileShare.Delete, FileMode.Open, 
+        using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.ReadEA,
+                                                      FileShare.Read | FileShare.Write | FileShare.Delete, FileMode.Open,
                                                       Win32FileAttribute.FlagBackupSemantics)) {
             var stringBuilderTarget = new System.Text.StringBuilder(MAX_FILE_PATH);
             uint result = GetFinalPathNameByHandle(hFile, stringBuilderTarget, MAX_FILE_PATH, 0);
@@ -529,9 +522,8 @@ public partial class WalkmanLib {
         }
 
         returnString = returnString.Substring(4); // remove "\\?\" at the beginning
-        if (returnString.StartsWith(@"UNC\")) {  // change "UNC\[IP]\" to proper "\\[IP]\"
+        if (returnString.StartsWith(@"UNC\")) // change "UNC\[IP]\" to proper "\\[IP]\"
             returnString = @"\" + returnString.Substring(3);
-        }
 
         return returnString;
     }
@@ -539,7 +531,7 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfinalpathnamebyhandlew
     // https://www.pinvoke.net/default.aspx/shell32/GetFinalPathNameByHandle.html
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern uint GetFinalPathNameByHandle(SafeFileHandle hFile, System.Text.StringBuilder lpszFilePath, 
+    private static extern uint GetFinalPathNameByHandle(SafeFileHandle hFile, System.Text.StringBuilder lpszFilePath,
                                                         uint cchFilePath, uint dwFlags);
     #endregion
 
@@ -555,7 +547,7 @@ public partial class WalkmanLib {
 
         if (!shortcutPath.EndsWith(".lnk", true, null))
             shortcutPath += ".lnk";
-        object WSH_InvokeMember = WSH_Type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, null, WSH_Activated, new object[] {shortcutPath});
+        object WSH_InvokeMember = WSH_Type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, null, WSH_Activated, new object[] { shortcutPath });
 
         return (IWshShortcut)WSH_InvokeMember;
     }
@@ -572,24 +564,29 @@ public partial class WalkmanLib {
     /// <param name="shortcutKey">Hotkey used to launch the shortcut - see the end of https://ss64.com/vb/shortcut.html.</param>
     /// <param name="windowStyle">System.Windows.Forms.FormWindowState to show the launched program in.</param>
     /// <returns>Full path to the created shortcut.</returns>
-    public static string CreateShortcut(string shortcutPath, string targetPath = null, string arguments = null, string workingDirectory = null, 
+    public static string CreateShortcut(string shortcutPath, string targetPath = null, string arguments = null, string workingDirectory = null,
             string iconPath = null, string comment = null, string shortcutKey = null, System.Windows.Forms.FormWindowState windowStyle = System.Windows.Forms.FormWindowState.Normal) {
         IWshShortcut shortcutObject = GetShortcutInfo(shortcutPath);
 
-        if (!string.IsNullOrEmpty(targetPath))       shortcutObject.TargetPath       = targetPath;
-        if (!string.IsNullOrEmpty(arguments))        shortcutObject.Arguments        = arguments;
-        if (!string.IsNullOrEmpty(workingDirectory)) shortcutObject.WorkingDirectory = workingDirectory;
-        if (!string.IsNullOrEmpty(iconPath))         shortcutObject.IconLocation     = iconPath;
-        if (!string.IsNullOrEmpty(comment))          shortcutObject.Description      = comment;
-        if (!string.IsNullOrEmpty(shortcutKey))      shortcutObject.Hotkey           = shortcutKey;
+        if (!string.IsNullOrEmpty(targetPath))
+            shortcutObject.TargetPath = targetPath;
+        if (!string.IsNullOrEmpty(arguments))
+            shortcutObject.Arguments = arguments;
+        if (!string.IsNullOrEmpty(workingDirectory))
+            shortcutObject.WorkingDirectory = workingDirectory;
+        if (!string.IsNullOrEmpty(iconPath))
+            shortcutObject.IconLocation = iconPath;
+        if (!string.IsNullOrEmpty(comment))
+            shortcutObject.Description = comment;
+        if (!string.IsNullOrEmpty(shortcutKey))
+            shortcutObject.Hotkey = shortcutKey;
 
-        if (windowStyle == System.Windows.Forms.FormWindowState.Normal) {
+        if (windowStyle == System.Windows.Forms.FormWindowState.Normal)
             shortcutObject.WindowStyle = 1;
-        } else if (windowStyle == System.Windows.Forms.FormWindowState.Minimized) {
+        else if (windowStyle == System.Windows.Forms.FormWindowState.Minimized)
             shortcutObject.WindowStyle = 7;
-        } else if (windowStyle == System.Windows.Forms.FormWindowState.Maximized) {
+        else if (windowStyle == System.Windows.Forms.FormWindowState.Maximized)
             shortcutObject.WindowStyle = 3;
-        }
 
         shortcutObject.Save();
 
@@ -631,7 +628,7 @@ public partial class WalkmanLib {
     /// <summary>Retrieves the system icon associated with a file or filetype.</summary>
     /// <param name="filePath">Path to the item to get icon for. Set <paramref name="checkFile"/> to <see langword="False"/> to get the filetype icon.</param>
     /// <param name="checkFile">Specifies whether to get the icon associated with a specific file, or just for the filetype.</param>
-    /// <param name="smallIcon"><see langword="False"/> to get a 32x32 icon, <see langword="True"/> to get a 16x16 icon</param>
+    /// <param name="smallIcon"><see langword="false"/> to get a 32x32 icon, <see langword="true"/> to get a 16x16 icon</param>
     /// <param name="linkOverlay">Add the system "link" overlay to the icon</param>
     public static System.Drawing.Icon GetFileIcon(string filePath, bool checkFile = true, bool smallIcon = true, bool linkOverlay = false) {
         SHGetFileInfoFlags flags = SHGetFileInfoFlags.Icon;
@@ -642,20 +639,17 @@ public partial class WalkmanLib {
             flags |= SHGetFileInfoFlags.LinkOverlay;
 
         var shInfo = new SHFILEINFO();
-        if (SHGetFileInfo(filePath, 0, ref shInfo, (uint)Marshal.SizeOf(shInfo), flags) == 0
-                || shInfo.hIcon == IntPtr.Zero) {
+        if (SHGetFileInfo(filePath, 0, ref shInfo, (uint)Marshal.SizeOf(shInfo), flags) == 0 || shInfo.hIcon == IntPtr.Zero) {
 
             var errorException = new Win32Exception();
             if (errorException.NativeErrorCode == 2) {
                 // ERROR_FILE_NOT_FOUND: The system cannot find the file specified
-                if (!File.Exists(filePath)) {
+                if (!File.Exists(filePath))
                     throw new FileNotFoundException("The file does not exist", filePath, errorException);
-                }
             } else if (errorException.NativeErrorCode == 3) {
                 // ERROR_PATH_NOT_FOUND: The system cannot find the path specified
-                if (!Directory.Exists(new FileInfo(filePath).DirectoryName)) {
+                if (!Directory.Exists(new FileInfo(filePath).DirectoryName))
                     throw new DirectoryNotFoundException("The path to the file does not exist", errorException);
-                }
             } else if (errorException.NativeErrorCode == 5) {
                 // ERROR_ACCESS_DENIED: Access is denied
                 throw new UnauthorizedAccessException("Access to the file is denied", errorException);
@@ -782,14 +776,13 @@ public partial class WalkmanLib {
         int result = PickIconDlg(OwnerHandle, stringBuilderTarget, MAX_FILE_PATH, ref iconIndex);
 
         filePath = stringBuilderTarget.ToString();
-        if (result == 1) {
+        if (result == 1)
             return true;
-        } else if (result == 0) {
+        else if (result == 0)
             return false;
-        } else {
-            throw new Exception("Unknown error! PickIconDlg return value: " + result + 
-                Environment.NewLine + "filePath: " + filePath + Environment.NewLine + "iconIndex: " + iconIndex);
-        }
+        else
+            throw new Exception($"Unknown error! PickIconDlg return value: {result}" +
+                $"{Environment.NewLine}filePath: {filePath}{Environment.NewLine}iconIndex: {iconIndex}");
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-pickicondlg
@@ -804,17 +797,17 @@ public partial class WalkmanLib {
     /// <param name="filePath">The path to the file that contains an image.</param>
     /// <param name="iconIndex">Index to extract the icon from. If this is a positive number, it refers to the zero-based position of the icon in the file. If this is a negative number, it refers to the icon's resource ID.</param>
     /// <param name="iconSize">Size of icon to extract. Size is measured in pixels. Pass 0 to specify default icon size. Default: 0.</param>
-    /// <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
+    /// <returns>The <see cref="System.Drawing.Icon"/> representation of the image that is contained in the specified file.</returns>
     public static System.Drawing.Icon ExtractIconByIndex(string filePath, int iconIndex, uint iconSize = 0) {
         if (!File.Exists(filePath))
             throw new FileNotFoundException("File \"" + filePath + "\" not found!");
 
-        int HRESULT = SHDefExtractIcon(filePath, iconIndex, 0, out IntPtr hiconLarge, out _, iconSize);
+        int result = SHDefExtractIcon(filePath, iconIndex, 0, out IntPtr hiconLarge, out _, iconSize);
 
-        if (HRESULT == 0) {           // S_OK: Success
+        if (result == 0) {           // S_OK: Success
             return System.Drawing.Icon.FromHandle(hiconLarge);
-        } else if (HRESULT == 1) {    // S_FALSE: The requested icon is not present
-            throw new ArgumentOutOfRangeException("iconIndex", "The requested icon index is not present in the specified file.");
+        } else if (result == 1) {    // S_FALSE: The requested icon is not present
+            throw new ArgumentOutOfRangeException(nameof(iconIndex), "The requested icon index is not present in the specified file.");
         } else { //if (HRESULT = 2) { // E_FAIL: The file cannot be accessed, or is being accessed through a slow link
             throw new Win32Exception();
         }
@@ -822,8 +815,8 @@ public partial class WalkmanLib {
 
     // https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shdefextracticonw
     [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern int SHDefExtractIcon(string pszIconFile, int iconIndex, uint flags, 
-                                               out IntPtr hiconLarge, out IntPtr hiconSmall, 
+    private static extern int SHDefExtractIcon(string pszIconFile, int iconIndex, uint flags,
+                                               out IntPtr hiconLarge, out IntPtr hiconSmall,
                                                uint iconSize);
     #endregion
 
@@ -857,8 +850,8 @@ public partial class WalkmanLib {
         ushort lpInBuffer = compress ? (ushort)1 : (ushort)0;
 
         try {
-            using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.FileGenericRead | Win32FileAccess.FileGenericWrite, 
-                                                          FileShare.ReadWrite | FileShare.Delete, 
+            using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.FileGenericRead | Win32FileAccess.FileGenericWrite,
+                                                          FileShare.ReadWrite | FileShare.Delete,
                                                           FileMode.Open, Win32FileAttribute.FlagBackupSemantics)) {
                 return DeviceIoControl(hFile, FSCTL_SET_COMPRESSION, ref lpInBuffer, 2, IntPtr.Zero, 0, out _, IntPtr.Zero);
             }
@@ -870,9 +863,9 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-deviceiocontrol
     // https://www.pinvoke.net/default.aspx/kernel32/DeviceIoControl.html
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode, 
-                                               [In] ref ushort lpInBuffer, uint nInBufferSize, 
-                                               IntPtr lpOutBuffer, uint nOutBufferSize, 
+    private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode,
+                                               [In] ref ushort lpInBuffer, uint nInBufferSize,
+                                               IntPtr lpOutBuffer, uint nOutBufferSize,
                                                out uint lpBytesReturned, IntPtr lpOverlapped);
     #endregion
 
@@ -964,14 +957,14 @@ public partial class WalkmanLib {
     /// <param name="tab">Optional tab to open to. Beware, this name is Windows version-specific!</param>
     /// <returns>Whether the properties window was shown successfully or not.</returns>
     public static bool ShowProperties(string path, string tab = null) {
-        var info = new ShellExecuteInfo();
-        info.cbSize = (uint)Marshal.SizeOf(info);
-        info.lpVerb = "properties";
-        info.lpFile = path;
-        if (tab != null)
-            info.lpParameters = tab;
-        info.nShow = 5;  // SW_SHOW
-        info.fMask = 12; // SEE_MASK_INVOKEIDLIST
+        var info = new ShellExecuteInfo() {
+            cbSize = (uint)Marshal.SizeOf<ShellExecuteInfo>(),
+            lpVerb = "properties",
+            lpFile = path,
+            lpParameters = tab,
+            nShow = 5, // SW_SHOW
+            fMask = 12 // SEE_MASK_INVOKEIDLIST
+        };
         return ShellExecuteEx(ref info);
     }
 
@@ -1013,10 +1006,11 @@ public partial class WalkmanLib {
     /// Specifies the window class name. The class name can be any name registered with RegisterClass or RegisterClassEx, or any of the predefined control-class names.
     /// <br/>If <paramref name="windowClass"/> is <see langword="null"/>, it finds any window whose title matches the <paramref name="windowName"/> parameter.
     /// </param>
-    /// <param name="timeout">Seconds to wait before returning</param>
+    /// <param name="timeout">Seconds to wait before returning.</param>
     /// <returns><see langword="true"/> if the timeout expired, <see langword="false"/> if the window was closed.</returns>
     public static bool WaitForWindow(string windowName, string windowClass = null, int timeout = -1) {
         IntPtr hWnd = FindWindow(windowClass, windowName);
+
         if (hWnd == IntPtr.Zero) {
             var errorException = new Win32Exception();
             if (errorException.NativeErrorCode == 0 || errorException.NativeErrorCode == 1400) {
@@ -1024,13 +1018,13 @@ public partial class WalkmanLib {
                 // 1400: ERROR_INVALID_WINDOW_HANDLE: Invalid window handle.
                 throw new ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException);
             }
-
             throw errorException;
         }
 
         while (IsWindow(hWnd) && timeout != 0) {
             System.Threading.Thread.Sleep(1000);
-            if (timeout > 0) timeout -= 1;
+            if (timeout > 0)
+                timeout -= 1;
         }
 
         return timeout == 0;
@@ -1062,6 +1056,7 @@ public partial class WalkmanLib {
     public static bool WaitForWindowByThread(string windowName, string windowClass = null, uint timeout = WFSO_INFINITE) {
         // Get window handle
         IntPtr hWnd = FindWindow(windowClass, windowName);
+
         if (hWnd == IntPtr.Zero) {
             var errorException = new Win32Exception();
             if (errorException.NativeErrorCode == 0) {
@@ -1073,7 +1068,7 @@ public partial class WalkmanLib {
 
         // Get threadID for window handle
         uint tID = GetWindowThreadProcessId(hWnd, out _);
-        if (!(tID > 0)) {
+        if (tID == 0) {
             throw new Win32Exception();
         }
 
@@ -1086,19 +1081,19 @@ public partial class WalkmanLib {
                 // Wait for handle with specified timeout
                 switch (WaitForSingleObject(handle.DangerousGetHandle(), timeout)) {
                     case WFSO_Val.WAIT_OBJECT_0: {
-                        // success condition
-                        break;
-                    }
+                            // success condition
+                            break;
+                        }
                     case WFSO_Val.WAIT_ABANDONED: {
-                        // thread exited without releasing mutex object
-                        break;
-                    }
+                            // thread exited without releasing mutex object
+                            break;
+                        }
                     case WFSO_Val.WAIT_TIMEOUT: {
-                        return true;
-                    }
+                            return true;
+                        }
                     case WFSO_Val.WAIT_FAILED: {
-                        throw new Win32Exception();
-                    }
+                            throw new Win32Exception();
+                        }
                 }
 
             }

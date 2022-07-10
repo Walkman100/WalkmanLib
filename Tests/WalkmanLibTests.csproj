@@ -108,6 +108,9 @@
     <Compile Include="..\WalkmanLibDotNet.cs">
       <Link>WalkmanLib\WalkmanLibDotNet.cs</Link>
     </Compile>
+    <Compile Include="..\WalkmanLibExtensions.cs">
+      <Link>WalkmanLib\WalkmanLibExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\WalkmanLibRestartManager.cs">
       <Link>WalkmanLib\WalkmanLibRestartManager.cs</Link>
     </Compile>
