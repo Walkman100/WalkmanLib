@@ -1,8 +1,8 @@
 using System;
 using System.IO;
-using static System.IO.File;
 using System.Security.Principal;
 using System.Windows.Forms;
+using static System.IO.File;
 
 // used for IsFileOrDirectory
 [Flags]
@@ -36,13 +36,11 @@ public partial class WalkmanLib {
             return OS.Windows;
         } else if (Environment.OSVersion.Platform == PlatformID.Unix) {
             string unameOutput = RunAndGetOutput("uname");
-            if (unameOutput == "Linux") {
+            if (unameOutput == "Linux")
                 return OS.Linux;
-            } else if (unameOutput == "Darwin") {
+            else if (unameOutput == "Darwin")
                 return OS.MacOS;
-            }
         }
-
         return OS.Other;
     }
 
@@ -91,31 +89,26 @@ public partial class WalkmanLib {
     /// <param name="addOrRemoveAttribute">true to add the specified attribute, false to remove it.</param>
     /// <param name="accessDeniedSub">Create a void with the signature (Exception ex) to run it when access is denied and the program can be elevated.</param>
     /// <returns>Whether setting the attribute was successful or not.</returns>
-    public static bool ChangeAttribute(string path, FileAttributes fileAttribute, bool addOrRemoveAttribute, AccessDeniedDelegate accessDeniedSub = null) {
-        if (addOrRemoveAttribute) {
-            return AddAttribute(path, fileAttribute, accessDeniedSub);
-        } else {
-            return RemoveAttribute(path, fileAttribute, accessDeniedSub);
-        }
-    }
+    public static bool ChangeAttribute(string path, FileAttributes fileAttribute, bool addOrRemoveAttribute, AccessDeniedDelegate accessDeniedSub = null) =>
+        addOrRemoveAttribute
+            ? AddAttribute(path, fileAttribute, accessDeniedSub)
+            : RemoveAttribute(path, fileAttribute, accessDeniedSub);
 
     /// <summary>Adds the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     /// <param name="path">The path to the file.</param>
     /// <param name="fileAttribute">The FileAttributes to add.</param>
     /// <param name="accessDeniedSub">Create a void with the signature (Exception ex) to run it when access is denied and the program can be elevated.</param>
     /// <returns>Whether adding the attribute was successful or not.</returns>
-    public static bool AddAttribute(string path, FileAttributes fileAttribute, AccessDeniedDelegate accessDeniedSub = null) {
-        return SetAttribute(path, GetAttributes(path) | fileAttribute, accessDeniedSub);
-    }
+    public static bool AddAttribute(string path, FileAttributes fileAttribute, AccessDeniedDelegate accessDeniedSub = null) =>
+        SetAttribute(path, GetAttributes(path) | fileAttribute, accessDeniedSub);
 
     /// <summary>Removes the specified System.IO.FileAttributes from the file at the specified path, with a try..catch block.</summary>
     /// <param name="path">The path to the file.</param>
     /// <param name="fileAttribute">The FileAttributes to remove.</param>
     /// <param name="accessDeniedSub">Create a void with the signature (Exception ex) to run it when access is denied and the program can be elevated.</param>
     /// <returns>Whether removing the attribute was successful or not.</returns>
-    public static bool RemoveAttribute(string path, FileAttributes fileAttribute, AccessDeniedDelegate accessDeniedSub = null) {
-        return SetAttribute(path, GetAttributes(path) & ~fileAttribute, accessDeniedSub);
-    }
+    public static bool RemoveAttribute(string path, FileAttributes fileAttribute, AccessDeniedDelegate accessDeniedSub = null) =>
+        SetAttribute(path, GetAttributes(path) & ~fileAttribute, accessDeniedSub);
 
     /// <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
     /// <param name="path">The path to the file.</param>
@@ -156,15 +149,10 @@ public partial class WalkmanLib {
 
     /// <summary>Gets whether a shortcut's "Run as Administrator" checkbox is checked.</summary>
     /// <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
-    /// <returns>State of the Admin flag. true = Set, i.e. will attempt to run as admin.</returns>
+    /// <returns>State of the Admin flag. <see langword="true"/> = Set, i.e. will attempt to run as admin.</returns>
     public static bool GetShortcutRunAsAdmin(string shortcutPath) {
         byte[] shortcutBytes = ReadAllBytes(shortcutPath);
-
-        if ((shortcutBytes[RunAsAdminByte] & RunAsAdminOnBit) == RunAsAdminOnBit) {
-            return true;
-        } else {
-            return false;
-        }
+        return (shortcutBytes[RunAsAdminByte] & RunAsAdminOnBit) == RunAsAdminOnBit;
     }
 
     /// <summary>
@@ -173,14 +161,12 @@ public partial class WalkmanLib {
     /// If the Shortcut (.lnk) specification ever changes, this will corrupt shortcuts.
     /// </summary>
     /// <param name="shortcutPath">Path to the shortcut file. Shortcuts end in ".lnk".</param>
-    /// <param name="flagState">State to set the Admin flag to. true = Set, i.e. will attempt to run as admin.</param>
+    /// <param name="flagState">State to set the Admin flag to. <see langword="true"/> = Set, i.e. will attempt to run as admin.</param>
     public static void SetShortcutRunAsAdmin(string shortcutPath, bool flagState) {
         byte[] shortcutBytes = ReadAllBytes(shortcutPath);
-        if (flagState) {
-            shortcutBytes[RunAsAdminByte] = (byte)(shortcutBytes[RunAsAdminByte] |  RunAsAdminOnBit);
-        } else {
-            shortcutBytes[RunAsAdminByte] = (byte)(shortcutBytes[RunAsAdminByte] & ~RunAsAdminOnBit);
-        }
+        shortcutBytes[RunAsAdminByte] = flagState
+            ? (byte)(shortcutBytes[RunAsAdminByte] |  RunAsAdminOnBit)
+            : (byte)(shortcutBytes[RunAsAdminByte] & ~RunAsAdminOnBit);
 
         WriteAllBytes(shortcutPath, shortcutBytes);
     }
@@ -200,7 +186,7 @@ public partial class WalkmanLib {
 
         while (!stop && currentCount != end) {
             System.Threading.Thread.Sleep(1000);
-            currentCount += 1;
+            currentCount++;
 
             Console.CursorLeft -= stopLength;
             Console.Write(currentCount.ToString().PadLeft(stopLength));
@@ -224,18 +210,16 @@ public partial class WalkmanLib {
         }
 
         var rtn = new PathEnum();
-        if (File.Exists(path)) {
+        if (File.Exists(path))
             rtn = PathEnum.Exists | PathEnum.IsFile;
-        } else if (Directory.Exists(path)) {
+        else if (Directory.Exists(path))
             rtn = PathEnum.Exists | PathEnum.IsDirectory;
-        }
 
         try {
             // path can be a Directory and a Drive, or just a Drive...
             // will have IsDirectory if the drive can be accessed
-            if (new DriveInfo(path).Name == new FileInfo(path).FullName) {
+            if (new DriveInfo(path).Name == new FileInfo(path).FullName)
                 rtn = rtn | PathEnum.Exists | PathEnum.IsDrive;
-            }
         } catch (ArgumentException) {
             // New DriveInfo() and New FileInfo() throw ArgumentException on invalid path sequence
         } catch (NotSupportedException) {
@@ -248,18 +232,17 @@ public partial class WalkmanLib {
     /// <summary>Sets clipboard to specified text, with optional success message and checks for errors.</summary>
     /// <param name="text">Text to copy.</param>
     /// <param name="successMessage">Message to show on success. If left out no message will be shown, if "default" is supplied then the default message will be shown.</param>
-    /// <param name="showErrors">Whether to show a message on copy error or not. Default: true</param>
+    /// <param name="showErrors">Whether to show a message on copy error or not. Default: <see langword="true"/></param>
     /// <returns>Whether setting the clipboard was successful or not.</returns>
     public static bool SafeSetText(string text, string successMessage = null, bool showErrors = true) {
         try {
             Clipboard.SetText(text, TextDataFormat.UnicodeText);
             if (!string.IsNullOrEmpty(successMessage)) {
                 Application.EnableVisualStyles(); // affects when in a console app
-                if (successMessage == "default") {
+                if (successMessage == "default")
                     MessageBox.Show(text + Environment.NewLine + "Succesfully copied!", "Succesfully copied!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                } else {
+                else
                     MessageBox.Show(successMessage, "Succesfully copied!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
             }
             return true;
         } catch (Exception ex) {
@@ -284,9 +267,8 @@ public partial class WalkmanLib {
     public static string GetWalkmanUtilsPath(Version minimumVersion = null) {
         // first check startup path
         string rtn = Path.Combine(Application.StartupPath, "WalkmanUtils");
-        if (Directory.Exists(rtn)) {
+        if (Directory.Exists(rtn))
             return rtn;
-        }
 
         // then registry
         // if 64-bit app: HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\WalkmanUtils InstallLocation
@@ -294,22 +276,20 @@ public partial class WalkmanLib {
         string keyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WalkmanUtils\";
 
         // always use 32-bit view
-        var localKey = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, 
+        var localKey = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine,
                                                                Microsoft.Win32.RegistryView.Registry32);
         localKey = localKey.OpenSubKey(keyPath);
 
         if (localKey != null && localKey.GetValue("InstallLocation") != null) {
             rtn = localKey.GetValue("InstallLocation").ToString();
             if (Directory.Exists(rtn)) {
-
                 if (minimumVersion != null) {
                     if (Version.TryParse(localKey.GetValue("DisplayVersion").ToString(), out Version gotVersion)) {
                         if (gotVersion < minimumVersion && MessageBox.Show("Currently Installed WalkmanUtils version is out of date! Use anyway?",
-                                                            "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+                                                                           "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No)
                             throw new OperationCanceledException();
-                        }
                     } else if (MessageBox.Show("Got Invalid Version from WalkmanUtils install info! Continue anyway?",
-                                "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+                                               "WalkmanUtils Version", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
                         throw new OperationCanceledException();
                     }
                 }
@@ -324,23 +304,21 @@ public partial class WalkmanLib {
             return rtn;
         //                and %ProgramFiles(x86)%\WalkmanOSS\WalkmanUtils
         rtn = Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "WalkmanOSS", "WalkmanUtils");
-        if (Directory.Exists(rtn)) 
+        if (Directory.Exists(rtn))
             return rtn;
 
         throw new DirectoryNotFoundException("WalkmanUtils path not found in application's path, Installed location or default folder in Program Files");
     }
 
     /// <summary>Shows an error message for an exception, and asks the user if they want to display the full error in a copyable window.</summary>
-    /// <param name="ex">The System.Exception to show details about.</param>
+    /// <param name="ex">The <see cref="Exception"/> to show details about.</param>
     /// <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
-    /// <param name="showMsgBox">true to show the error message prompt to show the full stacktrace or not, false to just show the window immediately</param>
+    /// <param name="showMsgBox"><see langword="true"/> to show the error message prompt to show the full stacktrace or not, <see langword="false"/> to just show the window immediately</param>
     public static void ErrorDialog(Exception ex, string errorMessage = "There was an error! Error message: ", bool showMsgBox = true) {
         Application.EnableVisualStyles(); // affects when in a console app
-        if (showMsgBox) {
-            if (MessageBox.Show(errorMessage + ex.Message + Environment.NewLine + "Show full stacktrace? (For sending to developer/making bugreport)", 
-                                "Error!", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) != DialogResult.Yes)
-                return;
-        }
+        if (showMsgBox && MessageBox.Show($"{errorMessage}{ex.Message}{Environment.NewLine}Show full stacktrace? (For sending to developer/making bugreport)",
+                                          "Error!", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) != DialogResult.Yes)
+            return;
 
         var frmBugReport = new Form() {
             Width = 600,
@@ -360,31 +338,31 @@ public partial class WalkmanLib {
         try {
             txtBugReport.Text = "";
             while (ex != null) {
-                if (ex.ToString() != null)                    txtBugReport.Text += "ToString:" + Environment.NewLine + ex.ToString() + Environment.NewLine + Environment.NewLine;
-                if (ex.GetBaseException() != null)                    txtBugReport.Text += "BaseException:" + Environment.NewLine + ex.GetBaseException().ToString() + Environment.NewLine + Environment.NewLine;
-                if (ex.GetType() != null)                    txtBugReport.Text += "Type: " + ex.GetType().ToString() + Environment.NewLine;
-                if (ex.Message != null)                    txtBugReport.Text += "Message: " + ex.Message.ToString() + Environment.NewLine + Environment.NewLine;
-                if (ex.StackTrace != null)                    txtBugReport.Text += "StackTrace:" + Environment.NewLine + ex.StackTrace.ToString() + Environment.NewLine + Environment.NewLine;
+                if (ex.ToString() != null)          txtBugReport.Text += $"ToString:{Environment.NewLine}{ex}{Environment.NewLine}{Environment.NewLine}";
+                if (ex.GetBaseException() != null)  txtBugReport.Text += $"BaseException:{Environment.NewLine}{ex.GetBaseException()}{Environment.NewLine}{Environment.NewLine}";
+                if (ex.GetType() != null)           txtBugReport.Text += $"Type: {ex.GetType()}{Environment.NewLine}";
+                if (ex.Message != null)             txtBugReport.Text += $"Message: {ex.Message}{Environment.NewLine}{Environment.NewLine}";
+                if (ex.StackTrace != null)          txtBugReport.Text += $"StackTrace:{Environment.NewLine}{ex.StackTrace}{Environment.NewLine}{Environment.NewLine}";
                 if (ex is System.ComponentModel.Win32Exception win32ex) {
-                    txtBugReport.Text += "ErrorCode: 0x" + win32ex.ErrorCode.ToString("X") + Environment.NewLine;
-                    txtBugReport.Text += "NativeErrorCode: 0x" + win32ex.NativeErrorCode.ToString("X") + Environment.NewLine;
+                                                    txtBugReport.Text += $"ErrorCode: 0x{win32ex.ErrorCode.ToString("X")}{Environment.NewLine}";
+                                                    txtBugReport.Text += $"NativeErrorCode: 0x{win32ex.NativeErrorCode.ToString("X")}{Environment.NewLine}";
                 }
                 if (ex is FileNotFoundException fileNotFoundEx) {
-                    txtBugReport.Text += "FileName: " + fileNotFoundEx.FileName + Environment.NewLine;
-                    txtBugReport.Text += "FusionLog: " + fileNotFoundEx.FusionLog + Environment.NewLine;
+                                                    txtBugReport.Text += $"FileName: {fileNotFoundEx.FileName}{Environment.NewLine}";
+                                                    txtBugReport.Text += $"FusionLog: {fileNotFoundEx.FusionLog}{Environment.NewLine}";
                 }
-                if (ex.Source != null)                    txtBugReport.Text += "Source: " + ex.Source.ToString() + Environment.NewLine;
-                if (ex.TargetSite != null)                    txtBugReport.Text += "TargetSite: " + ex.TargetSite.ToString() + Environment.NewLine;
-                txtBugReport.Text += "HashCode: 0x" + ex.GetHashCode().ToString("X") + Environment.NewLine;
-                txtBugReport.Text += "HResult: 0x" + ex.HResult.ToString("X") + Environment.NewLine + Environment.NewLine;
+                if (ex.Source != null)              txtBugReport.Text += $"Source: {ex.Source}{Environment.NewLine}";
+                if (ex.TargetSite != null)          txtBugReport.Text += $"TargetSite: {ex.TargetSite}{Environment.NewLine}";
+                                                    txtBugReport.Text += $"HashCode: 0x{ex.GetHashCode().ToString("X")}{Environment.NewLine}";
+                                                    txtBugReport.Text += $"HResult: 0x{ex.HResult.ToString("X")}{Environment.NewLine}{Environment.NewLine}";
                 foreach (object key in ex.Data.Keys) {
-                    txtBugReport.Text += "Data(" + key.ToString() + "): " + ex.Data[key].ToString() + Environment.NewLine;
+                                                    txtBugReport.Text += $"Data({key}): {ex.Data[key]}{Environment.NewLine}";
                 }
-                if (ex.InnerException != null)                    txtBugReport.Text += Environment.NewLine + "InnerException:" + Environment.NewLine;
+                if (ex.InnerException != null)      txtBugReport.Text += $"{Environment.NewLine}InnerException:{Environment.NewLine}";
                 ex = ex.InnerException;
             }
         } catch (Exception ex2) {
-            txtBugReport.Text += "Error getting exception data!" + Environment.NewLine + Environment.NewLine + ex2.ToString();
+            txtBugReport.Text += $"Error getting exception data!{Environment.NewLine}{Environment.NewLine}{ex2}";
         }
 
         try {
@@ -402,7 +380,7 @@ public partial class WalkmanLib {
             //    messagePumpForm.Invoke((MethodInvoker)(() => frmBugReport.Show()));
             //}
         } catch (Exception ex2) {
-            MessageBox.Show("Error showing window: " + ex2.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            MessageBox.Show($"Error showing window: {ex2}", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
     }
 
@@ -433,20 +411,19 @@ public partial class WalkmanLib {
     /// <returns>If mergeStdErr is false, Returns StdOut. If mergeStdErr is true and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.
     /// <br />To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to false.</returns>
     private static string runAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out string stdErrReturn, out int exitCode) {
-        var process = new System.Diagnostics.Process();
-        process.StartInfo.FileName = fileName;
-        if (!string.IsNullOrEmpty(arguments)) {
-            process.StartInfo.Arguments = arguments;
-        }
-        if (!string.IsNullOrEmpty(workingDirectory)) {
-            process.StartInfo.WorkingDirectory = workingDirectory;
-        }
+        var process = new System.Diagnostics.Process() {
+            StartInfo = new System.Diagnostics.ProcessStartInfo() {
+                FileName = fileName,
+                Arguments = arguments,
+                WorkingDirectory = workingDirectory,
+                CreateNoWindow = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            }
+        };
 
-        process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.RedirectStandardOutput = true;
         var stdOutput = new System.Text.StringBuilder();
         process.OutputDataReceived += (sender, args) => stdOutput.AppendLine(args.Data);
         // Use AppendLine rather than Append since args.Data is one line of output, not including the newline character.
@@ -458,15 +435,12 @@ public partial class WalkmanLib {
         process.WaitForExit();
 
         string returnString = stdOutput.ToString().Trim();
-        if (mergeStdErr) {
-            if (!string.IsNullOrEmpty(stdError)) {
-                if (!string.IsNullOrEmpty(returnString)) {
-                    returnString += Environment.NewLine;
-                }
+        if (mergeStdErr && !string.IsNullOrEmpty(stdError)) {
+            if (!string.IsNullOrEmpty(returnString))
+                returnString += Environment.NewLine;
 
-                returnString += "StdErr: " + stdError.Trim();
-                returnString += Environment.NewLine + "ExitCode: " + process.ExitCode;
-            }
+            returnString += "StdErr: " + stdError.Trim();
+            returnString += $"{Environment.NewLine}ExitCode: {process.ExitCode}";
         }
 
         stdErrReturn = stdError.Trim();
@@ -524,15 +498,10 @@ public partial class WalkmanLib {
                 }
             }
 
-            if (parsedIconPath.EndsWith(",0")) {
+            if (parsedIconPath.EndsWith(",0"))
                 parsedIconPath = parsedIconPath.Remove(parsedIconPath.Length - 2);
-            }
 
-            if (isAbsolute) {
-                return parsedIconPath;
-            } else {
-                return Path.Combine(folderPath, parsedIconPath);
-            }
+            return isAbsolute ? parsedIconPath : Path.Combine(folderPath, parsedIconPath);
         } else {
             return "no icon found";
         }

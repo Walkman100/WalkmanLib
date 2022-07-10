@@ -15,6 +15,8 @@ public static class WalkmanLibExtensions {
         Enum.GetNames(typeof(TEnum));
     public static TEnum[] GetValues<TEnum>() where TEnum : struct, Enum =>
         (TEnum[])Enum.GetValues(typeof(TEnum));
+    public static Type GetUnderlyingType<TEnum>() where TEnum : struct, Enum =>
+        Enum.GetUnderlyingType(typeof(TEnum));
     public static TEnum Parse<TEnum>(string value, bool ignoreCase = false) where TEnum : struct, Enum =>
         (TEnum)Enum.Parse(typeof(TEnum), value, ignoreCase);
     /// <summary>Checks if the enum value is defined with <see cref="IsDefined"/>. If true, returns <paramref name="value"/>. If false, throws <see cref="System.ComponentModel.InvalidEnumArgumentException"/>.</summary>
