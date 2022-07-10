@@ -1,77 +1,39 @@
-public partial class CustomMsgBoxForm : System.Windows.Forms.Form {
-
+partial class CustomMsgBoxForm {
     /// <summary>
-    /// Designer variable used to keep track of non-visual components.
+    /// Required designer variable.
     /// </summary>
-    private System.ComponentModel.IContainer components;
+    private System.ComponentModel.IContainer components = null;
 
     /// <summary>
-    /// Disposes resources used by the form.
+    /// Clean up any resources being used.
     /// </summary>
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing) {
-        if (disposing) {
-            if (components != null) {
-                components.Dispose();
-            }
+        if (disposing && (components != null)) {
+            components.Dispose();
         }
         base.Dispose(disposing);
     }
 
+    #region Windows Form Designer generated code
+
     /// <summary>
-    /// This method is required for Windows Forms designer support.
-    /// Do not change the method contents inside the source code editor. The Forms designer might
-    /// not be able to load this method if it was changed manually.
+    /// Required method for Designer support - do not modify
+    /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent() {
-            this.btnAccept = new System.Windows.Forms.Button();
-            this.btnAnswerMid = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.txtMain = new System.Windows.Forms.TextBox();
             this.pbxMain = new System.Windows.Forms.PictureBox();
+            this.btnAccept = new System.Windows.Forms.Button();
+            this.btnAnswerMid = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbxMain)).BeginInit();
             this.SuspendLayout();
-            // 
-            // btnAccept
-            // 
-            this.btnAccept.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.btnAccept.AutoSize = true;
-            this.btnAccept.Location = new System.Drawing.Point(156, 8);
-            this.btnAccept.Name = "btnAccept";
-            this.btnAccept.Size = new System.Drawing.Size(75, 23);
-            this.btnAccept.TabIndex = 0;
-            this.btnAccept.Text = "Yes";
-            this.btnAccept.UseVisualStyleBackColor = true;
-            this.btnAccept.Click += delegate { this.Accept_Click(); };
-            // 
-            // btnAnswerMid
-            // 
-            this.btnAnswerMid.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.btnAnswerMid.AutoSize = true;
-            this.btnAnswerMid.Location = new System.Drawing.Point(237, 8);
-            this.btnAnswerMid.Name = "btnAnswerMid";
-            this.btnAnswerMid.Size = new System.Drawing.Size(75, 23);
-            this.btnAnswerMid.TabIndex = 1;
-            this.btnAnswerMid.Text = "No";
-            this.btnAnswerMid.UseVisualStyleBackColor = true;
-            this.btnAnswerMid.Click += delegate { this.AnswerMid_Click(); };
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.btnCancel.AutoSize = true;
-            this.btnCancel.Location = new System.Drawing.Point(318, 8);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 2;
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += delegate { this.Cancel_Click(); };
             // 
             // splitContainer
             // 
@@ -91,8 +53,8 @@ public partial class CustomMsgBoxForm : System.Windows.Forms.Form {
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.btnAccept);
-            this.splitContainer.Panel2.Controls.Add(this.btnCancel);
             this.splitContainer.Panel2.Controls.Add(this.btnAnswerMid);
+            this.splitContainer.Panel2.Controls.Add(this.btnCancel);
             this.splitContainer.Size = new System.Drawing.Size(405, 123);
             this.splitContainer.SplitterDistance = 78;
             this.splitContainer.SplitterWidth = 1;
@@ -123,6 +85,42 @@ public partial class CustomMsgBoxForm : System.Windows.Forms.Form {
             this.pbxMain.TabIndex = 0;
             this.pbxMain.TabStop = false;
             // 
+            // btnAccept
+            // 
+            this.btnAccept.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.btnAccept.AutoSize = true;
+            this.btnAccept.Location = new System.Drawing.Point(156, 8);
+            this.btnAccept.Name = "btnAccept";
+            this.btnAccept.Size = new System.Drawing.Size(75, 23);
+            this.btnAccept.TabIndex = 0;
+            this.btnAccept.Text = "Yes";
+            this.btnAccept.UseVisualStyleBackColor = true;
+            this.btnAccept.Click += new System.EventHandler(this.btnAccept_Click);
+            // 
+            // btnAnswerMid
+            // 
+            this.btnAnswerMid.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.btnAnswerMid.AutoSize = true;
+            this.btnAnswerMid.Location = new System.Drawing.Point(237, 8);
+            this.btnAnswerMid.Name = "btnAnswerMid";
+            this.btnAnswerMid.Size = new System.Drawing.Size(75, 23);
+            this.btnAnswerMid.TabIndex = 1;
+            this.btnAnswerMid.Text = "No";
+            this.btnAnswerMid.UseVisualStyleBackColor = true;
+            this.btnAnswerMid.Click += new System.EventHandler(this.btnAnswerMid_Click);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.btnCancel.AutoSize = true;
+            this.btnCancel.Location = new System.Drawing.Point(318, 8);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 2;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
             // CustomMsgBoxForm
             // 
             this.AcceptButton = this.btnAccept;
@@ -137,6 +135,7 @@ public partial class CustomMsgBoxForm : System.Windows.Forms.Form {
             this.Name = "CustomMsgBoxForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Shown += new System.EventHandler(this.CustomMsgBoxForm_Shown);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);
@@ -148,10 +147,12 @@ public partial class CustomMsgBoxForm : System.Windows.Forms.Form {
 
     }
 
-    private System.Windows.Forms.TextBox txtMain;
-    private System.Windows.Forms.PictureBox pbxMain;
+    #endregion
+
     private System.Windows.Forms.SplitContainer splitContainer;
     private System.Windows.Forms.Button btnCancel;
     private System.Windows.Forms.Button btnAnswerMid;
     private System.Windows.Forms.Button btnAccept;
+    private System.Windows.Forms.PictureBox pbxMain;
+    private System.Windows.Forms.TextBox txtMain;
 }
