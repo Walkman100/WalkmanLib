@@ -469,18 +469,18 @@ public partial class WalkmanLib {
         try {
             // link path doesn't include drive letter by default
             string pathRoot = Path.GetPathRoot(path);
-            yield return stringBuilderTarget.ToString()[0] == Path.DirectorySeparatorChar ?
-                Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1)) :
-                stringBuilderTarget.ToString();
+            string getFullPath(string path) {
+                if (path[0] == Path.DirectorySeparatorChar)
+                    return Path.Combine(pathRoot, path.Substring(1));
+                else
+                    return path;
+            };
+
+            yield return getFullPath(stringBuilderTarget.ToString());
 
             lpdwStringLength = MAX_FILE_PATH;
-            while (FindNextFileName(hFind, ref lpdwStringLength, stringBuilderTarget)) {
-                if (stringBuilderTarget.ToString()[0] == Path.DirectorySeparatorChar) {
-                    yield return Path.Combine(pathRoot, stringBuilderTarget.ToString().Substring(1));
-                } else {
-                    yield return stringBuilderTarget.ToString();
-                }
-            }
+            while (FindNextFileName(hFind, ref lpdwStringLength, stringBuilderTarget))
+                yield return getFullPath(stringBuilderTarget.ToString());
 
             var errorException = new Win32Exception();
             //                                    ERROR_HANDLE_EOF: Reached the end of the file.
@@ -544,14 +544,11 @@ public partial class WalkmanLib {
     /// <param name="shortcutPath">Path to the shortcut file.</param>
     /// <returns>Shortcut object of type IWshShortcut - either use WalkmanLib.IWshShortcut or ComImport your own interface.</returns>
     public static IWshShortcut GetShortcutInfo(string shortcutPath) {
-        Type WSH_Type = Type.GetTypeFromProgID("WScript.Shell");
-        object WSH_Activated = Activator.CreateInstance(WSH_Type);
-
-        if (!shortcutPath.EndsWith(".lnk", true, null))
+        if (!shortcutPath.EndsWith(".lnk", true, System.Globalization.CultureInfo.InvariantCulture))
             shortcutPath += ".lnk";
-        object WSH_InvokeMember = WSH_Type.InvokeMember("CreateShortcut", System.Reflection.BindingFlags.InvokeMethod, null, WSH_Activated, new object[] { shortcutPath });
 
-        return (IWshShortcut)WSH_InvokeMember;
+        dynamic WScript_Shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell"));
+        return WScript_Shell.CreateShortcut(shortcutPath);
     }
 
     // Link: https://ss64.com/vb/shortcut.html
@@ -878,15 +875,14 @@ public partial class WalkmanLib {
     /// <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>
     /// <param name="path">Path to the file to get size for.</param>
     /// <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
-    public static double GetCompressedSize(string path) {
+    public static long GetCompressedSize(string path) {
         long fileLength = Convert.ToInt64(GetCompressedFileSize(path, out uint sizeMultiplier));
         if (fileLength == 0xFFFFFFFFL) {
             var errorException = new Win32Exception();
             if (errorException.NativeErrorCode != 0)
                 throw new IOException(errorException.Message, errorException);
         }
-        double size = ((uint.MaxValue + 1L) * sizeMultiplier) + fileLength;
-        return size;
+        return ((uint.MaxValue + 1L) * sizeMultiplier) + fileLength;
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getcompressedfilesizew
@@ -1061,8 +1057,9 @@ public partial class WalkmanLib {
 
         if (hWnd == IntPtr.Zero) {
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 0) {
-                // ERROR_SUCCESS: The operation completed successfully.
+            if (errorException.NativeErrorCode == 0 || errorException.NativeErrorCode == 1400) {
+                // 0: ERROR_SUCCESS: The operation completed successfully.
+                // 1400: ERROR_INVALID_WINDOW_HANDLE: Invalid window handle.
                 throw new ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException);
             }
             throw errorException;
@@ -1081,7 +1078,7 @@ public partial class WalkmanLib {
             } else {
 
                 // Wait for handle with specified timeout
-                switch (WaitForSingleObject(handle.DangerousGetHandle(), timeout)) {
+                switch (WaitForSingleObject(handle, timeout)) {
                     case WFSO_Val.WAIT_OBJECT_0: {
                             // success condition
                             break;
@@ -1168,7 +1165,7 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject
     // https://www.pinvoke.net/default.aspx/kernel32.waitforsingleobject
     [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern WFSO_Val WaitForSingleObject(IntPtr handle, uint milliseconds);
+    private static extern WFSO_Val WaitForSingleObject(SafeFileHandle handle, uint milliseconds);
 
     // https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject#return-value
     private enum WFSO_Val : uint {
