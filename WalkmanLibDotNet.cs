@@ -302,6 +302,10 @@ public partial class WalkmanLib {
         rtn = Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "WalkmanOSS", "WalkmanUtils");
         if (Directory.Exists(rtn))
             return rtn;
+        //              ... and %ProgramW6432%\WalkmanOSS\WalkmanUtils
+        rtn = Path.Combine(Environment.GetEnvironmentVariable("ProgramW6432"), "WalkmanOSS", "WalkmanUtils");
+        if (Directory.Exists(rtn))
+            return rtn;
 
         throw new DirectoryNotFoundException("WalkmanUtils path not found in application's path, Installed location or default folder in Program Files");
     }
@@ -310,7 +314,8 @@ public partial class WalkmanLib {
     /// <param name="ex">The <see cref="Exception"/> to show details about.</param>
     /// <param name="errorMessage">Optional error message to show instead of the default "There was an error! Error message: "</param>
     /// <param name="showMsgBox"><see langword="true"/> to show the error message prompt to show the full stacktrace or not, <see langword="false"/> to just show the window immediately</param>
-    public static void ErrorDialog(Exception ex, string errorMessage = "There was an error! Error message: ", bool showMsgBox = true) {
+    /// <param name="showErrorBlockingWindow"><see langword="true"/> to use <see cref="Form.ShowDialog"/> to show error dialog, <see langword="false"/> to use <see cref="Control.Show"/>, <see langword="null"/> to show on separate thread.</param>
+    public static void ErrorDialog(Exception ex, string errorMessage = "There was an error! Error message: ", bool showMsgBox = true, bool? showErrorBlockingWindow = null) {
         Application.EnableVisualStyles(); // affects when in a console app
         if (showMsgBox && MessageBox.Show($"{errorMessage}{ex.Message}{Environment.NewLine}Show full stacktrace? (For sending to developer/making bugreport)",
                                           "Error!", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) != DialogResult.Yes)
@@ -320,9 +325,7 @@ public partial class WalkmanLib {
             Width = 600,
             Height = 525,
             StartPosition = FormStartPosition.CenterParent,
-            WindowState = FormWindowState.Normal,
             ShowIcon = false,
-            ShowInTaskbar = true,
             Text = "Full error trace"
         };
         var txtBugReport = new TextBox() {
@@ -362,19 +365,12 @@ public partial class WalkmanLib {
         }
 
         try {
-            // show the dialog in a different thread with an unassociated MessagePump
-            System.Threading.Tasks.Task.Run(() => frmBugReport.ShowDialog());
-
-            //if (messsagePumpForm != null) {
-            //    // ' Thanks to https://stackoverflow.com/a/661662/2999220
-            //    if (frmBugReport.InvokeRequired) {
-            //        frmBugReport.Invoke((MethodInvoker)(() => frmBugReport.Show()));
-            //    } else {
-            //        frmBugReport.Show();
-            //    }
-            //} else {
-            //    messagePumpForm.Invoke((MethodInvoker)(() => frmBugReport.Show()));
-            //}
+            if (showErrorBlockingWindow.HasValue && showErrorBlockingWindow.Value)
+                frmBugReport.ShowDialog();
+            else if (showErrorBlockingWindow.HasValue)
+                frmBugReport.Show();
+            else
+                System.Threading.Tasks.Task.Run(() => frmBugReport.ShowDialog());
         } catch (Exception ex2) {
             MessageBox.Show($"Error showing window: {ex2}", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
@@ -382,19 +378,17 @@ public partial class WalkmanLib {
 
     // fix for no optional ref parameters in C#
     public static string RunAndGetOutput(string fileName, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        runAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out _);
+        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out _);
     public static string RunAndGetOutput(string fileName, out string stdErrReturn, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        runAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out _);
+        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out _);
     public static string RunAndGetOutput(string fileName, out int exitCode, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        runAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out exitCode);
+        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out exitCode);
     public static string RunAndGetOutput(string fileName, out string stdErrReturn, out int exitCode, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        runAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out exitCode);
+        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out exitCode);
     public static string RunAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out string stdErrReturn) =>
-        runAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out _);
+        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out _);
     public static string RunAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out int exitCode) =>
-        runAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out exitCode);
-    public static string RunAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out string stdErrReturn, out int exitCode) =>
-        runAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out exitCode);
+        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out exitCode);
 
     // Link: https://stackoverflow.com/a/10072082/2999220
     /// <summary>Runs an executable without showing a window and returns it's output.</summary>
@@ -406,7 +400,7 @@ public partial class WalkmanLib {
     /// <param name="exitCode">Reference to a int variable to populate with the program's Exit Code.</param>
     /// <returns>If mergeStdErr is false, Returns StdOut. If mergeStdErr is true and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.
     /// <br />To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to false.</returns>
-    private static string runAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out string stdErrReturn, out int exitCode) {
+    public static string RunAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out string stdErrReturn, out int exitCode) {
         var process = new System.Diagnostics.Process() {
             StartInfo = new System.Diagnostics.ProcessStartInfo() {
                 FileName = fileName,
