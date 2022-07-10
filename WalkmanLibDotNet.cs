@@ -35,7 +35,7 @@ public partial class WalkmanLib {
         if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
             return OS.Windows;
         } else if (Environment.OSVersion.Platform == PlatformID.Unix) {
-            string unameOutput = RunAndGetOutput("uname");
+            string unameOutput = RunAndGetOutput("uname", mergeStdErr: true).StandardOutput;
             if (unameOutput == "Linux")
                 return OS.Linux;
             else if (unameOutput == "Darwin")
@@ -376,31 +376,33 @@ public partial class WalkmanLib {
         }
     }
 
-    // fix for no optional ref parameters in C#
-    public static string RunAndGetOutput(string fileName, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out _);
-    public static string RunAndGetOutput(string fileName, out string stdErrReturn, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out _);
-    public static string RunAndGetOutput(string fileName, out int exitCode, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out exitCode);
-    public static string RunAndGetOutput(string fileName, out string stdErrReturn, out int exitCode, string arguments = null, string workingDirectory = null, bool mergeStdErr = true) =>
-        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out exitCode);
-    public static string RunAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out string stdErrReturn) =>
-        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out stdErrReturn, out _);
-    public static string RunAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out int exitCode) =>
-        RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr, out _, out exitCode);
 
-    // Link: https://stackoverflow.com/a/10072082/2999220
-    /// <summary>Runs an executable without showing a window and returns it's output.</summary>
-    /// <param name="fileName">The path to the program executable.</param>
-    /// <param name="arguments">Any arguments to run the program with. Default: null</param>
-    /// <param name="workingDirectory">Working directory for the process to be started. Default: null</param>
-    /// <param name="mergeStdErr">Whether to merge StdErr with StdOut in the function's result (Return String). Default: true</param>
-    /// <param name="stdErrReturn">Reference to a System.String variable to populate with StdErr, if any.</param>
-    /// <param name="exitCode">Reference to a int variable to populate with the program's Exit Code.</param>
-    /// <returns>If mergeStdErr is false, Returns StdOut. If mergeStdErr is true and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.
-    /// <br />To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set mergeStdErr to false.</returns>
+    // fix for no optional ref/out parameters in C#
+    public struct RunAndGetOutputReturn {
+        public RunAndGetOutputReturn(string standardOutput, string standardError, int exitCode) {
+            StandardOutput = standardOutput;
+            StandardError = standardError;
+            ExitCode = exitCode;
+        }
+        public string StandardOutput;
+        public string StandardError;
+        public int ExitCode;
+    }
     public static string RunAndGetOutput(string fileName, string arguments, string workingDirectory, bool mergeStdErr, out string stdErrReturn, out int exitCode) {
+        var rtn = RunAndGetOutput(fileName, arguments, workingDirectory, mergeStdErr);
+        stdErrReturn = rtn.StandardError;
+        exitCode = rtn.ExitCode;
+        return rtn.StandardOutput;
+    }
+    // Link: https://stackoverflow.com/a/10072082/2999220
+    /// <summary>Runs an executable without showing a window and returns its output.</summary>
+    /// <param name="fileName">The path to the program executable.</param>
+    /// <param name="arguments">Any arguments to run the program with. Default: <see langword="null"/></param>
+    /// <param name="workingDirectory">Working directory for the process to be started. Default: <see langword="null"/></param>
+    /// <param name="mergeStdErr">Whether to merge StandardError with StandardError in the <see cref="RunAndGetOutputReturn.StandardOutput"/>. Default: <see langword="false"/></param>
+    /// <returns>If <paramref name="mergeStdErr"/> is <see langword="true"/> and the process outputs data to StandardError, <see cref="RunAndGetOutputReturn.StandardOutput"/> will be appended with "StdErr:", <see cref="RunAndGetOutputReturn.StandardError"/>, "ExitCode:", and the process's Exit Code.
+    /// <br />To merge StandardOutput and StandardError in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set <paramref name="mergeStdErr"/> to <see langword="false"/>.</returns>
+    public static RunAndGetOutputReturn RunAndGetOutput(string fileName, string arguments = null, string workingDirectory = null, bool mergeStdErr = false) {
         var process = new System.Diagnostics.Process() {
             StartInfo = new System.Diagnostics.ProcessStartInfo() {
                 FileName = fileName,
@@ -425,17 +427,16 @@ public partial class WalkmanLib {
         process.WaitForExit();
 
         string returnString = stdOutput.ToString().Trim();
+        stdError = stdError?.Trim();
         if (mergeStdErr && !string.IsNullOrEmpty(stdError)) {
             if (!string.IsNullOrEmpty(returnString))
                 returnString += Environment.NewLine;
 
-            returnString += "StdErr: " + stdError.Trim();
+            returnString += "StdErr: " + stdError;
             returnString += $"{Environment.NewLine}ExitCode: {process.ExitCode}";
         }
 
-        stdErrReturn = stdError.Trim();
-        exitCode = process.ExitCode;
-        return returnString;
+        return new RunAndGetOutputReturn(returnString, stdError, process.ExitCode);
     }
 
     /// <summary>Gets path to the folder icon, or "no icon found" if none is set.</summary>

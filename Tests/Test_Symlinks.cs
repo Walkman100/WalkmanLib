@@ -7,7 +7,7 @@ namespace Tests {
             using (var testFileSource = new DisposableFile(Path.Combine(rootTestFolder, "symlinks1Source"))) {
                 string symlinkPath = Path.Combine(rootTestFolder, "symlinks1");
 
-                string mklinkOutput = WalkmanLib.RunAndGetOutput("cmd", arguments: "/c mklink " + symlinkPath + " symlinks1Source", workingDirectory: rootTestFolder);
+                string mklinkOutput = WalkmanLib.RunAndGetOutput("cmd", arguments: "/c mklink " + symlinkPath + " symlinks1Source", workingDirectory: rootTestFolder, mergeStdErr: true).StandardOutput;
 
                 using (new DisposableFile(symlinkPath, false)) {
                     return GeneralFunctions.TestString("Symlinks1", WalkmanLib.GetSymlinkTarget(symlinkPath), testFileSource);

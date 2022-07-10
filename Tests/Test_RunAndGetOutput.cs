@@ -5,41 +5,41 @@ using System.IO;
 namespace Tests {
     static class Tests_RunAndGetOutput {
         public static bool Test_RunAndGetOutput1() {
-            string stdOut = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi");
+            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi", mergeStdErr: true);
 
-            return GeneralFunctions.TestString("RunAndGetOutput1", stdOut, "hi");
+            return GeneralFunctions.TestString("RunAndGetOutput1", rtn.StandardOutput, "hi");
         }
 
         public static bool Test_RunAndGetOutput2() {
-            string stdOut = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%");
-            
-            return GeneralFunctions.TestString("RunAndGetOutput2", stdOut, Environment.CurrentDirectory);
+            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%", mergeStdErr: true);
+
+            return GeneralFunctions.TestString("RunAndGetOutput2", rtn.StandardOutput, Environment.CurrentDirectory);
         }
 
         public static bool Test_RunAndGetOutput3() {
-            string stdOut = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%", workingDirectory: Environment.GetEnvironmentVariable("WinDir"));
+            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%", workingDirectory: Environment.GetEnvironmentVariable("WinDir"), mergeStdErr: true);
 
-            return GeneralFunctions.TestString("RunAndGetOutput3", stdOut, Environment.GetEnvironmentVariable("WinDir"));
+            return GeneralFunctions.TestString("RunAndGetOutput3", rtn.StandardOutput, Environment.GetEnvironmentVariable("WinDir"));
         }
 
         public static bool Test_RunAndGetOutput4() {
-            WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c exit 5", exitCode: out int exitCode);
+            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c exit 5", mergeStdErr: true);
 
-            return GeneralFunctions.TestNumber("RunAndGetOutput4", exitCode, 5);
+            return GeneralFunctions.TestNumber("RunAndGetOutput4", rtn.ExitCode, 5);
         }
 
         public static bool Test_RunAndGetOutput5() {
-            WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c echo hi >&2", mergeStdErr: false, stdErrReturn: out string stdErr);
+            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c echo hi >&2", mergeStdErr: false);
 
-            return GeneralFunctions.TestString("RunAndGetOutput5", stdErr, "hi");
+            return GeneralFunctions.TestString("RunAndGetOutput5", rtn.StandardError, "hi");
         }
 
         public static bool Test_RunAndGetOutput6() {
-            string mergedStdOut = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi >&2 & echo hi");
+            string mergedStdOut = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi >&2 & echo hi", mergeStdErr: true).StandardOutput;
 
-            return GeneralFunctions.TestString("RunAndGetOutput6", mergedStdOut, 
-                "hi" + Environment.NewLine + 
-                "StdErr: hi" + Environment.NewLine + 
+            return GeneralFunctions.TestString("RunAndGetOutput6", mergedStdOut,
+                "hi" + Environment.NewLine +
+                "StdErr: hi" + Environment.NewLine +
                 "ExitCode: 0");
         }
 

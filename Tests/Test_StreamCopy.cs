@@ -45,7 +45,7 @@ namespace Tests {
                             throw;
                         }
                     });
-                    System.Threading.Thread.Sleep(200);
+                    System.Threading.Thread.Sleep(400);
 
                     return GeneralFunctions.TestString("StreamCopy1", File.ReadAllText(testFileTarget), fileText);
                 }
