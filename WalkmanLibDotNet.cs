@@ -44,14 +44,14 @@ public partial class WalkmanLib {
         return OS.Other;
     }
 
-#if NETCOREAPP
-#else
     /// <summary>Opens the Open With dialog box for a file path.</summary>
     /// <param name="path">The file to open with a program.</param>
     public static void OpenWith(string path) {
-        Microsoft.VisualBasic.Interaction.Shell("rundll32 shell32.dll,OpenAs_RunDLL " + path, Microsoft.VisualBasic.AppWinStyle.NormalFocus, true, 500);
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() {
+            FileName = "rundll32",
+            Arguments = "shell32.dll,OpenAs_RunDLL " + path
+        }).WaitForExit(500);
     }
-#endif
 
     /// <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
     /// <returns>true if running with administrator permissions, false if not</returns>
@@ -64,23 +64,20 @@ public partial class WalkmanLib {
     /// <param name="path">Path of file to take ownership of, or directory to recursively take ownership of.</param>
     public static void TakeOwnership(string path) {
         PathEnum pathInfo = IsFileOrDirectory(path);
-        if (pathInfo.HasFlag(PathEnum.IsFile)) {
+        if (pathInfo.HasFlag(PathEnum.IsFile))
             RunAsAdmin("cmd.exe", "/c takeown /f \"" + path + "\" & icacls \"" + path + "\" /grant administrators:F & pause");
-        } else if (pathInfo.HasFlag(PathEnum.IsDirectory)) {
+        else if (pathInfo.HasFlag(PathEnum.IsDirectory))
             RunAsAdmin("cmd.exe", "/c takeown /f \"" + path + "\" /r /d y & icacls \"" + path + "\" /grant administrators:F /t & pause");
-        } else {
+        else
             throw new ArgumentException("File or Directory at specified path does not exist!", "path");
-        }
     }
 
     /// <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
     /// <param name="programPath">Path of the program to run as administrator.</param>
     /// <param name="arguments">Optional. Command-line arguments to pass when starting the process. Surround whitespaces with quotes as usual.</param>
     public static void RunAsAdmin(string programPath, string arguments = null) {
-        Type WSH_Type = Type.GetTypeFromProgID("Shell.Application");
-        object WSH_Activated = Activator.CreateInstance(WSH_Type);
-
-        WSH_Type.InvokeMember("ShellExecute", System.Reflection.BindingFlags.InvokeMethod, null, WSH_Activated, new object[] {programPath, arguments, "", "runas"});
+        dynamic Shell_Application = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"));
+        Shell_Application.ShellExecute(programPath, arguments, "", "runas");
     }
 
     /// <summary>Adds or removes the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
@@ -89,7 +86,7 @@ public partial class WalkmanLib {
     /// <param name="addOrRemoveAttribute">true to add the specified attribute, false to remove it.</param>
     /// <param name="accessDeniedSub">Create a void with the signature (Exception ex) to run it when access is denied and the program can be elevated.</param>
     /// <returns>Whether setting the attribute was successful or not.</returns>
-    public static bool ChangeAttribute(string path, FileAttributes fileAttribute, bool addOrRemoveAttribute, AccessDeniedDelegate accessDeniedSub = null) =>
+    public static bool ChangeAttribute(string path, FileAttributes fileAttribute, bool addOrRemoveAttribute, Action<Exception> accessDeniedSub = null) =>
         addOrRemoveAttribute
             ? AddAttribute(path, fileAttribute, accessDeniedSub)
             : RemoveAttribute(path, fileAttribute, accessDeniedSub);
@@ -99,7 +96,7 @@ public partial class WalkmanLib {
     /// <param name="fileAttribute">The FileAttributes to add.</param>
     /// <param name="accessDeniedSub">Create a void with the signature (Exception ex) to run it when access is denied and the program can be elevated.</param>
     /// <returns>Whether adding the attribute was successful or not.</returns>
-    public static bool AddAttribute(string path, FileAttributes fileAttribute, AccessDeniedDelegate accessDeniedSub = null) =>
+    public static bool AddAttribute(string path, FileAttributes fileAttribute, Action<Exception> accessDeniedSub = null) =>
         SetAttribute(path, GetAttributes(path) | fileAttribute, accessDeniedSub);
 
     /// <summary>Removes the specified System.IO.FileAttributes from the file at the specified path, with a try..catch block.</summary>
@@ -107,7 +104,7 @@ public partial class WalkmanLib {
     /// <param name="fileAttribute">The FileAttributes to remove.</param>
     /// <param name="accessDeniedSub">Create a void with the signature (Exception ex) to run it when access is denied and the program can be elevated.</param>
     /// <returns>Whether removing the attribute was successful or not.</returns>
-    public static bool RemoveAttribute(string path, FileAttributes fileAttribute, AccessDeniedDelegate accessDeniedSub = null) =>
+    public static bool RemoveAttribute(string path, FileAttributes fileAttribute, Action<Exception> accessDeniedSub = null) =>
         SetAttribute(path, GetAttributes(path) & ~fileAttribute, accessDeniedSub);
 
     /// <summary>Sets the specified System.IO.FileAttributes of the file on the specified path, with a try..catch block.</summary>
@@ -115,19 +112,18 @@ public partial class WalkmanLib {
     /// <param name="fileAttributes">A bitwise combination of the enumeration values.</param>
     /// <param name="accessDeniedSub">Create a void with the signature (Exception ex) to run it when access is denied and the program can be elevated.</param>
     /// <returns>Whether setting the attribute was successful or not.</returns>
-    public static bool SetAttribute(string path, FileAttributes fileAttributes, AccessDeniedDelegate accessDeniedSub = null) {
+    public static bool SetAttribute(string path, FileAttributes fileAttributes, Action<Exception> accessDeniedSub = null) {
         try {
             SetAttributes(path, fileAttributes);
             return true;
         } catch (UnauthorizedAccessException ex) when (!IsAdmin() && accessDeniedSub != null) {
-            accessDeniedSub.Invoke(ex);
+            accessDeniedSub(ex);
             return false;
         } catch (Exception ex) {
             ErrorDialog(ex);
             return false;
         }
     }
-    public delegate void AccessDeniedDelegate(Exception ex);
 
     // Example code to use the access denied sub return:
     //void Main() {
