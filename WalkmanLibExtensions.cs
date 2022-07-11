@@ -26,33 +26,33 @@ public static class WalkmanLibExtensions {
 
     #region Nullable
     public static Boolean? NullableParseBool(string value) =>
-        string.IsNullOrWhiteSpace(value) ? null : bool.Parse(value);
+        string.IsNullOrWhiteSpace(value) ? (Boolean?)null : bool.Parse(value);
     public static Char? NullableParseChar(string value) =>
-        string.IsNullOrWhiteSpace(value) ? null : char.Parse(value);
+        string.IsNullOrWhiteSpace(value) ? (Char?)null : char.Parse(value);
     public static Byte? NullableParseByte(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : byte.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (Byte?)null : byte.Parse(value, fp);
     public static Int16? NullableParseShort(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : short.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (Int16?)null : short.Parse(value, fp);
     public static Int32? NullableParseInt(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : int.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (Int32?)null : int.Parse(value, fp);
     public static Int64? NullableParseLong(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : long.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (Int64?)null : long.Parse(value, fp);
     public static Single? NullableParseSingle(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : float.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (Single?)null : float.Parse(value, fp);
     public static Double? NullableParseDouble(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : double.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (Double?)null : double.Parse(value, fp);
     public static Decimal? NullableParseDecimal(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : decimal.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (Decimal?)null : decimal.Parse(value, fp);
     public static DateTime? NullableParseDateTime(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : DateTime.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (DateTime?)null : DateTime.Parse(value, fp);
     public static DateTime? NullableParseExactDateTime(string value, string format, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : DateTime.ParseExact(value, format, fp);
+        string.IsNullOrWhiteSpace(value) ? (DateTime?)null : DateTime.ParseExact(value, format, fp);
     public static DateTimeOffset? NullableParseDateTimeOffset(string value, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : DateTimeOffset.Parse(value, fp);
+        string.IsNullOrWhiteSpace(value) ? (DateTimeOffset?)null : DateTimeOffset.Parse(value, fp);
     public static DateTimeOffset? NullableParseExactDateTimeOffset(string value, string format, IFormatProvider fp = null) =>
-        string.IsNullOrWhiteSpace(value) ? null : DateTimeOffset.ParseExact(value, format, fp);
+        string.IsNullOrWhiteSpace(value) ? (DateTimeOffset?)null : DateTimeOffset.ParseExact(value, format, fp);
     public static TEnum? NullableParseEnum<TEnum>(string value, bool ignoreCase = false) where TEnum : struct, Enum =>
-        string.IsNullOrWhiteSpace(value) ? null : Parse<TEnum>(value, ignoreCase);
+        string.IsNullOrWhiteSpace(value) ? (TEnum?)null : Parse<TEnum>(value, ignoreCase);
 
     public static string NullableToString(this Single? value, IFormatProvider fp = null) =>
         !value.HasValue ? null : value.Value.ToString(fp);
@@ -72,7 +72,7 @@ public static class WalkmanLibExtensions {
         !dictionary.TryGetValue(key, out TValue value) ? defaultValue : value;
     /// <summary>Gets the value associated with the specified key, or <see langword="null"/> if it isn't contained in the <see cref="IDictionary{TKey, TValue}"/>.</summary>
     public static TValue? GetValueOrNull<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key) where TKey : notnull where TValue : struct =>
-        !dictionary.TryGetValue(key, out TValue value) ? null : value;
+        !dictionary.TryGetValue(key, out TValue value) ? (TValue?)null : value;
 
     public static void SetDoubleBuffered(this Control control, bool enable) {
         //thanks to https://stackoverflow.com/a/15268338/2999220
