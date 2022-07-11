@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Windows.Forms;
 
 public static class WalkmanLibExtensions {
     #region Enums
@@ -74,12 +73,15 @@ public static class WalkmanLibExtensions {
     public static TValue? GetValueOrNull<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key) where TKey : notnull where TValue : struct =>
         !dictionary.TryGetValue(key, out TValue value) ? (TValue?)null : value;
 
-    public static void SetDoubleBuffered(this Control control, bool enable) {
+    public static string EmptyToNull(this string input) =>
+        string.IsNullOrWhiteSpace(input) ? null : input;
+
+#if NETCOREAPP
+#else
+    public static void SetDoubleBuffered(this System.Windows.Forms.Control control, bool enable) {
         //thanks to https://stackoverflow.com/a/15268338/2999220
         PropertyInfo doubleBufferPropertyInfo = control.GetType().GetProperty("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance);
         doubleBufferPropertyInfo.SetValue(control, enable);
     }
-
-    public static string EmptyToNull(this string input) =>
-        string.IsNullOrWhiteSpace(input) ? null : input;
+#endif
 }
