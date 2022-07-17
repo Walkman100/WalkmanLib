@@ -884,6 +884,7 @@ public partial class WalkmanLib {
             public Color InactiveTab;
             public Color TabStripBackground;
         }
+        public static void TabControl_DrawCustomItem(object sender, DrawItemEventArgs e) => TabControl_DrawCustomItem(sender, e, null);
         public static void TabControl_DrawCustomItem(object sender, DrawItemEventArgs e, TabControlColors? tabControlColors = null) {
             var tabCtl = (TabControl)sender;
             TabControlColors colors;
@@ -969,6 +970,10 @@ public partial class WalkmanLib {
                     sf.FormatFlags = StringFormatFlags.DirectionVertical;
                     if (tabCtl.SelectedIndex != e.Index) tabRect.X -= 2;
                 }
+                if (!sf.FormatFlags.HasFlag(StringFormatFlags.DirectionVertical)) {
+                    tabRect.Width += 2;
+                    tabRect.X -= 1;
+                } // sometimes tab text overflows tabRect and makes a second line - bad!
 
                 e.Graphics.DrawString(tabCtl.TabPages[e.Index].Text, tabCtl.Font, new SolidBrush(colors.TabText), tabRect, sf);
             }
