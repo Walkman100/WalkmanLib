@@ -947,7 +947,9 @@ public partial class WalkmanLib {
 
             using (var sf = new StringFormat() {
                 Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
+                LineAlignment = StringAlignment.Center,
+                FormatFlags = StringFormatFlags.NoWrap,
+                Trimming = StringTrimming.EllipsisCharacter
             }) {
                 tabRect = tabCtl.GetTabRect(e.Index);
 
@@ -956,16 +958,18 @@ public partial class WalkmanLib {
                 } else if (tabCtl.Alignment == TabAlignment.Bottom) {
                     if (tabCtl.SelectedIndex == e.Index) tabRect.Y += 1; else tabRect.Y -= 1;
                 } else if (tabCtl.Alignment == TabAlignment.Left) {
-                    sf.FormatFlags = StringFormatFlags.DirectionVertical;
+                    sf.FormatFlags |= StringFormatFlags.DirectionVertical;
                     if (tabCtl.SelectedIndex == e.Index) tabRect.X -= 2;
                 } else if (tabCtl.Alignment == TabAlignment.Right) {
-                    sf.FormatFlags = StringFormatFlags.DirectionVertical;
+                    sf.FormatFlags |= StringFormatFlags.DirectionVertical;
                     if (tabCtl.SelectedIndex != e.Index) tabRect.X -= 2;
                 }
+
+                // sometimes tab text overflows tabRect and adds ellipsis at the end when there is enough space - increase tabRect width to fix
                 if (!sf.FormatFlags.HasFlag(StringFormatFlags.DirectionVertical)) {
                     tabRect.Width += 2;
                     tabRect.X -= 1;
-                } // sometimes tab text overflows tabRect and makes a second line - bad!
+                }
 
                 e.Graphics.DrawString(tabCtl.TabPages[e.Index].Text, tabCtl.Font, new SolidBrush(colors.TabText), tabRect, sf);
             }
