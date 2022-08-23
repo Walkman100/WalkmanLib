@@ -136,8 +136,8 @@ public partial class WalkmanLib {
                 ApplyTheme(theme, ((SplitterPanel)ctl).Controls, allowSetOwnerDraw);
 
             } else if (type == typeof(TabControl)) {
-                if (allowSetOwnerDraw) ((TabControl)ctl).DrawMode = 
-                        theme.TabControlOwnerDraw ? TabDrawMode.OwnerDrawFixed : TabDrawMode.Normal;
+                if (allowSetOwnerDraw)
+                    ((TabControl)ctl).DrawMode = theme.TabControlOwnerDraw ? TabDrawMode.OwnerDrawFixed : TabDrawMode.Normal;
                 ctl.ForeColor = theme.TabControlFG;
                 ctl.BackColor = theme.TabControlBG;
                 ApplyTheme(theme, ((TabControl)ctl).Controls, allowSetOwnerDraw);
@@ -847,24 +847,16 @@ public partial class WalkmanLib {
             }
 
             using (var sf = new StringFormat() {
-                    LineAlignment = StringAlignment.Center,
-                    FormatFlags = StringFormatFlags.NoWrap,
-                    Trimming = StringTrimming.EllipsisCharacter
-                }) {
-                switch (e.Header.TextAlign) {
-                    case HorizontalAlignment.Left: {
-                        sf.Alignment = listView.RightToLeft == RightToLeft.No ? StringAlignment.Near : StringAlignment.Far;
-                        break;
-                    }
-                    case HorizontalAlignment.Right: {
-                        sf.Alignment = listView.RightToLeft == RightToLeft.Yes ? StringAlignment.Near : StringAlignment.Far;
-                        break;
-                    }
-                    case HorizontalAlignment.Center: {
-                        sf.Alignment = StringAlignment.Center;
-                        break;
-                    }
-                }
+                LineAlignment = StringAlignment.Center,
+                FormatFlags = StringFormatFlags.NoWrap,
+                Trimming = StringTrimming.EllipsisCharacter
+            }) {
+                sf.Alignment = e.Header.TextAlign switch {
+                    HorizontalAlignment.Left => listView.RightToLeft == RightToLeft.No ? StringAlignment.Near : StringAlignment.Far,
+                    HorizontalAlignment.Right => listView.RightToLeft == RightToLeft.Yes ? StringAlignment.Near : StringAlignment.Far,
+                    HorizontalAlignment.Center => StringAlignment.Center,
+                    _ => sf.Alignment,
+                };
 
                 var colRect = new Rectangle() {
                     X = e.Bounds.X + 1,
@@ -954,9 +946,9 @@ public partial class WalkmanLib {
             // draw tab text
 
             using (var sf = new StringFormat() {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                }) {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            }) {
                 tabRect = tabCtl.GetTabRect(e.Index);
 
                 if (tabCtl.Alignment == TabAlignment.Top) {
@@ -994,7 +986,7 @@ public partial class WalkmanLib {
                 if (e.Item.Enabled) {
                     base.OnRenderItemText(e);
                 } else {
-                    Color color = e.Item.Enabled ? e.TextColor : getDisabledColor(e.Item);
+                    Color color = getDisabledColor(e.Item);
 
                     Rectangle textRectangle = e.TextRectangle;
                     if (e.TextDirection != ToolStripTextDirection.Horizontal && textRectangle.Width > 0 && textRectangle.Height > 0) {
