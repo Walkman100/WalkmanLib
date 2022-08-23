@@ -126,6 +126,11 @@ public partial class WalkmanLib {
                 ctl.BackColor = theme.GroupBoxBG;
                 ApplyTheme(theme, ((GroupBox)ctl).Controls, allowSetOwnerDraw);
 
+            } else if (type == typeof(Panel)) {
+                ctl.ForeColor = theme.PanelFG;
+                ctl.BackColor = theme.PanelBG;
+                ApplyTheme(theme, ((Panel)ctl).Controls, allowSetOwnerDraw);
+
             } else if (type == typeof(SplitContainer)) {
                 ctl.ForeColor = theme.SplitContainerFG;
                 ctl.BackColor = theme.SplitContainerBG;
@@ -225,6 +230,8 @@ public partial class WalkmanLib {
         public Color PropertyGridBG;
         public Color GroupBoxFG;
         public Color GroupBoxBG;
+        public Color PanelFG;
+        public Color PanelBG;
         public Color SplitContainerFG;
         public Color SplitContainerBG;
         public Color SplitterPanelFG;
@@ -334,6 +341,8 @@ public partial class WalkmanLib {
                     LinkLabelBG = SystemColors.Control,
                     MenuStripFG = SystemColors.ControlText,
                     MenuStripBG = SystemColors.Control,
+                    PanelFG = SystemColors.ControlText,
+                    PanelBG = SystemColors.Control,
                     PropertyGridFG = SystemColors.ControlText,
                     PropertyGridBG = SystemColors.Control,
                     PictureBoxFG = SystemColors.ControlText,
@@ -441,6 +450,8 @@ public partial class WalkmanLib {
                     LinkLabelBG = SystemColors.ControlText,
                     MenuStripFG = SystemColors.Control,
                     MenuStripBG = SystemColors.ControlText,
+                    PanelFG = SystemColors.Control,
+                    PanelBG = SystemColors.ControlText,
                     PropertyGridFG = SystemColors.Control,
                     PropertyGridBG = SystemColors.ControlText,
                     PictureBoxFG = SystemColors.Control,
@@ -540,6 +551,8 @@ public partial class WalkmanLib {
                     MenuStripBG = SystemColors.ControlDarkDark,
                     NumericUpDownFG = SystemColors.Control,
                     NumericUpDownBG = SystemColors.ControlDarkDark,
+                    PanelFG = SystemColors.Control,
+                    PanelBG = SystemColors.ControlDarkDark,
                     PictureBoxFG = SystemColors.Control,
                     PictureBoxBG = SystemColors.ControlDarkDark,
                     ProgressBarFG = SystemColors.Control,
@@ -647,6 +660,8 @@ public partial class WalkmanLib {
                     MenuStripBG = altBackColor,
                     NumericUpDownFG = textColor,
                     NumericUpDownBG = backColor,
+                    PanelFG = textColor,
+                    PanelBG = backColor,
                     PictureBoxFG = textColor,
                     PictureBoxBG = backColor,
                     ProgressBarFG = textColor,
@@ -752,6 +767,8 @@ public partial class WalkmanLib {
                     NumericUpDownBG = Color.Magenta,
                     PictureBoxFG = Color.Blue,
                     PictureBoxBG = Color.Magenta,
+                    PanelFG = Color.Blue,
+                    PanelBG = Color.Magenta,
                     ProgressBarFG = Color.Blue,
                     ProgressBarBG = Color.Magenta,
                     PropertyGridFG = Color.Blue,
