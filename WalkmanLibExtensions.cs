@@ -65,11 +65,11 @@ public static class WalkmanLibExtensions {
         !value.HasValue ? null : value.Value.ToString(fp);
     #endregion
 
-    /// <summary>Gets the value associated with the specified key, or <see langword="default"/> if it isn't contained in the <see cref="IDictionary{TKey, TValue}"/>.</summary>
+    /// <summary>Gets the value associated with the specified <paramref name="key"/>, or <paramref name="defaultValue"/> if it isn't contained in the <see cref="IDictionary{TKey, TValue}"/>.</summary>
     /// <param name="defaultValue">Value to return if <paramref name="key"/> is not found in the <see cref="IDictionary{TKey, TValue}"/>.</param>
     public static TValue GetValue<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default) =>
         !dictionary.TryGetValue(key, out TValue value) ? defaultValue : value;
-    /// <summary>Gets the value associated with the specified key, or <see langword="null"/> if it isn't contained in the <see cref="IDictionary{TKey, TValue}"/>.</summary>
+    /// <summary>Gets the value associated with the specified <paramref name="key"/>, or <see langword="null"/> if it isn't contained in the <see cref="IDictionary{TKey, TValue}"/>.</summary>
     public static TValue? GetValueOrNull<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key) where TKey : notnull where TValue : struct =>
         !dictionary.TryGetValue(key, out TValue value) ? (TValue?)null : value;
 

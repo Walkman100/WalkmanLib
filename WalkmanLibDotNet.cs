@@ -23,15 +23,15 @@ public partial class WalkmanLib {
     }
 
     public static OS GetOS() {
-        // ideally, the following would be used, but it was only added in .Net Framework v4.7.1:
-        //if (System.Runtime.InteropServices.RuntimeInformation.IsOsPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
-        //    return OS.Windows;
-        //} elseif (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux)) {
-        //    return OS.Linux;
-        //} elseif (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) {
-        //    return OS.MacOS; 
-        //}
-
+#if NETCOREAPP
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
+            return OS.Windows;
+        } else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux)) {
+            return OS.Linux;
+        } else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) {
+            return OS.MacOS;
+        }
+#else
         if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
             return OS.Windows;
         } else if (Environment.OSVersion.Platform == PlatformID.Unix) {
@@ -41,6 +41,8 @@ public partial class WalkmanLib {
             else if (unameOutput == "Darwin")
                 return OS.MacOS;
         }
+#endif
+
         return OS.Other;
     }
 
