@@ -82,7 +82,10 @@ public partial class WalkmanLib {
                 ctl.ForeColor = theme.RadioButtonFG;
                 ctl.BackColor = theme.RadioButtonBG;
             } else if (type == typeof(TextBox)) {
-                if (((TextBox)ctl).ReadOnly) {
+                if (((TextBox)ctl).BorderStyle == BorderStyle.None) {
+                    ctl.ForeColor = theme.LabelFG;
+                    ctl.BackColor = theme.LabelBG;
+                } else if (((TextBox)ctl).ReadOnly) {
                     ctl.ForeColor = theme.TextBoxReadOnlyFG;
                     ctl.BackColor = theme.TextBoxReadOnlyBG;
                 } else {
