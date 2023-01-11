@@ -88,7 +88,10 @@ Partial Public Class WalkmanLib
                     ctl.ForeColor = theme.RadioButtonFG
                     ctl.BackColor = theme.RadioButtonBG
                 Case GetType(TextBox)
-                    If DirectCast(ctl, TextBox).ReadOnly Then
+                    If DirectCast(ctl, TextBox).BorderStyle = BorderStyle.None Then
+                        ctl.ForeColor = theme.LabelFG
+                        ctl.BackColor = theme.LabelBG
+                    ElseIf DirectCast(ctl, TextBox).ReadOnly Then
                         ctl.ForeColor = theme.TextBoxReadOnlyFG
                         ctl.BackColor = theme.TextBoxReadOnlyBG
                     Else
@@ -127,6 +130,11 @@ Partial Public Class WalkmanLib
                 Case GetType(PropertyGrid)
                     ctl.ForeColor = theme.PropertyGridFG
                     ctl.BackColor = theme.PropertyGridBG
+                Case GetType(Panel)
+                    ctl.ForeColor = theme.PanelFG
+                    ctl.BackColor = theme.PanelBG
+                    ApplyTheme(theme, DirectCast(ctl, Panel).Controls, allowSetOwnerDraw)
+
                 Case GetType(GroupBox)
                     ctl.ForeColor = theme.GroupBoxFG
                     ctl.BackColor = theme.GroupBoxBG
@@ -226,6 +234,8 @@ Partial Public Class WalkmanLib
         Public ProgressBarBG As Color
         Public PropertyGridFG As Color
         Public PropertyGridBG As Color
+        Public PanelFG As Color
+        Public PanelBG As Color
         Public GroupBoxFG As Color
         Public GroupBoxBG As Color
         Public SplitContainerFG As Color
@@ -282,7 +292,7 @@ Partial Public Class WalkmanLib
             If obj Is Nothing Then Return False
 
             Dim srcType As Type = [GetType]()
-            Dim dstType As Type = obj.GetType
+            Dim dstType As Type = obj.GetType()
             If srcType IsNot dstType Then Return False
 
             For Each fi As Reflection.FieldInfo In srcType.GetFields(Reflection.BindingFlags.Public Or Reflection.BindingFlags.Instance)
@@ -334,6 +344,8 @@ Partial Public Class WalkmanLib
                     .LinkLabelBG = SystemColors.Control,
                     .MenuStripFG = SystemColors.ControlText,
                     .MenuStripBG = SystemColors.Control,
+                    .PanelFG = SystemColors.ControlText,
+                    .PanelBG = SystemColors.Control,
                     .PropertyGridFG = SystemColors.ControlText,
                     .PropertyGridBG = SystemColors.Control,
                     .PictureBoxFG = SystemColors.ControlText,
@@ -441,6 +453,8 @@ Partial Public Class WalkmanLib
                     .LinkLabelBG = SystemColors.ControlText,
                     .MenuStripFG = SystemColors.Control,
                     .MenuStripBG = SystemColors.ControlText,
+                    .PanelFG = SystemColors.Control,
+                    .PanelBG = SystemColors.ControlText,
                     .PropertyGridFG = SystemColors.Control,
                     .PropertyGridBG = SystemColors.ControlText,
                     .PictureBoxFG = SystemColors.Control,
@@ -540,6 +554,8 @@ Partial Public Class WalkmanLib
                     .MenuStripBG = SystemColors.ControlDarkDark,
                     .NumericUpDownFG = SystemColors.Control,
                     .NumericUpDownBG = SystemColors.ControlDarkDark,
+                    .PanelFG = SystemColors.Control,
+                    .PanelBG = SystemColors.ControlDarkDark,
                     .PictureBoxFG = SystemColors.Control,
                     .PictureBoxBG = SystemColors.ControlDarkDark,
                     .ProgressBarFG = SystemColors.Control,
@@ -648,6 +664,8 @@ Partial Public Class WalkmanLib
                     .MenuStripBG = altBackColor,
                     .NumericUpDownFG = textColor,
                     .NumericUpDownBG = backColor,
+                    .PanelFG = textColor,
+                    .PanelBG = backColor,
                     .PictureBoxFG = textColor,
                     .PictureBoxBG = backColor,
                     .ProgressBarFG = textColor,
@@ -751,6 +769,8 @@ Partial Public Class WalkmanLib
                     .MenuStripBG = Color.Magenta,
                     .NumericUpDownFG = Color.Blue,
                     .NumericUpDownBG = Color.Magenta,
+                    .PanelFG = Color.Blue,
+                    .PanelBG = Color.Magenta,
                     .PictureBoxFG = Color.Blue,
                     .PictureBoxBG = Color.Magenta,
                     .ProgressBarFG = Color.Blue,
@@ -948,9 +968,11 @@ Partial Public Class WalkmanLib
             ' draw tab text
 
             Using sf As New StringFormat() With {
-                    .Alignment = StringAlignment.Center,
-                    .LineAlignment = StringAlignment.Center
-                }
+                .Alignment = StringAlignment.Center,
+                .LineAlignment = StringAlignment.Center,
+                .FormatFlags = StringFormatFlags.NoWrap,
+                .Trimming = StringTrimming.EllipsisCharacter
+            }
                 tabRect = tabCtl.GetTabRect(e.Index)
 
                 If tabCtl.Alignment = TabAlignment.Top Then
@@ -958,11 +980,17 @@ Partial Public Class WalkmanLib
                 ElseIf tabCtl.Alignment = TabAlignment.Bottom Then
                     If tabCtl.SelectedIndex = e.Index Then tabRect.Y += 1 Else tabRect.Y -= 1
                 ElseIf tabCtl.Alignment = TabAlignment.Left Then
-                    sf.FormatFlags = StringFormatFlags.DirectionVertical
+                    sf.FormatFlags = sf.FormatFlags Or StringFormatFlags.DirectionVertical
                     If tabCtl.SelectedIndex = e.Index Then tabRect.X -= 2
                 ElseIf tabCtl.Alignment = TabAlignment.Right Then
-                    sf.FormatFlags = StringFormatFlags.DirectionVertical
+                    sf.FormatFlags = sf.FormatFlags Or StringFormatFlags.DirectionVertical
                     If tabCtl.SelectedIndex <> e.Index Then tabRect.X -= 2
+                End If
+
+                ' sometimes tab text overflows tabRect and adds ellipsis at the end when there is enough space - increase tabRect width to fix
+                If Not sf.FormatFlags.HasFlag(StringFormatFlags.DirectionVertical) Then
+                    tabRect.Width += 2
+                    tabRect.X -= 1
                 End If
 
                 e.Graphics.DrawString(tabCtl.TabPages(e.Index).Text, tabCtl.Font, New SolidBrush(colors.TabText), tabRect, sf)
@@ -987,7 +1015,7 @@ Partial Public Class WalkmanLib
                 If e.Item.Enabled Then
                     MyBase.OnRenderItemText(e)
                 Else
-                    Dim color As Color = If(e.Item.Enabled, e.TextColor, getDisabledColor(e.Item))
+                    Dim color As Color = getDisabledColor(e.Item)
 
                     Dim textRectangle As Rectangle = e.TextRectangle
                     If (e.TextDirection <> ToolStripTextDirection.Horizontal) AndAlso (textRectangle.Width > 0) AndAlso (textRectangle.Height > 0) Then
