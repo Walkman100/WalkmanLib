@@ -118,6 +118,9 @@
     <Compile Include="..\WalkmanLibTheming.vb">
       <Link>WalkmanLib\WalkmanLibTheming.vb</Link>
     </Compile>
+    <Compile Include="..\WalkmanLibThemingMsgBox.vb">
+      <Link>WalkmanLib\WalkmanLibThemingMsgBox.vb</Link>
+    </Compile>
     <Compile Include="..\WalkmanLibTimeConvert.vb">
       <Link>WalkmanLib\WalkmanLibTimeConvert.vb</Link>
     </Compile>

@@ -130,7 +130,7 @@ Partial Public Class CustomMsgBoxForm
         ' as TextBox doesn't have an AutoSize property like Label does, we have to do it manually
         Using g As Drawing.Graphics = txtMain.CreateGraphics()
             Dim sizeF As Drawing.SizeF = g.MeasureString(txtMain.Text, txtMain.Font, New Drawing.SizeF(txtMain.MaximumSize.Width, Single.MaxValue))
-            txtMain.Height = CType(Math.Round(sizeF.Height / txtMain.Font.Height), Integer) * txtMain.Font.Height ' restrain to line height
+            txtMain.Height = CType(Math.Ceiling(sizeF.Height / txtMain.Font.Height), Integer) * txtMain.Font.Height ' restrain to line height
         End Using
 
         If txtMain.Height > 13 Then
@@ -215,7 +215,7 @@ Partial Public Class WalkmanLib
     ''' <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="Me"/> to copy the current form's icon</param>
     ''' <returns>The button the user clicked on.</returns>
     Shared Function CustomMsgBox(text As String, Optional caption As String = Nothing, Optional buttons As MessageBoxButtons = 0, Optional style As MessageBoxIcon = 0,
-                                  Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As DialogResult
+                                 Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As DialogResult
         Dim formToShow As New CustomMsgBoxForm With {
             .Prompt = text,
             .Title = caption,
@@ -239,7 +239,7 @@ Partial Public Class WalkmanLib
     ''' <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="Me"/> to copy the current form's icon</param>
     ''' <returns>Text of the button the user clicked on.</returns>
     Shared Function CustomMsgBox(text As String, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing,
-                                  Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
+                                 Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
         Dim formToShow As New CustomMsgBoxForm With {
             .Prompt = text,
             .Title = caption,

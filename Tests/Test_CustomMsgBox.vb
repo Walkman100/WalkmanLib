@@ -70,7 +70,7 @@ Namespace Tests
                          SendKeys.SendWait("{ENTER}")
                      End Sub)
 
-            Dim result As String = WalkmanLib.CustomMsgBox("test", Nothing, "Test Button One", "Test Button Two")
+            Dim result As String = WalkmanLib.CustomMsgBox("test", DirectCast(Nothing, String), "Test Button One", "Test Button Two")
 
             Return TestString("CustomMsgBox6", result, "Test Button One")
         End Function
@@ -81,7 +81,7 @@ Namespace Tests
                          SendKeys.SendWait("{ESC}")
                      End Sub)
 
-            Dim result As String = WalkmanLib.CustomMsgBox("test", Nothing, "Test Button One", "Test Button Two", "Test Button Three")
+            Dim result As String = WalkmanLib.CustomMsgBox("test", DirectCast(Nothing, String), "Test Button One", "Test Button Two", "Test Button Three")
 
             Return TestString("CustomMsgBox7", result, "Test Button Three")
         End Function

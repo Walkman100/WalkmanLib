@@ -192,6 +192,7 @@ Partial Public Class WalkmanLib
     Public Class Theme
         Public FormFG As Color
         Public FormBG As Color
+        Public CustomMsgBoxTopPanel As Color
         Public ButtonFG As Color
         Public ButtonBG As Color
         Public LabelFG As Color
@@ -380,6 +381,7 @@ Partial Public Class WalkmanLib
                     .LinkLabelLinkColor = Color.FromArgb(&HFF0000FF),
                     .LinkLabelVisitedLinkColor = Color.FromArgb(&HFF800080),
                     .LinkLabelActiveLinkColor = Color.Red,
+                    .CustomMsgBoxTopPanel = SystemColors.Window,
                     .ProgressBarFG = SystemColors.Highlight,
                     .ProgressBarBG = SystemColors.Control,
                     .TabPageFG = SystemColors.ControlText,
@@ -487,6 +489,7 @@ Partial Public Class WalkmanLib
                     .LinkLabelLinkColor = Color.Cyan,
                     .LinkLabelVisitedLinkColor = Color.Purple,
                     .LinkLabelActiveLinkColor = Color.Red,
+                    .CustomMsgBoxTopPanel = SystemColors.ControlText,
                     .ProgressBarFG = SystemColors.Highlight,
                     .ProgressBarBG = SystemColors.ControlText,
                     .TabPageFG = SystemColors.Control,
@@ -535,6 +538,7 @@ Partial Public Class WalkmanLib
                     .ComboBoxBG = SystemColors.ControlDarkDark,
                     .ContextMenuStripFG = SystemColors.Control,
                     .ContextMenuStripBG = SystemColors.ControlDarkDark,
+                    .CustomMsgBoxTopPanel = SystemColors.ControlDarkDark,
                     .DomainUpDownFG = SystemColors.Control,
                     .DomainUpDownBG = SystemColors.ControlDarkDark,
                     .GroupBoxFG = SystemColors.Control,
@@ -645,6 +649,7 @@ Partial Public Class WalkmanLib
                     .ComboBoxBG = backColor,
                     .ContextMenuStripFG = altTextColor,
                     .ContextMenuStripBG = altBackColor,
+                    .CustomMsgBoxTopPanel = Color.FromArgb(&HFF444449),
                     .DomainUpDownFG = textColor,
                     .DomainUpDownBG = backColor,
                     .GroupBoxFG = textColor,
@@ -750,6 +755,7 @@ Partial Public Class WalkmanLib
                     .ComboBoxBG = Color.Magenta,
                     .ContextMenuStripFG = Color.Blue,
                     .ContextMenuStripBG = Color.Magenta,
+                    .CustomMsgBoxTopPanel = Color.Magenta,
                     .DomainUpDownFG = Color.Blue,
                     .DomainUpDownBG = Color.Magenta,
                     .GroupBoxFG = Color.Blue,
