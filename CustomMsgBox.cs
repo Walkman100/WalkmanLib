@@ -118,7 +118,7 @@ public partial class CustomMsgBoxForm : Form {
         // as TextBox doesn't have an AutoSize property like Label does, we have to do it manually
         using (Graphics g = txtMain.CreateGraphics()) {
             SizeF sizeF = g.MeasureString(txtMain.Text, txtMain.Font, new SizeF(txtMain.MaximumSize.Width, float.MaxValue));
-            txtMain.Height = (int)Math.Round(sizeF.Height / txtMain.Font.Height) * txtMain.Font.Height; // restrain to line height
+            txtMain.Height = (int)Math.Ceiling(sizeF.Height / txtMain.Font.Height) * txtMain.Font.Height; // restrain to line height
         }
 
         if (txtMain.Height > 13)
