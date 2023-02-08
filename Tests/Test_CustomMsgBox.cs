@@ -65,7 +65,7 @@ namespace Tests {
                 SendKeys.SendWait("{ENTER}");
             });
 
-            string result = WalkmanLib.CustomMsgBox("test", null, "Test Button One", "Test Button Two");
+            string result = WalkmanLib.CustomMsgBox("test", (string)null, "Test Button One", "Test Button Two");
 
             return GeneralFunctions.TestString("CustomMsgBox6", result, "Test Button One");
         }
@@ -76,7 +76,7 @@ namespace Tests {
                 SendKeys.SendWait("{ESC}");
             });
 
-            string result = WalkmanLib.CustomMsgBox("test", null, "Test Button One", "Test Button Two", "Test Button Three");
+            string result = WalkmanLib.CustomMsgBox("test", (string)null, "Test Button One", "Test Button Two", "Test Button Three");
 
             return GeneralFunctions.TestString("CustomMsgBox7", result, "Test Button Three");
         }

@@ -189,6 +189,7 @@ public partial class WalkmanLib {
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
         public Color FormFG;
         public Color FormBG;
+        public Color CustomMsgBoxTopPanel;
         public Color ButtonFG;
         public Color ButtonBG;
         public Color LabelFG;
@@ -380,6 +381,7 @@ public partial class WalkmanLib {
                     LinkLabelLinkColor = Color.FromArgb(unchecked((int)0xFF0000FF)),
                     LinkLabelVisitedLinkColor = Color.FromArgb(unchecked((int)0xFF800080)),
                     LinkLabelActiveLinkColor = Color.Red,
+                    CustomMsgBoxTopPanel = SystemColors.Window,
                     ProgressBarFG = SystemColors.Highlight,
                     ProgressBarBG = SystemColors.Control,
                     TabPageFG = SystemColors.ControlText,
@@ -487,6 +489,7 @@ public partial class WalkmanLib {
                     LinkLabelLinkColor = Color.Cyan,
                     LinkLabelVisitedLinkColor = Color.Purple,
                     LinkLabelActiveLinkColor = Color.Red,
+                    CustomMsgBoxTopPanel = SystemColors.ControlText,
                     ProgressBarFG = SystemColors.Highlight,
                     ProgressBarBG = SystemColors.ControlText,
                     TabPageFG = SystemColors.Control,
@@ -535,6 +538,7 @@ public partial class WalkmanLib {
                     ComboBoxBG = SystemColors.ControlDarkDark,
                     ContextMenuStripFG = SystemColors.Control,
                     ContextMenuStripBG = SystemColors.ControlDarkDark,
+                    CustomMsgBoxTopPanel = SystemColors.ControlDarkDark,// try ControlDark
                     DomainUpDownFG = SystemColors.Control,
                     DomainUpDownBG = SystemColors.ControlDarkDark,
                     GroupBoxFG = SystemColors.Control,
@@ -644,6 +648,7 @@ public partial class WalkmanLib {
                     ComboBoxBG = backColor,
                     ContextMenuStripFG = altTextColor,
                     ContextMenuStripBG = altBackColor,
+                    CustomMsgBoxTopPanel = Color.FromArgb(unchecked((int)0xFF444449)),
                     DomainUpDownFG = textColor,
                     DomainUpDownBG = backColor,
                     GroupBoxFG = textColor,
@@ -749,6 +754,7 @@ public partial class WalkmanLib {
                     ComboBoxBG = Color.Magenta,
                     ContextMenuStripFG = Color.Blue,
                     ContextMenuStripBG = Color.Magenta,
+                    CustomMsgBoxTopPanel = Color.Magenta,
                     DomainUpDownFG = Color.Blue,
                     DomainUpDownBG = Color.Magenta,
                     GroupBoxFG = Color.Blue,
