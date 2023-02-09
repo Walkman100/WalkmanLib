@@ -25,14 +25,14 @@ public partial class WalkmanLib {
         return formToShow.ShowDialog();
     }
 
-    public static string CustomMsgBox(string text, Theme theme, string caption, string customButton1, string customButton2 = null, string custemButton3 = null,
+    public static string CustomMsgBox(string text, Theme theme, string caption, string customButton1, string customButton2 = null, string customButton3 = null,
                                       MessageBoxIcon style = 0, WinVersionStyle winVersion = WinVersionStyle.Win10, Form ownerForm = null) {
         var formToShow = new CustomMsgBoxForm() {
             Prompt = text,
             Title = caption,
             Button1Text = customButton1,
             Button2Text = customButton2,
-            Button3Text = custemButton3,
+            Button3Text = customButton3,
             FormLevel = style,
             WinVersion = winVersion,
             Owner = ownerForm,
