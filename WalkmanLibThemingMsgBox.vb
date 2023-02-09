@@ -30,14 +30,14 @@ Public Partial Class WalkmanLib
         Return formToShow.ShowDialog()
     End Function
 
-    Shared Function CustomMsgBox(text As String, theme As WalkmanLib.Theme, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional custemButton3 As String = Nothing,
+    Shared Function CustomMsgBox(text As String, theme As WalkmanLib.Theme, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing,
                                  Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
         Dim formToShow As New CustomMsgBoxForm() With {
             .Prompt = text,
             .Title = caption,
             .Button1Text = customButton1,
             .Button2Text = customButton2,
-            .Button3Text = custemButton3,
+            .Button3Text = customButton3,
             .FormLevel = style,
             .WinVersion = winVersion,
             .Owner = ownerForm,
