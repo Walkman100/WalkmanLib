@@ -50,10 +50,10 @@ public partial class CustomMsgBoxForm : Form {
         set {
             switch (value) {
                 case MessageBoxButtons.OK:
-                    Button1Text = "Ok";
+                    Button1Text = "OK";
                     break;
                 case MessageBoxButtons.OKCancel:
-                    Button1Text = "Ok";
+                    Button1Text = "OK";
                     Button3Text = "Cancel";
                     break;
                 case MessageBoxButtons.AbortRetryIgnore:
