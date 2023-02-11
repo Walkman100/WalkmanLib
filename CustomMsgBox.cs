@@ -124,29 +124,63 @@ public partial class CustomMsgBoxForm : Form {
         if (txtMain.Height > 13)
             Height = 162 + (txtMain.Height - 13);
 
-        if (Button1Text != null) {
-            btnAccept.Text = Button1Text;
-            btnAccept.Visible = true;
-        } else {
-            btnAccept.Visible = false;
-        }
-        if (Button2Text != null) {
-            btnAnswerMid.Text = Button2Text;
-            btnAnswerMid.Visible = true;
-            if (btnAnswerMid.Width > 75) // move btnAccept to the left, as btnAnswerMid is anchored right
-                btnAccept.Location = new Point(btnAccept.Location.X - (btnAnswerMid.Width - 75), btnAccept.Location.Y);
-        } else {
-            btnAnswerMid.Visible = false;
-        }
-        if (Button3Text != null) {
-            btnCancel.Text = Button3Text;
-            btnCancel.Visible = true;
-            if (btnCancel.Width > 75) { // move the other two buttons to the left, as btnCancel is anchored right
-                btnAnswerMid.Location = new Point(btnAnswerMid.Location.X - (btnCancel.Width - 75), btnAnswerMid.Location.Y);
-                btnAccept.Location = new Point(btnAccept.Location.X - (btnCancel.Width - 75), btnAccept.Location.Y);
-            }
-        } else {
-            btnCancel.Visible = false;
+        bool showB1 = !string.IsNullOrWhiteSpace(Button1Text);
+        bool showB2 = !string.IsNullOrWhiteSpace(Button2Text);
+        bool showB3 = !string.IsNullOrWhiteSpace(Button3Text);
+
+        btnAccept.Visible = showB1;
+        btnAccept.Text = Button1Text;
+        btnAnswerMid.Visible = showB2;
+        btnAnswerMid.Text = Button2Text;
+        btnCancel.Visible = showB3;
+        btnCancel.Text = Button3Text;
+
+        int getButtonRightX(Button btn) => btn.Location.X + btn.Width;
+        void setButtonX(Button btn, int x) => btn.Location = new Point(x, btn.Location.Y);
+        const int maxTotalWidth = 242;
+        const int buttonSpacing = 8;
+
+        int currentTotalWidth = (showB1 ? btnAccept.Width : 0) + (showB2 ? btnAnswerMid.Width : 0) + (showB3 ? btnCancel.Width : 0);
+        if (showB1 && showB2 && showB3)
+            currentTotalWidth += buttonSpacing * 2;
+        else if ((showB1 && showB2) || (showB1 && showB3) || (showB2 && showB3))
+            currentTotalWidth += buttonSpacing;
+
+
+        if (currentTotalWidth <= maxTotalWidth) { // if enough space, align to left point
+            const int button1LeftStartX = 152;
+
+            if (showB1)
+                setButtonX(btnAccept, button1LeftStartX);
+
+            if (showB1 && showB2)
+                setButtonX(btnAnswerMid, getButtonRightX(btnAccept) + buttonSpacing);
+            else if (showB2)
+                setButtonX(btnAnswerMid, button1LeftStartX);
+
+            if (showB2 && showB3)
+                setButtonX(btnCancel, getButtonRightX(btnAnswerMid) + buttonSpacing);
+            else if (showB1 && showB3)
+                setButtonX(btnCancel, getButtonRightX(btnAccept) + buttonSpacing);
+            else if (showB3)
+                setButtonX(btnCancel, button1LeftStartX);
+        } else { // if not enough space, align right
+            const int button3rightX = 393;
+
+            if (showB3)
+                setButtonX(btnCancel, button3rightX - btnCancel.Width);
+
+            if (showB3 && showB2)
+                setButtonX(btnAnswerMid, btnCancel.Location.X - btnAnswerMid.Width - buttonSpacing);
+            else if (showB2)
+                setButtonX(btnAnswerMid, button3rightX - btnAnswerMid.Width);
+
+            if (showB2 && showB1)
+                setButtonX(btnAccept, btnAnswerMid.Location.X - btnAccept.Width - buttonSpacing);
+            else if (showB3 && showB1)
+                setButtonX(btnAccept, btnCancel.Location.X - btnAccept.Width - buttonSpacing);
+            else if (showB1)
+                setButtonX(btnAccept, button3rightX - btnAccept.Width);
         }
 
         if (Owner != null)
