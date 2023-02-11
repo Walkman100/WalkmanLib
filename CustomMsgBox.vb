@@ -70,9 +70,9 @@ Partial Public Class CustomMsgBoxForm
         Set(value As MessageBoxButtons)
             Select Case value
                 Case MessageBoxButtons.OK
-                    Button1Text = "Ok"
+                    Button1Text = "OK"
                 Case MessageBoxButtons.OKCancel
-                    Button1Text = "Ok"
+                    Button1Text = "OK"
                     Button3Text = "Cancel"
                 Case MessageBoxButtons.AbortRetryIgnore
                     Button1Text = "Abort"
@@ -137,30 +137,63 @@ Partial Public Class CustomMsgBoxForm
             Me.Height = 162 + (txtMain.Height - 13)
         End If
 
-        If Button1Text <> Nothing Then
-            btnAccept.Text = Button1Text
-            btnAccept.Visible = True
-        Else
-            btnAccept.Visible = False
+        Dim showB1 As Boolean = Not String.IsNullOrWhiteSpace(Button1Text)
+        Dim showB2 As Boolean = Not String.IsNullOrWhiteSpace(Button2Text)
+        Dim showB3 As Boolean = Not String.IsNullOrWhiteSpace(Button3Text)
+
+        btnAccept.Visible = showB1
+        btnAccept.Text = Button1Text
+        btnAnswerMid.Visible = showB2
+        btnAnswerMid.Text = Button2Text
+        btnCancel.Visible = showB3
+        btnCancel.Text = Button3Text
+
+        Const maxTotalWidth As Integer = 242
+        Const buttonSpacing As Integer = 8
+
+        Dim currentTotalWidth As Integer = If(showB1, btnAccept.Width, 0) + If(showB2, btnAnswerMid.Width, 0) + If(showB3, btnCancel.Width, 0)
+        If showB1 AndAlso showB2 AndAlso showB3 Then
+            currentTotalWidth += buttonSpacing * 2
+        ElseIf showB1 AndAlso showB2 OrElse showB1 AndAlso showB3 OrElse showB2 AndAlso showB3 Then
+            currentTotalWidth += buttonSpacing
         End If
-        If Button2Text <> Nothing Then
-            btnAnswerMid.Text = Button2Text
-            btnAnswerMid.Visible = True
-            If btnAnswerMid.Width > 75 Then ' move btnAccept to the left, as btnAnswerMid is anchored right
-                btnAccept.Location = New Drawing.Point(btnAccept.Location.X - (btnAnswerMid.Width - 75), btnAccept.Location.Y)
+
+        If currentTotalWidth <= maxTotalWidth Then ' if enough space, align to left point
+            Const button1LeftStartX As Integer = 152
+
+            If showB1 Then setButtonX(btnAccept, button1LeftStartX)
+
+            If showB1 AndAlso showB2 Then
+                setButtonX(btnAnswerMid, getButtonRightX(btnAccept) + buttonSpacing)
+            ElseIf showB2 Then
+                setButtonX(btnAnswerMid, button1LeftStartX)
             End If
-        Else
-            btnAnswerMid.Visible = False
-        End If
-        If Button3Text <> Nothing Then
-            btnCancel.Text = Button3Text
-            btnCancel.Visible = True
-            If btnCancel.Width > 75 Then ' move the other two buttons to the left, as btnCancel is anchored right
-                btnAnswerMid.Location = New Drawing.Point(btnAnswerMid.Location.X - (btnCancel.Width - 75), btnAnswerMid.Location.Y)
-                btnAccept.Location = New Drawing.Point(btnAccept.Location.X - (btnCancel.Width - 75), btnAccept.Location.Y)
+
+            If showB2 AndAlso showB3 Then
+                setButtonX(btnCancel, getButtonRightX(btnAnswerMid) + buttonSpacing)
+            ElseIf showB1 AndAlso showB3 Then
+                setButtonX(btnCancel, getButtonRightX(btnAccept) + buttonSpacing)
+            ElseIf showB3 Then
+                setButtonX(btnCancel, button1LeftStartX)
             End If
-        Else
-            btnCancel.Visible = False
+        Else ' if not enough space, align right
+            Const button3rightX As Integer = 393
+
+            If showB3 Then setButtonX(btnCancel, button3rightX - btnCancel.Width)
+
+            If showB3 AndAlso showB2 Then
+                setButtonX(btnAnswerMid, btnCancel.Location.X - btnAnswerMid.Width - buttonSpacing)
+            ElseIf showB2 Then
+                setButtonX(btnAnswerMid, button3rightX - btnAnswerMid.Width)
+            End If
+
+            If showB2 AndAlso showB1 Then
+                setButtonX(btnAccept, btnAnswerMid.Location.X - btnAccept.Width - buttonSpacing)
+            ElseIf showB3 AndAlso showB1 Then
+                setButtonX(btnAccept, btnCancel.Location.X - btnAccept.Width - buttonSpacing)
+            ElseIf showB1 Then
+                setButtonX(btnAccept, button3rightX - btnAccept.Width)
+            End If
         End If
 
         If Me.Owner IsNot Nothing Then
@@ -169,6 +202,12 @@ Partial Public Class CustomMsgBoxForm
             Me.CenterToScreen()
         End If
         btnAccept.Select()
+    End Sub
+    Function getButtonRightX(btn As Button) As Integer
+        Return btn.Location.X + btn.Width
+    End Function
+    Sub setButtonX(btn As Button, x As Integer)
+        btn.Location = New Drawing.Point(x, btn.Location.Y)
     End Sub
 
     Private Function GetDialogResult(buttonText As String) As DialogResult
