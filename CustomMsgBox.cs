@@ -15,8 +15,6 @@ public partial class CustomMsgBoxForm : Form {
         InitializeComponent();
     }
 
-    // properties
-
     public string Prompt {
         get => txtMain.Text;
         set => txtMain.Text = value;
@@ -78,7 +76,7 @@ public partial class CustomMsgBoxForm : Form {
         }
     }
 
-    private void CustomMsgBoxForm_Shown(object sender, EventArgs e) {
+    private void CustomMsgBoxForm_Load(object sender, EventArgs e) {
         if (Text == null) {
             try {
                 Text = Owner.Text;
