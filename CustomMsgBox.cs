@@ -43,6 +43,7 @@ public partial class CustomMsgBoxForm : Form {
     public string Button3Text = null;
     public WinVersionStyle WinVersion = WinVersionStyle.Win10;
     public string DialogResultString = null;
+    public byte DialogResultButtonPressed = 0;
 
     public MessageBoxButtons Buttons {
         set {
@@ -194,6 +195,7 @@ public partial class CustomMsgBoxForm : Form {
     private void btnAccept_Click(object sender, EventArgs e) {
         DialogResult = GetDialogResult(Button1Text);
         DialogResultString = Button1Text; // for use with custom buttons
+        DialogResultButtonPressed = 1;
         if (GetDialogResult(Button1Text) == DialogResult.None)
             Close();
     }
@@ -201,6 +203,7 @@ public partial class CustomMsgBoxForm : Form {
     private void btnAnswerMid_Click(object sender, EventArgs e) {
         DialogResult = GetDialogResult(Button2Text);
         DialogResultString = Button2Text;
+        DialogResultButtonPressed = 2;
         if (GetDialogResult(Button2Text) == DialogResult.None)
             Close();
     }
@@ -208,6 +211,7 @@ public partial class CustomMsgBoxForm : Form {
     private void btnCancel_Click(object sender, EventArgs e) {
         DialogResult = GetDialogResult(Button3Text);
         DialogResultString = Button3Text;
+        DialogResultButtonPressed = 3;
         if (GetDialogResult(Button3Text) == DialogResult.None)
             Close();
     }
@@ -221,7 +225,7 @@ public partial class WalkmanLib {
     /// <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
     /// <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
     /// <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="this"/> to copy the current form's icon</param>
-    /// <returns>The button the user clicked on.</returns>
+    /// <returns>The button the user selected, or <see cref="DialogResult.Cancel"/> if Window X button selected.</returns>
     public static DialogResult CustomMsgBox(string text, string caption = null, MessageBoxButtons buttons = 0, MessageBoxIcon style = 0,
                                             WinVersionStyle winVersion = WinVersionStyle.Win10, Form ownerForm = null) {
         var formToShow = new CustomMsgBoxForm() {
@@ -245,7 +249,7 @@ public partial class WalkmanLib {
     /// <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
     /// <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
     /// <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="this"/> to copy the current form's icon</param>
-    /// <returns>Text of the button the user clicked on.</returns>
+    /// <returns>Text of the button the user selected, or null if Window X button selected.</returns>
     public static string CustomMsgBox(string text, string caption, string customButton1, string customButton2 = null, string customButton3 = null,
                                       MessageBoxIcon style = 0, WinVersionStyle winVersion = WinVersionStyle.Win10, Form ownerForm = null) {
         var formToShow = new CustomMsgBoxForm() {
@@ -262,6 +266,34 @@ public partial class WalkmanLib {
 
         formToShow.ShowDialog();
         return formToShow.DialogResultString;
+    }
+
+    /// <summary>Shows a custom messagebox with custom buttons</summary>
+    /// <param name="text">The text to display in the message box.</param>
+    /// <param name="caption">The text to display in the title bar of the message box.</param>
+    /// <param name="customButton1">Text to show on the first button</param>
+    /// <param name="customButton2">Text to show on the second button. If left out or set to <see langword="null"/>, this button will be hidden.</param>
+    /// <param name="customButton3">Text to show on the third button. If left out or set to <see langword="null"/>, this button will be hidden.</param>
+    /// <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
+    /// <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
+    /// <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="this"/> to copy the current form's icon</param>
+    /// <returns>Which button the user selected: 1-3. 0 = Window X button selected.</returns>
+    public static byte CustomMsgBoxBTN(string text, string caption, string customButton1, string customButton2 = null, string customButton3 = null,
+                                       MessageBoxIcon style = 0, WinVersionStyle winVersion = WinVersionStyle.Win10, Form ownerForm = null) {
+        var formToShow = new CustomMsgBoxForm() {
+            Prompt = text,
+            Title = caption,
+            Button1Text = customButton1,
+            Button2Text = customButton2,
+            Button3Text = customButton3,
+            FormLevel = style,
+            WinVersion = winVersion,
+            Owner = ownerForm,
+            ShowInTaskbar = false
+        };
+
+        formToShow.ShowDialog();
+        return formToShow.DialogResultButtonPressed;
     }
 }
 
