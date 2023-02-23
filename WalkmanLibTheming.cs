@@ -199,6 +199,7 @@ public partial class WalkmanLib {
         public Color LinkLabelLinkColor;
         public Color LinkLabelVisitedLinkColor;
         public Color LinkLabelActiveLinkColor;
+        public Color DialogHeadingText;
         public Color ComboBoxFG;
         public Color ComboBoxBG;
         public Color CheckBoxFG;
@@ -382,6 +383,7 @@ public partial class WalkmanLib {
                     LinkLabelVisitedLinkColor = Color.FromArgb(unchecked((int)0xFF800080)),
                     LinkLabelActiveLinkColor = Color.Red,
                     CustomMsgBoxTopPanel = SystemColors.Window,
+                    DialogHeadingText = Color.FromArgb(unchecked((int)0xFF003399)),
                     ProgressBarFG = SystemColors.Highlight,
                     ProgressBarBG = SystemColors.Control,
                     TabPageFG = SystemColors.ControlText,
@@ -490,6 +492,7 @@ public partial class WalkmanLib {
                     LinkLabelVisitedLinkColor = Color.Purple,
                     LinkLabelActiveLinkColor = Color.Red,
                     CustomMsgBoxTopPanel = SystemColors.ControlText,
+                    DialogHeadingText = Color.Cyan,
                     ProgressBarFG = SystemColors.Highlight,
                     ProgressBarBG = SystemColors.ControlText,
                     TabPageFG = SystemColors.Control,
@@ -538,7 +541,8 @@ public partial class WalkmanLib {
                     ComboBoxBG = SystemColors.ControlDarkDark,
                     ContextMenuStripFG = SystemColors.Control,
                     ContextMenuStripBG = SystemColors.ControlDarkDark,
-                    CustomMsgBoxTopPanel = SystemColors.ControlDarkDark,// try ControlDark
+                    CustomMsgBoxTopPanel = SystemColors.ControlDarkDark,
+                    DialogHeadingText = Color.Blue,
                     DomainUpDownFG = SystemColors.Control,
                     DomainUpDownBG = SystemColors.ControlDarkDark,
                     GroupBoxFG = SystemColors.Control,
@@ -649,6 +653,7 @@ public partial class WalkmanLib {
                     ContextMenuStripFG = altTextColor,
                     ContextMenuStripBG = altBackColor,
                     CustomMsgBoxTopPanel = Color.FromArgb(unchecked((int)0xFF444449)),
+                    DialogHeadingText = Color.DarkTurquoise,
                     DomainUpDownFG = textColor,
                     DomainUpDownBG = backColor,
                     GroupBoxFG = textColor,
@@ -755,6 +760,7 @@ public partial class WalkmanLib {
                     ContextMenuStripFG = Color.Blue,
                     ContextMenuStripBG = Color.Magenta,
                     CustomMsgBoxTopPanel = Color.Magenta,
+                    DialogHeadingText = Color.Black,
                     DomainUpDownFG = Color.Blue,
                     DomainUpDownBG = Color.Magenta,
                     GroupBoxFG = Color.Blue,
