@@ -28,7 +28,30 @@ public partial class CustomInputDialog : Form {
         set => inputTextBox.UseSystemPasswordChar = value;
     }
 
+    private void SizeDialog() {
+        const int mainInstructionNormalHeight = 25;
+        const int contentNormalHeight = 21;
+        const int windowNormalHeight = 209;
+
+        int modifier = 0;
+        if (string.IsNullOrWhiteSpace(MainInstruction)) {
+            modifier -= 36;
+            lblContent.Location = new System.Drawing.Point(lblContent.Location.X, lblContent.Location.Y - 35);
+        } else if (lblMainInstruction.Height > mainInstructionNormalHeight) {
+            modifier = lblMainInstruction.Height - mainInstructionNormalHeight;
+            lblContent.Location = new System.Drawing.Point(lblContent.Location.X, lblContent.Location.Y + modifier);
+        }
+        if (string.IsNullOrWhiteSpace(Content))
+            modifier -= 30;
+        else if (lblContent.Height > contentNormalHeight)
+            modifier += lblContent.Height - contentNormalHeight;
+
+        if (modifier != 0) //                           limit size reduction to 51
+            this.Height = windowNormalHeight + Math.Max(modifier, -51);
+    }
+
     private void CustomInputDialog_Load(object sendder, EventArgs e) {
+        SizeDialog();
         CenterToScreen();
     }
 
