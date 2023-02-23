@@ -91,6 +91,14 @@
     <Compile Include="Test_TimeConvert.cs" />
     <Compile Include="Test_Updates.cs" />
     <Compile Include="Test_WaitFor.cs" />
+    <Compile Include="..\CustomInputDialog.cs">
+      <Link>WalkmanLib\CustomInputDialog.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\CustomInputDialog.designer.cs">
+      <Link>WalkmanLib\CustomInputDialog.designer.cs</Link>
+      <DependentUpon>CustomInputDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="..\CustomMsgBox.cs">
       <Link>WalkmanLib\CustomMsgBox.cs</Link>
       <SubType>Form</SubType>
