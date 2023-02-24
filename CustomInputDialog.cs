@@ -54,6 +54,10 @@ public partial class CustomInputDialog : Form {
         SizeDialog();
         CenterToScreen();
     }
+    private void CustomInputDialog_Shown(object sender, EventArgs e) {
+        if (this.Visible)
+            inputTextBox.Focus();
+    }
 
     private void btnOK_Click(object sender, EventArgs e) {
         DialogResult = DialogResult.OK;

@@ -132,6 +132,7 @@ partial class CustomInputDialog {
         this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         this.Text = "CustomInputDialog";
         this.Load += new System.EventHandler(this.CustomInputDialog_Load);
+        this.Shown += new System.EventHandler(this.CustomInputDialog_Shown);
         this.splitContainer.Panel1.ResumeLayout(false);
         this.splitContainer.Panel1.PerformLayout();
         this.splitContainer.Panel2.ResumeLayout(false);
