@@ -68,6 +68,15 @@ partial class CustomInputDialog {
         this.btnOK.UseVisualStyleBackColor = true;
         this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
         // 
+        // DotNetCore fixes
+        // 
+#if NETCOREAPP
+        this.inputTextBox.Location = new System.Drawing.Point(12, 101);
+        this.inputTextBox.Size = new System.Drawing.Size(436, 23);
+        this.btnCancel.Location = new System.Drawing.Point(362, 17);
+        this.btnOK.Location = new System.Drawing.Point(267, 17);
+#endif
+        // 
         // splitContainer
         // 
         this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
