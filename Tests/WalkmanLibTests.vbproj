@@ -89,6 +89,14 @@
     <Compile Include="Test_TimeConvert.vb" />
     <Compile Include="Test_Updates.vb" />
     <Compile Include="Test_WaitFor.vb" />
+    <Compile Include="..\CustomInputDialog.vb">
+      <Link>WalkmanLib\CustomInputDialog.vb</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\CustomInputDialog.Designer.vb">
+      <Link>WalkmanLib\CustomInputDialog.Designer.vb</Link>
+      <DependentUpon>CustomInputDialog.vb</DependentUpon>
+    </Compile>
     <Compile Include="..\CustomMsgBox.vb">
       <Link>WalkmanLib\CustomMsgBox.vb</Link>
       <SubType>Form</SubType>
