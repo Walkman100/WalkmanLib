@@ -19,8 +19,6 @@ Partial Public Class CustomMsgBoxForm
         Me.InitializeComponent()
     End Sub
 
-    ' properties
-
     Public Property Prompt() As String
         Get
             Return txtMain.Text
@@ -65,6 +63,7 @@ Partial Public Class CustomMsgBoxForm
     Public Button3Text As String = Nothing
     Public WinVersion As WinVersionStyle = WinVersionStyle.Win10
     Public DialogResultString As String = Nothing
+    Public DialogResultButtonPressed As Byte = 0
 
     Public WriteOnly Property Buttons() As MessageBoxButtons
         Set(value As MessageBoxButtons)
@@ -94,7 +93,7 @@ Partial Public Class CustomMsgBoxForm
 
     ' subs & functions
 
-    Private Sub MeShown() Handles Me.Shown
+    Private Sub CustomMsgBoxForm_Load() Handles Me.Load
         If Me.Text = Nothing Then
             Try
                 Me.Text = Owner.Text
@@ -222,6 +221,7 @@ Partial Public Class CustomMsgBoxForm
     Private Sub Accept_Click() Handles btnAccept.Click
         Me.DialogResult = GetDialogResult(Button1Text)
         DialogResultString = Button1Text ' for use with custom buttons
+        DialogResultButtonPressed = 1
         If GetDialogResult(Button1Text) = DialogResult.None Then
             Me.Close()
         End If
@@ -230,6 +230,7 @@ Partial Public Class CustomMsgBoxForm
     Private Sub AnswerMid_Click() Handles btnAnswerMid.Click
         Me.DialogResult = GetDialogResult(Button2Text)
         DialogResultString = Button2Text
+        DialogResultButtonPressed = 2
         If GetDialogResult(Button2Text) = DialogResult.None Then
             Me.Close()
         End If
@@ -238,6 +239,7 @@ Partial Public Class CustomMsgBoxForm
     Private Sub Cancel_Click() Handles btnCancel.Click
         Me.DialogResult = GetDialogResult(Button3Text)
         DialogResultString = Button3Text
+        DialogResultButtonPressed = 3
         If GetDialogResult(Button3Text) = DialogResult.None Then
             Me.Close()
         End If
@@ -252,7 +254,7 @@ Partial Public Class WalkmanLib
     ''' <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
     ''' <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
     ''' <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="Me"/> to copy the current form's icon</param>
-    ''' <returns>The button the user clicked on.</returns>
+    ''' <returns>The button the user selected, or <see cref="DialogResult.Cancel"/> if Window X button selected.</returns>
     Shared Function CustomMsgBox(text As String, Optional caption As String = Nothing, Optional buttons As MessageBoxButtons = 0, Optional style As MessageBoxIcon = 0,
                                  Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As DialogResult
         Dim formToShow As New CustomMsgBoxForm With {
@@ -276,7 +278,7 @@ Partial Public Class WalkmanLib
     ''' <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
     ''' <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
     ''' <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="Me"/> to copy the current form's icon</param>
-    ''' <returns>Text of the button the user clicked on.</returns>
+    ''' <returns>Text of the button the user selected, or <see langword="Nothing"/> if Window X button selected.</returns>
     Shared Function CustomMsgBox(text As String, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing,
                                  Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
         Dim formToShow As New CustomMsgBoxForm With {
@@ -293,6 +295,34 @@ Partial Public Class WalkmanLib
 
         formToShow.ShowDialog()
         Return formToShow.DialogResultString
+    End Function
+
+    ''' <summary>Shows a custom messagebox with custom buttons</summary>
+    ''' <param name="text">The text to display in the message box.</param>
+    ''' <param name="caption">The text to display in the title bar of the message box.</param>
+    ''' <param name="customButton1">Text to show on the first button</param>
+    ''' <param name="customButton2">Text to show on the second button. If left out or set to <see langword="Nothing"/>, this button will be hidden.</param>
+    ''' <param name="customButton3">Text to show on the third button. If left out or set to <see langword="Nothing"/>, this button will be hidden.</param>
+    ''' <param name="style">One of the following: <see cref="MessageBoxIcon.Error"/>, <see cref="MessageBoxIcon.Question"/>, <see cref="MessageBoxIcon.Exclamation"/> or <see cref="MessageBoxIcon.Information"/>.</param>
+    ''' <param name="winVersion">Windows version to use style icons from. Default: <see cref="WinVersionStyle.Win10"/></param>
+    ''' <param name="ownerForm">Used to set the Window's Icon. Set to <see langword="Me"/> to copy the current form's icon</param>
+    ''' <returns>Which button the user selected: 1-3. 0 = Window X button selected.</returns>
+    Public Shared Function CustomMsgBoxBTN(text As String, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing,
+                                           Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As Byte
+        Dim formToShow As New CustomMsgBoxForm With {
+            .Prompt = text,
+            .Title = caption,
+            .Button1Text = customButton1,
+            .Button2Text = customButton2,
+            .Button3Text = customButton3,
+            .FormLevel = style,
+            .WinVersion = winVersion,
+            .Owner = ownerForm,
+            .ShowInTaskbar = False
+        }
+
+        formToShow.ShowDialog()
+        Return formToShow.DialogResultButtonPressed
     End Function
 End Class
 
