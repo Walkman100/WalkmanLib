@@ -50,16 +50,16 @@ public partial class CustomInputDialog : Form {
             this.Height = windowNormalHeight + Math.Max(modifier, -51);
     }
 
-    private void CustomInputDialog_Load(object sendder, EventArgs e) {
+    private void CustomInputDialog_Load(object _, EventArgs __) {
         SizeDialog();
         CenterToScreen();
     }
-    private void CustomInputDialog_Shown(object sender, EventArgs e) {
+    private void CustomInputDialog_Shown(object _, EventArgs __) {
         if (this.Visible)
             inputTextBox.Focus();
     }
 
-    private void btnOK_Click(object sender, EventArgs e) {
+    private void btnOK_Click(object _, EventArgs __) {
         DialogResult = DialogResult.OK;
     }
 }

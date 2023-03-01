@@ -77,7 +77,7 @@ public partial class CustomMsgBoxForm : Form {
         }
     }
 
-    private void CustomMsgBoxForm_Load(object sender, EventArgs e) {
+    private void CustomMsgBoxForm_Load(object _, EventArgs __) {
         if (Text == null) {
             try {
                 Text = Owner.Text;
@@ -192,7 +192,7 @@ public partial class CustomMsgBoxForm : Form {
     private DialogResult GetDialogResult(string buttonText) =>
         Enum.TryParse(buttonText, true, out DialogResult result) ? result : DialogResult.None;
 
-    private void btnAccept_Click(object sender, EventArgs e) {
+    private void btnAccept_Click(object _, EventArgs __) {
         DialogResult = GetDialogResult(Button1Text);
         DialogResultString = Button1Text; // for use with custom buttons
         DialogResultButtonPressed = 1;
@@ -200,7 +200,7 @@ public partial class CustomMsgBoxForm : Form {
             Close();
     }
 
-    private void btnAnswerMid_Click(object sender, EventArgs e) {
+    private void btnAnswerMid_Click(object _, EventArgs __) {
         DialogResult = GetDialogResult(Button2Text);
         DialogResultString = Button2Text;
         DialogResultButtonPressed = 2;
@@ -208,7 +208,7 @@ public partial class CustomMsgBoxForm : Form {
             Close();
     }
 
-    private void btnCancel_Click(object sender, EventArgs e) {
+    private void btnCancel_Click(object _, EventArgs __) {
         DialogResult = GetDialogResult(Button3Text);
         DialogResultString = Button3Text;
         DialogResultButtonPressed = 3;
