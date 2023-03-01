@@ -52,7 +52,11 @@ public partial class CustomInputDialog : Form {
 
     private void CustomInputDialog_Load(object _, EventArgs __) {
         SizeDialog();
-        CenterToScreen();
+
+        if (Owner != null)
+            CenterToParent();
+        else
+            CenterToScreen();
     }
     private void CustomInputDialog_Shown(object _, EventArgs __) {
         if (this.Visible)
