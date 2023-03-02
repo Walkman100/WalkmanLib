@@ -252,6 +252,27 @@ public partial class WalkmanLib {
         }
     }
 
+    /// <summary>Checks whether the user has enabled the Win10+ setting "Default App Mode" (Light/Dark)</summary>
+    /// <returns><see langword="true"/> if Dark mode is enabled, <see langword="false"/> if disabled. <see langword="null"/> if the Personalize key does not exist in the registry.</returns>
+    public static bool? GetDarkThemeEnabled() {
+        // HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize AppsUseLightTheme
+        string keyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+
+        var localKey = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser,
+                                                               Environment.Is64BitOperatingSystem ? Microsoft.Win32.RegistryView.Registry64 : Microsoft.Win32.RegistryView.Registry32);
+        localKey = localKey.OpenSubKey(keyPath);
+
+        if (localKey != null) {
+            int? appsUseLightTheme = (int?)localKey.GetValue("AppsUseLightTheme");
+            if (appsUseLightTheme == null)
+                return false;
+
+            return appsUseLightTheme != 1;
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// Gets path to a WalkmanUtils install. First tries in the same folder as the running application,
     /// then the location saved in the registry, then a default fallback in Program Files.
