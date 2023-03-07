@@ -15,7 +15,7 @@ public partial class WalkmanLib {
     /// <param name="target">Stream to copy to. Must support Writing</param>
     /// <param name="description">Optional description to display in the ProgressDialog.</param>
     /// <param name="title">Optional title to use for the ProgressDialog.</param>
-    /// <param name="onComplete">Optional event handler to run when the Asnyc operation is complete</param>
+    /// <param name="onComplete">Optional event handler to run when the Async operation is complete</param>
     public static void StreamCopy(Stream source, Stream target, string description = " ", string title = "Copying...",
                                   RunWorkerCompletedEventHandler onComplete = null) {
         if (source == null) throw new ArgumentNullException("source");
