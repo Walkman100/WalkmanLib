@@ -20,7 +20,7 @@ Partial Public Class WalkmanLib
     ''' <param name="target">Stream to copy to. Must support Writing</param>
     ''' <param name="description">Optional description to display in the ProgressDialog.</param>
     ''' <param name="title">Optional title to use for the ProgressDialog.</param>
-    ''' <param name="onComplete">Optional event handler to run when the Asnyc operation is complete</param>
+    ''' <param name="onComplete">Optional event handler to run when the Async operation is complete</param>
     Shared Sub StreamCopy(source As Stream, target As Stream, Optional description As String = " ", Optional title As String = "Copying...",
                           Optional onComplete As RunWorkerCompletedEventHandler = Nothing)
         If source Is Nothing Then Throw New ArgumentNullException("source")
