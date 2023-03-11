@@ -42,7 +42,7 @@ Namespace Tests
         End Function
 
         Function Test_RunAndGetOutput6() As Boolean
-            Dim mergedStdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi >&2 & echo hi")
+            Dim mergedStdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi >&2 & echo hi", mergeStdErr:=True)
 
             Return TestString("RunAndGetOutput6", mergedStdOut,
                 "hi" & Environment.NewLine &
