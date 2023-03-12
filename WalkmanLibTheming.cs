@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 public partial class WalkmanLib {
@@ -176,6 +178,38 @@ public partial class WalkmanLib {
             } else {
                 ctl.ForeColor = theme.OtherFG;
                 ctl.BackColor = theme.OtherBG;
+            }
+        }
+    }
+    #endregion
+
+    #region Save / Load Theme
+    public static void SaveTheme(string path, Theme theme) {
+        var jss = new JavaScriptSerializer();
+        jss.RegisterConverters(new[] { new CustomColorSerializer() });
+
+        System.IO.File.WriteAllText(path, jss.Serialize(theme));
+    }
+    public static Theme LoadTheme(string path) {
+        var jss = new JavaScriptSerializer();
+        jss.RegisterConverters(new[] { new CustomColorSerializer() });
+
+        return jss.Deserialize<Theme>(System.IO.File.ReadAllText(path));
+    }
+
+    private class CustomColorSerializer : JavaScriptConverter {
+        public override IEnumerable<Type> SupportedTypes =>
+            new[] { typeof(Color) };
+
+        public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer) =>
+            Color.FromArgb((int)dictionary["A"], (int)dictionary["R"], (int)dictionary["G"], (int)dictionary["B"]);
+        public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer) {
+            if (obj is Color c) {
+                return new Dictionary<string, object>() {
+                    { "A", c.A }, { "R", c.R }, { "G", c.G }, { "B", c.B }
+                };
+            } else {
+                throw new ArgumentException("Supplied object is not a Color: " + obj.GetType().FullName);
             }
         }
     }
