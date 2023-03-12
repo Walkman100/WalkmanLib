@@ -28,13 +28,17 @@ public partial class WalkmanLib {
 
         // https://stackoverflow.com/a/16655779/2999220
         string address = string.Format("https://api.github.com/repos/{0}/{1}/releases/latest", projectOwner, projectName);
-        var client = new WebClient();
+        string jsonObject;
+        using (var client = new WebClient()) {
+            var frameworkInfo = new System.Runtime.Versioning.FrameworkName(AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName);
 
-        // https://stackoverflow.com/a/22134980/2999220
-        client.Headers.Add("User-Agent", "anything");
+            // https://stackoverflow.com/a/22134980/2999220
+            client.Headers.Add(HttpRequestHeader.UserAgent, $"{frameworkInfo.Identifier} v{frameworkInfo.Version}");
 
-        var reader = new StreamReader(client.OpenRead(address));
-        string jsonObject = reader.ReadToEnd();
+            using (var reader = new StreamReader(client.OpenRead(address))) {
+                jsonObject = reader.ReadToEnd();
+            }
+        }
 
         // https://stackoverflow.com/a/38944715/2999220
         var jss = new JavaScriptSerializer();
