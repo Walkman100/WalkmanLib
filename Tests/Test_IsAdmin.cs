@@ -12,8 +12,9 @@ namespace Tests {
             programPath = new Uri(programPath).LocalPath;
             string tmpOutPath = Path.Combine(rootTestFolder, "outTmp.txt");
 
-            WalkmanLib.RunAsAdmin("cmd.exe", "/c \"" + programPath + "\" getAdmin > " + tmpOutPath);
-            System.Threading.Thread.Sleep(1000);
+            bool result = WalkmanLib.RunAsAdmin("cmd.exe", "/c \"" + programPath + "\" getAdmin > " + tmpOutPath);
+            if (!result)
+                return GeneralFunctions.TestString("IsAdmin2", "Admin Prompt Denied", "Admin Prompt Accepted");
 
             string runAsAdminOutput;
             try {
@@ -23,7 +24,7 @@ namespace Tests {
             }
             GeneralFunctions.DeleteFileIfExists(tmpOutPath);
 
-            return GeneralFunctions.TestString("IsAdmin2", runAsAdminOutput, "True" + Microsoft.VisualBasic.Constants.vbNewLine);
+            return GeneralFunctions.TestString("IsAdmin2", runAsAdminOutput, "True" + Environment.NewLine);
         }
     }
 }

@@ -77,9 +77,21 @@ public partial class WalkmanLib {
     /// <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
     /// <param name="programPath">Path of the program to run as administrator.</param>
     /// <param name="arguments">Optional. Command-line arguments to pass when starting the process. Surround whitespaces with quotes as usual.</param>
-    public static void RunAsAdmin(string programPath, string arguments = null) {
-        dynamic Shell_Application = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"));
-        Shell_Application.ShellExecute(programPath, arguments, "", "runas");
+    /// <param name="workingDirectory">Optional. Working Directory for the launched program, and strangely also the first search path if <paramref name="programPath"/> is not absolute.</param>
+    /// <returns>Whether the request for Admin was approved.</returns>
+    public static bool RunAsAdmin(string programPath, string arguments = null, string workingDirectory = null) {
+        try {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo() {
+                Verb = "runas",
+                UseShellExecute = true,
+                FileName = programPath,
+                Arguments = arguments,
+                WorkingDirectory = workingDirectory,
+            });
+            return true;
+        } catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223) { // ERROR_CANCELLED: The operation was canceled by the user.
+            return false;
+        }
     }
 
     /// <summary>Adds or removes the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
