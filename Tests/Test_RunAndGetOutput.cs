@@ -23,13 +23,13 @@ namespace Tests {
         }
 
         public static bool Test_RunAndGetOutput4() {
-            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c exit 5", mergeStdErr: true);
+            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", "/c exit 5", mergeStdErr: true);
 
             return GeneralFunctions.TestNumber("RunAndGetOutput4", rtn.ExitCode, 5);
         }
 
         public static bool Test_RunAndGetOutput5() {
-            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", arguments: "/c echo hi >&2", mergeStdErr: false);
+            var rtn = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi >&2", mergeStdErr: false);
 
             return GeneralFunctions.TestString("RunAndGetOutput5", rtn.StandardError, "hi");
         }

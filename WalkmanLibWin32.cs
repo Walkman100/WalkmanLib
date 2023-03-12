@@ -1066,20 +1066,14 @@ public partial class WalkmanLib {
 
                 // Wait for handle with specified timeout
                 switch (WaitForSingleObject(handle, timeout)) {
-                    case WFSO_Val.WAIT_OBJECT_0: {
-                            // success condition
-                            break;
-                        }
-                    case WFSO_Val.WAIT_ABANDONED: {
-                            // thread exited without releasing mutex object
-                            break;
-                        }
-                    case WFSO_Val.WAIT_TIMEOUT: {
-                            return true;
-                        }
-                    case WFSO_Val.WAIT_FAILED: {
-                            throw new Win32Exception();
-                        }
+                    case WFSO_Val.WAIT_OBJECT_0: // success condition
+                        break;
+                    case WFSO_Val.WAIT_ABANDONED: // thread exited without releasing mutex object
+                        break;
+                    case WFSO_Val.WAIT_TIMEOUT:
+                        return true;
+                    case WFSO_Val.WAIT_FAILED:
+                        throw new Win32Exception();
                 }
 
             }
