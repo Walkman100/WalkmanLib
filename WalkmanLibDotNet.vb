@@ -84,12 +84,22 @@ Partial Public Class WalkmanLib
     ''' <summary>Starts a program with a set of command-line arguments as an administrator.</summary>
     ''' <param name="programPath">Path of the program to run as administrator.</param>
     ''' <param name="arguments">Optional. Command-line arguments to pass when starting the process. Surround whitespaces with quotes as usual.</param>
-    Shared Sub RunAsAdmin(programPath As String, Optional arguments As String = Nothing)
-        Dim WSH_Type As Type = Type.GetTypeFromProgID("Shell.Application")
-        Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
-
-        WSH_Type.InvokeMember("ShellExecute", Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, {programPath, arguments, "", "runas"})
-    End Sub
+    ''' <param name="workingDirectory">Optional. Working Directory for the launched program, and strangely also the first search path if <paramref name="programPath"/> is not absolute.</param>
+    ''' <returns>Whether the request for Admin was approved.</returns>
+    Shared Function RunAsAdmin(programPath As String, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing) As Boolean
+        Try
+            Diagnostics.Process.Start(New Diagnostics.ProcessStartInfo() With {
+                                          .Verb = "runas",
+                                          .UseShellExecute = True,
+                                          .FileName = programPath,
+                                          .Arguments = arguments,
+                                          .WorkingDirectory = workingDirectory
+                                      })
+            Return True
+        Catch ex As ComponentModel.Win32Exception When ex.NativeErrorCode = 1223
+            Return False
+        End Try
+    End Function
 
     ''' <summary>Adds or removes the specified System.IO.FileAttributes to the file at the specified path, with a try..catch block.</summary>
     ''' <param name="path">The path to the file.</param>

@@ -4,8 +4,11 @@ Option Compare Binary
 Option Infer Off
 
 Imports System
+Imports System.Collections.Generic
 Imports System.Drawing
 Imports System.Linq
+Imports System.Web.Script.Serialization
+' add a reference to System.Web.Extensions
 Imports System.Windows.Forms
 
 Partial Public Class WalkmanLib
@@ -186,6 +189,44 @@ Partial Public Class WalkmanLib
             End Select
         Next
     End Sub
+#End Region
+
+#Region "Save / Load Theme"
+    Shared Sub SaveTheme(path As String, theme As Theme)
+        Dim jss As New JavaScriptSerializer()
+        jss.RegisterConverters({New CustomColorSerializer()})
+
+        IO.File.WriteAllText(path, jss.Serialize(theme))
+    End Sub
+    Shared Function LoadTheme(path As String) As Theme
+        Dim jss As New JavaScriptSerializer()
+        jss.RegisterConverters({New CustomColorSerializer()})
+
+        Return jss.Deserialize(Of Theme)(IO.File.ReadAllText(path))
+    End Function
+
+    Private Class CustomColorSerializer
+        Inherits JavaScriptConverter
+        Public Overrides ReadOnly Property SupportedTypes As IEnumerable(Of Type)
+            Get
+                Return {GetType(Color)}
+            End Get
+        End Property
+
+        Public Overrides Function Deserialize(dictionary As IDictionary(Of String, Object), type As Type, serializer As JavaScriptSerializer) As Object
+            Return Color.FromArgb(CType(dictionary("A"), Integer), CType(dictionary("R"), Integer), CType(dictionary("G"), Integer), CType(dictionary("B"), Integer))
+        End Function
+        Public Overrides Function Serialize(obj As Object, serializer As JavaScriptSerializer) As IDictionary(Of String, Object)
+            If TypeOf obj Is Color Then
+                Dim c As Color = DirectCast(obj, Color)
+                Return New Dictionary(Of String, Object) From {
+                    {"A", c.A}, {"R", c.R}, {"G", c.G}, {"B", c.B}
+                }
+            Else
+                Throw New ArgumentException("Supplied object is not a Color: " & obj.GetType().FullName)
+            End If
+        End Function
+    End Class
 #End Region
 
 #Region "Theme class"

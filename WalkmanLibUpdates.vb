@@ -33,13 +33,17 @@ Partial Public Class WalkmanLib
 
         ' https://stackoverflow.com/a/16655779/2999220
         Dim address As String = String.Format("https://api.github.com/repos/{0}/{1}/releases/latest", projectOwner, projectName)
-        Dim client As New WebClient()
+        Dim jsonObject As String
+        Using client As New WebClient()
+            Dim frameworkInfo As New Runtime.Versioning.FrameworkName(AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName)
 
-        ' https://stackoverflow.com/a/22134980/2999220
-        client.Headers.Add("User-Agent", "anything")
+            ' https://stackoverflow.com/a/22134980/2999220
+            client.Headers.Add(HttpRequestHeader.UserAgent, frameworkInfo.Identifier & " v" & frameworkInfo.Version.ToString())
 
-        Dim reader As New StreamReader(client.OpenRead(address))
-        Dim jsonObject As String = reader.ReadToEnd
+            Using reader As New StreamReader(client.OpenRead(address))
+                jsonObject = reader.ReadToEnd
+            End Using
+        End Using
 
         ' https://stackoverflow.com/a/38944715/2999220
         Dim jss As New JavaScriptSerializer()

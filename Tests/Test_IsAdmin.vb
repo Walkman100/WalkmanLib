@@ -17,7 +17,10 @@ Namespace Tests
             programPath = New Uri(programPath).LocalPath
             Dim tmpOutPath As String = Path.Combine(rootTestFolder, "outTmp.txt")
 
-            WalkmanLib.RunAsAdmin("cmd.exe", "/c """ & programPath & """ getAdmin > " & tmpOutPath)
+            Dim result As Boolean = WalkmanLib.RunAsAdmin("cmd.exe", "/c """ & programPath & """ getAdmin > " & tmpOutPath)
+            If Not result Then
+                Return TestString("IsAdmin2", "Admin Prompt Denied", "Admin Prompt Accepted")
+            End If
             Threading.Thread.Sleep(1000)
 
             Dim runAsAdminOutput As String
@@ -28,7 +31,7 @@ Namespace Tests
             End Try
             DeleteFileIfExists(tmpOutPath)
 
-            Return TestString("IsAdmin2", runAsAdminOutput, "True" & Microsoft.VisualBasic.vbNewLine)
+            Return TestString("IsAdmin2", runAsAdminOutput, "True" & Environment.NewLine)
         End Function
     End Module
 End Namespace

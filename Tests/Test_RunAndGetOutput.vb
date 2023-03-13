@@ -10,26 +10,26 @@ Imports System.IO
 Namespace Tests
     Module Tests_RunAndGetOutput
         Function Test_RunAndGetOutput1() As Boolean
-            Dim stdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi")
+            Dim stdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo hi", mergeStdErr:=True)
 
             Return TestString("RunAndGetOutput1", stdOut, "hi")
         End Function
 
         Function Test_RunAndGetOutput2() As Boolean
-            Dim stdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%")
+            Dim stdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%", mergeStdErr:=True)
 
             Return TestString("RunAndGetOutput2", stdOut, Environment.CurrentDirectory)
         End Function
 
         Function Test_RunAndGetOutput3() As Boolean
-            Dim stdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%", workingDirectory:=Environment.GetEnvironmentVariable("WinDir"))
+            Dim stdOut As String = WalkmanLib.RunAndGetOutput("cmd.exe", "/c echo %CD%", workingDirectory:=Environment.GetEnvironmentVariable("WinDir"), mergeStdErr:=True)
 
             Return TestString("RunAndGetOutput3", stdOut, Environment.GetEnvironmentVariable("WinDir"))
         End Function
 
         Function Test_RunAndGetOutput4() As Boolean
             Dim exitCode As Integer
-            WalkmanLib.RunAndGetOutput("cmd.exe", "/c exit 5", exitCode:=exitCode)
+            WalkmanLib.RunAndGetOutput("cmd.exe", "/c exit 5", mergeStdErr:=True, exitCode:=exitCode)
 
             Return TestNumber("RunAndGetOutput4", exitCode, 5)
         End Function
