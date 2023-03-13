@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Web.Script.Serialization;
+// add a reference to System.Web.Extensions
 using System.Windows.Forms;
 
 public partial class WalkmanLib {
