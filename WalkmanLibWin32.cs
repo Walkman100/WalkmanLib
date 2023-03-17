@@ -469,11 +469,11 @@ public partial class WalkmanLib {
         try {
             // link path doesn't include drive letter by default
             string pathRoot = Path.GetPathRoot(path);
-            string getFullPath(string path) {
-                if (path[0] == Path.DirectorySeparatorChar)
-                    return Path.Combine(pathRoot, path.Substring(1));
+            string getFullPath(string pathLocal) {
+                if (pathLocal[0] == Path.DirectorySeparatorChar)
+                    return Path.Combine(pathRoot, pathLocal.Substring(1));
                 else
-                    return path;
+                    return pathLocal;
             };
 
             yield return getFullPath(stringBuilderTarget.ToString());

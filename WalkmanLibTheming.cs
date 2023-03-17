@@ -918,12 +918,17 @@ public partial class WalkmanLib {
                 FormatFlags = StringFormatFlags.NoWrap,
                 Trimming = StringTrimming.EllipsisCharacter
             }) {
-                sf.Alignment = e.Header.TextAlign switch {
-                    HorizontalAlignment.Left => listView.RightToLeft == RightToLeft.No ? StringAlignment.Near : StringAlignment.Far,
-                    HorizontalAlignment.Right => listView.RightToLeft == RightToLeft.Yes ? StringAlignment.Near : StringAlignment.Far,
-                    HorizontalAlignment.Center => StringAlignment.Center,
-                    _ => sf.Alignment,
-                };
+                switch (e.Header.TextAlign) {
+                    case HorizontalAlignment.Left:
+                        sf.Alignment = listView.RightToLeft == RightToLeft.No ? StringAlignment.Near : StringAlignment.Far;
+                        break;
+                    case HorizontalAlignment.Right:
+                        sf.Alignment = listView.RightToLeft == RightToLeft.Yes ? StringAlignment.Near : StringAlignment.Far;
+                        break;
+                    case HorizontalAlignment.Center:
+                        sf.Alignment = StringAlignment.Center;
+                        break;
+                }
 
                 var colRect = new Rectangle() {
                     X = e.Bounds.X + 1,
