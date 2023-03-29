@@ -2,9 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Web.Script.Serialization;
-// add a reference to System.Web.Extensions
 using System.Windows.Forms;
+
+#if NETCOREAPP
+using System.Text.Json;
+#else
+// add a reference to System.Web.Extensions
+using System.Web.Script.Serialization;
+#endif
 
 public partial class WalkmanLib {
     #region ApplyTheme
@@ -185,6 +190,62 @@ public partial class WalkmanLib {
     #endregion
 
     #region Save / Load Theme
+#if NETCOREAPP
+
+    public static void SaveTheme(string path, Theme theme) =>
+        System.IO.File.WriteAllText(path, JsonSerializer.Serialize(theme, jsonSerializerOptions));
+    public static Theme LoadTheme(string path) =>
+        JsonSerializer.Deserialize<Theme>(System.IO.File.ReadAllText(path), jsonSerializerOptions);
+
+    private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions() {
+        IncludeFields = true, // if on .NetCore3.1 add package System.Text.Json >= 5.0.2
+        Converters = {
+            new CustomColorSerializer(),
+        }
+    };
+    private class CustomColorSerializer : System.Text.Json.Serialization.JsonConverter<Color> {
+        public override Color Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
+            if (reader.TokenType == JsonTokenType.StartObject)
+                reader.Read();
+
+            int a = 0, r = 0, g = 0, b = 0;
+            while (reader.TokenType != JsonTokenType.EndObject) {
+                if (reader.TokenType == JsonTokenType.PropertyName) {
+                    string propertyName = reader.GetString().ToUpperInvariant();
+                    reader.Read();
+
+                    switch (propertyName) {
+                        case "A":
+                            a = reader.GetInt32();
+                            break;
+                        case "R":
+                            r = reader.GetInt32();
+                            break;
+                        case "G":
+                            g = reader.GetInt32();
+                            break;
+                        case "B":
+                            b = reader.GetInt32();
+                            break;
+                    }
+                }
+                reader.Read();
+            }
+
+            return Color.FromArgb(a, r, g, b);
+        }
+
+        public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options) {
+            writer.WriteStartObject();
+            writer.WriteNumber("A", value.A);
+            writer.WriteNumber("R", value.R);
+            writer.WriteNumber("G", value.G);
+            writer.WriteNumber("B", value.B);
+            writer.WriteEndObject();
+        }
+    }
+#else
+
     public static void SaveTheme(string path, Theme theme) {
         var jss = new JavaScriptSerializer();
         jss.RegisterConverters(new[] { new CustomColorSerializer() });
@@ -214,6 +275,8 @@ public partial class WalkmanLib {
             }
         }
     }
+
+#endif
     #endregion
 
     #region Theme class
