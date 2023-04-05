@@ -119,6 +119,14 @@ partial class CustomMsgBoxForm {
         this.btnCancel.UseVisualStyleBackColor = true;
         this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
         // 
+        // DotNetCore fixes
+        // 
+#if NETCOREAPP
+        this.btnAccept.Location = new System.Drawing.Point(156, 11);
+        this.btnAnswerMid.Location = new System.Drawing.Point(237, 11);
+        this.btnCancel.Location = new System.Drawing.Point(318, 11);
+#endif
+        // 
         // CustomMsgBoxForm
         // 
         this.AcceptButton = this.btnAccept;
