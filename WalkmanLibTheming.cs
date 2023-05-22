@@ -107,9 +107,15 @@ public partial class WalkmanLib {
                 ctl.ForeColor = theme.DomainUpDownFG;
                 ctl.BackColor = theme.DomainUpDownBG;
             } else if (type == typeof(ListView)) {
-                if (allowSetOwnerDraw) ((ListView)ctl).OwnerDraw = theme.ListViewOwnerDraw;
                 ctl.ForeColor = theme.ListViewFG;
                 ctl.BackColor = theme.ListViewBG;
+                if (allowSetOwnerDraw) { // https://stackoverflow.com/a/17464722/2999220
+                    var bm = new Bitmap(ctl.ClientSize.Width, ctl.ClientSize.Height);
+                    Graphics.FromImage(bm).Clear(ctl.BackColor);
+                    ctl.BackgroundImage = bm;
+
+                    ((ListView)ctl).OwnerDraw = theme.ListViewOwnerDraw;
+                }
             } else if (type == typeof(ListBox)) {
                 ctl.ForeColor = theme.ListBoxFG;
                 ctl.BackColor = theme.ListBoxBG;
@@ -244,6 +250,7 @@ public partial class WalkmanLib {
             writer.WriteEndObject();
         }
     }
+
 #else
 
     public static void SaveTheme(string path, Theme theme) {
