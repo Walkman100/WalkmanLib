@@ -108,9 +108,15 @@ Partial Public Class WalkmanLib
                     ctl.ForeColor = theme.DomainUpDownFG
                     ctl.BackColor = theme.DomainUpDownBG
                 Case GetType(ListView)
-                    If allowSetOwnerDraw Then DirectCast(ctl, ListView).OwnerDraw = theme.ListViewOwnerDraw
                     ctl.ForeColor = theme.ListViewFG
                     ctl.BackColor = theme.ListViewBG
+                    If allowSetOwnerDraw Then ' https://stackoverflow.com/a/17464722/2999220
+                        Dim bm As New Bitmap(ctl.ClientSize.Width, ctl.ClientSize.Height)
+                        Graphics.FromImage(bm).Clear(ctl.BackColor)
+                        ctl.BackgroundImage = bm
+
+                        DirectCast(ctl, ListView).OwnerDraw = theme.ListViewOwnerDraw
+                    End If
                 Case GetType(ListBox)
                     ctl.ForeColor = theme.ListBoxFG
                     ctl.BackColor = theme.ListBoxBG
