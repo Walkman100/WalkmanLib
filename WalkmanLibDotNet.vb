@@ -437,12 +437,14 @@ Partial Public Class WalkmanLib
     ''' <param name="arguments">Any arguments to run the program with. Default: <see langword="Nothing"/></param>
     ''' <param name="workingDirectory">Working directory for the process to be started. Default: <see langword="Nothing"/></param>
     ''' <param name="mergeStdErr">Whether to merge StdErr with StdOut in the function's result (Return String). Default: <see langword="False"/></param>
-    ''' <param name="StdErrReturn">Reference to a System.String variable to populate with StdErr, if any.</param>
-    ''' <param name="ExitCode">Reference to a Integer variable to populate with the program's Exit Code.</param>
+    ''' <param name="stdErrReturn">Reference to a <see cref="String"/> variable to populate with StdErr, if any.</param>
+    ''' <param name="exitCode">Reference to a <see langword="Integer"/> variable to populate with the program's Exit Code.</param>
+    ''' <param name="outputEncoding">Preferred encoding for StdOut and StdErr. Default: <see langword="Nothing"/></param>
     ''' <returns>If <paramref name="mergeStdErr"/> is <see langword="False"/>, Returns StdOut. If <paramref name="mergeStdErr"/> is <see langword="True"/> and the process outputs data to StdErr, Returns StdOut (if not empty) appended with "StdErr:", StdErr, "ExitCode:", and the process's Exit Code.
     ''' <br />To merge StdOut and StdErr in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set <paramref name="mergeStdErr"/> to <see langword="False"/>.</returns>
     Shared Function RunAndGetOutput(fileName As String, Optional arguments As String = Nothing, Optional workingDirectory As String = Nothing,
-                                    Optional mergeStdErr As Boolean = False, Optional ByRef stdErrReturn As String = "", Optional ByRef exitCode As Integer = -1) As String
+                                    Optional mergeStdErr As Boolean = False, Optional ByRef stdErrReturn As String = "", Optional ByRef exitCode As Integer = -1,
+                                    Optional outputEncoding As Text.Encoding = Nothing) As String
         Dim process As New Diagnostics.Process() With {
             .StartInfo = New Diagnostics.ProcessStartInfo() With {
                 .FileName = fileName,
@@ -452,7 +454,9 @@ Partial Public Class WalkmanLib
                 .WindowStyle = Diagnostics.ProcessWindowStyle.Hidden,
                 .UseShellExecute = False,
                 .RedirectStandardError = True,
-                .RedirectStandardOutput = True
+                .RedirectStandardOutput = True,
+                .StandardOutputEncoding = outputEncoding,
+                .StandardErrorEncoding = outputEncoding
             }
         }
 
