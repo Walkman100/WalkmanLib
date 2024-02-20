@@ -55,6 +55,9 @@ public partial class WalkmanLib {
         }).WaitForExit(500);
     }
 
+#if NETCOREAPP
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     /// <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
     /// <returns>true if running with administrator permissions, false if not</returns>
     public static bool IsAdmin() {
@@ -264,6 +267,9 @@ public partial class WalkmanLib {
         }
     }
 
+#if NETCOREAPP
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     /// <summary>Checks whether the user has enabled the Win10+ setting "Default App Mode" (Light/Dark)</summary>
     /// <returns><see langword="true"/> if Dark mode is enabled, <see langword="false"/> if disabled. <see langword="null"/> if the Personalize key does not exist in the registry.</returns>
     public static bool? GetDarkThemeEnabled() {
@@ -285,6 +291,9 @@ public partial class WalkmanLib {
         return null;
     }
 
+#if NETCOREAPP
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     /// <summary>
     /// Gets path to a WalkmanUtils install. First tries in the same folder as the running application,
     /// then the location saved in the registry, then a default fallback in Program Files.

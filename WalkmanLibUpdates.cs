@@ -2,8 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Web.Script.Serialization;
+
+#if NETCOREAPP
+using System.Text.Json;
+#else
 // add a reference to System.Web.Extensions
+using System.Web.Script.Serialization;
+#endif
 
 public partial class WalkmanLib {
     public struct VersionInfo {
@@ -40,9 +45,13 @@ public partial class WalkmanLib {
             }
         }
 
+#if NETCOREAPP
+        Dictionary<string, object> jsonObjectDict = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonObject);
+#else
         // https://stackoverflow.com/a/38944715/2999220
         var jss = new JavaScriptSerializer();
         Dictionary<string, object> jsonObjectDict = jss.Deserialize<Dictionary<string, object>>(jsonObject);
+#endif
 
         return new VersionInfo() {
             TagName = (string)jsonObjectDict["tag_name"],
