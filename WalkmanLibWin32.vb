@@ -559,13 +559,11 @@ Partial Public Class WalkmanLib
     ''' <param name="shortcutPath">Path to the shortcut file.</param>
     ''' <returns>Shortcut object of type IWshShortcut - either use WalkmanLib.IWshShortcut or ComImport your own interface.</returns>
     Public Shared Function GetShortcutInfo(shortcutPath As String) As IWshShortcut
-        Dim WSH_Type As Type = Type.GetTypeFromProgID("WScript.Shell")
-        Dim WSH_Activated As Object = Activator.CreateInstance(WSH_Type)
+        If Not shortcutPath.EndsWith(".lnk", True, Globalization.CultureInfo.InvariantCulture) Then shortcutPath &= ".lnk"
 
-        If Not shortcutPath.EndsWith(".lnk", True, Nothing) Then shortcutPath &= ".lnk"
-        Dim WSH_InvokeMember As Object = WSH_Type.InvokeMember("CreateShortcut", Reflection.BindingFlags.InvokeMethod, Nothing, WSH_Activated, New Object() {shortcutPath})
-
-        Return DirectCast(WSH_InvokeMember, IWshShortcut)
+        Dim WScript_Shell As Object = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell"))
+        Dim shortcut As Object = Microsoft.VisualBasic.CallByName(WScript_Shell, "CreateShortcut", Microsoft.VisualBasic.CallType.Method, shortcutPath)
+        Return DirectCast(shortcut, IWshShortcut)
     End Function
 
     ' Link: https://ss64.com/vb/shortcut.html
