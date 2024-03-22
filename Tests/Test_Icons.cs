@@ -12,7 +12,7 @@ namespace Tests {
         private static void ExtractResXIcon(string resXpath, string resourceName, string outputPath) {
             using (var resXset = new ResXResourceSet(resXpath)) {
                 object resXobject = resXset.GetObject(resourceName);
-                if (resXobject is not Icon) {
+                if (!(resXobject is Icon)) {
                     throw new InvalidDataException("ResX Object was not of type Icon. Got type: " + resXobject.GetType().FullName);
                 }
                 var resXicon = (Icon)resXobject;

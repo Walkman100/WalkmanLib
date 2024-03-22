@@ -9,7 +9,7 @@ namespace Tests {
             return true;
         }
 
-        private static Dictionary<string, WalkmanLib.FlagInfo> flagDict = new() {
+        private static Dictionary<string, WalkmanLib.FlagInfo> flagDict = new Dictionary<string, WalkmanLib.FlagInfo>() {
             {"test", new WalkmanLib.FlagInfo() {
                 shortFlag = 't',
                 hasArgs = true,

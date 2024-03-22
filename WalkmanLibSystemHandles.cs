@@ -557,7 +557,7 @@ public partial class WalkmanLib {
             public SYSTEM_HANDLE_TYPE Type;
         }
 
-        private static readonly ConcurrentDictionary<byte, string> rawTypeMap = new();
+        private static readonly ConcurrentDictionary<byte, string> rawTypeMap = new ConcurrentDictionary<byte, string>();
 
         private static SYSTEM_HANDLE_TYPE HandleTypeFromString(string typeString) => typeString switch {
             var @case when @case == null => SYSTEM_HANDLE_TYPE.UNKNOWN,

@@ -8,7 +8,7 @@ static class Program {
         return true;
     }
 
-    private static Dictionary<string, WalkmanLib.FlagInfo> flagDict = new() {
+    private static Dictionary<string, WalkmanLib.FlagInfo> flagDict = new Dictionary<string, WalkmanLib.FlagInfo>() {
         {"help", new WalkmanLib.FlagInfo() {
             shortFlag = 'h',
             description = "Show Help",
