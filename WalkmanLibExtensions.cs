@@ -1,6 +1,13 @@
 using System;
 using System.Collections.Generic;
+
+#if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
+#if NETCOREAPP
+#else
 using System.Reflection;
+#endif
 
 public static class WalkmanLibExtensions {
     #region Enums
@@ -44,11 +51,11 @@ public static class WalkmanLibExtensions {
         string.IsNullOrWhiteSpace(value) ? (Decimal?)null : decimal.Parse(value, fp);
     public static DateTime? NullableParseDateTime(string value, IFormatProvider fp = null) =>
         string.IsNullOrWhiteSpace(value) ? (DateTime?)null : DateTime.Parse(value, fp);
-    public static DateTime? NullableParseExactDateTime(string value, string format, IFormatProvider fp = null) =>
+    public static DateTime? NullableParseExactDateTime(string value, [StringSyntax(StringSyntaxAttribute.DateTimeFormat)] string format, IFormatProvider fp = null) =>
         string.IsNullOrWhiteSpace(value) ? (DateTime?)null : DateTime.ParseExact(value, format, fp);
     public static DateTimeOffset? NullableParseDateTimeOffset(string value, IFormatProvider fp = null) =>
         string.IsNullOrWhiteSpace(value) ? (DateTimeOffset?)null : DateTimeOffset.Parse(value, fp);
-    public static DateTimeOffset? NullableParseExactDateTimeOffset(string value, string format, IFormatProvider fp = null) =>
+    public static DateTimeOffset? NullableParseExactDateTimeOffset(string value, [StringSyntax(StringSyntaxAttribute.DateTimeFormat)] string format, IFormatProvider fp = null) =>
         string.IsNullOrWhiteSpace(value) ? (DateTimeOffset?)null : DateTimeOffset.ParseExact(value, format, fp);
     public static TEnum? NullableParseEnum<TEnum>(string value, bool ignoreCase = false) where TEnum : struct, Enum =>
         string.IsNullOrWhiteSpace(value) ? (TEnum?)null : Parse<TEnum>(value, ignoreCase);
@@ -75,6 +82,36 @@ public static class WalkmanLibExtensions {
 
     public static string EmptyToNull(this string input) =>
         string.IsNullOrWhiteSpace(input) ? null : input;
+
+#if NET7_0_OR_GREATER
+#else
+    // see https://github.com/dotnet/runtime/issues/62505#issuecomment-1044625848
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+    internal sealed class StringSyntaxAttribute : Attribute {
+        public const string CompositeFormat = "CompositeFormat";
+        public const string DateOnlyFormat = "DateOnlyFormat";
+        public const string DateTimeFormat = "DateTimeFormat";
+        public const string EnumFormat = "EnumFormat";
+        public const string GuidFormat = "GuidFormat";
+        public const string Json = "Json";
+        public const string NumericFormat = "NumericFormat";
+        public const string Regex = "Regex";
+        public const string TimeOnlyFormat = "TimeOnlyFormat";
+        public const string TimeSpanFormat = "TimeSpanFormat";
+        public const string Uri = "Uri";
+        public const string Xml = "Xml";
+        public StringSyntaxAttribute(string syntax) {
+            Syntax = syntax;
+            Arguments = new object[] { };
+        }
+        public StringSyntaxAttribute(string syntax, params object[] arguments) {
+            Syntax = syntax;
+            Arguments = arguments;
+        }
+        public string Syntax { get; }
+        public object[] Arguments { get; }
+    }
+#endif
 
 #if NETCOREAPP
 #else
