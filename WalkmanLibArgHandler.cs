@@ -162,7 +162,7 @@ public partial class WalkmanLib {
     /// <param name="flagName">Optional string to format <paramref name="errorInfo"/> - <c>string.Format</c> will be used if this flag is set</param>
     /// <returns></returns>
     private static ResultInfo GetErrorResult(string errorInfo, string flagName = null) {
-        var resultInfo = new ResultInfo() {gotError = true};
+        var resultInfo = new ResultInfo() { gotError = true };
         if (flagName == null) {
             resultInfo.errorInfo = errorInfo;
         } else {
@@ -200,7 +200,7 @@ public partial class WalkmanLib {
         foreach (string preArg in args) {
             string arg = preArg; // apparently you can't set foreach variables in C# like you can in VB.Net
 
-            if (processingShortFlags && arg.StartsWith("-") && arg[1] != '-') {
+            if (processingShortFlags && arg.StartsWith("-") && arg.Length > 1 && arg[1] != '-') {
                 foreach (char chr in arg.Substring(1)) {
                     if (gettingArg && gettingArgFor.optionalArgs) {
                         if (!gettingArgFor.action(null)) return GetErrorResult(null);
@@ -209,7 +209,7 @@ public partial class WalkmanLib {
                         return GetErrorResult("Short Flag \"{0}\" requires arguments!", gettingArgFor.shortFlag.ToString());
                     }
 
-                    KeyValuePair<string, FlagInfo> flagKV = flagDict.FirstOrDefault((KeyValuePair<string, FlagInfo> x) => x.Value.shortFlag == chr);
+                    KeyValuePair<string, FlagInfo> flagKV = flagDict.FirstOrDefault(x => x.Value.shortFlag == chr);
 
                     if (flagKV.Value != null) {
                         if (flagKV.Value.hasArgs) {
