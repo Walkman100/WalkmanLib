@@ -204,7 +204,7 @@ Partial Public Class WalkmanLib
 
         For Each arg As String In args
 
-            If processingShortFlags AndAlso arg.StartsWith("-") AndAlso arg(1) <> "-"c Then
+            If processingShortFlags AndAlso arg.StartsWith("-") AndAlso arg.Length > 1 AndAlso arg(1) <> "-"c Then
                 For Each chr As Char In arg.Substring(1)
                     If gettingArg AndAlso gettingArgFor.optionalArgs Then
                         If Not gettingArgFor.action(Nothing) Then Return GetErrorResult(Nothing)
