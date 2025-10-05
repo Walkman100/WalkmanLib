@@ -891,15 +891,14 @@ Partial Public Class WalkmanLib
     ''' <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>
     ''' <param name="path">Path to the file to get size for.</param>
     ''' <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
-    Public Shared Function GetCompressedSize(path As String) As Double
+    Public Shared Function GetCompressedSize(path As String) As ULong
         Dim sizeMultiplier As UInteger
-        Dim fileLength As Long = Convert.ToInt64(GetCompressedFileSize(path, sizeMultiplier))
-        If fileLength = &HFFFFFFFF Then
+        Dim fileLength As UInteger = GetCompressedFileSize(path, sizeMultiplier)
+        If fileLength = UInteger.MaxValue Then
             Dim errorException As New Win32Exception
             If errorException.NativeErrorCode() <> 0 Then Throw New IOException(errorException.Message, errorException)
         End If
-        Dim size As Double = ((UInteger.MaxValue + 1) * sizeMultiplier) + fileLength
-        Return size
+        Return ((UInteger.MaxValue + 1UL) * sizeMultiplier) + fileLength ' all operations << are calculated as ULong
     End Function
 
     'https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getcompressedfilesizew
