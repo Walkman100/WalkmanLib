@@ -765,8 +765,8 @@ Partial Public Class WalkmanLib
 
                 ' always returns false, no point in checking
                 DuplicateHandle(sourceProcessHandle, CType(HandleID, IntPtr), GetCurrentProcess(), handleDuplicate, 0, False, DUPLICATE_HANDLE_OPTIONS.DUPLICATE_CLOSE_SOURCE)
-                If CType(handleDuplicate, Integer) < 1 AndAlso Marshal.GetLastWin32Error() = 6 Then ' ERROR_INVALID_HANDLE: The handle is invalid.
-                    Throw New ArgumentException("Handle ID Not Found!", "HandleID", New Win32Exception(6))
+                If CType(handleDuplicate, Integer) < 1 AndAlso Marshal.GetLastWin32Error() = NativeErrorCode.ERROR_INVALID_HANDLE Then
+                    Throw New ArgumentException("Handle ID Not Found!", "HandleID", New Win32Exception(NativeErrorCode.ERROR_INVALID_HANDLE))
                 End If
             Finally
                 CloseHandle(sourceProcessHandle)

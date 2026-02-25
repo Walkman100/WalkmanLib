@@ -24,7 +24,6 @@ Partial Public Class WalkmanLib
     Public NotInheritable Class RestartManager
         Private Const CCH_RM_MAX_APP_NAME As Integer = &HFF
         Private Const CCH_RM_MAX_SVC_NAME As Integer = &H3F
-        Private Const ERROR_MORE_DATA As Integer = &HEA
 
         'https://docs.microsoft.com/en-us/windows/win32/api/restartmanager/ns-restartmanager-rm_process_info
         <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
@@ -116,7 +115,7 @@ Partial Public Class WalkmanLib
                 End If
 
                 Select Case RmGetList(handle, ArrayLengthNeeded, ArrayLength, Nothing, lpdwRebootReasons)
-                    Case ERROR_MORE_DATA
+                    Case NativeErrorCode.ERROR_MORE_DATA
                         Dim processInfos(CType(ArrayLengthNeeded, Integer) - 1) As ProcessInfo
                         ArrayLength = ArrayLengthNeeded
 
@@ -125,7 +124,7 @@ Partial Public Class WalkmanLib
                         End If
 
                         Return processInfos
-                    Case 0
+                    Case NativeErrorCode.ERROR_SUCCESS
                         Return New ProcessInfo() {}
                     Case Else
                         Throw New Exception("Could not list processes locking resource. Failed to get size of result.", New Win32Exception())

@@ -83,8 +83,8 @@ Namespace Tests
 
                 Try
                     cm.ShowMenu(IntPtr.Zero, New Drawing.Point(0, 0))
-                Catch ex As Win32Exception '1400 = ERROR_INVALID_WINDOW_HANDLE (0x578): Invalid window handle.
-                    Return TestNumber("ContextMenu6", ex.NativeErrorCode, 1400)
+                Catch ex As Win32Exception
+                    Return TestNumber("ContextMenu6", ex.NativeErrorCode, WalkmanLib.NativeErrorCode.ERROR_INVALID_WINDOW_HANDLE)
                 Catch ex As Exception
                     Return TestType("ContextMenu6", ex.GetType(), GetType(Win32Exception))
                 End Try

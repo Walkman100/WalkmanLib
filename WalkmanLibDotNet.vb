@@ -96,7 +96,7 @@ Partial Public Class WalkmanLib
                                           .WorkingDirectory = workingDirectory
                                       })
             Return True
-        Catch ex As ComponentModel.Win32Exception When ex.NativeErrorCode = 1223
+        Catch ex As ComponentModel.Win32Exception When ex.NativeErrorCode = NativeErrorCode.ERROR_CANCELLED
             Return False
         End Try
     End Function

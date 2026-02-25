@@ -55,7 +55,7 @@ Namespace Tests
                 WalkmanLib.RunAndGetOutput("nonExistantFile")
                 Return TestType("RunAndGetOutputThrows1", GetType(NoException), GetType(Win32Exception))
             Catch ex As Win32Exception ' expected. none of the other Test* should run.
-                Return TestNumber("RunAndGetOutputThrows1", ex.NativeErrorCode, 2) '0x2: ERROR_FILE_NOT_FOUND: The system cannot find the file specified.
+                Return TestNumber("RunAndGetOutputThrows1", ex.NativeErrorCode, WalkmanLib.NativeErrorCode.ERROR_FILE_NOT_FOUND)
             Catch ex As Exception
                 Return TestType("RunAndGetOutputThrows1", ex.GetType, GetType(Win32Exception))
             End Try
@@ -66,7 +66,7 @@ Namespace Tests
                 WalkmanLib.RunAndGetOutput(Environment.GetEnvironmentVariable("WinDir"))
                 Return TestType("RunAndGetOutputThrows2", GetType(NoException), GetType(Win32Exception))
             Catch ex As Win32Exception ' expected. none of the other Test* should run.
-                Return TestNumber("RunAndGetOutputThrows2", ex.NativeErrorCode, 5) '0x5: ERROR_ACCESS_DENIED: Access is denied.
+                Return TestNumber("RunAndGetOutputThrows2", ex.NativeErrorCode, WalkmanLib.NativeErrorCode.ERROR_ACCESS_DENIED)
             Catch ex As Exception
                 Return TestType("RunAndGetOutputThrows2", ex.GetType, GetType(Win32Exception))
             End Try
@@ -77,7 +77,7 @@ Namespace Tests
                 WalkmanLib.RunAndGetOutput(Path.Combine(Environment.SystemDirectory, "shell32.dll"))
                 Return TestType("RunAndGetOutputThrows3", GetType(NoException), GetType(Win32Exception))
             Catch ex As Win32Exception ' expected. none of the other Test* should run.
-                Return TestNumber("RunAndGetOutputThrows3", ex.NativeErrorCode, 193) '0xC1: ERROR_BAD_EXE_FORMAT: %1 is not a valid Win32 application.
+                Return TestNumber("RunAndGetOutputThrows3", ex.NativeErrorCode, WalkmanLib.NativeErrorCode.ERROR_BAD_EXE_FORMAT)
             Catch ex As Exception
                 Return TestType("RunAndGetOutputThrows3", ex.GetType, GetType(Win32Exception))
             End Try

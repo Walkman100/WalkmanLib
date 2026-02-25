@@ -50,23 +50,19 @@ Partial Public Class WalkmanLib
         If CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) = False Then
 
             Dim errorException As New Win32Exception
-            If errorException.NativeErrorCode = 2 Then
-                'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            If errorException.NativeErrorCode = NativeErrorCode.ERROR_FILE_NOT_FOUND Then
                 If Not File.Exists(existingFilePath) Then
                     Throw New FileNotFoundException("The hardlink target does not exist", existingFilePath, errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 3 Then
-                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_PATH_NOT_FOUND Then
                 If Not Directory.Exists(New FileInfo(hardlinkPath).DirectoryName) Then ' "New FileInfo(hardlinkPath)" throws an exception on invalid characters in path - perfect!
                     Throw New DirectoryNotFoundException("The path to the new hardlink does not exist", errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 183 Then
-                'ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ALREADY_EXISTS Then
                 If File.Exists(hardlinkPath) Or Directory.Exists(hardlinkPath) Then
                     Throw New IOException("The hardlink path already exists", errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 5 Then
-                'ERROR_ACCESS_DENIED: Access is denied
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ACCESS_DENIED Then
                 Throw New UnauthorizedAccessException("Access to the new hardlink path is denied", errorException)
             End If
             Throw errorException
@@ -93,22 +89,17 @@ Partial Public Class WalkmanLib
 
         If CreateSymbolicLink(symlinkPath, targetPath, flags) = False Then
             Dim errorException As New Win32Exception
-            If errorException.NativeErrorCode = &H03 Then
-                '0x03: ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            If errorException.NativeErrorCode = NativeErrorCode.ERROR_PATH_NOT_FOUND Then
                 If Not Directory.Exists(New FileInfo(symlinkPath).DirectoryName) Then ' "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
                     Throw New DirectoryNotFoundException("The path to the symbolic link does not exist", errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = &HB7 Then
-                '0xB7: ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ALREADY_EXISTS Then
                 If File.Exists(symlinkPath) Or Directory.Exists(symlinkPath) Then
                     Throw New IOException("The symbolic link path already exists", errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = &H05 Then
-                '0x05: ERROR_ACCESS_DENIED: Access is denied
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ACCESS_DENIED Then
                 Throw New UnauthorizedAccessException("Access to the symbolic link path is denied", errorException)
-            ElseIf errorException.NativeErrorCode = &H522 Then
-                '0x522: ERROR_PRIVILEGE_NOT_HELD: A required privilege is not held by the client.
-                '   ^ this occurs when Developer Mode is not enabled, or on below Windows 10
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_PRIVILEGE_NOT_HELD Then 'this occurs when Developer Mode is not enabled, or on below Windows 10
                 Throw New UnauthorizedAccessException("Symbolic link creation requires Admin privileges, or enabling developer mode", errorException)
             End If
             Throw errorException
@@ -141,20 +132,15 @@ Partial Public Class WalkmanLib
 
         If handle.IsInvalid Then
             Dim errorException As New Win32Exception
-            If errorException.NativeErrorCode = 2 Then
-                'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            If errorException.NativeErrorCode = NativeErrorCode.ERROR_FILE_NOT_FOUND Then
                 Throw New FileNotFoundException(errorException.Message, fileName, errorException)
-            ElseIf errorException.NativeErrorCode = 3 Then
-                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_PATH_NOT_FOUND Then
                 Throw New DirectoryNotFoundException("The path to the file does not exist", errorException)
-            ElseIf errorException.NativeErrorCode = 5 Then
-                'ERROR_ACCESS_DENIED: Access is denied
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ACCESS_DENIED Then
                 Throw New UnauthorizedAccessException("Access to the file path is denied", errorException)
-            ElseIf errorException.NativeErrorCode = 32 Then
-                'ERROR_SHARING_VIOLATION: The process cannot access the file because it is being used by another process
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_SHARING_VIOLATION Then
                 Throw New IOException(errorException.Message, errorException)
-            ElseIf errorException.NativeErrorCode = 183 Then
-                'ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ALREADY_EXISTS Then
                 Throw New IOException("The target path already exists", errorException)
             End If
             Throw errorException
@@ -459,21 +445,17 @@ Partial Public Class WalkmanLib
 
         If hFind = INVALID_HANDLE_VALUE Then
             Dim errorException As New Win32Exception
-            If errorException.NativeErrorCode = 2 Then
-                'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            If errorException.NativeErrorCode = NativeErrorCode.ERROR_FILE_NOT_FOUND Then
                 If Not File.Exists(path) Then
                     Throw New FileNotFoundException(errorException.Message, path, errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 3 Then
-                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_PATH_NOT_FOUND Then
                 If Not Directory.Exists(New FileInfo(path).DirectoryName) Then
                     Throw New DirectoryNotFoundException(errorException.Message, errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 5 Then
-                'ERROR_ACCESS_DENIED: Access is denied
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ACCESS_DENIED Then
                 Throw New UnauthorizedAccessException("Access to the file path is denied", errorException)
-            ElseIf errorException.NativeErrorCode = 32 Then
-                'ERROR_SHARING_VIOLATION: The process cannot access the file because it is being used by another process
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_SHARING_VIOLATION Then
                 Throw New IOException(errorException.Message, errorException)
             End If
             Throw errorException
@@ -495,8 +477,7 @@ Partial Public Class WalkmanLib
             End While
 
             Dim errorException As Win32Exception = New Win32Exception
-            '                                    ERROR_HANDLE_EOF: Reached the end of the file.
-            If errorException.NativeErrorCode <> &H26 Then Throw errorException
+            If errorException.NativeErrorCode <> NativeErrorCode.ERROR_HANDLE_EOF Then Throw errorException
         Finally
             FindClose(hFind)
         End Try
@@ -650,18 +631,15 @@ Partial Public Class WalkmanLib
                 OrElse shInfo.hIcon = IntPtr.Zero Then
 
             Dim errorException As New Win32Exception()
-            If errorException.NativeErrorCode = 2 Then
-                'ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            If errorException.NativeErrorCode = NativeErrorCode.ERROR_FILE_NOT_FOUND Then
                 If Not File.Exists(filePath) Then
                     Throw New FileNotFoundException("The file does not exist", filePath, errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 3 Then
-                'ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_PATH_NOT_FOUND Then
                 If Not Directory.Exists(New FileInfo(filePath).DirectoryName) Then
                     Throw New DirectoryNotFoundException("The path to the file does not exist", errorException)
                 End If
-            ElseIf errorException.NativeErrorCode = 5 Then
-                'ERROR_ACCESS_DENIED: Access is denied
+            ElseIf errorException.NativeErrorCode = NativeErrorCode.ERROR_ACCESS_DENIED Then
                 Throw New UnauthorizedAccessException("Access to the file is denied", errorException)
             End If
             Throw errorException
@@ -896,7 +874,7 @@ Partial Public Class WalkmanLib
         Dim fileLength As UInteger = GetCompressedFileSize(path, sizeMultiplier)
         If fileLength = UInteger.MaxValue Then
             Dim errorException As New Win32Exception
-            If errorException.NativeErrorCode() <> 0 Then Throw New IOException(errorException.Message, errorException)
+            If errorException.NativeErrorCode <> NativeErrorCode.ERROR_SUCCESS Then Throw New IOException(errorException.Message, errorException)
         End If
         Return ((UInteger.MaxValue + 1UL) * sizeMultiplier) + fileLength ' all operations << are calculated as ULong
     End Function
@@ -1054,9 +1032,7 @@ Partial Public Class WalkmanLib
         Dim hWnd As IntPtr = FindWindow(windowClass, windowName)
         If hWnd = IntPtr.Zero Then
             Dim errorException As New Win32Exception()
-            If errorException.NativeErrorCode = 0 OrElse errorException.NativeErrorCode = 1400 Then
-                '0: ERROR_SUCCESS: The operation completed successfully.
-                '1400: ERROR_INVALID_WINDOW_HANDLE: Invalid window handle.
+            If errorException.NativeErrorCode = NativeErrorCode.ERROR_SUCCESS OrElse errorException.NativeErrorCode = NativeErrorCode.ERROR_INVALID_WINDOW_HANDLE Then
                 Throw New ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException)
             End If
 
@@ -1101,8 +1077,7 @@ Partial Public Class WalkmanLib
         Dim hWnd As IntPtr = FindWindow(windowClass, windowName)
         If hWnd = IntPtr.Zero Then
             Dim errorException As New Win32Exception()
-            If errorException.NativeErrorCode = 0 Then
-                'ERROR_SUCCESS: The operation completed successfully.
+            If errorException.NativeErrorCode = NativeErrorCode.ERROR_SUCCESS Then
                 Throw New ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException)
             End If
             Throw errorException
@@ -1190,7 +1165,7 @@ Partial Public Class WalkmanLib
         Synchronize = Win32FileAccess.Synchronize
         ''' <summary>
         ''' All possible access rights for a thread object. For Windows Server 2008/Windows Vista and up.
-        ''' If this flag is specified on Windows Server 2003/Windows XP or below, the function specifying this flag fails with ERROR_ACCESS_DENIED.
+        ''' If this flag is specified on Windows Server 2003/Windows XP or below, the function specifying this flag fails with <see cref="NativeErrorCode.ERROR_ACCESS_DENIED"/>.
         ''' </summary>
         AllAccess_VistaAndUp = Win32FileAccess.StandardRightsRequired Or Win32FileAccess.Synchronize Or &HFFFF
         ''' <summary>

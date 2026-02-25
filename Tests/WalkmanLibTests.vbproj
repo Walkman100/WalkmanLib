@@ -105,6 +105,9 @@
       <Link>WalkmanLib\CustomMsgBox.Designer.vb</Link>
       <DependentUpon>CustomMsgBox.vb</DependentUpon>
     </Compile>
+    <Compile Include="..\NativeErrorCodes.vb">
+      <Link>WalkmanLib\NativeErrorCodes.vb</Link>
+    </Compile>
     <Compile Include="..\WalkmanLibArgHandler.vb">
       <Link>WalkmanLib\WalkmanLibArgHandler.vb</Link>
     </Compile>
