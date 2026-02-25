@@ -1069,6 +1069,22 @@ Partial Public Class WalkmanLib
                 Me.getDisabledColor = Function() disabledColor
             End Sub
 
+            ' draw separator with assigned ForeColor
+            Protected Overrides Sub OnRenderSeparator(e As ToolStripSeparatorRenderEventArgs)
+                Dim pen As New Pen(e.Item.ForeColor)
+                Dim bounds As New Rectangle(Point.Empty, e.Item.Size)
+
+                If e.Vertical Then
+                    If bounds.Height >= 4 Then bounds.Inflate(0, -2)
+                    Dim num As Integer = bounds.Width \ 2
+                    e.Graphics.DrawLine(pen, num, bounds.Top, num, bounds.Bottom)
+                Else
+                    If bounds.Width >= 4 Then bounds.Inflate(-2, 0)
+                    Dim num As Integer = bounds.Height \ 2
+                    e.Graphics.DrawLine(pen, bounds.Left, num, bounds.Right, num)
+                End If
+            End Sub
+
             Protected Overrides Sub OnRenderItemText(e As ToolStripItemTextRenderEventArgs)
                 'https://bytes.com/topic/visual-basic-net/answers/590331-specify-custom-disabled-text-color-toolstripprofessionalrendere
                 If e.Item.Enabled Then
@@ -1080,8 +1096,7 @@ Partial Public Class WalkmanLib
                     If (e.TextDirection <> ToolStripTextDirection.Horizontal) AndAlso (textRectangle.Width > 0) AndAlso (textRectangle.Height > 0) Then
                         Dim size As New Size(width:=textRectangle.Height, height:=textRectangle.Width)
 
-                        Using bitmap As New Bitmap(size.Width, size.Height, Imaging.PixelFormat.Format32bppPArgb),
-                                g As Graphics = Graphics.FromImage(bitmap)
+                        Using bitmap As New Bitmap(size.Width, size.Height, Imaging.PixelFormat.Format32bppPArgb), g As Graphics = Graphics.FromImage(bitmap)
                             g.TextRenderingHint = Text.TextRenderingHint.AntiAlias
                             TextRenderer.DrawText(g, e.Text, e.TextFont, New Rectangle(Point.Empty, size), color, e.TextFormat)
 
