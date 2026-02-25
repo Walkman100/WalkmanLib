@@ -810,7 +810,7 @@ Partial Public Class WalkmanLib
     ''' <param name="filePath">The path to the file that contains an image.</param>
     ''' <param name="iconIndex">Index to extract the icon from. If this is a positive number, it refers to the zero-based position of the icon in the file. If this is a negative number, it refers to the icon's resource ID.</param>
     ''' <param name="iconSize">Size of icon to extract. Size is measured in pixels. Pass 0 to specify default icon size. Default: 0.</param>
-    ''' <returns>The System.Drawing.Icon representation of the image that is contained in the specified file.</returns>
+    ''' <returns>The <see cref="System.Drawing.Icon"/> representation of the image that is contained in the specified file.</returns>
     Public Shared Function ExtractIconByIndex(filePath As String, iconIndex As Integer, Optional iconSize As UInteger = 0) As Drawing.Icon
         If Not File.Exists(filePath) Then Throw New FileNotFoundException("File """ & filePath & """ not found!")
 
@@ -965,6 +965,31 @@ Partial Public Class WalkmanLib
     <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Sub mouse_event(dwFlags As MouseButton, dx As UInteger, dy As UInteger, dwData As UInteger, dwExtraInfo As UInteger)
     End Sub
+#End Region
+
+#Region "PreferredAppMode"
+    ' Link: https://stackoverflow.com/a/75835243/2999220
+    ' Link: https://github.com/ysc3839/win32-darkmode/blob/cc26549b65b25d6f3168a80238792545bd401271/win32-darkmode/DarkMode.h#L11
+    Public Shared Sub SetPreferredAppMode(preferredAppMode As PreferredAppMode)
+        Win32SetPreferredAppMode(preferredAppMode)
+        FlushMenuThemes()
+    End Sub
+
+    ' undocumented functions...
+    <DllImport("uxtheme.dll", EntryPoint:="#135", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function Win32SetPreferredAppMode(preferredAppMode As PreferredAppMode) As Integer
+    End Function
+    <DllImport("uxtheme.dll", EntryPoint:="#136", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Sub FlushMenuThemes()
+    End Sub
+
+    Enum PreferredAppMode
+        [Default]
+        AllowDark
+        ForceDark
+        ForceLight
+        Max
+    End Enum
 #End Region
 
 #Region "ShowProperties"
