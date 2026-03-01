@@ -11,7 +11,7 @@ Namespace Tests
         Implements IDisposable
 
         Private _filePath As String
-        Public ReadOnly Property filePath As String
+        Public ReadOnly Property FilePath As String
             Get
                 Return _filePath
             End Get
@@ -34,16 +34,16 @@ Namespace Tests
         End Sub
 
         Public Overrides Function ToString() As String
-            Return filePath
+            Return FilePath
         End Function
 
         Public Shared Widening Operator CType(v As DisposableFile) As String
-            Return v.filePath
+            Return v.FilePath
         End Operator
 
         Protected Overridable Overloads Sub Dispose(disposing As Boolean)
             If Not disposed Then
-                If disposing Then DeleteFileIfExists(filePath)
+                If disposing Then DeleteFileIfExists(FilePath)
                 disposed = True
             End If
         End Sub

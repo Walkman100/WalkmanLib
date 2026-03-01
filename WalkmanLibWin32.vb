@@ -321,7 +321,7 @@ Partial Public Class WalkmanLib
         'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/c8e77b37-3909-4fe6-a4ea-2b9d423b1ee4
         Const IO_REPARSE_TAG_MOUNT_POINT As UInteger = &HA0000003UI
         'https://docs.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_set_reparse_point
-        Const FSCTL_SET_REPARSE_POINT As UInteger = &H900A4
+        Const FSCTL_SET_REPARSE_POINT As UInteger = &H000900A4
         'This prefix indicates to NTFS that the path is to be treated as a non-interpreted path in the virtual file system.
         Const NonInterpretedPathPrefix As String = "\??\"
 
@@ -332,7 +332,9 @@ Partial Public Class WalkmanLib
         End If
         targetPath = NonInterpretedPathPrefix & Path.GetFullPath(targetPath)
 
-        Using reparsePointHandle As SafeFileHandle = Win32CreateFile(junctionPath, Win32FileAccess.GenericWrite, FileShare.Read Or FileShare.Write Or FileShare.Delete, FileMode.Open, Win32FileAttribute.FlagBackupSemantics Or Win32FileAttribute.FlagOpenReparsePoint)
+        Using reparsePointHandle As SafeFileHandle = Win32CreateFile(junctionPath, Win32FileAccess.GenericWrite,
+                                                                     FileShare.Read Or FileShare.Write Or FileShare.Delete, FileMode.Open,
+                                                                     Win32FileAttribute.FlagBackupSemantics Or Win32FileAttribute.FlagOpenReparsePoint)
             If Marshal.GetLastWin32Error() <> 0 Then Throw New IOException("Unable to open reparse point.", New Win32Exception())
 
             ' unicode string is 2 bytes per character, so *2 to get byte length
@@ -347,7 +349,9 @@ Partial Public Class WalkmanLib
                 .PathBuffer = targetPath
             }
 
-            Dim result As Boolean = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, reparseDataBuffer, byteLength + 20US, IntPtr.Zero, 0, 0, IntPtr.Zero)
+            Dim result As Boolean = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT,
+                                                    lpInBuffer:=reparseDataBuffer, nInBufferSize:=byteLength + 20US,
+                                                    lpOutBuffer:=IntPtr.Zero, nOutBufferSize:=0, lpBytesReturned:=0, lpOverlapped:=IntPtr.Zero)
             If Not result Then Throw New IOException("Unable to create junction point.", New Win32Exception())
         End Using
     End Sub
@@ -499,12 +503,12 @@ Partial Public Class WalkmanLib
     End Function
 #End Region
 
-#Region "GetSymlinkTarget"
+#Region "GetSymlinkFinalPath"
     ' Link: https://stackoverflow.com/a/33487494/2999220
-    ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
+    ''' <summary>Gets the final full path to the target of a symbolic link, directory junction or volume mountpoint. Throws <see cref="Win32Exception"> on error.</summary>
     ''' <param name="path">Path to the symlink to get the target of.</param>
     ''' <returns>The fully qualified path to the target.</returns>
-    Public Shared Function GetSymlinkTarget(path As String) As String
+    Public Shared Function GetSymlinkFinalPath(path As String) As String
         Dim returnString As String = ""
 
         Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.ReadEA,
@@ -531,6 +535,77 @@ Partial Public Class WalkmanLib
     Private Shared Function GetFinalPathNameByHandle(hFile As SafeFileHandle, lpszFilePath As Text.StringBuilder,
                                                      cchFilePath As UInteger, dwFlags As UInteger) As UInteger
     End Function
+#End Region
+
+#Region "GetSymlinkTarget"
+    ' Link: https://stackoverflow.com/a/46383996/2999220
+    ''' <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws <see cref="Win32Exception"/> on error.</summary>
+    ''' <param name="path">Path to the symlink to get the target of.</param>
+    ''' <returns>The target contained in the symlink/reparse point data.</returns>
+    Public Shared Function GetSymlinkTarget(path As String) As String
+        'https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_get_reparse_point
+        Const FSCTL_GET_REPARSE_POINT As UInteger = &H000900A8
+        Const IO_REPARSE_TAG_SYMLINK As UInteger = &HA000000CUI
+        Const IO_REPARSE_TAG_MOUNTPOINT As UInteger = &HA0000003UI
+        Dim reparseData As New ReparseDataOutBuffer()
+
+        'https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew#symbolic-link-behavior
+        Using hFile As SafeFileHandle = Win32CreateFile(path, Win32FileAccess.ReadEA,
+                                                        FileShare.Read Or FileShare.Write Or FileShare.Delete, FileMode.Open,
+                                                        Win32FileAttribute.FlagBackupSemantics Or Win32FileAttribute.FlagOpenReparsePoint)
+
+            Dim result As Boolean = DeviceIoControl(hFile, FSCTL_GET_REPARSE_POINT, lpInBuffer:=Nothing, nInBufferSize:=0,
+                                                    lpOutBuffer:=reparseData, nOutBufferSize:=16384, lpBytesReturned:=Nothing, lpOverlapped:=Nothing)
+            If Not result Then Throw New Win32Exception()
+        End Using
+
+        If reparseData.ReparseTag = IO_REPARSE_TAG_SYMLINK OrElse reparseData.ReparseTag = IO_REPARSE_TAG_MOUNTPOINT Then
+            Dim startOffset As Integer = reparseData.SubstituteNameOffset
+            If reparseData.ReparseTag = IO_REPARSE_TAG_SYMLINK Then
+                startOffset += 4 ' account for the extra ULONG(32-bit) Flags field in SymbolicLinkReparseBuffer
+            End If
+
+            Dim target As String = Text.Encoding.Unicode.GetString(reparseData.PathBuffer, startOffset, reparseData.SubstituteNameLength)
+
+            If target.StartsWith("\??\") Then target = target.Substring(4)
+            Return target
+        Else
+            Return Nothing
+        End If
+    End Function
+
+    'https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_get_reparse_point
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function DeviceIoControl(hDevice As SafeFileHandle, dwIoControlCode As UInteger,
+                                            lpInBuffer As IntPtr, nInBufferSize As UInteger,
+                                            <[In], Out> ByRef lpOutBuffer As ReparseDataOutBuffer, nOutBufferSize As UInteger,
+                                            <Out> ByRef lpBytesReturned As UInteger, lpOverlapped As IntPtr) As Boolean
+    End Function
+
+    'https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_reparse_data_buffer
+    <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
+    Private Structure ReparseDataOutBuffer
+        ''' <summary>Reparse point tag. Must be a Microsoft reparse point tag.</summary>
+        Public ReparseTag As UInteger
+        ''' <summary>Size, in bytes, of the reparse data in the buffer that <see cref="PathBuffer"/> points to.</summary>
+        Public ReparseDataLength As UShort
+        ''' <summary>Reserved; do not use.</summary>
+        Private Reserved As UShort
+        ''' <summary>Offset, in bytes, of the substitute name string in the <see cref="PathBuffer"/> array.</summary>
+        Public SubstituteNameOffset As UShort
+        ''' <summary>Length, in bytes, of the substitute name string. If this string is null-terminated, <see cref="SubstituteNameLength"/> does not include space for the null character.</summary>
+        Public SubstituteNameLength As UShort
+        ''' <summary>Offset, in bytes, of the print name string in the <see cref="PathBuffer"/> array.</summary>
+        Public PrintNameOffset As UShort
+        ''' <summary>Length, in bytes, of the print name string. If this string is null-terminated, <see cref="PrintNameLength"/> does not include space for the null character.</summary>
+        Public PrintNameLength As UShort
+        ''' <summary>
+        ''' A buffer containing the unicode-encoded path string. The path string contains the substitute name
+        ''' string and print name string. The substitute name and print name strings can appear in any order.
+        ''' </summary>
+        <MarshalAs(UnmanagedType.ByValArray, SizeConst:=16368)>
+        Public PathBuffer As Byte()
+    End Structure
 #End Region
 
 #Region "Shortcut Management"
