@@ -1052,13 +1052,15 @@ Partial Public Class WalkmanLib
     ''' <param name="tab">Optional tab to open to. Beware, this name is Windows version-specific!</param>
     ''' <returns>Whether the properties window was shown successfully or not.</returns>
     Public Shared Function ShowProperties(path As String, Optional tab As String = Nothing) As Boolean
-        Dim info As New ShellExecuteInfo
-        info.cbSize = CType(Marshal.SizeOf(info), UInteger)
-        info.lpVerb = "properties"
-        info.lpFile = path
-        If tab <> Nothing Then info.lpParameters = tab
-        info.nShow = 5  'SW_SHOW
-        info.fMask = 12 'SEE_MASK_INVOKEIDLIST
+        Dim info As New ShellExecuteInfo With {
+            .cbSize = CType(Marshal.SizeOf(Of ShellExecuteInfo)(), UInteger),
+            .lpVerb = "properties",
+            .lpFile = path,
+            .lpParameters = tab,
+            .nShow = 5,
+            .fMask = 12
+        } '5 = SW_SHOW, 12 = SEE_MASK_INVOKEIDLIST
+
         Return ShellExecuteEx(info)
     End Function
 
@@ -1071,7 +1073,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Auto)>
     Private Structure ShellExecuteInfo
-        Public cbSize As UInteger ' cbSize is specified as a DWORD, and "A DWORD is a 32-bit unsigned integer"
+        Public cbSize As UInteger ' cbSize is specified as a DWORD, and "A DWORD is a 32-bit unsigned integer": https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/262627d8-3418-4627-9218-4ffe110850b2
         Public fMask As UInteger
         Public hwnd As IntPtr
         <MarshalAs(UnmanagedType.LPTStr)>
@@ -1171,7 +1173,7 @@ Partial Public Class WalkmanLib
             Else
 
                 ' Wait for handle with specified timeout
-                Select Case WaitForSingleObject(handle.DangerousGetHandle, timeout)
+                Select Case WaitForSingleObject(handle, timeout)
                     Case WFSO_Val.WAIT_OBJECT_0
                         ' success condition
                     Case WFSO_Val.WAIT_ABANDONED
@@ -1254,7 +1256,7 @@ Partial Public Class WalkmanLib
     'https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject
     'https://www.pinvoke.net/default.aspx/kernel32.waitforsingleobject
     <DllImport("kernel32.dll", SetLastError:=True)>
-    Private Shared Function WaitForSingleObject(handle As IntPtr, milliseconds As UInteger) As WFSO_Val
+    Private Shared Function WaitForSingleObject(handle As SafeFileHandle, milliseconds As UInteger) As WFSO_Val
     End Function
 
     'https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject#return-value
