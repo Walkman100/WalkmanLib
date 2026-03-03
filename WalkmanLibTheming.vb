@@ -195,6 +195,33 @@ Partial Public Class WalkmanLib
             End Select
         Next
     End Sub
+
+    Shared Sub InitCustomRenderers(controls As Collections.IEnumerable)
+        For Each ctl As Control In controls
+            If TypeOf ctl Is ListView Then
+                AddHandler DirectCast(ctl, ListView).DrawColumnHeader, AddressOf CustomPaint.ListView_DrawCustomColumnHeader
+                AddHandler DirectCast(ctl, ListView).DrawItem, AddressOf CustomPaint.ListView_DrawDefaultItem
+                AddHandler DirectCast(ctl, ListView).DrawSubItem, AddressOf CustomPaint.ListView_DrawDefaultSubItem
+            ElseIf TypeOf ctl Is TabControl Then
+                AddHandler DirectCast(ctl, TabControl).DrawItem, AddressOf CustomPaint.TabControl_DrawCustomItem
+            End If
+        Next
+    End Sub
+    Shared Sub ApplyThemeRenderer(theme As Theme, controls As Collections.IEnumerable)
+        If theme.ToolStripRenderMode <> ToolStripManagerRenderMode.Custom Then
+            ToolStripManager.RenderMode = theme.ToolStripRenderMode
+        Else
+            ToolStripManager.Renderer = New CustomPaint.ToolStripSystemRendererWithDisabled(theme.ToolStripItemDisabledText)
+        End If
+
+        For Each ctl As Control In controls
+            If TypeOf ctl Is ListView Then
+                DirectCast(ctl, ListView).Tag = theme.ListViewColumnColors
+            ElseIf TypeOf ctl Is TabControl Then
+                DirectCast(ctl, TabControl).Tag = theme.TabControlTabColors
+            End If
+        Next
+    End Sub
 #End Region
 
 #Region "Save / Load Theme"
@@ -327,6 +354,8 @@ Partial Public Class WalkmanLib
         Public ToolStripSplitButtonBG As Color
         Public ToolStripTextBoxFG As Color
         Public ToolStripTextBoxBG As Color
+        Public ToolStripRenderMode As ToolStripManagerRenderMode
+        Public SystemAppMode As WalkmanLib.PreferredAppMode
 
         Public OtherFG As Color
         Public OtherBG As Color
@@ -459,7 +488,9 @@ Partial Public Class WalkmanLib
                         .InactiveTab = SystemColors.Control,
                         .TabStripBackground = SystemColors.Control
                     },
-                    .ToolStripItemDisabledText = Color.FromArgb(&HFF6D6D6D)
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFF6D6D6D),
+                    .ToolStripRenderMode = ToolStripManagerRenderMode.Professional,
+                    .SystemAppMode = PreferredAppMode.Default
                 }
             End Get
         End Property
@@ -568,7 +599,9 @@ Partial Public Class WalkmanLib
                         .InactiveTab = SystemColors.ControlDarkDark,
                         .TabStripBackground = SystemColors.ControlText
                     },
-                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2)
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2),
+                    .ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
+                    .SystemAppMode = PreferredAppMode.ForceDark
                 }
             End Get
         End Property
@@ -675,7 +708,9 @@ Partial Public Class WalkmanLib
                         .InactiveTab = SystemColors.ControlDark,
                         .TabStripBackground = SystemColors.ControlDarkDark
                     },
-                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2)
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2),
+                    .ToolStripRenderMode = ToolStripManagerRenderMode.System,
+                    .SystemAppMode = PreferredAppMode.AllowDark
                 }
             End Get
         End Property
@@ -787,7 +822,9 @@ Partial Public Class WalkmanLib
                         .InactiveTab = altBackColor,
                         .TabStripBackground = backColor
                     },
-                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2)
+                    .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2),
+                    .ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
+                    .SystemAppMode = PreferredAppMode.ForceDark
                 }
             End Get
         End Property
@@ -894,7 +931,9 @@ Partial Public Class WalkmanLib
                         .InactiveTab = Color.Violet,
                         .TabStripBackground = Color.Magenta
                     },
-                    .ToolStripItemDisabledText = Color.Green
+                    .ToolStripItemDisabledText = Color.Green,
+                    .ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
+                    .SystemAppMode = PreferredAppMode.AllowDark
                 }
             End Get
         End Property
