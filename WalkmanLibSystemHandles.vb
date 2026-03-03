@@ -901,10 +901,10 @@ Partial Public Class WalkmanLib
     End Class
 
     ''' <summary>
-    ''' Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path"/>, using the Get All System Handles method.
+    ''' Returns a list of <see cref="Process"/>es that are currently using the specified <paramref name="path"/>, using the Get All System Handles method.
     ''' </summary>
     ''' <param name="path">Path to get processes for</param>
-    ''' <returns>Collections.Generic.List(Of Process) that are using the file or directory</returns>
+    ''' <returns><see cref="List(Of Process)"/> that are using the file or directory</returns>
     Shared Function GetLockingProcessesSH(path As String) As List(Of Process)
         Return SystemHandles.GetLockingProcesses(path)
     End Function

@@ -94,7 +94,7 @@ Partial Public Class WalkmanLib
                                           ByRef pnProcInfo As UInteger,
                                           <[In], Out> rgAffectedApps As ProcessInfo(),
                                           ByRef lpdwRebootReasons As UInteger
-        ) As Integer
+        ) As WalkmanLib.NativeErrorCode
         End Function
 
         Public Shared Function GetLockingProcessInfos(path As String) As ProcessInfo()
@@ -119,7 +119,7 @@ Partial Public Class WalkmanLib
                         Dim processInfos(CType(ArrayLengthNeeded, Integer) - 1) As ProcessInfo
                         ArrayLength = ArrayLengthNeeded
 
-                        If RmGetList(handle, ArrayLengthNeeded, ArrayLength, processInfos, lpdwRebootReasons) <> 0 Then
+                        If RmGetList(handle, ArrayLengthNeeded, ArrayLength, processInfos, lpdwRebootReasons) <> NativeErrorCode.ERROR_SUCCESS Then
                             Throw New Exception("Could not list processes locking resource.", New Win32Exception())
                         End If
 
@@ -135,10 +135,9 @@ Partial Public Class WalkmanLib
         End Function
 
         ''' <summary>
-        ''' Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path" />.
+        ''' Returns a list of <see cref="Process"/>es that are currently using the specified <paramref name="path" />.
         ''' </summary>
         ''' <param name="path">Path to the file to get processes for</param>
-        ''' <returns>Collections.Generic.List(Of Process) that are using the file</returns>
         Public Shared Iterator Function GetLockingProcesses(path As String) As IEnumerable(Of Process)
             For Each pI As ProcessInfo In GetLockingProcessInfos(path)
                 Try
@@ -151,10 +150,9 @@ Partial Public Class WalkmanLib
     End Class
 
     ''' <summary>
-    ''' Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path" />, using the RestartManager method.
+    ''' Returns a list of <see cref="Process"/>es that are currently using the specified <paramref name="path" />, using the RestartManager method.
     ''' </summary>
     ''' <param name="path">Path to the file to get processes for</param>
-    ''' <returns>Collections.Generic.List(Of Process) that are using the file</returns>
     Shared Function GetLockingProcessesRM(path As String) As IEnumerable(Of Process)
         Return RestartManager.GetLockingProcesses(path)
     End Function
