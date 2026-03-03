@@ -108,7 +108,7 @@ Partial Public Class WalkmanLib
                     ElseIf currentVersion.MinorRevision = 1381 Then
                         Return WindowsVersion.WindowsNT4Point0
                     End If
-                ElseIf currentVersion.Minor = 1 Or currentVersion.Minor = 10 Then
+                ElseIf currentVersion.Minor = 1 OrElse currentVersion.Minor = 10 Then
                     If currentVersion.MinorRevision = 1998 Then
                         Return WindowsVersion.Windows98
                     ElseIf currentVersion.MinorRevision = 2222 Then

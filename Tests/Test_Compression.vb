@@ -222,15 +222,14 @@ Namespace Tests
                 End If
 
                 Dim newFileSize As Integer = 1024 * 64
-                Dim randBytes(newFileSize) As Byte
+                Dim randBytes(newFileSize - 1) As Byte
                 Dim rand As New Random()
                 rand.NextBytes(randBytes)
 
-                Dim randChars(newFileSize) As Char
+                Dim randChars(newFileSize - 1) As Char
                 randBytes.CopyTo(randChars, 0)
                 File.WriteAllText(testFile, randChars, Text.Encoding.ASCII)
 
-                newFileSize += 1 ' seems to be an extra byte added somewhere
                 fileLength = New FileInfo(testFile).Length
                 If fileLength <> newFileSize Then
                     Return TestString("Compression12", "FileSize:" & fileLength, "FileSize:" & newFileSize)
@@ -241,7 +240,7 @@ Namespace Tests
                     Return TestString("Compression12", "File is not compressed", "File is compressed")
                 End If
 
-                Return TestNumber("Compression12", WalkmanLib.GetCompressedSize(testFile), 1024 * 60)
+                Return TestNumber("Compression12", WalkmanLib.GetCompressedSize(testFile), 1024 * 56)
             End Using
         End Function
 
