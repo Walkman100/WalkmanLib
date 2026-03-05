@@ -58,7 +58,7 @@ namespace Tests {
             using (var testFolder = new DisposableDirectory(Path.Combine(rootTestFolder, "compression4"))) {
                 WalkmanLib.SetAttribute(testFolder, FileAttributes.Normal);
                 WalkmanLib.SetCompression(testFolder, true);
-                
+
                 if (!File.GetAttributes(testFolder).HasFlag(FileAttributes.Compressed)) {
                     return GeneralFunctions.TestString("Compression4", "Folder is not compressed", "Folder is compressed");
                 }

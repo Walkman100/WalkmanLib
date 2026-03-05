@@ -20,7 +20,7 @@ namespace Tests {
                 string junctionPath = Path.Combine(rootTestFolder, "junctions2");
 
                 WalkmanLib.CreateJunction(junctionPath, testDirSource);
- 
+
                 using (new DisposableDirectory(junctionPath, false)) {
                     return GeneralFunctions.TestString("Junctions2", WalkmanLib.GetSymlinkTarget(junctionPath), testDirSource);
                 }

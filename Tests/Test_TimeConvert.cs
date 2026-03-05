@@ -1,35 +1,35 @@
 namespace Tests {
     static class Tests_TimeConvert {
         public static bool Test_TimeConvert1() {
-            return GeneralFunctions.TestNumber("TimeConvert1", WalkmanLib.TimeConvert.GetSeconds(new WalkmanLib.TimeInfo() {Weeks = 1}), 604800);
+            return GeneralFunctions.TestNumber("TimeConvert1", WalkmanLib.TimeConvert.GetSeconds(new WalkmanLib.TimeInfo() { Weeks = 1 }), 604800);
         }
 
         public static bool Test_TimeConvert2() {
-            return GeneralFunctions.TestNumber("TimeConvert2", WalkmanLib.TimeConvert.GetMinutes(new WalkmanLib.TimeInfo() {Weeks = 1}), 10080);
+            return GeneralFunctions.TestNumber("TimeConvert2", WalkmanLib.TimeConvert.GetMinutes(new WalkmanLib.TimeInfo() { Weeks = 1 }), 10080);
         }
 
         public static bool Test_TimeConvert3() {
-            return GeneralFunctions.TestNumber("TimeConvert3", WalkmanLib.TimeConvert.GetHours(new WalkmanLib.TimeInfo() {Weeks = 1}), 168);
+            return GeneralFunctions.TestNumber("TimeConvert3", WalkmanLib.TimeConvert.GetHours(new WalkmanLib.TimeInfo() { Weeks = 1 }), 168);
         }
 
         public static bool Test_TimeConvert4() {
-            return GeneralFunctions.TestNumber("TimeConvert4", WalkmanLib.TimeConvert.GetDays(new WalkmanLib.TimeInfo() {Weeks = 1, Days = 1, Hours = 12}), 8.5);
+            return GeneralFunctions.TestNumber("TimeConvert4", WalkmanLib.TimeConvert.GetDays(new WalkmanLib.TimeInfo() { Weeks = 1, Days = 1, Hours = 12 }), 8.5);
         }
 
         public static bool Test_TimeConvert5() {
-            return GeneralFunctions.TestNumber("TimeConvert5", WalkmanLib.TimeConvert.GetWeeks(new WalkmanLib.TimeInfo() {Weeks = 1, Days = 3, Hours = 12}), 1.5);
+            return GeneralFunctions.TestNumber("TimeConvert5", WalkmanLib.TimeConvert.GetWeeks(new WalkmanLib.TimeInfo() { Weeks = 1, Days = 3, Hours = 12 }), 1.5);
         }
 
         public static bool Test_TimeConvert6() {
-            return GeneralFunctions.TestNumber("TimeConvert6", WalkmanLib.TimeConvert.GetDays(new WalkmanLib.TimeInfo() {Days = 1, Hours = 12}), 1.5);
+            return GeneralFunctions.TestNumber("TimeConvert6", WalkmanLib.TimeConvert.GetDays(new WalkmanLib.TimeInfo() { Days = 1, Hours = 12 }), 1.5);
         }
 
         public static bool Test_TimeConvert7() {
-            return GeneralFunctions.TestNumber("TimeConvert7", WalkmanLib.TimeConvert.GetHours(new WalkmanLib.TimeInfo() {Hours = 1, Minutes = 30}), 1.5);
+            return GeneralFunctions.TestNumber("TimeConvert7", WalkmanLib.TimeConvert.GetHours(new WalkmanLib.TimeInfo() { Hours = 1, Minutes = 30 }), 1.5);
         }
 
         public static bool Test_TimeConvert8() {
-            return GeneralFunctions.TestNumber("TimeConvert8", WalkmanLib.TimeConvert.GetMinutes(new WalkmanLib.TimeInfo() {Minutes = 1, Seconds = 30}), 1.5);
+            return GeneralFunctions.TestNumber("TimeConvert8", WalkmanLib.TimeConvert.GetMinutes(new WalkmanLib.TimeInfo() { Minutes = 1, Seconds = 30 }), 1.5);
         }
 
         public static bool Test_TimeConvert9() {

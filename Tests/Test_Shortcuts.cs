@@ -4,8 +4,8 @@ using System.IO;
 namespace Tests {
     static class Tests_Shortcuts {
         public static bool Test_Shortcuts1() {
-            string shortcutPath = Path.Combine(Environment.GetEnvironmentVariable("AppData"), "Microsoft", 
-                                               "Windows", "Start Menu", "Programs", "System Tools", 
+            string shortcutPath = Path.Combine(Environment.GetEnvironmentVariable("AppData"), "Microsoft",
+                                               "Windows", "Start Menu", "Programs", "System Tools",
                                                "Command Prompt.lnk");
             if (!File.Exists(shortcutPath)) {
                 return GeneralFunctions.TestString("Shortcuts1", "System shortcut doesn't exist", "System shortcut exists");
@@ -15,8 +15,8 @@ namespace Tests {
         }
 
         public static bool Test_Shortcuts2() {
-            string shortcutPath = Path.Combine(Environment.GetEnvironmentVariable("AppData"), "Microsoft", 
-                                               "Windows", "Start Menu", "Programs", "System Tools", 
+            string shortcutPath = Path.Combine(Environment.GetEnvironmentVariable("AppData"), "Microsoft",
+                                               "Windows", "Start Menu", "Programs", "System Tools",
                                                "Command Prompt.lnk");
             if (!File.Exists(shortcutPath)) {
                 return GeneralFunctions.TestString("Shortcuts2", "System shortcut doesn't exist", "System shortcut exists");
@@ -26,14 +26,14 @@ namespace Tests {
         }
 
         public static bool Test_Shortcuts3() {
-            string shortcutPath = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "Microsoft", 
-                                               "Windows", "Start Menu", "Programs", "Accessories", "System Tools", 
+            string shortcutPath = Path.Combine(Environment.GetEnvironmentVariable("ProgramData"), "Microsoft",
+                                               "Windows", "Start Menu", "Programs", "Accessories", "System Tools",
                                                "Character Map.lnk");
             if (!File.Exists(shortcutPath)) {
                 return GeneralFunctions.TestString("Shortcuts3", "System shortcut doesn't exist", "System shortcut exists");
             }
 
-            return GeneralFunctions.TestString("Shortcuts3", WalkmanLib.GetShortcutInfo(shortcutPath).Description, 
+            return GeneralFunctions.TestString("Shortcuts3", WalkmanLib.GetShortcutInfo(shortcutPath).Description,
                                                "Selects special characters and copies them to your document.");
         }
 
@@ -129,8 +129,8 @@ namespace Tests {
 
         public static bool Test_Shortcuts15(string rootTestFolder) {
             string shortcutPath = Path.Combine(rootTestFolder, "shortcuts15.lnk");
-            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument", 
-                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment", 
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument",
+                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment",
                                                      "CTRL+ALT+F", System.Windows.Forms.FormWindowState.Maximized);
 
             using (var testFile = new DisposableFile(shortcutPath, false)) {
@@ -141,8 +141,8 @@ namespace Tests {
 
         public static bool Test_Shortcuts16(string rootTestFolder) {
             string shortcutPath = Path.Combine(rootTestFolder, "shortcuts16.lnk");
-            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument", 
-                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment", 
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument",
+                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment",
                                                      "CTRL+ALT+F", System.Windows.Forms.FormWindowState.Maximized);
 
             using (var testFile = new DisposableFile(shortcutPath, false)) {
@@ -153,8 +153,8 @@ namespace Tests {
 
         public static bool Test_Shortcuts17(string rootTestFolder) {
             string shortcutPath = Path.Combine(rootTestFolder, "shortcuts17.lnk");
-            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument", 
-                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment", 
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument",
+                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment",
                                                      "CTRL+ALT+F", System.Windows.Forms.FormWindowState.Maximized);
 
             using (var testFile = new DisposableFile(shortcutPath, false)) {
@@ -166,8 +166,8 @@ namespace Tests {
 
         public static bool Test_Shortcuts18(string rootTestFolder) {
             string shortcutPath = Path.Combine(rootTestFolder, "shortcuts18.lnk");
-            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument", 
-                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment", 
+            shortcutPath = WalkmanLib.CreateShortcut(shortcutPath, @"C:\Windows\notepad.exe", "testArgument",
+                                                     @"C:\Windows", @"C:\Windows\regedit.exe,0", "testComment",
                                                      "CTRL+ALT+F", System.Windows.Forms.FormWindowState.Maximized);
 
             using (var testFile = new DisposableFile(shortcutPath, false)) {

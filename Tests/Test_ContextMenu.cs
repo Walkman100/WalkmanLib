@@ -9,7 +9,7 @@ namespace Tests {
         public static bool Test_ContextMenu1(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "contextMenu1.txt")))
             using (var cm = new WalkmanLib.ContextMenu()) {
-                cm.BuildMenu(IntPtr.Zero, new string[] {testFile});
+                cm.BuildMenu(IntPtr.Zero, new string[] { testFile });
 
                 return GeneralFunctions.TestBoolean("ContextMenu1", cm.IsBuilt(), true);
             }
@@ -18,7 +18,7 @@ namespace Tests {
         public static bool Test_ContextMenu2(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "contextMenu2.txt")))
             using (var cm = new WalkmanLib.ContextMenu()) {
-                cm.BuildMenu(IntPtr.Zero, new string[] {testFile});
+                cm.BuildMenu(IntPtr.Zero, new string[] { testFile });
                 cm.DestroyMenu();
 
                 return GeneralFunctions.TestBoolean("ContextMenu2", cm.IsBuilt(), false);
@@ -42,7 +42,7 @@ namespace Tests {
         public static bool Test_ContextMenu4(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "contextMenu4.txt")))
             using (var cm = new WalkmanLib.ContextMenu()) {
-                cm.BuildMenu(IntPtr.Zero, new string[] {testFile});
+                cm.BuildMenu(IntPtr.Zero, new string[] { testFile });
 
                 Exception ex = new NoException();
                 try {
@@ -58,7 +58,7 @@ namespace Tests {
         public static bool Test_ContextMenu5(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "contextMenu5.txt")))
             using (var cm = new WalkmanLib.ContextMenu()) {
-                cm.BuildMenu(IntPtr.Zero, new string[] {testFile}, 2);
+                cm.BuildMenu(IntPtr.Zero, new string[] { testFile }, 2);
 
                 Exception ex = new NoException();
                 try {
@@ -74,7 +74,7 @@ namespace Tests {
         public static bool Test_ContextMenu6(string rootTestFolder) {
             using (var testFile = new DisposableFile(Path.Combine(rootTestFolder, "contextMenu6.txt")))
             using (var cm = new WalkmanLib.ContextMenu()) {
-                cm.BuildMenu(IntPtr.Zero, new string[] {testFile});
+                cm.BuildMenu(IntPtr.Zero, new string[] { testFile });
 
                 try {
                     cm.ShowMenu(IntPtr.Zero, new System.Drawing.Point(0, 0));
@@ -102,7 +102,7 @@ namespace Tests {
 
                 System.Threading.Tasks.Task.Run(() => Application.Run(frm));
 
-                cm.BuildMenu(frm.Handle, new string[] {testFile}, flags: WalkmanLib.ContextMenu.QueryContextMenuFlags.CanRename);
+                cm.BuildMenu(frm.Handle, new string[] { testFile }, flags: WalkmanLib.ContextMenu.QueryContextMenuFlags.CanRename);
                 frm.BringToFront();
 
                 System.Threading.Tasks.Task.Run(() => {
@@ -124,7 +124,7 @@ namespace Tests {
 
                 System.Threading.Tasks.Task.Run(() => Application.Run(frm));
 
-                cm.BuildMenu(frm.Handle, new string[] {testFile}, 10);
+                cm.BuildMenu(frm.Handle, new string[] { testFile }, 10);
                 frm.BringToFront();
 
                 renameCalled = false;
@@ -169,7 +169,7 @@ namespace Tests {
 
                 System.Threading.Tasks.Task.Run(() => Application.Run(frm));
 
-                frm.cm.BuildMenu(frm.Handle, new string[] {testFile});
+                frm.cm.BuildMenu(frm.Handle, new string[] { testFile });
                 frm.BringToFront();
 
                 System.Threading.Tasks.Task.Run(() => {

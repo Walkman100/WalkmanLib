@@ -660,16 +660,16 @@ public partial class WalkmanLib {
                 //     only check onlyGetNameFor if it isn't UNKNOWN
                 //         this type can hang for ~15 mins, but excluding it cuts a lot of results, and it does eventually resolve...
                 //        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x120089 && handleInfo.Flags = 0x00                       ) &&
-                if (handleInfo.TypeString !=null && 
-                    (onlyGetNameFor == SYSTEM_HANDLE_TYPE.UNKNOWN || handleInfo.Type == onlyGetNameFor) && 
+                if (handleInfo.TypeString != null &&
+                    (onlyGetNameFor == SYSTEM_HANDLE_TYPE.UNKNOWN || handleInfo.Type == onlyGetNameFor) &&
                     (getAllNames == true || (
-                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x1F01FF && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) && 
-                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x120089 && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) && 
-                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x120189 && handleInfo.Flags == 0x00                       ) && 
-                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x120189 && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) && 
-                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x12019F && handleInfo.Flags == 0x00                       ) && 
-                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x12019F && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) && 
-                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x1A019F && handleInfo.Flags == 0x00                       ) && 
+                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x1F01FF && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) &&
+                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x120089 && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) &&
+                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x120189 && handleInfo.Flags == 0x00                       ) &&
+                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x120189 && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) &&
+                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x12019F && handleInfo.Flags == 0x00                       ) &&
+                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x12019F && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT) &&
+                        !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x1A019F && handleInfo.Flags == 0x00                       ) &&
                         !(handleInfo.Type == SYSTEM_HANDLE_TYPE.FILE && handleInfo.GrantedAccess == 0x1A019F && handleInfo.Flags == SYSTEM_HANDLE_FLAGS.INHERIT)
                             ))) { // don't query some objects that get stuck (NtQueryObject hangs on NamedPipes)
                     NtQueryObject(handleDuplicate, OBJECT_INFORMATION_CLASS.ObjectNameInformation, IntPtr.Zero, 0, out uint length);
@@ -739,8 +739,8 @@ public partial class WalkmanLib {
         private static string NormalizeDeviceName(string deviceName) {
             // if (deviceName.StartsWith(networkDeviceQueryDosDevicePrefix)) {
             if (string.Compare(
-                    deviceName, 0, 
-                    networkDeviceQueryDosDevicePrefix, 0, 
+                    deviceName, 0,
+                    networkDeviceQueryDosDevicePrefix, 0,
                     networkDeviceQueryDosDevicePrefix.Length, StringComparison.InvariantCulture) == 0) {
                 string shareName = deviceName.Substring(deviceName.IndexOf('\\', networkDeviceQueryDosDevicePrefix.Length) + 1);
                 return string.Concat(networkDeviceSystemHandlePrefix, shareName);
@@ -759,13 +759,13 @@ public partial class WalkmanLib {
                 QueryDosDevice(lpDeviceName, lpTargetPath, MAX_PATH);
 
                 localDeviceMap.Add(
-                    NormalizeDeviceName(lpTargetPath.ToString()), 
+                    NormalizeDeviceName(lpTargetPath.ToString()),
                     lpDeviceName);
             }
             // add a map so \\COMPUTER\ shares get picked up correctly - these will come as \Device\Mup\COMPUTER\share
             // remove the last slash from networkDeviceSystemHandlePrefix:
             localDeviceMap.Add(
-                networkDeviceSystemHandlePrefix.Substring(0, networkDeviceSystemHandlePrefix.Length - 1), 
+                networkDeviceSystemHandlePrefix.Substring(0, networkDeviceSystemHandlePrefix.Length - 1),
                 @"\");
             return localDeviceMap;
         }

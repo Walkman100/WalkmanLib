@@ -4,13 +4,13 @@ using System.IO;
 
 namespace Tests {
     static class Main {
-        public static bool RunTests(string projectRoot, 
-                                    string rootTestFolder = null, 
-                                    bool haveGUIAccess = true, 
-                                    bool runCustomMsgBoxTests = true, 
-                                    bool runArgHandlerTests = true, 
-                                    bool runUpdatesTests = true, 
-                                    bool runWin32Tests = true, 
+        public static bool RunTests(string projectRoot,
+                                    string rootTestFolder = null,
+                                    bool haveGUIAccess = true,
+                                    bool runCustomMsgBoxTests = true,
+                                    bool runArgHandlerTests = true,
+                                    bool runUpdatesTests = true,
+                                    bool runWin32Tests = true,
                                     bool runDotNetTests = true) {
             bool returnVal = true;
 

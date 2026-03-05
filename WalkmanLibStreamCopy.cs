@@ -43,7 +43,7 @@ public partial class WalkmanLib {
         progressDialog.DoWork += doStreamCopy;
         progressDialog.RunWorkerCompleted += onComplete;
 
-        progressDialog.Show(new object[] {progressDialog, source, target});
+        progressDialog.Show(new object[] { progressDialog, source, target });
     }
 
     private static void doStreamCopy(object sender, DoWorkEventArgs e) {

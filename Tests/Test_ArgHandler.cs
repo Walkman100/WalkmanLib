@@ -81,15 +81,15 @@ namespace Tests {
                 }
             }
 
-            string expectedOutput = "Option        Long Option       Description" + Environment.NewLine + 
-                                    " -t <string>  --test=<string>   test" + Environment.NewLine + 
-                                    "              --test2           test2" + Environment.NewLine + 
-                                    "              --test3=<string>  test3" + Environment.NewLine + 
-                                    " -k [string]  --test4=[string]  test4" + Environment.NewLine + 
-                                    " -T           --test5           test5" + Environment.NewLine + 
-                                    "              --TEST=<string>   TEST" + Environment.NewLine + 
-                                    "              --TeSt7           TeSt7" + Environment.NewLine + 
-                                    "              --Test8           Test8" + Environment.NewLine + 
+            string expectedOutput = "Option        Long Option       Description" + Environment.NewLine +
+                                    " -t <string>  --test=<string>   test" + Environment.NewLine +
+                                    "              --test2           test2" + Environment.NewLine +
+                                    "              --test3=<string>  test3" + Environment.NewLine +
+                                    " -k [string]  --test4=[string]  test4" + Environment.NewLine +
+                                    " -T           --test5           test5" + Environment.NewLine +
+                                    "              --TEST=<string>   TEST" + Environment.NewLine +
+                                    "              --TeSt7           TeSt7" + Environment.NewLine +
+                                    "              --Test8           Test8" + Environment.NewLine +
                                     " -h           --help            Show Help" + Environment.NewLine;
 
             return GeneralFunctions.TestString("ArgHandler1", sw.ToString(), expectedOutput);
@@ -114,7 +114,7 @@ namespace Tests {
 
         public static bool Test_ArgHandler3() {
             var sw = new System.IO.StringWriter();
-            
+
             using (new RedirectConsole(sw)) {
                 try {
                     WalkmanLib.EchoHelp(flagDict, "test7");
@@ -123,7 +123,7 @@ namespace Tests {
                 }
             }
 
-            string expectedOutput = "Long Option  Description" + Environment.NewLine + 
+            string expectedOutput = "Long Option  Description" + Environment.NewLine +
                                     "--TeSt7      TeSt7" + Environment.NewLine;
 
             return GeneralFunctions.TestString("ArgHandler3", sw.ToString(), expectedOutput);
@@ -134,7 +134,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"-t", "-k", "-T"}, flagDict);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "-t", "-k", "-T" }, flagDict);
                     if (rtn.gotError) {
                         Console.WriteLine(rtn.errorInfo);
                     }
@@ -153,7 +153,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"-t", "TEST", "--test2", "--test3=TEST"}, flagDict);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "-t", "TEST", "--test2", "--test3=TEST" }, flagDict);
                     if (rtn.gotError) {
                         Console.WriteLine(rtn.errorInfo);
                     }
@@ -191,7 +191,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"--test7"}, flagDict);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "--test7" }, flagDict);
                     if (rtn.gotError) {
                         Console.WriteLine(rtn.errorInfo);
                     }
@@ -210,7 +210,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"-t", "TEST", "--", "--test3=TEST"}, flagDict, true);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "-t", "TEST", "--", "--test3=TEST" }, flagDict, true);
                     if (rtn.gotError) {
                         Console.WriteLine(rtn.errorInfo);
                     } else {
@@ -231,7 +231,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"-k"}, flagDict);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "-k" }, flagDict);
                     if (rtn.gotError) {
                         Console.WriteLine(rtn.errorInfo);
                     }
@@ -250,7 +250,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"-k", "shorttest"}, flagDict);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "-k", "shorttest" }, flagDict);
                     if (rtn.gotError) {
                         Console.WriteLine(rtn.errorInfo);
                     }
@@ -269,7 +269,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"--test4"}, flagDict);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "--test4" }, flagDict);
                     if (rtn.gotError) {
                         Console.WriteLine(rtn.errorInfo);
                     }
@@ -307,7 +307,7 @@ namespace Tests {
 
             using (new RedirectConsole(sw)) {
                 try {
-                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] {"--test8", "--test4", "--test5", "-h"}, flagDict);
+                    WalkmanLib.ResultInfo rtn = WalkmanLib.ProcessArgs(new[] { "--test8", "--test4", "--test5", "-h" }, flagDict);
                     if (rtn.gotError && rtn.errorInfo != null) {
                         Console.WriteLine(rtn.errorInfo);
                     }

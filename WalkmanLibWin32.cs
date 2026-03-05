@@ -321,7 +321,10 @@ public partial class WalkmanLib {
         }
         targetPath = NonInterpretedPathPrefix + Path.GetFullPath(targetPath);
 
-        using (SafeFileHandle reparsePointHandle = Win32CreateFile(junctionPath, Win32FileAccess.GenericWrite, FileShare.Read | FileShare.Write | FileShare.Delete, FileMode.Open, Win32FileAttribute.FlagBackupSemantics | Win32FileAttribute.FlagOpenReparsePoint)) {
+        using (SafeFileHandle reparsePointHandle = Win32CreateFile(junctionPath, Win32FileAccess.GenericWrite,
+                                                                   FileShare.Read | FileShare.Write | FileShare.Delete, FileMode.Open,
+                                                                   Win32FileAttribute.FlagBackupSemantics | Win32FileAttribute.FlagOpenReparsePoint)
+        ) {
             if (Marshal.GetLastWin32Error() != 0)
                 throw new IOException("Unable to open reparse point.", new Win32Exception());
 
@@ -337,7 +340,8 @@ public partial class WalkmanLib {
                 PathBuffer = targetPath
             };
 
-            bool result = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, ref reparseDataBuffer, (uint)(byteLength + 20), IntPtr.Zero, 0, out _, IntPtr.Zero);
+            bool result = DeviceIoControl(reparsePointHandle, FSCTL_SET_REPARSE_POINT, lpInBuffer: ref reparseDataBuffer, nInBufferSize: (uint)(byteLength + 20),
+                                          lpOutBuffer: IntPtr.Zero, nOutBufferSize: 0, lpBytesReturned: out _, lpOverlapped: IntPtr.Zero);
             if (!result)
                 throw new IOException("Unable to create junction point.", new Win32Exception());
         }
@@ -456,7 +460,7 @@ public partial class WalkmanLib {
                     return Path.Combine(pathRoot, pathLocal.Substring(1));
                 else
                     return pathLocal;
-            };
+            }
 
             yield return getFullPath(stringBuilderTarget.ToString());
 
