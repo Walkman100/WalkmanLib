@@ -205,6 +205,7 @@ Partial Public Class WalkmanLib
             ElseIf TypeOf ctl Is TabControl Then
                 AddHandler DirectCast(ctl, TabControl).DrawItem, AddressOf CustomPaint.TabControl_DrawCustomItem
             End If
+            InitCustomRenderers(ctl.Controls)
         Next
     End Sub
     Shared Sub ApplyThemeRenderer(theme As Theme, controls As Collections.IEnumerable)
@@ -213,13 +214,16 @@ Partial Public Class WalkmanLib
         Else
             ToolStripManager.Renderer = New CustomPaint.ToolStripSystemRendererWithDisabled(theme.ToolStripItemDisabledText)
         End If
-
+        ApplyThemeRendererRecursive(theme, controls)
+    End Sub
+    Private Shared Sub ApplyThemeRendererRecursive(theme As Theme, controls As Collections.IEnumerable)
         For Each ctl As Control In controls
             If TypeOf ctl Is ListView Then
                 DirectCast(ctl, ListView).Tag = theme.ListViewColumnColors
             ElseIf TypeOf ctl Is TabControl Then
                 DirectCast(ctl, TabControl).Tag = theme.TabControlTabColors
             End If
+            ApplyThemeRendererRecursive(theme, ctl.Controls)
         Next
     End Sub
 #End Region
