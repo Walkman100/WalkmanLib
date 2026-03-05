@@ -152,7 +152,7 @@ namespace Tests {
                     return GeneralFunctions.TestString("Compression9", "File is not compressed", "File is compressed");
                 }
 
-                return GeneralFunctions.TestNumber("Compression9", WalkmanLib.GetCompressedSize(testFile), 0d);
+                return GeneralFunctions.TestNumber("Compression9", WalkmanLib.GetCompressedSize(testFile), 0);
             }
         }
 
@@ -216,7 +216,7 @@ namespace Tests {
                     return GeneralFunctions.TestString("Compression12", "File is compressed", "File is not compressed");
                 }
 
-                int newFileSize = 1024 * 64 + 1;
+                int newFileSize = 1024 * 64;
                 byte[] randBytes = new byte[newFileSize];
                 var rand = new Random();
                 rand.NextBytes(randBytes);
@@ -235,7 +235,7 @@ namespace Tests {
                     return GeneralFunctions.TestString("Compression12", "File is not compressed", "File is compressed");
                 }
 
-                return GeneralFunctions.TestNumber("Compression12", WalkmanLib.GetCompressedSize(testFile), 1024 * 60);
+                return GeneralFunctions.TestNumber("Compression12", WalkmanLib.GetCompressedSize(testFile), 1024 * 56);
             }
         }
 

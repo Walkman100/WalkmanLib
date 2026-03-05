@@ -224,7 +224,7 @@ namespace Tests {
         public static bool Test_HardlinkThrows7() {
             Exception ex = new NoException();
             try {
-                WalkmanLib.GetHardlinkCount(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "Temp", "MpCmdRun.log"));
+                WalkmanLib.GetHardlinkCount(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "SystemTemp", "msedge_installer.log"));
             } catch (Exception ex2) {
                 ex = ex2;
             }
@@ -264,7 +264,7 @@ namespace Tests {
         public static bool Test_HardlinkThrows11() {
             Exception ex = new NoException();
             try {
-                WalkmanLib.GetHardlinkLinks(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "Temp", "MpCmdRun.log")).ToList();
+                WalkmanLib.GetHardlinkLinks(Path.Combine(Environment.GetEnvironmentVariable("WinDir"), "SystemTemp", "msedge_installer.log")).ToList();
             } catch (Exception ex2) {
                 ex = ex2;
             }

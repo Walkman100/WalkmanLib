@@ -4,7 +4,7 @@ using System.IO;
 namespace Tests {
     public class DisposableFile : IDisposable {
         private string _filePath;
-        public string filePath {
+        public string FilePath {
             get {
                 return _filePath;
             }
@@ -27,17 +27,17 @@ namespace Tests {
         }
 
         public override string ToString() {
-            return filePath;
+            return FilePath;
         }
 
         public static implicit operator string(DisposableFile v) {
-            return v.filePath;
+            return v.FilePath;
         }
 
         protected virtual void Dispose(bool disposing) {
             if (!disposed) {
                 if (disposing)
-                    GeneralFunctions.DeleteFileIfExists(filePath);
+                    GeneralFunctions.DeleteFileIfExists(FilePath);
                 disposed = true;
             }
         }

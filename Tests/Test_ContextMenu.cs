@@ -78,8 +78,8 @@ namespace Tests {
 
                 try {
                     cm.ShowMenu(IntPtr.Zero, new System.Drawing.Point(0, 0));
-                } catch (Win32Exception ex) { // 1400 = ERROR_INVALID_WINDOW_HANDLE (0x578): Invalid window handle.
-                    return GeneralFunctions.TestNumber("ContextMenu6", ex.NativeErrorCode, 1400);
+                } catch (Win32Exception ex) {
+                    return GeneralFunctions.TestNumber("ContextMenu6", ex.NativeErrorCode, (int)WalkmanLib.NativeErrorCode.ERROR_INVALID_WINDOW_HANDLE);
                 } catch (Exception ex) {
                     return GeneralFunctions.TestType("ContextMenu6", ex.GetType(), typeof(Win32Exception));
                 }

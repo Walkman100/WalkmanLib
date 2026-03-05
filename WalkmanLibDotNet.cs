@@ -92,7 +92,7 @@ public partial class WalkmanLib {
                 WorkingDirectory = workingDirectory,
             });
             return true;
-        } catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223) { // ERROR_CANCELLED: The operation was canceled by the user.
+        } catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == (int)NativeErrorCode.ERROR_CANCELLED) {
             return false;
         }
     }

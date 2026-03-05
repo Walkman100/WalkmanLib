@@ -48,7 +48,7 @@ namespace Tests {
                 WalkmanLib.RunAndGetOutput("nonExistantFile");
                 return GeneralFunctions.TestType("RunAndGetOutputThrows1", typeof(NoException), typeof(Win32Exception));
             } catch (Win32Exception ex) { // expected. none of the other Test* should run.
-                return GeneralFunctions.TestNumber("RunAndGetOutputThrows1", ex.NativeErrorCode, 2); // 0x2: ERROR_FILE_NOT_FOUND: The system cannot find the file specified.
+                return GeneralFunctions.TestNumber("RunAndGetOutputThrows1", ex.NativeErrorCode, (int)WalkmanLib.NativeErrorCode.ERROR_FILE_NOT_FOUND);
             } catch (Exception ex) {
                 return GeneralFunctions.TestType("RunAndGetOutputThrows1", ex.GetType(), typeof(Win32Exception));
             }
@@ -59,7 +59,7 @@ namespace Tests {
                 WalkmanLib.RunAndGetOutput(Environment.GetEnvironmentVariable("WinDir"));
                 return GeneralFunctions.TestType("RunAndGetOutputThrows2", typeof(NoException), typeof(Win32Exception));
             } catch (Win32Exception ex) { // expected. none of the other Test* should run.
-                return GeneralFunctions.TestNumber("RunAndGetOutputThrows2", ex.NativeErrorCode, 5); // 0x5: ERROR_ACCESS_DENIED: Access is denied.
+                return GeneralFunctions.TestNumber("RunAndGetOutputThrows2", ex.NativeErrorCode, (int)WalkmanLib.NativeErrorCode.ERROR_ACCESS_DENIED);
             } catch (Exception ex) {
                 return GeneralFunctions.TestType("RunAndGetOutputThrows2", ex.GetType(), typeof(Win32Exception));
             }
@@ -70,7 +70,7 @@ namespace Tests {
                 WalkmanLib.RunAndGetOutput(Path.Combine(Environment.SystemDirectory, "shell32.dll"));
                 return GeneralFunctions.TestType("RunAndGetOutputThrows3", typeof(NoException), typeof(Win32Exception));
             } catch (Win32Exception ex) { // expected. none of the other Test* should run.
-                return GeneralFunctions.TestNumber("RunAndGetOutputThrows3", ex.NativeErrorCode, 193); // 0xC1: ERROR_BAD_EXE_FORMAT: %1 is not a valid Win32 application.
+                return GeneralFunctions.TestNumber("RunAndGetOutputThrows3", ex.NativeErrorCode, (int)WalkmanLib.NativeErrorCode.ERROR_BAD_EXE_FORMAT);
             } catch (Exception ex) {
                 return GeneralFunctions.TestType("RunAndGetOutputThrows3", ex.GetType(), typeof(Win32Exception));
             }

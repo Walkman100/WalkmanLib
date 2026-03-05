@@ -716,8 +716,8 @@ public partial class WalkmanLib {
 
                 // always returns false, no point in checking
                 DuplicateHandle(sourceProcessHandle, (IntPtr)HandleID, GetCurrentProcess(), out handleDuplicate, 0, false, DUPLICATE_HANDLE_OPTIONS.DUPLICATE_CLOSE_SOURCE);
-                if ((int)handleDuplicate < 1 && Marshal.GetLastWin32Error() == 6) { // ERROR_INVALID_HANDLE: The handle is invalid.
-                    throw new ArgumentException("Handle ID Not Found!", "HandleID", new Win32Exception(6));
+                if ((int)handleDuplicate < 1 && Marshal.GetLastWin32Error() == (int)NativeErrorCode.ERROR_INVALID_HANDLE) {
+                    throw new ArgumentException("Handle ID Not Found!", "HandleID", new Win32Exception((int)NativeErrorCode.ERROR_INVALID_HANDLE));
                 }
             } finally {
                 CloseHandle(sourceProcessHandle);
@@ -849,10 +849,10 @@ public partial class WalkmanLib {
     }
 
     /// <summary>
-    /// Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path"/>, using the Get All System Handles method.
+    /// Returns a list of <see cref="Process"/> that are currently using the specified <paramref name="path"/>, using the Get All System Handles method.
     /// </summary>
     /// <param name="path">Path to get processes for</param>
-    /// <returns>Collections.Generic.List<Process> that are using the file or directory</returns>
+    /// <returns><see cref="List{Process}"/> that are using the file or directory</returns>
     public static List<Process> GetLockingProcessesSH(string path) {
         return SystemHandles.GetLockingProcesses(path);
     }

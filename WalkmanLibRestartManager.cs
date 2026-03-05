@@ -19,7 +19,6 @@ public partial class WalkmanLib {
     public sealed class RestartManager {
         private const int CCH_RM_MAX_APP_NAME = 0xFF;
         private const int CCH_RM_MAX_SVC_NAME = 0x3F;
-        private const int ERROR_MORE_DATA = 0xEA;
 
         // https://docs.microsoft.com/en-us/windows/win32/api/restartmanager/ns-restartmanager-rm_process_info
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -83,7 +82,7 @@ public partial class WalkmanLib {
 
         // https://docs.microsoft.com/en-us/windows/win32/api/restartmanager/nf-restartmanager-rmgetlist
         [DllImport("rstrtmgr.dll", SetLastError = true)]
-        private static extern int RmGetList(
+        private static extern WalkmanLib.NativeErrorCode RmGetList(
             uint dwSessionHandle,
             ref uint pnProcInfoNeeded,
             ref uint pnProcInfo,
@@ -107,17 +106,17 @@ public partial class WalkmanLib {
                 }
 
                 switch (RmGetList(handle, ref ArrayLengthNeeded, ref ArrayLength, null, ref lpdwRebootReasons)) {
-                    case ERROR_MORE_DATA: {
+                    case NativeErrorCode.ERROR_MORE_DATA: {
                         var processInfos = new ProcessInfo[(int)ArrayLengthNeeded];
                         ArrayLength = ArrayLengthNeeded;
 
-                        if (RmGetList(handle, ref ArrayLengthNeeded, ref ArrayLength, processInfos, ref lpdwRebootReasons) != 0) {
+                        if (RmGetList(handle, ref ArrayLengthNeeded, ref ArrayLength, processInfos, ref lpdwRebootReasons) != NativeErrorCode.ERROR_SUCCESS) {
                             throw new Exception("Could not list processes locking resource.", new Win32Exception());
                         }
 
                         return processInfos;
                     }
-                    case 0: {
+                    case NativeErrorCode.ERROR_SUCCESS: {
                         return new ProcessInfo[] { };
                     }
                     default: {
@@ -130,10 +129,9 @@ public partial class WalkmanLib {
         }
 
         /// <summary>
-        /// Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path" />.
+        /// Returns a list of <see cref="Process"/>es that are currently using the specified <paramref name="path" />.
         /// </summary>
         /// <param name="path">Path to the file to get processes for</param>
-        /// <returns>Collections.Generic.List(Of Process) that are using the file</returns>
         public static IEnumerable<Process> GetLockingProcesses(string path) {
             foreach (ProcessInfo pI in GetLockingProcessInfos(path)) {
                 Process processToAdd = null;
@@ -146,10 +144,9 @@ public partial class WalkmanLib {
     }
 
     /// <summary>
-    /// Returns a list of Diagnostics.Process that are currently using the specified <paramref name="path" />, using the RestartManager method.
+    /// Returns a list of <see cref="Process"/>es that are currently using the specified <paramref name="path" />, using the RestartManager method.
     /// </summary>
     /// <param name="path">Path to the file to get processes for</param>
-    /// <returns>Collections.Generic.List(Of Process) that are using the file</returns>
     public static IEnumerable<Process> GetLockingProcessesRM(string path) {
         return RestartManager.GetLockingProcesses(path);
     }

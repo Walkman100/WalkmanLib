@@ -47,20 +47,16 @@ public partial class WalkmanLib {
         if (CreateHardLink(hardlinkPath, existingFilePath, IntPtr.Zero) == false) {
 
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 2) {
-                // ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_FILE_NOT_FOUND) {
                 if (!File.Exists(existingFilePath))
                     throw new FileNotFoundException("The hardlink target does not exist", existingFilePath, errorException);
-            } else if (errorException.NativeErrorCode == 3) {
-                // ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_PATH_NOT_FOUND) {
                 if (!Directory.Exists(new FileInfo(hardlinkPath).DirectoryName))  // "New FileInfo(hardlinkPath)" throws an exception on invalid characters in path - perfect!
                     throw new DirectoryNotFoundException("The path to the new hardlink does not exist", errorException);
-            } else if (errorException.NativeErrorCode == 183) {
-                // ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ALREADY_EXISTS) {
                 if (File.Exists(hardlinkPath) | Directory.Exists(hardlinkPath))
                     throw new IOException("The hardlink path already exists", errorException);
-            } else if (errorException.NativeErrorCode == 5) {
-                // ERROR_ACCESS_DENIED: Access is denied
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ACCESS_DENIED) {
                 throw new UnauthorizedAccessException("Access to the new hardlink path is denied", errorException);
             }
             throw errorException;
@@ -85,20 +81,15 @@ public partial class WalkmanLib {
 
         if (CreateSymbolicLink(symlinkPath, targetPath, flags) == false) {
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 0x03) {
-                // 0x03: ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_PATH_NOT_FOUND) {
                 if (!Directory.Exists(new FileInfo(symlinkPath).DirectoryName))  // "New FileInfo(symlinkPath)" throws an exception on invalid characters in path - perfect!
                     throw new DirectoryNotFoundException("The path to the symbolic link does not exist", errorException);
-            } else if (errorException.NativeErrorCode == 0xB7) {
-                // 0xB7: ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ALREADY_EXISTS) {
                 if (File.Exists(symlinkPath) | Directory.Exists(symlinkPath))
                     throw new IOException("The symbolic link path already exists", errorException);
-            } else if (errorException.NativeErrorCode == 0x05) {
-                // 0x05: ERROR_ACCESS_DENIED: Access is denied
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ACCESS_DENIED) {
                 throw new UnauthorizedAccessException("Access to the symbolic link path is denied", errorException);
-            } else if (errorException.NativeErrorCode == 0x522) {
-                // 0x522: ERROR_PRIVILEGE_NOT_HELD: A required privilege is not held by the client.
-                //    ^ this occurs when Developer Mode is not enabled, or on below Windows 10
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_PRIVILEGE_NOT_HELD) { // this occurs when Developer Mode is not enabled, or on below Windows 10
                 throw new UnauthorizedAccessException("Symbolic link creation requires Admin privileges, or enabling developer mode", errorException);
             }
             throw errorException;
@@ -130,20 +121,15 @@ public partial class WalkmanLib {
 
         if (handle.IsInvalid) {
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 2) {
-                // ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_FILE_NOT_FOUND) {
                 throw new FileNotFoundException(errorException.Message, fileName, errorException);
-            } else if (errorException.NativeErrorCode == 3) {
-                // ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_PATH_NOT_FOUND) {
                 throw new DirectoryNotFoundException("The path to the file does not exist", errorException);
-            } else if (errorException.NativeErrorCode == 5) {
-                // ERROR_ACCESS_DENIED: Access is denied
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ACCESS_DENIED) {
                 throw new UnauthorizedAccessException("Access to the file path is denied", errorException);
-            } else if (errorException.NativeErrorCode == 32) {
-                // ERROR_SHARING_VIOLATION: The process cannot access the file because it is being used by another process
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_SHARING_VIOLATION) {
                 throw new IOException(errorException.Message, errorException);
-            } else if (errorException.NativeErrorCode == 183) {
-                // ERROR_ALREADY_EXISTS: Cannot create a file when that file already exists
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ALREADY_EXISTS) {
                 throw new IOException("The target path already exists", errorException);
             }
             throw errorException;
@@ -448,19 +434,15 @@ public partial class WalkmanLib {
 
         if (hFind == INVALID_HANDLE_VALUE) {
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 2) {
-                // ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_FILE_NOT_FOUND) {
                 if (!File.Exists(path))
                     throw new FileNotFoundException(errorException.Message, path, errorException);
-            } else if (errorException.NativeErrorCode == 3) {
-                // ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_PATH_NOT_FOUND) {
                 if (!Directory.Exists(new FileInfo(path).DirectoryName))
                     throw new DirectoryNotFoundException(errorException.Message, errorException);
-            } else if (errorException.NativeErrorCode == 5) {
-                // ERROR_ACCESS_DENIED: Access is denied
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ACCESS_DENIED) {
                 throw new UnauthorizedAccessException("Access to the file path is denied", errorException);
-            } else if (errorException.NativeErrorCode == 32) {
-                // ERROR_SHARING_VIOLATION: The process cannot access the file because it is being used by another process
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_SHARING_VIOLATION) {
                 throw new IOException(errorException.Message, errorException);
             }
             throw errorException;
@@ -483,8 +465,7 @@ public partial class WalkmanLib {
                 yield return getFullPath(stringBuilderTarget.ToString());
 
             var errorException = new Win32Exception();
-            //                                    ERROR_HANDLE_EOF: Reached the end of the file.
-            if (errorException.NativeErrorCode != 0x26)
+            if (errorException.NativeErrorCode != (int)NativeErrorCode.ERROR_HANDLE_EOF)
                 throw errorException;
         } finally {
             FindClose(hFind);
@@ -504,12 +485,12 @@ public partial class WalkmanLib {
     private static extern bool FindClose(IntPtr hFindFile);
     #endregion
 
-    #region GetSymlinkTarget
+    #region GetSymlinkFinalPath
     // Link: https://stackoverflow.com/a/33487494/2999220
-    /// <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws ComponentModel.Win32Exception on error.</summary>
+    /// <summary>Gets the final full path to the target of a symbolic link, directory junction or volume mountpoint. Throws <see cref="Win32Exception"> on error.</summary>
     /// <param name="path">Path to the symlink to get the target of.</param>
     /// <returns>The fully qualified path to the target.</returns>
-    public static string GetSymlinkTarget(string path) {
+    public static string GetSymlinkFinalPath(string path) {
         string returnString = "";
 
         using (SafeFileHandle hFile = Win32CreateFile(path, Win32FileAccess.ReadEA,
@@ -535,6 +516,78 @@ public partial class WalkmanLib {
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     private static extern uint GetFinalPathNameByHandle(SafeFileHandle hFile, StringBuilder lpszFilePath,
                                                         uint cchFilePath, uint dwFlags);
+    #endregion
+
+    #region GetSymlinkTarget
+    // Link: https://stackoverflow.com/a/46383996/2999220
+    /// <summary>Gets the target of a symbolic link, directory junction or volume mountpoint. Throws <see cref="Win32Exception"/> on error.</summary>
+    /// <param name="path">Path to the symlink to get the target of.</param>
+    /// <returns>The target contained in the symlink/reparse point data.</returns>
+    public static string GetSymlinkTarget(string path) {
+        // https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_get_reparse_point
+        const uint FSCTL_GET_REPARSE_POINT = 0x000900A8;
+        const uint IO_REPARSE_TAG_SYMLINK = 0xA000000C;
+        const uint IO_REPARSE_TAG_MOUNTPOINT = 0xA0000003;
+        var reparseData = new ReparseDataOutBuffer();
+
+        // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew#symbolic-link-behavior
+        using (var hFile = Win32CreateFile(path, Win32FileAccess.ReadEA,
+                                           FileShare.Read | FileShare.Write | FileShare.Delete, FileMode.Open,
+                                           Win32FileAttribute.FlagBackupSemantics | Win32FileAttribute.FlagOpenReparsePoint)
+        ) {
+            bool result = DeviceIoControl(hFile, FSCTL_GET_REPARSE_POINT, lpInBuffer: IntPtr.Zero, nInBufferSize: 0,
+                                          lpOutBuffer: ref reparseData, nOutBufferSize: 16384, lpBytesReturned: out _, lpOverlapped: IntPtr.Zero);
+            if (!result)
+                throw new Win32Exception();
+        }
+
+        if (reparseData.ReparseTag == IO_REPARSE_TAG_SYMLINK || reparseData.ReparseTag == IO_REPARSE_TAG_MOUNTPOINT) {
+            int startOffset = reparseData.SubstituteNameOffset;
+            if (reparseData.ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+                startOffset += 4; // account for the extra ULONG(32-bit) Flags field in SymbolicLinkReparseBuffer
+            }
+
+            string target = Encoding.Unicode.GetString(reparseData.PathBuffer, startOffset, reparseData.SubstituteNameLength);
+
+            if (target.StartsWith(@"\??\"))
+                target = target.Substring(4);
+            return target;
+        } else {
+            return null;
+        }
+    }
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ni-winioctl-fsctl_get_reparse_point
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    private static extern bool DeviceIoControl(SafeFileHandle hDevice, uint dwIoControlCode,
+                                               IntPtr lpInBuffer, uint nInBufferSize,
+                                               [In, Out] ref ReparseDataOutBuffer lpOutBuffer, uint nOutBufferSize,
+                                               out uint lpBytesReturned, IntPtr lpOverlapped);
+
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_reparse_data_buffer
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct ReparseDataOutBuffer {
+        /// <summary>Reparse point tag. Must be a Microsoft reparse point tag.</summary>
+        public uint ReparseTag;
+        /// <summary>Size, in bytes, of the reparse data in the buffer that <see cref="PathBuffer"/> points to.</summary>
+        public ushort ReparseDataLength;
+        /// <summary>Reserved; do not use.</summary>
+        private ushort Reserved;
+        /// <summary>Offset, in bytes, of the substitute name string in the <see cref="PathBuffer"/> array.</summary>
+        public ushort SubstituteNameOffset;
+        /// <summary>Length, in bytes, of the substitute name string. If this string is null-terminated, <see cref="SubstituteNameLength"/> does not include space for the null character.</summary>
+        public ushort SubstituteNameLength;
+        /// <summary>Offset, in bytes, of the print name string in the <see cref="PathBuffer"/> array.</summary>
+        public ushort PrintNameOffset;
+        /// <summary>Length, in bytes, of the print name string. If this string is null-terminated, <see cref="PrintNameLength"/> does not include space for the null character.</summary>
+        public ushort PrintNameLength;
+        /// <summary>
+        /// A buffer containing the unicode-encoded path string. The path string contains the substitute name
+        /// string and print name string. The substitute name and print name strings can appear in any order.
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16368)]
+        public byte[] PathBuffer;
+    }
     #endregion
 
     #region Shortcut Management
@@ -641,16 +694,13 @@ public partial class WalkmanLib {
         if (SHGetFileInfo(filePath, 0, ref shInfo, (uint)Marshal.SizeOf(shInfo), flags) == 0 || shInfo.hIcon == IntPtr.Zero) {
 
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 2) {
-                // ERROR_FILE_NOT_FOUND: The system cannot find the file specified
+            if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_FILE_NOT_FOUND) {
                 if (!File.Exists(filePath))
                     throw new FileNotFoundException("The file does not exist", filePath, errorException);
-            } else if (errorException.NativeErrorCode == 3) {
-                // ERROR_PATH_NOT_FOUND: The system cannot find the path specified
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_PATH_NOT_FOUND) {
                 if (!Directory.Exists(new FileInfo(filePath).DirectoryName))
                     throw new DirectoryNotFoundException("The path to the file does not exist", errorException);
-            } else if (errorException.NativeErrorCode == 5) {
-                // ERROR_ACCESS_DENIED: Access is denied
+            } else if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_ACCESS_DENIED) {
                 throw new UnauthorizedAccessException("Access to the file is denied", errorException);
             }
             throw errorException;
@@ -871,14 +921,14 @@ public partial class WalkmanLib {
     /// <summary>Gets the compressed size of a specified file. Throws IOException on failure.</summary>
     /// <param name="path">Path to the file to get size for.</param>
     /// <returns>The compressed size of the file or the size of the file if file isn't compressed.</returns>
-    public static long GetCompressedSize(string path) {
-        long fileLength = Convert.ToInt64(GetCompressedFileSize(path, out uint sizeMultiplier));
-        if (fileLength == 0xFFFFFFFFL) {
+    public static ulong GetCompressedSize(string path) {
+        uint fileLength = GetCompressedFileSize(path, out uint sizeMultiplier);
+        if (fileLength == uint.MaxValue) {
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode != 0)
+            if (errorException.NativeErrorCode != (int)NativeErrorCode.ERROR_SUCCESS)
                 throw new IOException(errorException.Message, errorException);
         }
-        return ((uint.MaxValue + 1L) * sizeMultiplier) + fileLength;
+        return ((uint.MaxValue + 1UL) * sizeMultiplier) + fileLength; // all operations << are calculated as ULong
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getcompressedfilesizew
@@ -891,7 +941,6 @@ public partial class WalkmanLib {
     // Link: http://www.vb-helper.com/howto_get_associated_program.html
     /// <summary>Gets the path to the program specified to open a file.</summary>
     /// <param name="filePath">The file to get the OpenWith program for.</param>
-    /// <returns>OpenWith program path, "Filetype not associated!" if none, or "File not found!"</returns>
     public static string GetOpenWith(string filePath) {
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found!", filePath);
@@ -935,6 +984,29 @@ public partial class WalkmanLib {
     private static extern void mouse_event(MouseButton dwFlags, uint dx, uint dy, uint dwData, uint dwExtraInfo);
     #endregion
 
+    #region PreferredAppMode
+    // Link: https://stackoverflow.com/a/75835243/2999220
+    // Link: https://github.com/ysc3839/win32-darkmode/blob/cc26549b65b25d6f3168a80238792545bd401271/win32-darkmode/DarkMode.h#L11
+    public static void SetPreferredAppMode(PreferredAppMode preferredAppMode) {
+        Win32SetPreferredAppMode(preferredAppMode);
+        FlushMenuThemes();
+    }
+
+    // undocumented functions...
+    [DllImport("uxtheme.dll", EntryPoint = "#135", SetLastError = true, CharSet = CharSet.Auto)]
+    private static extern int Win32SetPreferredAppMode(PreferredAppMode preferredAppMode);
+    [DllImport("uxtheme.dll", EntryPoint = "#136", SetLastError = true, CharSet = CharSet.Auto)]
+    private static extern void FlushMenuThemes();
+
+    public enum PreferredAppMode {
+        Default,
+        AllowDark,
+        ForceDark,
+        ForceLight,
+        Max,
+    }
+    #endregion
+
     #region ShowProperties
     // Link: https://stackoverflow.com/a/1936957/2999220
     /// <summary>Opens the Windows properties window for a path.</summary>
@@ -961,7 +1033,7 @@ public partial class WalkmanLib {
     // https://docs.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfow
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     private struct ShellExecuteInfo {
-        public uint cbSize; // cbSize is specified as a DWORD, and "A DWORD is a 32-bit unsigned integer"
+        public uint cbSize; // cbSize is specified as a DWORD, and "A DWORD is a 32-bit unsigned integer": https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/262627d8-3418-4627-9218-4ffe110850b2
         public uint fMask;
         public IntPtr hwnd;
         [MarshalAs(UnmanagedType.LPTStr)]
@@ -998,9 +1070,7 @@ public partial class WalkmanLib {
 
         if (hWnd == IntPtr.Zero) {
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 0 || errorException.NativeErrorCode == 1400) {
-                // 0: ERROR_SUCCESS: The operation completed successfully.
-                // 1400: ERROR_INVALID_WINDOW_HANDLE: Invalid window handle.
+            if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_SUCCESS || errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_INVALID_WINDOW_HANDLE) {
                 throw new ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException);
             }
             throw errorException;
@@ -1044,9 +1114,7 @@ public partial class WalkmanLib {
 
         if (hWnd == IntPtr.Zero) {
             var errorException = new Win32Exception();
-            if (errorException.NativeErrorCode == 0 || errorException.NativeErrorCode == 1400) {
-                // 0: ERROR_SUCCESS: The operation completed successfully.
-                // 1400: ERROR_INVALID_WINDOW_HANDLE: Invalid window handle.
+            if (errorException.NativeErrorCode == (int)NativeErrorCode.ERROR_SUCCESS) {
                 throw new ArgumentException("Window matching the specified parameters not found!", "windowName / windowClass", errorException);
             }
             throw errorException;
@@ -1132,7 +1200,7 @@ public partial class WalkmanLib {
         Synchronize = Win32FileAccess.Synchronize,
         /// <summary>
         /// All possible access rights for a thread object. For Windows Server 2008/Windows Vista and up.
-        /// If this flag is specified on Windows Server 2003/Windows XP or below, the function specifying this flag fails with ERROR_ACCESS_DENIED.
+        /// If this flag is specified on Windows Server 2003/Windows XP or below, the function specifying this flag fails with <see cref="NativeErrorCode.ERROR_ACCESS_DENIED"/>.
         /// </summary>
         AllAccess_VistaAndUp = Win32FileAccess.StandardRightsRequired | Win32FileAccess.Synchronize | 0xFFFF,
         /// <summary>

@@ -193,6 +193,31 @@ public partial class WalkmanLib {
             }
         }
     }
+
+    public static void InitCustomRenderers(System.Collections.IEnumerable controls) {
+        foreach (Control ctl in controls) {
+            if (ctl is ListView listView) {
+                listView.DrawColumnHeader += CustomPaint.ListView_DrawCustomColumnHeader;
+                listView.DrawItem += CustomPaint.ListView_DrawDefaultItem;
+                listView.DrawSubItem += CustomPaint.ListView_DrawDefaultSubItem;
+            } else if (ctl is TabControl tabControl) {
+                tabControl.DrawItem += CustomPaint.TabControl_DrawCustomItem;
+            }
+        }
+    }
+    public static void ApplyThemeRenderer(Theme theme, System.Collections.IEnumerable controls) {
+        if (theme.ToolStripRenderMode != ToolStripManagerRenderMode.Custom)
+            ToolStripManager.RenderMode = theme.ToolStripRenderMode;
+        else
+            ToolStripManager.Renderer = new CustomPaint.ToolStripSystemRendererWithDisabled(theme.ToolStripItemDisabledText);
+
+        foreach (Control ctl in controls) {
+            if (ctl is ListView listView)
+                listView.Tag = theme.ListViewColumnColors;
+            else if (ctl is TabControl tabControl)
+                tabControl.Tag = theme.TabControlTabColors;
+        }
+    }
     #endregion
 
     #region Save / Load Theme
@@ -338,10 +363,10 @@ public partial class WalkmanLib {
         public Color ProgressBarBG;
         public Color PropertyGridFG;
         public Color PropertyGridBG;
-        public Color GroupBoxFG;
-        public Color GroupBoxBG;
         public Color PanelFG;
         public Color PanelBG;
+        public Color GroupBoxFG;
+        public Color GroupBoxBG;
         public Color SplitContainerFG;
         public Color SplitContainerBG;
         public Color SplitterPanelFG;
@@ -382,6 +407,8 @@ public partial class WalkmanLib {
         public Color ToolStripSplitButtonBG;
         public Color ToolStripTextBoxFG;
         public Color ToolStripTextBoxBG;
+        public ToolStripManagerRenderMode ToolStripRenderMode;
+        public WalkmanLib.PreferredAppMode SystemAppMode;
 
         public Color OtherFG;
         public Color OtherBG;
@@ -517,7 +544,9 @@ public partial class WalkmanLib {
                         InactiveTab = SystemColors.Control,
                         TabStripBackground = SystemColors.Control
                     },
-                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFF6D6D6D))
+                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFF6D6D6D)),
+                    ToolStripRenderMode = ToolStripManagerRenderMode.Professional,
+                    SystemAppMode = PreferredAppMode.Default
                 };
             }
         }
@@ -626,7 +655,9 @@ public partial class WalkmanLib {
                         InactiveTab = SystemColors.ControlDarkDark,
                         TabStripBackground = SystemColors.ControlText
                     },
-                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFFB2B2B2))
+                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFFB2B2B2)),
+                    ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
+                    SystemAppMode = PreferredAppMode.ForceDark
                 };
             }
         }
@@ -733,7 +764,9 @@ public partial class WalkmanLib {
                         InactiveTab = SystemColors.ControlDark,
                         TabStripBackground = SystemColors.ControlDarkDark
                     },
-                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFFB2B2B2))
+                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFFB2B2B2)),
+                    ToolStripRenderMode = ToolStripManagerRenderMode.System,
+                    SystemAppMode = PreferredAppMode.AllowDark
                 };
             }
         }
@@ -744,6 +777,7 @@ public partial class WalkmanLib {
                 var backColor = Color.FromArgb(unchecked((int)0xFF303030));
                 var altTextColor = Color.FromArgb(unchecked((int)0xFFFFFFFF));
                 var altBackColor = Color.FromArgb(unchecked((int)0xFF515259));
+
                 return new Theme() {
                     FormFG = textColor,
                     FormBG = backColor,
@@ -844,7 +878,9 @@ public partial class WalkmanLib {
                         InactiveTab = altBackColor,
                         TabStripBackground = backColor
                     },
-                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFFB2B2B2))
+                    ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFFB2B2B2)),
+                    ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
+                    SystemAppMode = PreferredAppMode.ForceDark
                 };
             }
         }
@@ -885,10 +921,10 @@ public partial class WalkmanLib {
                     MenuStripBG = Color.Magenta,
                     NumericUpDownFG = Color.Blue,
                     NumericUpDownBG = Color.Magenta,
-                    PictureBoxFG = Color.Blue,
-                    PictureBoxBG = Color.Magenta,
                     PanelFG = Color.Blue,
                     PanelBG = Color.Magenta,
+                    PictureBoxFG = Color.Blue,
+                    PictureBoxBG = Color.Magenta,
                     ProgressBarFG = Color.Blue,
                     ProgressBarBG = Color.Magenta,
                     PropertyGridFG = Color.Blue,
@@ -951,7 +987,9 @@ public partial class WalkmanLib {
                         InactiveTab = Color.Violet,
                         TabStripBackground = Color.Magenta
                     },
-                    ToolStripItemDisabledText = Color.Green
+                    ToolStripItemDisabledText = Color.Green,
+                    ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
+                    SystemAppMode = PreferredAppMode.AllowDark
                 };
             }
         }
@@ -1124,7 +1162,23 @@ public partial class WalkmanLib {
                 this.getDisabledColor = getDisabledColor;
             }
             public ToolStripSystemRendererWithDisabled(Color disabledColor) {
-                this.getDisabledColor = e => disabledColor;
+                this.getDisabledColor = _ => disabledColor;
+            }
+
+            // draw separator with assigned ForeColor
+            protected override void OnRenderSeparator(ToolStripSeparatorRenderEventArgs e) {
+                var pen = new Pen(e.Item.ForeColor);
+                var bounds = new Rectangle(Point.Empty, e.Item.Size);
+
+                if (e.Vertical) {
+                    if (bounds.Height >= 4) bounds.Inflate(0, -2);
+                    int num = bounds.Width / 2;
+                    e.Graphics.DrawLine(pen, num, bounds.Top, num, bounds.Bottom);
+                } else {
+                    if (bounds.Width >= 4) bounds.Inflate(-2, 0);
+                    int num = bounds.Height / 2;
+                    e.Graphics.DrawLine(pen, bounds.Left, num, bounds.Right, num);
+                }
             }
 
             protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e) {

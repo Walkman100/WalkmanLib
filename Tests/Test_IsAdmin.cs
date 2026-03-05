@@ -15,6 +15,7 @@ namespace Tests {
             bool result = WalkmanLib.RunAsAdmin("cmd.exe", "/c \"" + programPath + "\" getAdmin > " + tmpOutPath);
             if (!result)
                 return GeneralFunctions.TestString("IsAdmin2", "Admin Prompt Denied", "Admin Prompt Accepted");
+            System.Threading.Thread.Sleep(1000);
 
             string runAsAdminOutput;
             try {

@@ -95,8 +95,8 @@
       <Link>WalkmanLib\CustomInputDialog.cs</Link>
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="..\CustomInputDialog.designer.cs">
-      <Link>WalkmanLib\CustomInputDialog.designer.cs</Link>
+    <Compile Include="..\CustomInputDialog.Designer.cs">
+      <Link>WalkmanLib\CustomInputDialog.Designer.cs</Link>
       <DependentUpon>CustomInputDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="..\CustomMsgBox.cs">
@@ -106,6 +106,9 @@
     <Compile Include="..\CustomMsgBox.Designer.cs">
       <Link>WalkmanLib\CustomMsgBox.Designer.cs</Link>
       <DependentUpon>CustomMsgBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\NativeErrorCodes.cs">
+      <Link>WalkmanLib\NativeErrorCodes.cs</Link>
     </Compile>
     <Compile Include="..\WalkmanLibArgHandler.cs">
       <Link>WalkmanLib\WalkmanLibArgHandler.cs</Link>
