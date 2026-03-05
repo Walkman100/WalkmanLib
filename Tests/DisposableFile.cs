@@ -3,12 +3,7 @@ using System.IO;
 
 namespace Tests {
     public class DisposableFile : IDisposable {
-        private string _filePath;
-        public string FilePath {
-            get {
-                return _filePath;
-            }
-        }
+        public string FilePath { get; }
         private bool disposed = false;
 
         public DisposableFile(string path, bool createFile = true, bool checkFileExistence = true) {
@@ -23,16 +18,12 @@ namespace Tests {
                 }
             }
 
-            _filePath = new FileInfo(path).FullName;
+            FilePath = new FileInfo(path).FullName;
         }
 
-        public override string ToString() {
-            return FilePath;
-        }
+        public override string ToString() => FilePath;
 
-        public static implicit operator string(DisposableFile v) {
-            return v.FilePath;
-        }
+        public static implicit operator string(DisposableFile v) => v.FilePath;
 
         protected virtual void Dispose(bool disposing) {
             if (!disposed) {
