@@ -203,6 +203,7 @@ public partial class WalkmanLib {
             } else if (ctl is TabControl tabControl) {
                 tabControl.DrawItem += CustomPaint.TabControl_DrawCustomItem;
             }
+            InitCustomRenderers(ctl.Controls);
         }
     }
     public static void ApplyThemeRenderer(Theme theme, System.Collections.IEnumerable controls) {
@@ -211,11 +212,16 @@ public partial class WalkmanLib {
         else
             ToolStripManager.Renderer = new CustomPaint.ToolStripSystemRendererWithDisabled(theme.ToolStripItemDisabledText);
 
+        ApplyThemeRendererRecursive(theme, controls);
+    }
+    private static void ApplyThemeRendererRecursive(Theme theme, System.Collections.IEnumerable controls) {
         foreach (Control ctl in controls) {
             if (ctl is ListView listView)
                 listView.Tag = theme.ListViewColumnColors;
             else if (ctl is TabControl tabControl)
                 tabControl.Tag = theme.TabControlTabColors;
+
+            ApplyThemeRendererRecursive(theme, ctl.Controls);
         }
     }
     #endregion
