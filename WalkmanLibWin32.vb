@@ -608,6 +608,33 @@ Partial Public Class WalkmanLib
     End Structure
 #End Region
 
+#Region "SetSymlinkTimes"
+    ' Link: https://serverfault.com/a/615981/226028
+    ''' <summary>Sets times on the specified Symbolic Link itself, instead of it's target (which <see cref="File.SetCreationTime"/> e.t.c. do). Throws <see cref="Win32Exception"/> on error.</summary>
+    ''' <param name="symlinkPath">Path to the symlink to set times on.</param>
+    ''' <param name="creationTime">The Creation Time of the symlink. Pass <see langword="Nothing"/> to ignore.</param>
+    ''' <param name="lastAccessTime">The Last Access time of the symlink. Pass <see langword="Nothing"/> to ignore.</param>
+    ''' <param name="lastWriteTime">The Last Write/Modified time of the symlink. Pass <see langword="Nothing"/> to ignore.</param>
+    Public Shared Sub SetSymlinkTimes(symlinkPath As String, creationTime As DateTime?, lastAccessTime As DateTime?, lastWriteTime As DateTime?)
+        Using hFile As SafeFileHandle = Win32CreateFile(symlinkPath, Win32FileAccess.GenericRead Or Win32FileAccess.GenericWrite,
+                                                        FileShare.ReadWrite, FileMode.Open,
+                                                        Win32FileAttribute.FlagOpenReparsePoint)
+            If Not SetFileTime(hFile,
+                               If(creationTime.HasValue, creationTime.Value.ToFileTimeUtc(), 0),
+                               If(lastAccessTime.HasValue, lastAccessTime.Value.ToFileTimeUtc(), 0),
+                               If(lastWriteTime.HasValue, lastWriteTime.Value.ToFileTimeUtc(), 0)) Then
+                Throw New Win32Exception()
+            End If
+        End Using
+    End Sub
+
+    'https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfiletime
+    'https://www.pinvoke.net/default.aspx/kernel32/SetFileTime.html
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function SetFileTime(hFile As SafeFileHandle, ByRef lpCreationTime As Long, ByRef lpLastAccessTime As Long, ByRef lpLastWriteTime As Long) As <MarshalAs(UnmanagedType.Bool)> Boolean
+    End Function
+#End Region
+
 #Region "Shortcut Management"
     ' Link: https://stackoverflow.com/a/14141782/2999220
     ' Link: https://www.tek-tips.com/viewthread.cfm?qid=850335
