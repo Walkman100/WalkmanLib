@@ -594,6 +594,30 @@ public partial class WalkmanLib {
     }
     #endregion
 
+    #region SetSymlinkTimes
+    // Link: https://serverfault.com/a/615981/226028
+    /// <summary>Sets times on the specified Symbolic Link itself, instead of it's target (which <see cref="File.SetCreationTime"/> e.t.c. do). Throws <see cref="Win32Exception"/> on error.</summary>
+    /// <param name="symlinkPath">Path to the symlink to set times on</param>
+    /// <param name="creationTime">The Creation Time of the symlink. Pass <see langword="null"> to ignore.</param>
+    /// <param name="lastAccessTime">The Last Access time of the symlink. Pass <see langword="null"/> to ignore.</param>
+    /// <param name="lastWriteTime">The Last Write/Modified time of the symlink. Pass <see langword="null"/> to ignore.</param>
+    public static void SetSymlinkTimes(string symlinkPath, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime) {
+        using (SafeFileHandle hFile = Win32CreateFile(symlinkPath, Win32FileAccess.GenericRead | Win32FileAccess.GenericWrite,
+                                                      FileShare.ReadWrite, FileMode.Open,
+                                                      Win32FileAttribute.FlagOpenReparsePoint)) {
+            if (!SetFileTime(hFile, creationTime?.ToFileTimeUtc() ?? 0, lastAccessTime?.ToFileTimeUtc() ?? 0, lastWriteTime?.ToFileTimeUtc() ?? 0))
+                throw new Win32Exception();
+        }
+    }
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfiletime
+    // https://www.pinvoke.net/default.aspx/kernel32/SetFileTime.html
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetFileTime(SafeFileHandle hFile, in long lpCreationTime, in long lpLastAccessTime, in long lpLastWriteTime);
+
+    #endregion
+
     #region Shortcut Management
     // Link: https://stackoverflow.com/a/14141782/2999220
     // Link: https://www.tek-tips.com/viewthread.cfm?qid=850335
