@@ -604,7 +604,7 @@ public partial class WalkmanLib {
     public static void SetSymlinkTimes(string symlinkPath, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime) {
         using (SafeFileHandle hFile = Win32CreateFile(symlinkPath, Win32FileAccess.GenericRead | Win32FileAccess.GenericWrite,
                                                       FileShare.ReadWrite, FileMode.Open,
-                                                      Win32FileAttribute.FlagOpenReparsePoint)) {
+                                                      Win32FileAttribute.FlagOpenReparsePoint | Win32FileAttribute.FlagBackupSemantics)) {
             if (!SetFileTime(hFile, creationTime?.ToFileTimeUtc() ?? 0, lastAccessTime?.ToFileTimeUtc() ?? 0, lastWriteTime?.ToFileTimeUtc() ?? 0))
                 throw new Win32Exception();
         }
