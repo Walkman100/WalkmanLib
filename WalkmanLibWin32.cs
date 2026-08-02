@@ -426,8 +426,8 @@ public partial class WalkmanLib {
     // Link: https://stackoverflow.com/a/4511075/2999220
     // Link: https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilenamew
     /// <summary>Gets all the links to a specified file.
-    /// Warning: A handle is used to get the links, and is only closed when all the links have been retrieved.
-    /// To ensure this handle is closed, ensure all the links are retrieved.</summary>
+    /// <br />Warning: A handle is used to get the links, and is only closed when all the links have been retrieved.
+    /// <br />To ensure this handle is closed, ensure all the links are retrieved.</summary>
     /// <param name="path">Path to the file to get links for. This path does not include the drive identifier.</param>
     /// <returns>All a file's links.</returns>
     public static IEnumerable<string> GetHardlinkLinks(string path) {
@@ -654,27 +654,27 @@ public partial class WalkmanLib {
     public interface IWshShortcut {
         [DispId(0)]
         string FullName { get; }
-        [DispId(0x3E8)]
+        [DispId(1000)]
         string Arguments { get; set; }
         /// <summary>Shortcut Comment.</summary>
-        [DispId(0x3E9)]
+        [DispId(1001)]
         string Description { get; set; }
-        [DispId(0x3EA)]
+        [DispId(1002)]
         string Hotkey { get; set; }
-        [DispId(0x3EB)]
+        [DispId(1003)]
         string IconLocation { get; set; }
-        [DispId(0x3EC)]
+        [DispId(1004)]
         string RelativePath { set; }
-        [DispId(0x3ED)]
+        [DispId(1005)]
         string TargetPath { get; set; }
         /// <summary>Shortcut "Run" combobox. 1=Normal, 3=Maximized, 7=Minimized.</summary>
-        [DispId(0x3EE)]
+        [DispId(1006)]
         int WindowStyle { get; set; }
-        [DispId(0x3EF)]
+        [DispId(1007)]
         string WorkingDirectory { get; set; }
-        [TypeLibFunc(0x40), DispId(0x7D0)]
+        [TypeLibFunc(0x40), DispId(2000)]
         void Load([In, MarshalAs(UnmanagedType.BStr)] string PathLink);
-        [DispId(0x7D1)]
+        [DispId(2001)]
         void Save();
     }
     #endregion
