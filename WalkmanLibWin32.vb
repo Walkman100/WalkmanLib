@@ -618,7 +618,7 @@ Partial Public Class WalkmanLib
     Public Shared Sub SetSymlinkTimes(symlinkPath As String, creationTime As DateTime?, lastAccessTime As DateTime?, lastWriteTime As DateTime?)
         Using hFile As SafeFileHandle = Win32CreateFile(symlinkPath, Win32FileAccess.GenericRead Or Win32FileAccess.GenericWrite,
                                                         FileShare.ReadWrite, FileMode.Open,
-                                                        Win32FileAttribute.FlagOpenReparsePoint)
+                                                        Win32FileAttribute.FlagOpenReparsePoint Or Win32FileAttribute.FlagBackupSemantics)
             If Not SetFileTime(hFile,
                                If(creationTime.HasValue, creationTime.Value.ToFileTimeUtc(), 0),
                                If(lastAccessTime.HasValue, lastAccessTime.Value.ToFileTimeUtc(), 0),
