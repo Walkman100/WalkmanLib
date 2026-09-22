@@ -1072,6 +1072,22 @@ Partial Public Class WalkmanLib
     End Enum
 #End Region
 
+#Region "RestoreWindow"
+    ' Link: https://stackoverflow.com/a/2725234/2999220
+    ''' <summary>Restores a minimized window to the saved state</summary>
+    ''' <param name="windowHandle">Use <see cref="System.Windows.Forms.Form.Handle"/></param>
+    Public Shared Sub RestoreWindow(windowHandle As IntPtr)
+        Const SW_RESTORE As UInteger = &H9
+        ShowWindow(windowHandle, SW_RESTORE)
+    End Sub
+
+    'https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+    'https://www.pinvoke.net/default.aspx/user32.ShowWindow
+    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
+    Private Shared Function ShowWindow(hWnd As IntPtr, nCmdShow As Integer) As Boolean
+    End Function
+#End Region
+
 #Region "ShowProperties"
     ' Link: https://stackoverflow.com/a/1936957/2999220
     ''' <summary>Opens the Windows properties window for a path.</summary>

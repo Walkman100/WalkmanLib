@@ -61,6 +61,20 @@ Partial Public Class WalkmanLib
         }).WaitForExit(500)
     End Sub
 
+    ''' <summary>If form is visible, uses BringToFront and Activate, else shows form</summary>
+    ''' <param name="form">Form to show</param>
+    ''' <param name="owner">If form is not visible, passes this to <see cref="Form.Show(IWin32Window)"/></param>
+    Shared Sub ShowOrActivateForm(form As Form, Optional owner As IWin32Window = Nothing)
+        If form.Visible Then
+            form.BringToFront()
+            form.Activate()
+        ElseIf owner IsNot Nothing Then
+            form.Show(owner)
+        Else
+            form.Show()
+        End If
+    End Sub
+
     ''' <summary>Checks whether the current process is elevated (running with administrator permissions)</summary>
     ''' <returns>True if running with administrator permissions, False if not</returns>
     Shared Function IsAdmin() As Boolean
