@@ -13,12 +13,12 @@ Imports System.Windows.Forms
 
 Partial Public Class WalkmanLib
 #Region "ApplyTheme"
-    Shared Sub ApplyTheme(theme As Theme, form As Form, Optional allowSetOwnerDraw As Boolean = False)
+    Shared Sub ApplyTheme(theme As Theme, form As Form, Optional allowSetOwnerDraw As Boolean = False, Optional allowSetFlatStyle As Boolean = True)
         form.ForeColor = theme.FormFG
         form.BackColor = theme.FormBG
-        ApplyTheme(theme, form.Controls, allowSetOwnerDraw)
+        ApplyTheme(theme, form.Controls, allowSetOwnerDraw, allowSetFlatStyle)
     End Sub
-    Shared Sub ApplyTheme(theme As Theme, controls As Collections.IEnumerable, Optional allowSetOwnerDraw As Boolean = False)
+    Shared Sub ApplyTheme(theme As Theme, controls As Collections.IEnumerable, Optional allowSetOwnerDraw As Boolean = False, Optional allowSetFlatStyle As Boolean = True)
         '                                 for ToolStripItemCollection
         For Each item As ToolStripItem In controls.OfType(Of ToolStripItem)
             Select Case item.GetType()
@@ -28,18 +28,19 @@ Partial Public Class WalkmanLib
                 Case GetType(ToolStripComboBox)
                     item.ForeColor = theme.ToolStripComboBoxFG
                     item.BackColor = theme.ToolStripComboBoxBG
+                    If allowSetFlatStyle Then DirectCast(item, ToolStripComboBox).FlatStyle = theme.ToolStripComboBoxFlatStyle
                 Case GetType(ToolStripDropDownButton)
                     item.ForeColor = theme.ToolStripDropDownButtonFG
                     item.BackColor = theme.ToolStripDropDownButtonBG
                     DirectCast(item, ToolStripDropDownButton).DropDown.ForeColor = theme.ToolStripDropDownFG
                     DirectCast(item, ToolStripDropDownButton).DropDown.BackColor = theme.ToolStripDropDownBG
-                    ApplyTheme(theme, DirectCast(item, ToolStripDropDownButton).DropDownItems, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(item, ToolStripDropDownButton).DropDownItems, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(ToolStripMenuItem) ' inherits ToolStripDropDownItem
                     item.ForeColor = theme.ToolStripMenuItemFG
                     item.BackColor = theme.ToolStripMenuItemBG
                     DirectCast(item, ToolStripMenuItem).DropDown.ForeColor = theme.ToolStripDropDownFG
                     DirectCast(item, ToolStripMenuItem).DropDown.BackColor = theme.ToolStripDropDownBG
-                    ApplyTheme(theme, DirectCast(item, ToolStripMenuItem).DropDownItems, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(item, ToolStripMenuItem).DropDownItems, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(ToolStripProgressBar)
                     item.ForeColor = theme.ToolStripProgressBarFG
                     item.BackColor = theme.ToolStripProgressBarBG
@@ -54,7 +55,7 @@ Partial Public Class WalkmanLib
                     item.BackColor = theme.ToolStripSplitButtonBG
                     DirectCast(item, ToolStripSplitButton).DropDown.ForeColor = theme.ToolStripDropDownFG
                     DirectCast(item, ToolStripSplitButton).DropDown.BackColor = theme.ToolStripDropDownBG
-                    ApplyTheme(theme, DirectCast(item, ToolStripSplitButton).DropDownItems, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(item, ToolStripSplitButton).DropDownItems, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(ToolStripTextBox)
                     item.ForeColor = theme.ToolStripTextBoxFG
                     item.BackColor = theme.ToolStripTextBoxBG
@@ -69,9 +70,14 @@ Partial Public Class WalkmanLib
                 Case GetType(Button)
                     ctl.ForeColor = theme.ButtonFG
                     ctl.BackColor = theme.ButtonBG
-                    If theme.ButtonBG = SystemColors.Control Then
-                        DirectCast(ctl, Button).UseVisualStyleBackColor = True
+                    Dim btn As Button = DirectCast(ctl, Button)
+                    If theme.ButtonBG = SystemColors.Control Then btn.UseVisualStyleBackColor = True
+                    If allowSetFlatStyle Then
+                        btn.FlatStyle = theme.ButtonFlatStyle
+                        btn.FlatAppearance.MouseOverBackColor = theme.ButtonFlatMouseOver
+                        btn.FlatAppearance.MouseDownBackColor = theme.ButtonFlatMouseDown
                     End If
+
                 Case GetType(Label)
                     ctl.ForeColor = theme.LabelFG
                     ctl.BackColor = theme.LabelBG
@@ -84,6 +90,7 @@ Partial Public Class WalkmanLib
                 Case GetType(ComboBox)
                     ctl.ForeColor = theme.ComboBoxFG
                     ctl.BackColor = theme.ComboBoxBG
+                    If allowSetFlatStyle Then DirectCast(ctl, ComboBox).FlatStyle = theme.ComboBoxFlatStyle
                 Case GetType(CheckBox)
                     ctl.ForeColor = theme.CheckBoxFG
                     ctl.BackColor = theme.CheckBoxBG
@@ -142,52 +149,50 @@ Partial Public Class WalkmanLib
                 Case GetType(Panel)
                     ctl.ForeColor = theme.PanelFG
                     ctl.BackColor = theme.PanelBG
-                    ApplyTheme(theme, DirectCast(ctl, Panel).Controls, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, Panel).Controls, allowSetOwnerDraw, allowSetFlatStyle)
 
                 Case GetType(GroupBox)
                     ctl.ForeColor = theme.GroupBoxFG
                     ctl.BackColor = theme.GroupBoxBG
-                    ApplyTheme(theme, DirectCast(ctl, GroupBox).Controls, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, GroupBox).Controls, allowSetOwnerDraw, allowSetFlatStyle)
 
                 Case GetType(SplitContainer)
                     ctl.ForeColor = theme.SplitContainerFG
                     ctl.BackColor = theme.SplitContainerBG
-                    ApplyTheme(theme, DirectCast(ctl, SplitContainer).Controls, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, SplitContainer).Controls, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(SplitterPanel)
                     ctl.ForeColor = theme.SplitterPanelFG
                     ctl.BackColor = theme.SplitterPanelBG
-                    ApplyTheme(theme, DirectCast(ctl, SplitterPanel).Controls, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, SplitterPanel).Controls, allowSetOwnerDraw, allowSetFlatStyle)
 
                 Case GetType(TabControl)
                     If allowSetOwnerDraw Then DirectCast(ctl, TabControl).DrawMode =
                         If(theme.TabControlOwnerDraw, TabDrawMode.OwnerDrawFixed, TabDrawMode.Normal)
                     ctl.ForeColor = theme.TabControlFG
                     ctl.BackColor = theme.TabControlBG
-                    ApplyTheme(theme, DirectCast(ctl, TabControl).Controls, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, TabControl).Controls, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(TabPage)
                     ctl.ForeColor = theme.TabPageFG
                     ctl.BackColor = theme.TabPageBG
-                    If theme.TabPageBG = Color.Transparent Then
-                        DirectCast(ctl, TabPage).UseVisualStyleBackColor = True
-                    End If
-                    ApplyTheme(theme, DirectCast(ctl, TabPage).Controls, allowSetOwnerDraw)
+                    If theme.TabPageBG = Color.Transparent Then DirectCast(ctl, TabPage).UseVisualStyleBackColor = True
+                    ApplyTheme(theme, DirectCast(ctl, TabPage).Controls, allowSetOwnerDraw, allowSetFlatStyle)
 
                 Case GetType(MenuStrip)
                     ctl.ForeColor = theme.MenuStripFG
                     ctl.BackColor = theme.MenuStripBG
-                    ApplyTheme(theme, DirectCast(ctl, MenuStrip).Items, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, MenuStrip).Items, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(StatusStrip)
                     ctl.ForeColor = theme.StatusStripFG
                     ctl.BackColor = theme.StatusStripBG
-                    ApplyTheme(theme, DirectCast(ctl, StatusStrip).Items, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, StatusStrip).Items, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(ToolStrip)
                     ctl.ForeColor = theme.ToolStripFG
                     ctl.BackColor = theme.ToolStripBG
-                    ApplyTheme(theme, DirectCast(ctl, ToolStrip).Items, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, ToolStrip).Items, allowSetOwnerDraw, allowSetFlatStyle)
                 Case GetType(ContextMenuStrip)
                     ctl.ForeColor = theme.ContextMenuStripFG
                     ctl.BackColor = theme.ContextMenuStripBG
-                    ApplyTheme(theme, DirectCast(ctl, ContextMenuStrip).Items, allowSetOwnerDraw)
+                    ApplyTheme(theme, DirectCast(ctl, ContextMenuStrip).Items, allowSetOwnerDraw, allowSetFlatStyle)
 
                 Case Else
                     ctl.ForeColor = theme.OtherFG
@@ -273,6 +278,9 @@ Partial Public Class WalkmanLib
         Public CustomMsgBoxTopPanel As Color
         Public ButtonFG As Color
         Public ButtonBG As Color
+        Public ButtonFlatStyle As FlatStyle
+        Public ButtonFlatMouseOver As Color
+        Public ButtonFlatMouseDown As Color
         Public LabelFG As Color
         Public LabelBG As Color
         Public LinkLabelFG As Color
@@ -283,6 +291,7 @@ Partial Public Class WalkmanLib
         Public DialogHeadingText As Color
         Public ComboBoxFG As Color
         Public ComboBoxBG As Color
+        Public ComboBoxFlatStyle As FlatStyle
         Public CheckBoxFG As Color
         Public CheckBoxBG As Color
         Public RadioButtonFG As Color
@@ -341,6 +350,7 @@ Partial Public Class WalkmanLib
         Public ToolStripButtonBG As Color
         Public ToolStripComboBoxFG As Color
         Public ToolStripComboBoxBG As Color
+        Public ToolStripComboBoxFlatStyle As FlatStyle
         Public ToolStripDropDownFG As Color
         Public ToolStripDropDownBG As Color
         Public ToolStripDropDownButtonFG As Color
@@ -393,6 +403,7 @@ Partial Public Class WalkmanLib
                 Return New Theme With {
                     .ComboBoxFG = SystemColors.WindowText,
                     .ComboBoxBG = SystemColors.Window,
+                    .ComboBoxFlatStyle = FlatStyle.Standard,
                     .CheckedListBoxFG = SystemColors.WindowText,
                     .CheckedListBoxBG = SystemColors.Window,
                     .DomainUpDownFG = SystemColors.WindowText,
@@ -407,6 +418,7 @@ Partial Public Class WalkmanLib
                     .TextBoxBG = SystemColors.Window,
                     .ToolStripComboBoxFG = SystemColors.WindowText,
                     .ToolStripComboBoxBG = SystemColors.Window,
+                    .ToolStripComboBoxFlatStyle = FlatStyle.Standard,
                     .ToolStripTextBoxFG = SystemColors.WindowText,
                     .ToolStripTextBoxBG = SystemColors.Window,
                     .TreeViewFG = SystemColors.WindowText,
@@ -416,6 +428,9 @@ Partial Public Class WalkmanLib
                     .FormBG = SystemColors.Control,
                     .ButtonFG = SystemColors.ControlText,
                     .ButtonBG = SystemColors.Control,
+                    .ButtonFlatStyle = FlatStyle.Standard,
+                    .ButtonFlatMouseOver = Color.Empty,
+                    .ButtonFlatMouseDown = Color.Empty,
                     .CheckBoxFG = SystemColors.ControlText,
                     .CheckBoxBG = SystemColors.Control,
                     .GroupBoxFG = SystemColors.ControlText,
@@ -504,6 +519,7 @@ Partial Public Class WalkmanLib
                 Return New Theme With {
                     .ComboBoxFG = SystemColors.Window,
                     .ComboBoxBG = SystemColors.WindowText,
+                    .ComboBoxFlatStyle = FlatStyle.Popup,
                     .CheckedListBoxFG = SystemColors.Window,
                     .CheckedListBoxBG = SystemColors.WindowText,
                     .DomainUpDownFG = SystemColors.Window,
@@ -518,6 +534,7 @@ Partial Public Class WalkmanLib
                     .TextBoxBG = SystemColors.WindowText,
                     .ToolStripComboBoxFG = SystemColors.Window,
                     .ToolStripComboBoxBG = SystemColors.WindowText,
+                    .ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     .ToolStripTextBoxFG = SystemColors.Window,
                     .ToolStripTextBoxBG = SystemColors.WindowText,
                     .TreeViewFG = SystemColors.Window,
@@ -527,6 +544,9 @@ Partial Public Class WalkmanLib
                     .FormBG = SystemColors.ControlText,
                     .ButtonFG = SystemColors.Control,
                     .ButtonBG = SystemColors.ControlText,
+                    .ButtonFlatStyle = FlatStyle.Flat,
+                    .ButtonFlatMouseOver = Color.FromArgb(75, Color.White),
+                    .ButtonFlatMouseDown = Color.Empty,
                     .CheckBoxFG = SystemColors.Control,
                     .CheckBoxBG = SystemColors.ControlText,
                     .ContextMenuStripFG = SystemColors.Control,
@@ -617,12 +637,16 @@ Partial Public Class WalkmanLib
                     .FormBG = SystemColors.ControlDarkDark,
                     .ButtonFG = SystemColors.Control,
                     .ButtonBG = SystemColors.ControlDarkDark,
+                    .ButtonFlatStyle = FlatStyle.Standard,
+                    .ButtonFlatMouseOver = Color.Empty,
+                    .ButtonFlatMouseDown = Color.Empty,
                     .CheckBoxFG = SystemColors.Control,
                     .CheckBoxBG = SystemColors.ControlDarkDark,
                     .CheckedListBoxFG = SystemColors.Control,
                     .CheckedListBoxBG = SystemColors.ControlDarkDark,
                     .ComboBoxFG = SystemColors.Control,
                     .ComboBoxBG = SystemColors.ControlDarkDark,
+                    .ComboBoxFlatStyle = FlatStyle.Popup,
                     .ContextMenuStripFG = SystemColors.Control,
                     .ContextMenuStripBG = SystemColors.ControlDarkDark,
                     .CustomMsgBoxTopPanel = SystemColors.ControlDarkDark,
@@ -676,6 +700,7 @@ Partial Public Class WalkmanLib
                     .ToolStripButtonBG = SystemColors.ControlDarkDark,
                     .ToolStripComboBoxFG = SystemColors.Control,
                     .ToolStripComboBoxBG = SystemColors.ControlDarkDark,
+                    .ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     .ToolStripDropDownFG = SystemColors.Control,
                     .ToolStripDropDownBG = SystemColors.ControlDarkDark,
                     .ToolStripDropDownButtonFG = SystemColors.Control,
@@ -731,12 +756,16 @@ Partial Public Class WalkmanLib
                     .FormBG = backColor,
                     .ButtonFG = textColor,
                     .ButtonBG = backColor,
+                    .ButtonFlatStyle = FlatStyle.Flat,
+                    .ButtonFlatMouseOver = Color.FromArgb(50, Color.White),
+                    .ButtonFlatMouseDown = Color.Empty,
                     .CheckBoxFG = textColor,
                     .CheckBoxBG = backColor,
                     .CheckedListBoxFG = textColor,
                     .CheckedListBoxBG = backColor,
                     .ComboBoxFG = textColor,
                     .ComboBoxBG = backColor,
+                    .ComboBoxFlatStyle = FlatStyle.Popup,
                     .ContextMenuStripFG = altTextColor,
                     .ContextMenuStripBG = altBackColor,
                     .CustomMsgBoxTopPanel = Color.FromArgb(&HFF444449),
@@ -790,6 +819,7 @@ Partial Public Class WalkmanLib
                     .ToolStripButtonBG = altBackColor,
                     .ToolStripComboBoxFG = altTextColor,
                     .ToolStripComboBoxBG = altBackColor,
+                    .ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     .ToolStripDropDownFG = altTextColor,
                     .ToolStripDropDownBG = altBackColor,
                     .ToolStripDropDownButtonFG = altTextColor,
@@ -840,12 +870,16 @@ Partial Public Class WalkmanLib
                     .FormBG = Color.Magenta,
                     .ButtonFG = Color.Blue,
                     .ButtonBG = Color.Magenta,
+                    .ButtonFlatStyle = FlatStyle.Flat,
+                    .ButtonFlatMouseOver = Color.FromArgb(100, Color.White),
+                    .ButtonFlatMouseDown = Color.Green,
                     .CheckBoxFG = Color.Blue,
                     .CheckBoxBG = Color.Magenta,
                     .CheckedListBoxFG = Color.Blue,
                     .CheckedListBoxBG = Color.Magenta,
                     .ComboBoxFG = Color.Blue,
                     .ComboBoxBG = Color.Magenta,
+                    .ComboBoxFlatStyle = FlatStyle.Popup,
                     .ContextMenuStripFG = Color.Blue,
                     .ContextMenuStripBG = Color.Magenta,
                     .CustomMsgBoxTopPanel = Color.Magenta,
@@ -899,6 +933,7 @@ Partial Public Class WalkmanLib
                     .ToolStripButtonBG = Color.Magenta,
                     .ToolStripComboBoxFG = Color.Blue,
                     .ToolStripComboBoxBG = Color.Magenta,
+                    .ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     .ToolStripDropDownFG = Color.Blue,
                     .ToolStripDropDownBG = Color.Magenta,
                     .ToolStripDropDownButtonFG = Color.Blue,
