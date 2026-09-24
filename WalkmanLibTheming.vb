@@ -202,20 +202,32 @@ Partial Public Class WalkmanLib
     End Sub
     Shared Sub FixComboBoxFlatBackground(theme As Theme, controls As Collections.IEnumerable)
         If theme.ComboBoxFlatStyle = FlatStyle.Standard Then Return
-        For Each ctl As Control In controls
+        For Each ctl As Control In controls.OfType(Of Control)
             If TypeOf ctl Is ComboBox Then
                 With DirectCast(ctl, ComboBox)
                     If .DropDownStyle = ComboBoxStyle.DropDownList Then ' fix FlatStyle.Standard messing up background color
-                        .BeginInvoke(Sub()
-                                         .DropDownStyle = ComboBoxStyle.DropDown
-                                     End Sub)
-                        .BeginInvoke(Sub()
-                                         .DropDownStyle = ComboBoxStyle.DropDownList
-                                     End Sub)
+                        .BeginInvoke(Sub() .DropDownStyle = ComboBoxStyle.DropDown)
+                        .BeginInvoke(Sub() .DropDownStyle = ComboBoxStyle.DropDownList)
                     End If
                 End With
+
+            ElseIf TypeOf ctl Is ToolStrip Then
+                FixComboBoxFlatBackground(theme, DirectCast(ctl, ToolStrip).Items)
             End If
             FixComboBoxFlatBackground(theme, ctl.Controls)
+        Next
+
+        For Each item As ToolStripItem In controls.OfType(Of ToolStripItem)
+            If TypeOf item Is ToolStripComboBox Then
+                With DirectCast(item, ToolStripComboBox)
+                    If .DropDownStyle = ComboBoxStyle.DropDownList Then
+                        .GetCurrentParent().BeginInvoke(Sub() .DropDownStyle = ComboBoxStyle.DropDown)
+                        .GetCurrentParent().BeginInvoke(Sub() .DropDownStyle = ComboBoxStyle.DropDownList)
+                    End If
+                End With
+            ElseIf TypeOf item Is ToolStripDropDownItem Then
+                FixComboBoxFlatBackground(theme, DirectCast(item, ToolStripDropDownItem).DropDownItems)
+            End If
         Next
     End Sub
 
