@@ -200,6 +200,24 @@ Partial Public Class WalkmanLib
             End Select
         Next
     End Sub
+    Shared Sub FixComboBoxFlatBackground(theme As Theme, controls As Collections.IEnumerable)
+        If theme.ComboBoxFlatStyle = FlatStyle.Standard Then Return
+        For Each ctl As Control In controls
+            If TypeOf ctl Is ComboBox Then
+                With DirectCast(ctl, ComboBox)
+                    If .DropDownStyle = ComboBoxStyle.DropDownList Then ' fix FlatStyle.Standard messing up background color
+                        .BeginInvoke(Sub()
+                                         .DropDownStyle = ComboBoxStyle.DropDown
+                                     End Sub)
+                        .BeginInvoke(Sub()
+                                         .DropDownStyle = ComboBoxStyle.DropDownList
+                                     End Sub)
+                    End If
+                End With
+            End If
+            FixComboBoxFlatBackground(theme, ctl.Controls)
+        Next
+    End Sub
 
     Shared Sub InitCustomRenderers(controls As Collections.IEnumerable)
         For Each ctl As Control In controls
@@ -738,7 +756,7 @@ Partial Public Class WalkmanLib
                         .TabStripBackground = SystemColors.ControlDarkDark
                     },
                     .ToolStripItemDisabledText = Color.FromArgb(&HFFB2B2B2),
-                    .ToolStripRenderMode = ToolStripManagerRenderMode.System,
+                    .ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
                     .SystemAppMode = PreferredAppMode.AllowDark
                 }
             End Get
@@ -828,7 +846,7 @@ Partial Public Class WalkmanLib
                     .ToolStripMenuItemBG = altBackColor,
                     .ToolStripProgressBarFG = altTextColor,
                     .ToolStripProgressBarBG = altBackColor,
-                    .ToolStripSeparatorFG = altTextColor,
+                    .ToolStripSeparatorFG = textColor,
                     .ToolStripSeparatorBG = altBackColor,
                     .ToolStripSplitButtonFG = altTextColor,
                     .ToolStripSplitButtonBG = altBackColor,
