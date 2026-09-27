@@ -302,6 +302,31 @@ Partial Public Class WalkmanLib
 #End Region
 
 #Region "Theme class"
+    Enum ThemeName
+        [Default]
+        System_Dark
+        Dark
+        Inverted
+        Test
+    End Enum
+
+    Shared Function GetTheme(themeName As ThemeName) As Theme
+        Select Case themeName
+            Case ThemeName.Default
+                Return Theme.Default
+            Case ThemeName.System_Dark
+                Return Theme.SystemDark
+            Case ThemeName.Dark
+                Return Theme.Dark
+            Case ThemeName.Inverted
+                Return Theme.Inverted
+            Case ThemeName.Test
+                Return Theme.Test
+            Case Else
+                Throw New ApplicationException("Invalid Theme Name: " & themeName.ToString())
+        End Select
+    End Function
+
     Public Class Theme
         Public FormFG As Color
         Public FormBG As Color
