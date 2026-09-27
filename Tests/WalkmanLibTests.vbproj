@@ -117,6 +117,9 @@
     <Compile Include="..\WalkmanLibDotNet.vb">
       <Link>WalkmanLib\WalkmanLibDotNet.vb</Link>
     </Compile>
+    <Compile Include="..\WalkmanLibExtensions.vb">
+      <Link>WalkmanLib\WalkmanLibExtensions.vb</Link>
+    </Compile>
     <Compile Include="..\WalkmanLibRestartManager.vb">
       <Link>WalkmanLib\WalkmanLibRestartManager.vb</Link>
     </Compile>

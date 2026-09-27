@@ -38,7 +38,7 @@ Public Module WalkmanLibExtensions
     <Extension()>
     Public Function CheckDefined(Of TEnum As {Structure, IConvertible})(value As TEnum) As TEnum
         If value.IsDefined() Then Return value _
-        Else Throw New ComponentModel.InvalidEnumArgumentException(NameOf(value), value.ToInt32(Nothing), GetType(TEnum))
+        Else Throw New ComponentModel.InvalidEnumArgumentException("value", value.ToInt32(Nothing), GetType(TEnum))
     End Function
 #End Region
 
@@ -145,15 +145,21 @@ Public Module WalkmanLibExtensions
         Public Const Uri As String = "Uri"
         Public Const Xml As String = "Xml"
         Public Sub New(syntax As String)
-            Me.Syntax = syntax
-            Arguments = New Object() {}
+            _syntax = syntax
+            _arguments = New Object() {}
         End Sub
         Public Sub New(syntax As String, ParamArray arguments As Object())
-            Me.Syntax = syntax
-            Me.Arguments = arguments
+            _syntax = syntax
+            _arguments = arguments
         End Sub
+        Private ReadOnly _syntax As String
+        Private ReadOnly _arguments As Object()
         Public ReadOnly Property Syntax As String
+            Get
+                Return _syntax : End Get : End Property
         Public ReadOnly Property Arguments As Object()
+            Get
+                Return _arguments : End Get : End Property
     End Class
 #End If
 

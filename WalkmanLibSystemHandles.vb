@@ -436,11 +436,9 @@ Partial Public Class WalkmanLib
             Public PagedPoolUsage As         Integer
             Public NonPagedPoolUsage As      Integer
         End Structure
-
 #End Region
 
 #Region "Methods"
-
         'https://docs.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation
         <DllImport("ntdll.dll")>
         Protected Shared Function NtQuerySystemInformation(
@@ -506,7 +504,6 @@ Partial Public Class WalkmanLib
             <[In]> ucchMax As UInteger
                 ) As UInteger
         End Function
-
 #End Region
 
 #End Region
@@ -514,7 +511,6 @@ Partial Public Class WalkmanLib
 #Region "Public Methods"
 
 #Region "GetSystemHandles"
-
         ''' <summary>Gets all the open handles on the system. Use GetHandleInfo to retrieve proper type and name information.</summary>
         ''' <returns>Enumerable list of system handles</returns>
         Friend Shared Iterator Function GetSystemHandles() As IEnumerable(Of SYSTEM_HANDLE)
@@ -554,11 +550,9 @@ Partial Public Class WalkmanLib
                 End If
             End Try
         End Function
-
 #End Region
 
 #Region "GetHandleInfo"
-
         Friend Structure HandleInfo
             Public ProcessID As UInteger
             Public HandleID As UShort
@@ -745,11 +739,9 @@ Partial Public Class WalkmanLib
 
             Return handleInfo
         End Function
-
 #End Region
 
 #Region "CloseSystemHandle"
-
         ' https://www.codeproject.com/Articles/18975/Listing-Used-Files
         ''' <summary>Attempts to close a handle in a different process. Fails silently if the handle exists but could not be closed.</summary>
         ''' <param name="ProcessID">Process ID of the process containing the handle to close</param>
@@ -775,11 +767,9 @@ Partial Public Class WalkmanLib
                 End If
             End Try
         End Sub
-
 #End Region
 
 #Region "ConvertDevicePathToDosPath"
-
         Private Shared deviceMap As Dictionary(Of String, String)
         Private Const networkDeviceQueryDosDevicePrefix As String = "\Device\LanmanRedirector\"
         Private Const networkDeviceSystemHandlePrefix As String = "\Device\Mup\"
@@ -846,11 +836,9 @@ Partial Public Class WalkmanLib
             End While
             Return devicePath
         End Function
-
 #End Region
 
 #Region "GetFileHandles / GetLockingProcesses"
-
         ''' <summary>
         ''' Searches through all the open handles on the system, and returns handles with a path containing <paramref name="filePath"/>.
         ''' If on a network share, <paramref name="filePath"/> should refer to the deepest mapped drive.
@@ -894,7 +882,6 @@ Partial Public Class WalkmanLib
             Next
             Return processes
         End Function
-
 #End Region
 
 #End Region

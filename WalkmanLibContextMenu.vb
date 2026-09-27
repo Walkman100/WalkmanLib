@@ -28,8 +28,7 @@ Partial Public Class WalkmanLib
 
     ' based on the articles in https://stackoverflow.com/a/456922/2999220
     ' lots of interface help from https://www.developerfusion.com/article/84363/into-the-iunknown/
-    Public Class ContextMenu
-        Implements IDisposable
+    Public Class ContextMenu : Implements IDisposable
 #Region "Native Methods"
 
 #Region "Enums"
