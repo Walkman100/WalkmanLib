@@ -277,8 +277,7 @@ Partial Public Class WalkmanLib
         Return jss.Deserialize(Of Theme)(IO.File.ReadAllText(path))
     End Function
 
-    Private Class CustomColorSerializer
-        Inherits JavaScriptConverter
+    Private Class CustomColorSerializer : Inherits JavaScriptConverter
         Public Overrides ReadOnly Property SupportedTypes As IEnumerable(Of Type)
             Get
                 Return {GetType(Color)}
@@ -670,7 +669,7 @@ Partial Public Class WalkmanLib
                     .TabControlOwnerDraw = True,
                     .ListViewColumnColors = New CustomPaint.ListViewColors With {
                         .ColumnText = SystemColors.Control,
-                        .ColumnBackground = SystemColors.ControlText
+                        .ColumnBackground = Color.FromArgb(&HFF303030)
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = SystemColors.Control,
@@ -1017,7 +1016,7 @@ Partial Public Class WalkmanLib
                     .TabControlOwnerDraw = True,
                     .ListViewColumnColors = New CustomPaint.ListViewColors With {
                         .ColumnText = Color.Blue,
-                        .ColumnBackground = Color.Magenta
+                        .ColumnBackground = Color.HotPink
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = Color.Blue,
@@ -1073,12 +1072,15 @@ Partial Public Class WalkmanLib
 
                 Dim colRect As New Rectangle() With {
                     .X = e.Bounds.X + 1,
-                    .Y = e.Bounds.Y + 1,
+                    .Y = e.Bounds.Y,
                     .Width = e.Bounds.Width - 1,
                     .Height = e.Bounds.Height
                 }
 
                 e.Graphics.FillRectangle(New SolidBrush(colors.ColumnBackground), colRect)
+                colRect.Offset(x:=3, y:=0)
+                colRect.Width -= 7
+                colRect.Height -= 1
                 e.Graphics.DrawString(e.Header.Text, listView.Font, New SolidBrush(colors.ColumnText), colRect, sf)
             End Using
         End Sub
@@ -1189,8 +1191,7 @@ Partial Public Class WalkmanLib
             End Using
         End Sub
 
-        Public Class ToolStripSystemRendererWithDisabled
-            Inherits ToolStripSystemRenderer
+        Public Class ToolStripSystemRendererWithDisabled : Inherits ToolStripSystemRenderer
 
             Private ReadOnly getDisabledColor As Func(Of ToolStripItem, Color) = Function(e) DirectCast(e.Tag, Color)
             Public Sub New()
