@@ -123,6 +123,7 @@ Partial Public Class WalkmanLib
                         ctl.BackgroundImage = bm
 
                         DirectCast(ctl, ListView).OwnerDraw = theme.ListViewOwnerDraw
+                        DirectCast(ctl, ListView).GridLines = Not theme.ListViewOwnerDraw
                     End If
                 Case GetType(ListBox)
                     ctl.ForeColor = theme.ListBoxFG
@@ -235,8 +236,8 @@ Partial Public Class WalkmanLib
         For Each ctl As Control In controls
             If TypeOf ctl Is ListView Then
                 AddHandler DirectCast(ctl, ListView).DrawColumnHeader, AddressOf CustomPaint.ListView_DrawCustomColumnHeader
-                AddHandler DirectCast(ctl, ListView).DrawItem, AddressOf CustomPaint.ListView_DrawDefaultItem
-                AddHandler DirectCast(ctl, ListView).DrawSubItem, AddressOf CustomPaint.ListView_DrawDefaultSubItem
+                AddHandler DirectCast(ctl, ListView).DrawItem, AddressOf CustomPaint.ListView_DrawItemWithCustomGrid
+                AddHandler DirectCast(ctl, ListView).DrawSubItem, AddressOf CustomPaint.ListView_DrawSubItemWithCustomGrid
             ElseIf TypeOf ctl Is TabControl Then
                 AddHandler DirectCast(ctl, TabControl).DrawItem, AddressOf CustomPaint.TabControl_DrawCustomItem
             End If
@@ -254,7 +255,7 @@ Partial Public Class WalkmanLib
     Private Shared Sub ApplyThemeRendererRecursive(theme As Theme, controls As Collections.IEnumerable)
         For Each ctl As Control In controls
             If TypeOf ctl Is ListView Then
-                DirectCast(ctl, ListView).Tag = theme.ListViewColumnColors
+                DirectCast(ctl, ListView).Tag = theme.ListViewCustomColors
             ElseIf TypeOf ctl Is TabControl Then
                 DirectCast(ctl, TabControl).Tag = theme.TabControlTabColors
             End If
@@ -361,7 +362,7 @@ Partial Public Class WalkmanLib
         Public ListViewFG As Color
         Public ListViewBG As Color
         Public ListViewOwnerDraw As Boolean
-        Public ListViewColumnColors As CustomPaint.ListViewColors
+        Public ListViewCustomColors As CustomPaint.ListViewColors
         Public ListBoxFG As Color
         Public ListBoxBG As Color
         Public CheckedListBoxFG As Color
@@ -551,9 +552,10 @@ Partial Public Class WalkmanLib
  _
                     .ListViewOwnerDraw = False,
                     .TabControlOwnerDraw = False,
-                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                    .ListViewCustomColors = New CustomPaint.ListViewColors With {
                         .ColumnText = SystemColors.ControlText,
-                        .ColumnBackground = SystemColors.Window
+                        .ColumnBackground = SystemColors.Window,
+                        .GridLines = Color.FromArgb(&HFFF0F0F0)
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = SystemColors.ControlText,
@@ -667,9 +669,10 @@ Partial Public Class WalkmanLib
  _
                     .ListViewOwnerDraw = True,
                     .TabControlOwnerDraw = True,
-                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                    .ListViewCustomColors = New CustomPaint.ListViewColors With {
                         .ColumnText = SystemColors.Control,
-                        .ColumnBackground = Color.FromArgb(&HFF303030)
+                        .ColumnBackground = Color.FromArgb(&HFF303030),
+                        .GridLines = SystemColors.ControlDarkDark
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = SystemColors.Control,
@@ -781,9 +784,10 @@ Partial Public Class WalkmanLib
  _
                     .ListViewOwnerDraw = False,
                     .TabControlOwnerDraw = False,
-                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                    .ListViewCustomColors = New CustomPaint.ListViewColors With {
                         .ColumnText = SystemColors.Control,
-                        .ColumnBackground = SystemColors.ControlDarkDark
+                        .ColumnBackground = SystemColors.ControlDarkDark,
+                        .GridLines = SystemColors.ControlDark
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = SystemColors.Control,
@@ -900,9 +904,10 @@ Partial Public Class WalkmanLib
  _
                     .ListViewOwnerDraw = True,
                     .TabControlOwnerDraw = True,
-                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                    .ListViewCustomColors = New CustomPaint.ListViewColors With {
                         .ColumnText = textColor,
-                        .ColumnBackground = Color.FromArgb(&HFF444449)
+                        .ColumnBackground = Color.FromArgb(&HFF444449),
+                        .GridLines = SystemColors.ControlDarkDark
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = textColor,
@@ -1014,9 +1019,10 @@ Partial Public Class WalkmanLib
  _
                     .ListViewOwnerDraw = True,
                     .TabControlOwnerDraw = True,
-                    .ListViewColumnColors = New CustomPaint.ListViewColors With {
+                    .ListViewCustomColors = New CustomPaint.ListViewColors With {
                         .ColumnText = Color.Blue,
-                        .ColumnBackground = Color.HotPink
+                        .ColumnBackground = Color.HotPink,
+                        .GridLines = Color.MediumVioletRed
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
                         .TabText = Color.Blue,
@@ -1045,8 +1051,88 @@ Partial Public Class WalkmanLib
         Public Structure ListViewColors
             Public ColumnText As Color
             Public ColumnBackground As Color
+            Public GridLines As Color
         End Structure
-        Public Shared Sub ListView_DrawCustomColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs, Optional listViewColors? As ListViewColors = Nothing)
+        Public Shared Sub ListView_DrawItemWithCustomGrid(sender As Object, e As DrawListViewItemEventArgs)
+            If e.Item.ListView.View = View.Details Then
+                e.DrawDefault = False
+            Else
+                e.DrawDefault = True
+            End If
+        End Sub
+        Public Shared Sub ListView_DrawSubItemWithCustomGrid(sender As Object, e As DrawListViewSubItemEventArgs, Optional listViewColors As ListViewColors? = Nothing)
+            e.DrawDefault = False
+            Dim listView As ListView = DirectCast(sender, ListView)
+            ' can't use default e.DrawBackground() & e.DrawText() as they don't account for images or checkboxes
+
+            Dim bounds As Rectangle = e.Bounds
+            bounds.Offset(3, 0)
+            bounds.Width -= 1
+
+            If e.ColumnIndex = 0 Then ' first column - draw Checkbox & Image
+                If listView.CheckBoxes Then
+                    Dim cbState As VisualStyles.CheckBoxState = If(e.Item.Checked, VisualStyles.CheckBoxState.CheckedNormal, VisualStyles.CheckBoxState.UncheckedNormal)
+                    Dim cbSize As Size = CheckBoxRenderer.GetGlyphSize(e.Graphics, cbState)
+                    Dim cbPoint As New Point(bounds.X, bounds.Y + ((bounds.Height - cbSize.Height) \ 2) - 1)
+                    CheckBoxRenderer.DrawCheckBox(e.Graphics, cbPoint, cbState)
+                    bounds.Offset(cbSize.Width + 3, 0)
+                    bounds.Width -= cbSize.Width + 3
+                End If
+                If e.Item.ImageList IsNot Nothing Then
+                    If e.Item.ImageIndex <> -1 Then e.Item.ImageList.Draw(e.Graphics, bounds.Location, e.Item.ImageIndex)
+
+                    ' if images are shown & item is selected, transparency highlight image separately
+                    If e.Item.Selected Then
+                        Using brush As New SolidBrush(Color.FromArgb(130, SystemColors.Highlight))
+                            e.Graphics.FillRectangle(brush, New Rectangle(location:=bounds.Location, size:=e.Item.ImageList.ImageSize))
+                        End Using
+                    End If
+
+                    bounds.Offset(e.Item.ImageList.ImageSize.Width, 0)
+                    bounds.Width -= e.Item.ImageList.ImageSize.Width
+                End If
+            End If
+
+            If e.ColumnIndex <> 0 Then _
+                bounds.Offset(-2, 0) ' fill background all the way to the left
+            If e.Item.Selected Then
+                e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds)
+            Else
+                Using bgBrush As New SolidBrush(e.SubItem.BackColor)
+                    e.Graphics.FillRectangle(bgBrush, bounds)
+                End Using
+            End If
+            If e.ColumnIndex <> 0 Then _
+                bounds.Offset(2, 0) ' reset for drawing text
+
+            bounds.Width -= 4
+            Dim textColor As Color = If(e.Item.Selected, SystemColors.HighlightText, e.SubItem.ForeColor)
+            Dim flags As TextFormatFlags = TextFormatFlags.VerticalCenter Or TextFormatFlags.EndEllipsis
+            If e.Header.TextAlign = HorizontalAlignment.Right Then flags = flags Or TextFormatFlags.Right
+            If e.Header.TextAlign = HorizontalAlignment.Center Then flags = flags Or TextFormatFlags.HorizontalCenter
+            TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.SubItem.Font, bounds, textColor, flags)
+
+            Dim colors As ListViewColors
+            If listViewColors.HasValue Then
+                colors = listViewColors.Value
+            Else
+                colors = DirectCast(listView.Tag, ListViewColors)
+            End If
+            Using customGridPen As New Pen(colors.GridLines, 1)
+                ' Horizontal grid lines:
+                If Not listView.ShowGroups Then
+                    e.Graphics.DrawLine(customGridPen, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1)
+                Else ' items in groups have 2-pixel wide horizontal separator...
+                    e.Graphics.DrawLine(customGridPen, e.Bounds.Left, e.Bounds.Bottom, e.Bounds.Right, e.Bounds.Bottom)
+                End If
+                ' Vertical grid lines:
+                If e.ColumnIndex <> 0 Then
+                    e.Graphics.DrawLine(customGridPen, e.Bounds.Left, e.Bounds.Top, e.Bounds.Left, e.Bounds.Bottom - 1)
+                End If
+                e.Graphics.DrawLine(customGridPen, e.Bounds.Right, e.Bounds.Top, e.Bounds.Right, e.Bounds.Bottom - 1)
+            End Using
+        End Sub
+        Public Shared Sub ListView_DrawCustomColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs, Optional listViewColors As ListViewColors? = Nothing)
             ' https://stackoverflow.com/a/42181044/2999220
             Dim listView As ListView = DirectCast(sender, ListView)
             Dim colors As ListViewColors
