@@ -554,7 +554,7 @@ Partial Public Class WalkmanLib
                     .TabControlOwnerDraw = False,
                     .ListViewCustomColors = New CustomPaint.ListViewColors With {
                         .ColumnText = SystemColors.ControlText,
-                        .ColumnBackground = SystemColors.Window,
+                        .ColumnBackground = Color.FromArgb(&HFFF2F2F2),
                         .GridLines = Color.FromArgb(&HFFF0F0F0)
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
@@ -786,7 +786,7 @@ Partial Public Class WalkmanLib
                     .TabControlOwnerDraw = False,
                     .ListViewCustomColors = New CustomPaint.ListViewColors With {
                         .ColumnText = SystemColors.Control,
-                        .ColumnBackground = SystemColors.ControlDarkDark,
+                        .ColumnBackground = Color.FromArgb(&HFF808080),
                         .GridLines = SystemColors.ControlDark
                     },
                     .TabControlTabColors = New CustomPaint.TabControlColors With {
@@ -1065,7 +1065,14 @@ Partial Public Class WalkmanLib
             Dim listView As ListView = DirectCast(sender, ListView)
             ' can't use default e.DrawBackground() & e.DrawText() as they don't account for images or checkboxes
 
-            Dim bounds As Rectangle = e.Bounds
+            Dim fixedBounds As Rectangle = e.Bounds
+            If e.ColumnIndex = 0 AndAlso listView.Columns(e.ColumnIndex).DisplayIndex <> 0 Then ' first column was reordered, e.Bounds are incorrect
+                For Each column As ColumnHeader In listView.Columns.OfType(Of ColumnHeader).OrderBy(Function(c) c.DisplayIndex)
+                    If column.Index = 0 Then Exit For
+                    fixedBounds.Offset(column.Width, 0)
+                Next
+            End If
+            Dim bounds As Rectangle = fixedBounds
             bounds.Offset(3, 0)
             bounds.Width -= 1
 
@@ -1075,6 +1082,7 @@ Partial Public Class WalkmanLib
                     Dim cbSize As Size = CheckBoxRenderer.GetGlyphSize(e.Graphics, cbState)
                     Dim cbPoint As New Point(bounds.X, bounds.Y + ((bounds.Height - cbSize.Height) \ 2) - 1)
                     CheckBoxRenderer.DrawCheckBox(e.Graphics, cbPoint, cbState)
+
                     bounds.Offset(cbSize.Width + 3, 0)
                     bounds.Width -= cbSize.Width + 3
                 End If
@@ -1093,8 +1101,8 @@ Partial Public Class WalkmanLib
                 End If
             End If
 
-            If e.ColumnIndex <> 0 Then _
-                bounds.Offset(-2, 0) ' fill background all the way to the left
+            ' adjust for drawing background
+            If e.ColumnIndex <> 0 Then bounds.Offset(-2, 0) Else bounds.Width -= 2
             If e.Item.Selected Then
                 e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds)
             Else
@@ -1102,10 +1110,10 @@ Partial Public Class WalkmanLib
                     e.Graphics.FillRectangle(bgBrush, bounds)
                 End Using
             End If
-            If e.ColumnIndex <> 0 Then _
-                bounds.Offset(2, 0) ' reset for drawing text
+            ' reset for drawing text
+            If e.ColumnIndex <> 0 Then bounds.Offset(2, 0) Else bounds.Width += 2
 
-            bounds.Width -= 4
+            If e.ColumnIndex <> 0 Then bounds.Width -= 4
             Dim textColor As Color = If(e.Item.Selected, SystemColors.HighlightText, e.SubItem.ForeColor)
             Dim flags As TextFormatFlags = TextFormatFlags.VerticalCenter Or TextFormatFlags.EndEllipsis
             If e.Header.TextAlign = HorizontalAlignment.Right Then flags = flags Or TextFormatFlags.Right
@@ -1121,15 +1129,18 @@ Partial Public Class WalkmanLib
             Using customGridPen As New Pen(colors.GridLines, 1)
                 ' Horizontal grid lines:
                 If Not listView.ShowGroups Then
-                    e.Graphics.DrawLine(customGridPen, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1)
+                    e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Bottom - 1, fixedBounds.Right, fixedBounds.Bottom - 1)
                 Else ' items in groups have 2-pixel wide horizontal separator...
-                    e.Graphics.DrawLine(customGridPen, e.Bounds.Left, e.Bounds.Bottom, e.Bounds.Right, e.Bounds.Bottom)
+                    e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Bottom, fixedBounds.Right, fixedBounds.Bottom)
+                    If e.Item.Group IsNot Nothing AndAlso e.Item.Group.Items.Count > 0 AndAlso e.Item.Group.Items(0) Is e.Item Then
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Top - 1, fixedBounds.Right, fixedBounds.Top - 1)
+                    End If ' if item is first in group, then draw top horizontal gridline
                 End If
                 ' Vertical grid lines:
                 If e.ColumnIndex <> 0 Then
-                    e.Graphics.DrawLine(customGridPen, e.Bounds.Left, e.Bounds.Top, e.Bounds.Left, e.Bounds.Bottom - 1)
+                    e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Top, fixedBounds.Left, fixedBounds.Bottom - 1)
                 End If
-                e.Graphics.DrawLine(customGridPen, e.Bounds.Right, e.Bounds.Top, e.Bounds.Right, e.Bounds.Bottom - 1)
+                e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Top, fixedBounds.Right, fixedBounds.Bottom - 1)
             End Using
         End Sub
         Public Shared Sub ListView_DrawCustomColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs, Optional listViewColors As ListViewColors? = Nothing)
