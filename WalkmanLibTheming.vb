@@ -1126,9 +1126,11 @@ Partial Public Class WalkmanLib
             Else
                 colors = DirectCast(listView.Tag, ListViewColors)
             End If
+            Dim groupsShown As Boolean = listView.ShowGroups AndAlso listView.Groups IsNot Nothing AndAlso listView.Groups.Count > 0 AndAlso Application.RenderWithVisualStyles
             Using customGridPen As New Pen(colors.GridLines, 1)
+
                 ' Horizontal grid lines:
-                If Not listView.ShowGroups Then
+                If Not groupsShown Then
                     e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Bottom - 1, fixedBounds.Right, fixedBounds.Bottom - 1)
                 Else ' items in groups have 2-pixel wide horizontal separator...
                     e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Bottom, fixedBounds.Right, fixedBounds.Bottom)
@@ -1136,11 +1138,40 @@ Partial Public Class WalkmanLib
                         e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Top - 1, fixedBounds.Right, fixedBounds.Top - 1)
                     End If ' if item is first in group, then draw top horizontal gridline
                 End If
+
                 ' Vertical grid lines:
-                If e.ColumnIndex <> 0 Then
-                    e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Top, fixedBounds.Left, fixedBounds.Bottom - 1)
-                End If
                 e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Top, fixedBounds.Right, fixedBounds.Bottom - 1)
+
+                ' last column - draw horizontal lines to the right
+                If listView.Columns(e.ColumnIndex).DisplayIndex = listView.Columns.Count - 1 AndAlso fixedBounds.Right < listView.ClientSize.Width Then
+                    If Not groupsShown Then
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Bottom - 1, listView.ClientSize.Width, fixedBounds.Bottom - 1)
+                    Else
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Bottom, listView.ClientSize.Width, fixedBounds.Bottom)
+                        If e.Item.Group IsNot Nothing AndAlso e.Item.Group.Items.Count > 0 AndAlso e.Item.Group.Items(0) Is e.Item Then
+                            e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Top - 1, listView.ClientSize.Width, fixedBounds.Top - 1)
+                        End If
+                    End If
+                End If
+
+                ' last row - draw lines below it
+                If Not groupsShown AndAlso e.ItemIndex = listView.Items.Count - 1 Then
+                    Dim lastY As Integer = fixedBounds.Bottom
+                    While lastY < listView.ClientSize.Height
+                        lastY += fixedBounds.Height
+
+                        ' Horizontal grid lines:
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Left, lastY - 1, fixedBounds.Right, lastY - 1)
+
+                        ' Vertical grid lines:
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Right, lastY - fixedBounds.Height - 1, fixedBounds.Right, lastY - 1)
+
+                        ' last column - horizontal lines to the right
+                        If listView.Columns(e.ColumnIndex).DisplayIndex = listView.Columns.Count - 1 AndAlso fixedBounds.Right < listView.ClientSize.Width Then
+                            e.Graphics.DrawLine(customGridPen, fixedBounds.Right, lastY - 1, listView.ClientSize.Width, lastY - 1)
+                        End If
+                    End While
+                End If
             End Using
         End Sub
         Public Shared Sub ListView_DrawCustomColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs, Optional listViewColors As ListViewColors? = Nothing)
