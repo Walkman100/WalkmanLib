@@ -1088,6 +1088,8 @@ Partial Public Class WalkmanLib
                 End If
                 If e.Item.ImageList IsNot Nothing Then
                     If e.Item.ImageIndex <> -1 Then e.Item.ImageList.Draw(e.Graphics, bounds.Location, e.Item.ImageIndex)
+                    If e.Item.ImageKey IsNot Nothing AndAlso e.Item.ImageList.Images.ContainsKey(e.Item.ImageKey) Then _
+                        e.Item.ImageList.Draw(e.Graphics, bounds.Location, e.Item.ImageList.Images.IndexOfKey(e.Item.ImageKey))
 
                     ' if images are shown & item is selected, transparency highlight image separately
                     If e.Item.Selected Then
