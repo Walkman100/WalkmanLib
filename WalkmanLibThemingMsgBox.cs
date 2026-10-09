@@ -22,6 +22,7 @@ public partial class CustomInputDialog {
 }
 
 public partial class WalkmanLib {
+    /// <inheritdoc cref="WalkmanLib.CustomMsgBox(string, string, MessageBoxButtons, MessageBoxIcon, WinVersionStyle, Form)"/>
     public static DialogResult CustomMsgBox(string text, Theme theme, string caption = null, MessageBoxButtons buttons = 0, MessageBoxIcon style = 0,
                                             WinVersionStyle winVersion = WinVersionStyle.Win10, Form ownerForm = null) {
         var formToShow = new CustomMsgBoxForm() {
@@ -37,6 +38,7 @@ public partial class WalkmanLib {
         return formToShow.ShowDialog();
     }
 
+    /// <inheritdoc cref="WalkmanLib.CustomMsgBox(string, string, string, string, string, MessageBoxIcon, WinVersionStyle, Form)"/>
     public static string CustomMsgBox(string text, Theme theme, string caption, string customButton1, string customButton2 = null, string customButton3 = null,
                                       MessageBoxIcon style = 0, WinVersionStyle winVersion = WinVersionStyle.Win10, Form ownerForm = null) {
         var formToShow = new CustomMsgBoxForm() {
@@ -56,6 +58,7 @@ public partial class WalkmanLib {
         return formToShow.DialogResultString;
     }
 
+    /// <inheritdoc cref="WalkmanLib.CustomMsgBoxBTN(string, string, string, string, string, MessageBoxIcon, WinVersionStyle, Form)"/>
     public static byte CustomMsgBoxBTN(string text, Theme theme, string caption, string customButton1, string customButton2 = null, string customButton3 = null,
                                        MessageBoxIcon style = 0, WinVersionStyle winVersion = WinVersionStyle.Win10, Form ownerForm = null) {
         var formToShow = new CustomMsgBoxForm() {
@@ -75,6 +78,7 @@ public partial class WalkmanLib {
         return formToShow.DialogResultButtonPressed;
     }
 
+    /// <inheritdoc cref="WalkmanLib.InputDialog(ref string, string, string, string, bool, int, Form)"/>
     public static DialogResult InputDialog(ref string input, Theme theme, string mainInstruction = null, string title = null, string content = null,
                                            bool usePasswordMasking = false, int maxLength = short.MaxValue, Form owner = null) {
         var inputForm = new CustomInputDialog() {
@@ -94,6 +98,7 @@ public partial class WalkmanLib {
         return result;
     }
 
+    /// <inheritdoc cref="WalkmanLib.ErrorDialog(Exception, string, bool, bool?)"/>
     public static void ErrorDialog(Exception ex, Theme theme, string errorMessage = "There was an error! Error message: ", bool showMsgBox = true, Form ownerForm = null, bool? showErrorBlockingWindow = null) {
         Application.EnableVisualStyles(); // affects when in a console app
         if (showMsgBox && WalkmanLib.CustomMsgBox($"{errorMessage}{ex.Message}{Environment.NewLine}Show full stacktrace? (For sending to developer/making bugreport)",
