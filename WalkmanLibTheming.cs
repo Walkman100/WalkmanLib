@@ -13,12 +13,12 @@ using System.Web.Script.Serialization;
 
 public partial class WalkmanLib {
     #region ApplyTheme
-    public static void ApplyTheme(Theme theme, Form form, bool allowSetOwnerDraw = false) {
+    public static void ApplyTheme(Theme theme, Form form, bool allowSetOwnerDraw = false, bool allowSetFlatStyle = true) {
         form.ForeColor = theme.FormFG;
         form.BackColor = theme.FormBG;
-        ApplyTheme(theme, form.Controls, allowSetOwnerDraw);
+        ApplyTheme(theme, form.Controls, allowSetOwnerDraw, allowSetFlatStyle);
     }
-    public static void ApplyTheme(Theme theme, System.Collections.IEnumerable controls, bool allowSetOwnerDraw = false) {
+    public static void ApplyTheme(Theme theme, System.Collections.IEnumerable controls, bool allowSetOwnerDraw = false, bool allowSetFlatStyle = true) {
         //                             for ToolStripItemCollection
         foreach (ToolStripItem item in controls.OfType<ToolStripItem>()) {
             Type type = item.GetType();
@@ -28,18 +28,20 @@ public partial class WalkmanLib {
             } else if (type == typeof(ToolStripComboBox)) {
                 item.ForeColor = theme.ToolStripComboBoxFG;
                 item.BackColor = theme.ToolStripComboBoxBG;
+                if (allowSetFlatStyle)
+                    ((ToolStripComboBox)item).FlatStyle = theme.ToolStripComboBoxFlatStyle;
             } else if (type == typeof(ToolStripDropDownButton)) {
                 item.ForeColor = theme.ToolStripDropDownButtonFG;
                 item.BackColor = theme.ToolStripDropDownButtonBG;
                 ((ToolStripDropDownButton)item).DropDown.ForeColor = theme.ToolStripDropDownFG;
                 ((ToolStripDropDownButton)item).DropDown.BackColor = theme.ToolStripDropDownBG;
-                ApplyTheme(theme, ((ToolStripDropDownButton)item).DropDownItems, allowSetOwnerDraw);
+                ApplyTheme(theme, ((ToolStripDropDownButton)item).DropDownItems, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(ToolStripMenuItem)) { // inherits ToolStripDropDownItem
                 item.ForeColor = theme.ToolStripMenuItemFG;
                 item.BackColor = theme.ToolStripMenuItemBG;
                 ((ToolStripMenuItem)item).DropDown.ForeColor = theme.ToolStripDropDownFG;
                 ((ToolStripMenuItem)item).DropDown.BackColor = theme.ToolStripDropDownBG;
-                ApplyTheme(theme, ((ToolStripMenuItem)item).DropDownItems, allowSetOwnerDraw);
+                ApplyTheme(theme, ((ToolStripMenuItem)item).DropDownItems, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(ToolStripProgressBar)) {
                 item.ForeColor = theme.ToolStripProgressBarFG;
                 item.BackColor = theme.ToolStripProgressBarBG;
@@ -54,7 +56,7 @@ public partial class WalkmanLib {
                 item.BackColor = theme.ToolStripSplitButtonBG;
                 ((ToolStripSplitButton)item).DropDown.ForeColor = theme.ToolStripDropDownFG;
                 ((ToolStripSplitButton)item).DropDown.BackColor = theme.ToolStripDropDownBG;
-                ApplyTheme(theme, ((ToolStripSplitButton)item).DropDownItems, allowSetOwnerDraw);
+                ApplyTheme(theme, ((ToolStripSplitButton)item).DropDownItems, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(ToolStripTextBox)) {
                 item.ForeColor = theme.ToolStripTextBoxFG;
                 item.BackColor = theme.ToolStripTextBoxBG;
@@ -69,8 +71,14 @@ public partial class WalkmanLib {
             if (type == typeof(Button)) {
                 ctl.ForeColor = theme.ButtonFG;
                 ctl.BackColor = theme.ButtonBG;
+                var btn = (Button)ctl;
                 if (theme.ButtonBG == SystemColors.Control)
-                    ((Button)ctl).UseVisualStyleBackColor = true;
+                    btn.UseVisualStyleBackColor = true;
+                if (allowSetFlatStyle) {
+                    btn.FlatStyle = theme.ButtonFlatStyle;
+                    btn.FlatAppearance.MouseOverBackColor = theme.ButtonFlatMouseOver;
+                    btn.FlatAppearance.MouseDownBackColor = theme.ButtonFlatMouseDown;
+                }
             } else if (type == typeof(Label)) {
                 ctl.ForeColor = theme.LabelFG;
                 ctl.BackColor = theme.LabelBG;
@@ -83,6 +91,8 @@ public partial class WalkmanLib {
             } else if (type == typeof(ComboBox)) {
                 ctl.ForeColor = theme.ComboBoxFG;
                 ctl.BackColor = theme.ComboBoxBG;
+                if (allowSetFlatStyle)
+                    ((ComboBox)ctl).FlatStyle = theme.ComboBoxFlatStyle;
             } else if (type == typeof(CheckBox)) {
                 ctl.ForeColor = theme.CheckBoxFG;
                 ctl.BackColor = theme.CheckBoxBG;
@@ -115,6 +125,7 @@ public partial class WalkmanLib {
                     ctl.BackgroundImage = bm;
 
                     ((ListView)ctl).OwnerDraw = theme.ListViewOwnerDraw;
+                    ((ListView)ctl).GridLines = !theme.ListViewOwnerDraw;
                 }
             } else if (type == typeof(ListBox)) {
                 ctl.ForeColor = theme.ListBoxFG;
@@ -141,55 +152,81 @@ public partial class WalkmanLib {
             } else if (type == typeof(GroupBox)) {
                 ctl.ForeColor = theme.GroupBoxFG;
                 ctl.BackColor = theme.GroupBoxBG;
-                ApplyTheme(theme, ((GroupBox)ctl).Controls, allowSetOwnerDraw);
+                ApplyTheme(theme, ((GroupBox)ctl).Controls, allowSetOwnerDraw, allowSetFlatStyle);
 
             } else if (type == typeof(Panel)) {
                 ctl.ForeColor = theme.PanelFG;
                 ctl.BackColor = theme.PanelBG;
-                ApplyTheme(theme, ((Panel)ctl).Controls, allowSetOwnerDraw);
+                ApplyTheme(theme, ((Panel)ctl).Controls, allowSetOwnerDraw, allowSetFlatStyle);
 
             } else if (type == typeof(SplitContainer)) {
                 ctl.ForeColor = theme.SplitContainerFG;
                 ctl.BackColor = theme.SplitContainerBG;
-                ApplyTheme(theme, ((SplitContainer)ctl).Controls, allowSetOwnerDraw);
+                ApplyTheme(theme, ((SplitContainer)ctl).Controls, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(SplitterPanel)) {
                 ctl.ForeColor = theme.SplitterPanelFG;
                 ctl.BackColor = theme.SplitterPanelBG;
-                ApplyTheme(theme, ((SplitterPanel)ctl).Controls, allowSetOwnerDraw);
+                ApplyTheme(theme, ((SplitterPanel)ctl).Controls, allowSetOwnerDraw, allowSetFlatStyle);
 
             } else if (type == typeof(TabControl)) {
                 if (allowSetOwnerDraw)
                     ((TabControl)ctl).DrawMode = theme.TabControlOwnerDraw ? TabDrawMode.OwnerDrawFixed : TabDrawMode.Normal;
                 ctl.ForeColor = theme.TabControlFG;
                 ctl.BackColor = theme.TabControlBG;
-                ApplyTheme(theme, ((TabControl)ctl).Controls, allowSetOwnerDraw);
+                ApplyTheme(theme, ((TabControl)ctl).Controls, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(TabPage)) {
                 ctl.ForeColor = theme.TabPageFG;
                 ctl.BackColor = theme.TabPageBG;
                 if (theme.TabPageBG == Color.Transparent)
                     ((TabPage)ctl).UseVisualStyleBackColor = true;
-                ApplyTheme(theme, ((TabPage)ctl).Controls, allowSetOwnerDraw);
+                ApplyTheme(theme, ((TabPage)ctl).Controls, allowSetOwnerDraw, allowSetFlatStyle);
 
             } else if (type == typeof(MenuStrip)) {
                 ctl.ForeColor = theme.MenuStripFG;
                 ctl.BackColor = theme.MenuStripBG;
-                ApplyTheme(theme, ((MenuStrip)ctl).Items, allowSetOwnerDraw);
+                ApplyTheme(theme, ((MenuStrip)ctl).Items, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(StatusStrip)) {
                 ctl.ForeColor = theme.StatusStripFG;
                 ctl.BackColor = theme.StatusStripBG;
-                ApplyTheme(theme, ((StatusStrip)ctl).Items, allowSetOwnerDraw);
+                ApplyTheme(theme, ((StatusStrip)ctl).Items, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(ToolStrip)) {
                 ctl.ForeColor = theme.ToolStripFG;
                 ctl.BackColor = theme.ToolStripBG;
-                ApplyTheme(theme, ((ToolStrip)ctl).Items, allowSetOwnerDraw);
+                ApplyTheme(theme, ((ToolStrip)ctl).Items, allowSetOwnerDraw, allowSetFlatStyle);
             } else if (type == typeof(ContextMenuStrip)) {
                 ctl.ForeColor = theme.ContextMenuStripFG;
                 ctl.BackColor = theme.ContextMenuStripBG;
-                ApplyTheme(theme, ((ContextMenuStrip)ctl).Items, allowSetOwnerDraw);
+                ApplyTheme(theme, ((ContextMenuStrip)ctl).Items, allowSetOwnerDraw, allowSetFlatStyle);
 
             } else {
                 ctl.ForeColor = theme.OtherFG;
                 ctl.BackColor = theme.OtherBG;
+            }
+        }
+    }
+    public static void FixComboBoxFlatBackground(Theme theme, System.Collections.IEnumerable controls) {
+        if (theme.ComboBoxFlatStyle == FlatStyle.Standard)
+            return;
+        foreach (Control ctl in controls.OfType<Control>()) {
+            if (ctl is ComboBox cbx) {
+                if (cbx.DropDownStyle == ComboBoxStyle.DropDownList) { // fix FlatStyle.Standard messing up background color
+                    cbx.BeginInvoke(new Action(() => cbx.DropDownStyle = ComboBoxStyle.DropDown));
+                    cbx.BeginInvoke(new Action(() => cbx.DropDownStyle = ComboBoxStyle.DropDownList));
+                }
+            } else if (ctl is ToolStrip ts) {
+                FixComboBoxFlatBackground(theme, ts.Items);
+            }
+            FixComboBoxFlatBackground(theme, ctl.Controls);
+        }
+
+        foreach (ToolStripItem item in controls.OfType<ToolStripItem>()) {
+            if (item is ToolStripComboBox cbx) {
+                if (cbx.DropDownStyle == ComboBoxStyle.DropDownList) {
+                    cbx.GetCurrentParent().BeginInvoke(new Action(() => cbx.DropDownStyle = ComboBoxStyle.DropDown));
+                    cbx.GetCurrentParent().BeginInvoke(new Action(() => cbx.DropDownStyle = ComboBoxStyle.DropDownList));
+                }
+            } else if (item is ToolStripDropDownItem tsdd) {
+                FixComboBoxFlatBackground(theme, tsdd.DropDownItems);
             }
         }
     }
@@ -198,8 +235,8 @@ public partial class WalkmanLib {
         foreach (Control ctl in controls) {
             if (ctl is ListView listView) {
                 listView.DrawColumnHeader += CustomPaint.ListView_DrawCustomColumnHeader;
-                listView.DrawItem += CustomPaint.ListView_DrawDefaultItem;
-                listView.DrawSubItem += CustomPaint.ListView_DrawDefaultSubItem;
+                listView.DrawItem += CustomPaint.ListView_DrawItemWithCustomGrid;
+                listView.DrawSubItem += CustomPaint.ListView_DrawSubItemWithCustomGrid;
             } else if (ctl is TabControl tabControl) {
                 tabControl.DrawItem += CustomPaint.TabControl_DrawCustomItem;
             }
@@ -217,7 +254,7 @@ public partial class WalkmanLib {
     private static void ApplyThemeRendererRecursive(Theme theme, System.Collections.IEnumerable controls) {
         foreach (Control ctl in controls) {
             if (ctl is ListView listView)
-                listView.Tag = theme.ListViewColumnColors;
+                listView.Tag = theme.ListViewCustomColors;
             else if (ctl is TabControl tabControl)
                 tabControl.Tag = theme.TabControlTabColors;
 
@@ -298,9 +335,7 @@ public partial class WalkmanLib {
     }
 
     private class CustomColorSerializer : JavaScriptConverter {
-        public override IEnumerable<Type> SupportedTypes =>
-            new[] { typeof(Color) };
-
+        public override IEnumerable<Type> SupportedTypes => new[] { typeof(Color) };
         public override object Deserialize(IDictionary<string, object> dictionary, Type type, JavaScriptSerializer serializer) =>
             Color.FromArgb((int)dictionary["A"], (int)dictionary["R"], (int)dictionary["G"], (int)dictionary["B"]);
         public override IDictionary<string, object> Serialize(object obj, JavaScriptSerializer serializer) {
@@ -318,6 +353,24 @@ public partial class WalkmanLib {
     #endregion
 
     #region Theme class
+    public enum ThemeName {
+        Default,
+        System_Dark,
+        Dark,
+        Inverted,
+        Test
+    }
+
+    public static Theme GetTheme(ThemeName themeName) =>
+        themeName switch {
+            ThemeName.Default => Theme.Default,
+            ThemeName.System_Dark => Theme.SystemDark,
+            ThemeName.Dark => Theme.Dark,
+            ThemeName.Inverted => Theme.Inverted,
+            ThemeName.Test => Theme.Test,
+            _ => throw new ApplicationException("Invalid Theme Name: " + themeName.ToString()),
+        };
+
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 #pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
     public class Theme {
@@ -328,6 +381,9 @@ public partial class WalkmanLib {
         public Color CustomMsgBoxTopPanel;
         public Color ButtonFG;
         public Color ButtonBG;
+        public FlatStyle ButtonFlatStyle;
+        public Color ButtonFlatMouseOver;
+        public Color ButtonFlatMouseDown;
         public Color LabelFG;
         public Color LabelBG;
         public Color LinkLabelFG;
@@ -338,6 +394,7 @@ public partial class WalkmanLib {
         public Color DialogHeadingText;
         public Color ComboBoxFG;
         public Color ComboBoxBG;
+        public FlatStyle ComboBoxFlatStyle;
         public Color CheckBoxFG;
         public Color CheckBoxBG;
         public Color RadioButtonFG;
@@ -353,7 +410,7 @@ public partial class WalkmanLib {
         public Color ListViewFG;
         public Color ListViewBG;
         public bool ListViewOwnerDraw;
-        public CustomPaint.ListViewColors ListViewColumnColors;
+        public CustomPaint.ListViewColors ListViewCustomColors;
         public Color ListBoxFG;
         public Color ListBoxBG;
         public Color CheckedListBoxFG;
@@ -396,6 +453,7 @@ public partial class WalkmanLib {
         public Color ToolStripButtonBG;
         public Color ToolStripComboBoxFG;
         public Color ToolStripComboBoxBG;
+        public FlatStyle ToolStripComboBoxFlatStyle;
         public Color ToolStripDropDownFG;
         public Color ToolStripDropDownBG;
         public Color ToolStripDropDownButtonFG;
@@ -419,13 +477,8 @@ public partial class WalkmanLib {
         public Color OtherFG;
         public Color OtherBG;
 
-        public static bool operator !=(Theme left, Theme right) {
-            return !left.Equals(right);
-        }
-
-        public static bool operator ==(Theme left, Theme right) {
-            return left.Equals(right);
-        }
+        public static bool operator !=(Theme left, Theme right) => !left.Equals(right);
+        public static bool operator ==(Theme left, Theme right) => left.Equals(right);
         public override bool Equals(object obj) {
             if (obj == null)
                 return false;
@@ -451,6 +504,7 @@ public partial class WalkmanLib {
                 return new Theme() {
                     ComboBoxFG = SystemColors.WindowText,
                     ComboBoxBG = SystemColors.Window,
+                    ComboBoxFlatStyle = FlatStyle.Standard,
                     CheckedListBoxFG = SystemColors.WindowText,
                     CheckedListBoxBG = SystemColors.Window,
                     DomainUpDownFG = SystemColors.WindowText,
@@ -465,6 +519,7 @@ public partial class WalkmanLib {
                     TextBoxBG = SystemColors.Window,
                     ToolStripComboBoxFG = SystemColors.WindowText,
                     ToolStripComboBoxBG = SystemColors.Window,
+                    ToolStripComboBoxFlatStyle = FlatStyle.Standard,
                     ToolStripTextBoxFG = SystemColors.WindowText,
                     ToolStripTextBoxBG = SystemColors.Window,
                     TreeViewFG = SystemColors.WindowText,
@@ -474,6 +529,9 @@ public partial class WalkmanLib {
                     FormBG = SystemColors.Control,
                     ButtonFG = SystemColors.ControlText,
                     ButtonBG = SystemColors.Control,
+                    ButtonFlatStyle = FlatStyle.Standard,
+                    ButtonFlatMouseOver = Color.Empty,
+                    ButtonFlatMouseDown = Color.Empty,
                     CheckBoxFG = SystemColors.ControlText,
                     CheckBoxBG = SystemColors.Control,
                     GroupBoxFG = SystemColors.ControlText,
@@ -540,9 +598,10 @@ public partial class WalkmanLib {
 
                     ListViewOwnerDraw = false,
                     TabControlOwnerDraw = false,
-                    ListViewColumnColors = new CustomPaint.ListViewColors() {
+                    ListViewCustomColors = new CustomPaint.ListViewColors() {
                         ColumnText = SystemColors.ControlText,
-                        ColumnBackground = SystemColors.Window
+                        ColumnBackground = Color.FromArgb(unchecked((int)0xFFF2F2F2)),
+                        GridLines = Color.FromArgb(unchecked((int)0xFFF0F0F0))
                     },
                     TabControlTabColors = new CustomPaint.TabControlColors() {
                         TabText = SystemColors.ControlText,
@@ -562,6 +621,7 @@ public partial class WalkmanLib {
                 return new Theme() {
                     ComboBoxFG = SystemColors.Window,
                     ComboBoxBG = SystemColors.WindowText,
+                    ComboBoxFlatStyle = FlatStyle.Popup,
                     CheckedListBoxFG = SystemColors.Window,
                     CheckedListBoxBG = SystemColors.WindowText,
                     DomainUpDownFG = SystemColors.Window,
@@ -576,6 +636,7 @@ public partial class WalkmanLib {
                     TextBoxBG = SystemColors.WindowText,
                     ToolStripComboBoxFG = SystemColors.Window,
                     ToolStripComboBoxBG = SystemColors.WindowText,
+                    ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     ToolStripTextBoxFG = SystemColors.Window,
                     ToolStripTextBoxBG = SystemColors.WindowText,
                     TreeViewFG = SystemColors.Window,
@@ -585,6 +646,9 @@ public partial class WalkmanLib {
                     FormBG = SystemColors.ControlText,
                     ButtonFG = SystemColors.Control,
                     ButtonBG = SystemColors.ControlText,
+                    ButtonFlatStyle = FlatStyle.Flat,
+                    ButtonFlatMouseOver = Color.FromArgb(75, Color.White),
+                    ButtonFlatMouseDown = Color.Empty,
                     CheckBoxFG = SystemColors.Control,
                     CheckBoxBG = SystemColors.ControlText,
                     ContextMenuStripFG = SystemColors.Control,
@@ -651,9 +715,10 @@ public partial class WalkmanLib {
 
                     ListViewOwnerDraw = true,
                     TabControlOwnerDraw = true,
-                    ListViewColumnColors = new CustomPaint.ListViewColors() {
+                    ListViewCustomColors = new CustomPaint.ListViewColors() {
                         ColumnText = SystemColors.Control,
-                        ColumnBackground = SystemColors.ControlText
+                        ColumnBackground = Color.FromArgb(unchecked((int)0xFF303030)),
+                        GridLines = SystemColors.ControlDarkDark
                     },
                     TabControlTabColors = new CustomPaint.TabControlColors() {
                         TabText = SystemColors.Control,
@@ -675,12 +740,16 @@ public partial class WalkmanLib {
                     FormBG = SystemColors.ControlDarkDark,
                     ButtonFG = SystemColors.Control,
                     ButtonBG = SystemColors.ControlDarkDark,
+                    ButtonFlatStyle = FlatStyle.Standard,
+                    ButtonFlatMouseOver = Color.Empty,
+                    ButtonFlatMouseDown = Color.Empty,
                     CheckBoxFG = SystemColors.Control,
                     CheckBoxBG = SystemColors.ControlDarkDark,
                     CheckedListBoxFG = SystemColors.Control,
                     CheckedListBoxBG = SystemColors.ControlDarkDark,
                     ComboBoxFG = SystemColors.Control,
                     ComboBoxBG = SystemColors.ControlDarkDark,
+                    ComboBoxFlatStyle = FlatStyle.Popup,
                     ContextMenuStripFG = SystemColors.Control,
                     ContextMenuStripBG = SystemColors.ControlDarkDark,
                     CustomMsgBoxTopPanel = SystemColors.ControlDarkDark,
@@ -734,6 +803,7 @@ public partial class WalkmanLib {
                     ToolStripButtonBG = SystemColors.ControlDarkDark,
                     ToolStripComboBoxFG = SystemColors.Control,
                     ToolStripComboBoxBG = SystemColors.ControlDarkDark,
+                    ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     ToolStripDropDownFG = SystemColors.Control,
                     ToolStripDropDownBG = SystemColors.ControlDarkDark,
                     ToolStripDropDownButtonFG = SystemColors.Control,
@@ -760,9 +830,10 @@ public partial class WalkmanLib {
 
                     ListViewOwnerDraw = false,
                     TabControlOwnerDraw = false,
-                    ListViewColumnColors = new CustomPaint.ListViewColors() {
+                    ListViewCustomColors = new CustomPaint.ListViewColors() {
                         ColumnText = SystemColors.Control,
-                        ColumnBackground = SystemColors.ControlDarkDark
+                        ColumnBackground = Color.FromArgb(unchecked((int)0xFF808080)),
+                        GridLines = SystemColors.ControlDark
                     },
                     TabControlTabColors = new CustomPaint.TabControlColors() {
                         TabText = SystemColors.Control,
@@ -771,7 +842,7 @@ public partial class WalkmanLib {
                         TabStripBackground = SystemColors.ControlDarkDark
                     },
                     ToolStripItemDisabledText = Color.FromArgb(unchecked((int)0xFFB2B2B2)),
-                    ToolStripRenderMode = ToolStripManagerRenderMode.System,
+                    ToolStripRenderMode = ToolStripManagerRenderMode.Custom,
                     SystemAppMode = PreferredAppMode.AllowDark
                 };
             }
@@ -789,12 +860,16 @@ public partial class WalkmanLib {
                     FormBG = backColor,
                     ButtonFG = textColor,
                     ButtonBG = backColor,
+                    ButtonFlatStyle = FlatStyle.Flat,
+                    ButtonFlatMouseOver = Color.FromArgb(50, Color.White),
+                    ButtonFlatMouseDown = Color.Empty,
                     CheckBoxFG = textColor,
                     CheckBoxBG = backColor,
                     CheckedListBoxFG = textColor,
                     CheckedListBoxBG = backColor,
                     ComboBoxFG = textColor,
                     ComboBoxBG = backColor,
+                    ComboBoxFlatStyle = FlatStyle.Popup,
                     ContextMenuStripFG = altTextColor,
                     ContextMenuStripBG = altBackColor,
                     CustomMsgBoxTopPanel = Color.FromArgb(unchecked((int)0xFF444449)),
@@ -848,6 +923,7 @@ public partial class WalkmanLib {
                     ToolStripButtonBG = altBackColor,
                     ToolStripComboBoxFG = altTextColor,
                     ToolStripComboBoxBG = altBackColor,
+                    ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     ToolStripDropDownFG = altTextColor,
                     ToolStripDropDownBG = altBackColor,
                     ToolStripDropDownButtonFG = altTextColor,
@@ -856,7 +932,7 @@ public partial class WalkmanLib {
                     ToolStripMenuItemBG = altBackColor,
                     ToolStripProgressBarFG = altTextColor,
                     ToolStripProgressBarBG = altBackColor,
-                    ToolStripSeparatorFG = altTextColor,
+                    ToolStripSeparatorFG = textColor,
                     ToolStripSeparatorBG = altBackColor,
                     ToolStripSplitButtonFG = altTextColor,
                     ToolStripSplitButtonBG = altBackColor,
@@ -874,9 +950,10 @@ public partial class WalkmanLib {
 
                     ListViewOwnerDraw = true,
                     TabControlOwnerDraw = true,
-                    ListViewColumnColors = new CustomPaint.ListViewColors() {
+                    ListViewCustomColors = new CustomPaint.ListViewColors() {
                         ColumnText = textColor,
-                        ColumnBackground = Color.FromArgb(unchecked((int)0xFF444449))
+                        ColumnBackground = Color.FromArgb(unchecked((int)0xFF444449)),
+                        GridLines = SystemColors.ControlDarkDark
                     },
                     TabControlTabColors = new CustomPaint.TabControlColors() {
                         TabText = textColor,
@@ -898,12 +975,16 @@ public partial class WalkmanLib {
                     FormBG = Color.Magenta,
                     ButtonFG = Color.Blue,
                     ButtonBG = Color.Magenta,
+                    ButtonFlatStyle = FlatStyle.Flat,
+                    ButtonFlatMouseOver = Color.FromArgb(100, Color.White),
+                    ButtonFlatMouseDown = Color.Green,
                     CheckBoxFG = Color.Blue,
                     CheckBoxBG = Color.Magenta,
                     CheckedListBoxFG = Color.Blue,
                     CheckedListBoxBG = Color.Magenta,
                     ComboBoxFG = Color.Blue,
                     ComboBoxBG = Color.Magenta,
+                    ComboBoxFlatStyle = FlatStyle.Popup,
                     ContextMenuStripFG = Color.Blue,
                     ContextMenuStripBG = Color.Magenta,
                     CustomMsgBoxTopPanel = Color.Magenta,
@@ -957,6 +1038,7 @@ public partial class WalkmanLib {
                     ToolStripButtonBG = Color.Magenta,
                     ToolStripComboBoxFG = Color.Blue,
                     ToolStripComboBoxBG = Color.Magenta,
+                    ToolStripComboBoxFlatStyle = FlatStyle.Popup,
                     ToolStripDropDownFG = Color.Blue,
                     ToolStripDropDownBG = Color.Magenta,
                     ToolStripDropDownButtonFG = Color.Blue,
@@ -983,9 +1065,10 @@ public partial class WalkmanLib {
 
                     ListViewOwnerDraw = true,
                     TabControlOwnerDraw = true,
-                    ListViewColumnColors = new CustomPaint.ListViewColors() {
+                    ListViewCustomColors = new CustomPaint.ListViewColors() {
                         ColumnText = Color.Blue,
-                        ColumnBackground = Color.Magenta
+                        ColumnBackground = Color.HotPink,
+                        GridLines = Color.MediumVioletRed
                     },
                     TabControlTabColors = new CustomPaint.TabControlColors() {
                         TabText = Color.Blue,
@@ -1014,44 +1097,160 @@ public partial class WalkmanLib {
         public struct ListViewColors {
             public Color ColumnText;
             public Color ColumnBackground;
+            public Color GridLines;
+        }
+        public static void ListView_DrawItemWithCustomGrid(object sender, DrawListViewItemEventArgs e) {
+            if (e.Item.ListView.View == View.Details)
+                e.DrawDefault = false;
+            else
+                e.DrawDefault = true;
         }
         // in c#, event handler signatures must exactly match the event delegate signature
+        public static void ListView_DrawSubItemWithCustomGrid(object sender, DrawListViewSubItemEventArgs e) => ListView_DrawSubItemWithCustomGrid(sender, e, null);
+        public static void ListView_DrawSubItemWithCustomGrid(object sender, DrawListViewSubItemEventArgs e, ListViewColors? listViewColors = null) {
+            e.DrawDefault = false;
+            var listView = (ListView)sender;
+            // can't use default e.DrawBackground() & e.DrawText() as they don't account for images or checkboxes
+
+            Rectangle fixedBounds = e.Bounds;
+            if (e.ColumnIndex == 0 && listView.Columns[e.ColumnIndex].DisplayIndex != 0)  // first column was reordered, e.Bounds are incorrect
+                foreach (ColumnHeader column in listView.Columns.OfType<ColumnHeader>().OrderBy(c => c.DisplayIndex)) {
+                    if (column.Index == 0)
+                        break;
+                    fixedBounds.Offset(column.Width, 0);
+                }
+            Rectangle bounds = fixedBounds;
+            bounds.Offset(3, 0);
+            bounds.Width -= 1;
+
+            if (e.ColumnIndex == 0) { // first column - draw Checkbox & Image
+                if (listView.CheckBoxes) {
+                    var cbState = e.Item.Checked ? System.Windows.Forms.VisualStyles.CheckBoxState.CheckedNormal : System.Windows.Forms.VisualStyles.CheckBoxState.UncheckedNormal;
+                    var cbSize = CheckBoxRenderer.GetGlyphSize(e.Graphics, cbState);
+                    var cbPoint = new Point(bounds.X, bounds.Y + (bounds.Height - cbSize.Height) / 2 - 1);
+                    CheckBoxRenderer.DrawCheckBox(e.Graphics, cbPoint, cbState);
+
+                    bounds.Offset(cbSize.Width + 3, 0);
+                    bounds.Width -= cbSize.Width + 3;
+                }
+                if (e.Item.ImageList != null) {
+                    if (e.Item.ImageIndex != -1)
+                        e.Item.ImageList.Draw(e.Graphics, bounds.Location, e.Item.ImageIndex);
+                    if (e.Item.ImageKey != null && e.Item.ImageList.Images.ContainsKey(e.Item.ImageKey))
+                        e.Item.ImageList.Draw(e.Graphics, bounds.Location, e.Item.ImageList.Images.IndexOfKey(e.Item.ImageKey));
+
+                    // if images are shown & item is selected, transparency highlight image separately
+                    if (e.Item.Selected)
+                        using (var brush = new SolidBrush(Color.FromArgb(130, SystemColors.Highlight)))
+                            e.Graphics.FillRectangle(brush, new Rectangle(location: bounds.Location, size: e.Item.ImageList.ImageSize));
+
+                    bounds.Offset(e.Item.ImageList.ImageSize.Width, 0);
+                    bounds.Width -= e.Item.ImageList.ImageSize.Width;
+                }
+            }
+
+            // adjust for drawing background
+            if (e.ColumnIndex != 0) bounds.Offset(-2, 0); else bounds.Width -= 2;
+            if (e.Item.Selected)
+                e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds);
+            else
+                using (var bgBrush = new SolidBrush(e.SubItem.BackColor))
+                    e.Graphics.FillRectangle(bgBrush, bounds);
+            // reset for drawing text
+            if (e.ColumnIndex != 0) bounds.Offset(2, 0); else bounds.Width += 2;
+
+            if (e.ColumnIndex != 0) bounds.Width -= 4;
+            Color textColor = e.Item.Selected ? SystemColors.HighlightText : e.SubItem.ForeColor;
+            TextFormatFlags flags = TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis;
+            if (e.Header.TextAlign == HorizontalAlignment.Right) flags |= TextFormatFlags.Right;
+            if (e.Header.TextAlign == HorizontalAlignment.Center) flags |= TextFormatFlags.HorizontalCenter;
+            TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.SubItem.Font, bounds, textColor, flags);
+
+            ListViewColors colors;
+            if (listViewColors.HasValue)
+                colors = listViewColors.Value;
+            else
+                colors = (ListViewColors)listView.Tag;
+
+            bool groupsShown = listView.ShowGroups && listView.Groups != null && listView.Groups.Count > 0 && Application.RenderWithVisualStyles;
+            using (var customGridPen = new Pen(colors.GridLines, 1)) {
+
+                // Horizontal grid lines:
+                if (!groupsShown) {
+                    e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Bottom - 1, fixedBounds.Right, fixedBounds.Bottom - 1);
+                } else { // items in groups have 2-pixel wide horizontal separator...
+                    e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Bottom, fixedBounds.Right, fixedBounds.Bottom);
+                    if (e.Item.Group != null && e.Item.Group.Items.Count > 0 && (e.Item.Group.Items[0] == e.Item))
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Left, fixedBounds.Top - 1, fixedBounds.Right, fixedBounds.Top - 1);
+                    // if item is first in group, then draw top horizontal gridline
+                }
+
+                // Vertical grid lines:
+                e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Top, fixedBounds.Right, fixedBounds.Bottom - 1);
+
+                // last column - draw horizontal lines to the right
+                if (listView.Columns[e.ColumnIndex].DisplayIndex == listView.Columns.Count - 1 && fixedBounds.Right < listView.ClientSize.Width) {
+                    if (!groupsShown) {
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Bottom - 1, listView.ClientSize.Width, fixedBounds.Bottom - 1);
+                    } else {
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Bottom, listView.ClientSize.Width, fixedBounds.Bottom);
+                        if (e.Item.Group != null && e.Item.Group.Items.Count > 0 && e.Item.Group.Items[0] == e.Item)
+                            e.Graphics.DrawLine(customGridPen, fixedBounds.Right, fixedBounds.Top - 1, listView.ClientSize.Width, fixedBounds.Top - 1);
+                    }
+                }
+
+                // last row - draw lines below it
+                if (!groupsShown && e.ItemIndex == listView.Items.Count - 1) {
+                    int lastY = fixedBounds.Bottom;
+                    while (lastY < listView.ClientSize.Height) {
+                        lastY += fixedBounds.Height;
+
+                        // Horizontal grid lines:
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Left, lastY - 1, fixedBounds.Right, lastY - 1);
+
+                        // Vertical grid lines:
+                        e.Graphics.DrawLine(customGridPen, fixedBounds.Right, lastY - fixedBounds.Height - 1, fixedBounds.Right, lastY - 1);
+
+                        // last column - horizontal lines to the right
+                        if (listView.Columns[e.ColumnIndex].DisplayIndex == listView.Columns.Count - 1 && fixedBounds.Right < listView.ClientSize.Width)
+                            e.Graphics.DrawLine(customGridPen, fixedBounds.Right, lastY - 1, listView.ClientSize.Width, lastY - 1);
+                    }
+                }
+            }
+        }
         public static void ListView_DrawCustomColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e) => ListView_DrawCustomColumnHeader(sender, e, null);
         public static void ListView_DrawCustomColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e, ListViewColors? listViewColors = null) {
             // https://stackoverflow.com/a/42181044/2999220
             var listView = (ListView)sender;
             ListViewColors colors;
-            if (listViewColors.HasValue) {
+            if (listViewColors.HasValue)
                 colors = listViewColors.Value;
-            } else {
+            else
                 colors = (ListViewColors)listView.Tag;
-            }
 
             using (var sf = new StringFormat() {
                 LineAlignment = StringAlignment.Center,
                 FormatFlags = StringFormatFlags.NoWrap,
                 Trimming = StringTrimming.EllipsisCharacter
             }) {
-                switch (e.Header.TextAlign) {
-                    case HorizontalAlignment.Left:
-                        sf.Alignment = listView.RightToLeft == RightToLeft.No ? StringAlignment.Near : StringAlignment.Far;
-                        break;
-                    case HorizontalAlignment.Right:
-                        sf.Alignment = listView.RightToLeft == RightToLeft.Yes ? StringAlignment.Near : StringAlignment.Far;
-                        break;
-                    case HorizontalAlignment.Center:
-                        sf.Alignment = StringAlignment.Center;
-                        break;
-                }
+                sf.Alignment = e.Header.TextAlign switch {
+                    HorizontalAlignment.Left => listView.RightToLeft == RightToLeft.No ? StringAlignment.Near : StringAlignment.Far,
+                    HorizontalAlignment.Right => listView.RightToLeft == RightToLeft.Yes ? StringAlignment.Near : StringAlignment.Far,
+                    HorizontalAlignment.Center => StringAlignment.Center,
+                    _ => sf.Alignment,
+                };
 
                 var colRect = new Rectangle() {
                     X = e.Bounds.X + 1,
-                    Y = e.Bounds.Y + 1,
+                    Y = e.Bounds.Y,
                     Width = e.Bounds.Width - 1,
                     Height = e.Bounds.Height
                 };
 
                 e.Graphics.FillRectangle(new SolidBrush(colors.ColumnBackground), colRect);
+                colRect.Offset(x: 3, y: 0);
+                colRect.Width -= 7;
+                colRect.Height -= 1;
                 e.Graphics.DrawString(e.Header.Text, listView.Font, new SolidBrush(colors.ColumnText), colRect, sf);
             }
         }
@@ -1066,11 +1265,10 @@ public partial class WalkmanLib {
         public static void TabControl_DrawCustomItem(object sender, DrawItemEventArgs e, TabControlColors? tabControlColors = null) {
             var tabCtl = (TabControl)sender;
             TabControlColors colors;
-            if (tabControlColors.HasValue) {
+            if (tabControlColors.HasValue)
                 colors = tabControlColors.Value;
-            } else {
+            else
                 colors = (TabControlColors)tabCtl.Tag;
-            }
 
             // draw tab strip background
 
@@ -1078,15 +1276,14 @@ public partial class WalkmanLib {
             Rectangle tabStripBounds = tabCtl.Bounds;
             Rectangle allTabBounds = firstTabRect;
 
-            if (tabCtl.Alignment == TabAlignment.Top) {
+            if (tabCtl.Alignment == TabAlignment.Top)
                 tabStripBounds.Y = 0;
-            } else if (tabCtl.Alignment == TabAlignment.Bottom) {
+            else if (tabCtl.Alignment == TabAlignment.Bottom)
                 tabStripBounds.Y = firstTabRect.Y;
-            } else if (tabCtl.Alignment == TabAlignment.Left) {
+            else if (tabCtl.Alignment == TabAlignment.Left)
                 tabStripBounds.X = 0;
-            } else if (tabCtl.Alignment == TabAlignment.Right) {
+            else if (tabCtl.Alignment == TabAlignment.Right)
                 tabStripBounds.X = firstTabRect.X;
-            }
 
             if (tabCtl.Alignment == TabAlignment.Top || tabCtl.Alignment == TabAlignment.Bottom) {
                 tabStripBounds.X = 0;
