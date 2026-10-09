@@ -27,6 +27,7 @@ Partial Public Class CustomInputDialog
 End Class
 
 Partial Public Class WalkmanLib
+    ''' <inheritdoc cref="WalkmanLib.CustomMsgBox(String, String, MessageBoxButtons, MessageBoxIcon, WinVersionStyle, Form)"/>
     Shared Function CustomMsgBox(text As String, theme As WalkmanLib.Theme, Optional caption As String = Nothing, Optional buttons As MessageBoxButtons = 0, Optional style As MessageBoxIcon = 0,
                                  Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As DialogResult
         Dim formToShow As New CustomMsgBoxForm() With {
@@ -42,6 +43,7 @@ Partial Public Class WalkmanLib
         Return formToShow.ShowDialog()
     End Function
 
+    ''' <inheritdoc cref="WalkmanLib.CustomMsgBox(String, String, String, String, String, MessageBoxIcon, WinVersionStyle, Form)"/>
     Shared Function CustomMsgBox(text As String, theme As WalkmanLib.Theme, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing,
                                  Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As String
         Dim formToShow As New CustomMsgBoxForm() With {
@@ -61,6 +63,7 @@ Partial Public Class WalkmanLib
         Return formToShow.DialogResultString
     End Function
 
+    ''' <inheritdoc cref="WalkmanLib.CustomMsgBoxBTN(String, String, String, String, String, MessageBoxIcon, WinVersionStyle, Form)"/>
     Shared Function CustomMsgBoxBTN(text As String, theme As WalkmanLib.Theme, caption As String, customButton1 As String, Optional customButton2 As String = Nothing, Optional customButton3 As String = Nothing,
                                     Optional style As MessageBoxIcon = 0, Optional winVersion As WinVersionStyle = WinVersionStyle.Win10, Optional ownerForm As Form = Nothing) As Byte
         Dim formToShow As New CustomMsgBoxForm() With {
@@ -80,6 +83,7 @@ Partial Public Class WalkmanLib
         Return formToShow.DialogResultButtonPressed
     End Function
 
+    ''' <inheritdoc cref="WalkmanLib.InputDialog(ByRef String, String, String, String, Boolean, Integer, Form)"/>
     Shared Function InputDialog(ByRef input As String, theme As WalkmanLib.Theme, Optional mainInstruction As String = Nothing, Optional title As String = Nothing, Optional content As String = Nothing,
                                 Optional usePasswordMasking As Boolean = False, Optional maxLength As Integer = Short.MaxValue, Optional ownerForm As Form = Nothing) As DialogResult
         Dim inputForm As New CustomInputDialog() With {
@@ -98,6 +102,7 @@ Partial Public Class WalkmanLib
         Return result
     End Function
 
+    ''' <inheritdoc cref="WalkmanLib.ErrorDialog(Exception, String, Boolean, Boolean?)"/>
     Shared Sub ErrorDialog(ex As Exception, theme As WalkmanLib.Theme, Optional errorMessage As String = "There was an error! Error message: ", Optional showMsgBox As Boolean = True, Optional ownerForm As Form = Nothing, Optional showErrorBlockingWindow As Boolean? = Nothing)
         Application.EnableVisualStyles() ' affects when in a console app
         If showMsgBox AndAlso WalkmanLib.CustomMsgBox(errorMessage & ex.Message & Environment.NewLine & "Show full stacktrace? (For sending to developer/making bugreport)",
