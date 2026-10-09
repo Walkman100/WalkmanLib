@@ -78,7 +78,7 @@ public partial class CustomMsgBoxForm : Form {
     }
 
     private void CustomMsgBoxForm_Load(object _, EventArgs __) {
-        if (Text == null) {
+        if (string.IsNullOrEmpty(Text)) {
             try {
                 Text = Owner.Text;
             } catch {

@@ -117,7 +117,7 @@ public static class WalkmanLibExtensions {
 #else
     public static void SetDoubleBuffered(this System.Windows.Forms.Control control, bool enable) {
         //thanks to https://stackoverflow.com/a/15268338/2999220
-        PropertyInfo doubleBufferPropertyInfo = control.GetType().GetProperty("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance);
+        PropertyInfo doubleBufferPropertyInfo = control.GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
         doubleBufferPropertyInfo.SetValue(control, enable);
     }
 #endif

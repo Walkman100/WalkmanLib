@@ -55,6 +55,20 @@ public partial class WalkmanLib {
         }).WaitForExit(500);
     }
 
+    /// <summary>If form is visible, uses BringToFront and Activate, else shows form</summary>
+    /// <param name="form">Form to show</param>
+    /// <param name="owner">If form is not visible, passes this to <see cref="Form.Show(IWin32Window)"/></param>
+    public static void ShowOrActivateForm(Form form, IWin32Window owner = null) {
+        if (form.Visible) {
+            form.BringToFront();
+            form.Activate();
+        } else if (owner != null) {
+            form.Show(owner);
+        } else {
+            form.Show();
+        }
+    }
+
 #if NETCOREAPP
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
@@ -439,14 +453,15 @@ public partial class WalkmanLib {
         return rtn.StandardOutput;
     }
     // Link: https://stackoverflow.com/a/10072082/2999220
-    /// <summary>Runs an executable without showing a window and returns its output.</summary>
+    /// <summary>Runs an executable without showing a window and returns it's output.</summary>
     /// <param name="fileName">The path to the program executable.</param>
     /// <param name="arguments">Any arguments to run the program with. Default: <see langword="null"/></param>
     /// <param name="workingDirectory">Working directory for the process to be started. Default: <see langword="null"/></param>
-    /// <param name="mergeStdErr">Whether to merge StandardError with StandardError in the <see cref="RunAndGetOutputReturn.StandardOutput"/>. Default: <see langword="false"/></param>
+    /// <param name="mergeStdErr">Whether to merge StandardError with StandardOutput in the <see cref="RunAndGetOutputReturn.StandardOutput"/>. Default: <see langword="false"/></param>
+    /// <param name="outputEncoding">Preferred encoding for StandardOutput and StandardError. Default: <see langword="null"/></param>
     /// <returns>If <paramref name="mergeStdErr"/> is <see langword="true"/> and the process outputs data to StandardError, <see cref="RunAndGetOutputReturn.StandardOutput"/> will be appended with "StdErr:", <see cref="RunAndGetOutputReturn.StandardError"/>, "ExitCode:", and the process's Exit Code.
     /// <br />To merge StandardOutput and StandardError in the order they are output, use "cmd.exe" as the fileName, "/c actual_program.exe actual_arguments 2>&amp;1" as the arguments (replace actual_* with real values), and set <paramref name="mergeStdErr"/> to <see langword="false"/>.</returns>
-    public static RunAndGetOutputReturn RunAndGetOutput(string fileName, string arguments = null, string workingDirectory = null, bool mergeStdErr = false) {
+    public static RunAndGetOutputReturn RunAndGetOutput(string fileName, string arguments = null, string workingDirectory = null, bool mergeStdErr = false, System.Text.Encoding outputEncoding = null) {
         var process = new System.Diagnostics.Process() {
             StartInfo = new System.Diagnostics.ProcessStartInfo() {
                 FileName = fileName,
@@ -456,7 +471,9 @@ public partial class WalkmanLib {
                 WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
                 RedirectStandardError = true,
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
+                StandardOutputEncoding = outputEncoding,
+                StandardErrorEncoding = outputEncoding,
             }
         };
 

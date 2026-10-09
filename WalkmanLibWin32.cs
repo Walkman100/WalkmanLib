@@ -971,7 +971,7 @@ public partial class WalkmanLib {
     /// <param name="filePath">The file to get the OpenWith program for.</param>
     public static string GetOpenWith(string filePath) {
         if (!File.Exists(filePath))
-            throw new FileNotFoundException($"File not found!", filePath);
+            throw new FileNotFoundException("File not found!", filePath);
 
         var stringBuilderTarget = new StringBuilder(MAX_FILE_PATH);
         FindExecutable(Path.GetFileName(filePath), Path.GetDirectoryName(filePath) + Path.DirectorySeparatorChar, stringBuilderTarget);
@@ -1033,6 +1033,21 @@ public partial class WalkmanLib {
         ForceLight,
         Max,
     }
+    #endregion
+
+    #region RestoreWindow
+    // Link: https://stackoverflow.com/a/2725234/2999220
+    /// <summary>Restores a minimized window to the saved state</summary>
+    /// <param name="windowHandle">Use <see cref="System.Windows.Forms.Form.Handle"/></param>
+    public static void RestoreWindow(IntPtr windowHandle) {
+        const int SW_RESTORE = 9;
+        ShowWindow(windowHandle, SW_RESTORE);
+    }
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+    // https://www.pinvoke.net/default.aspx/user32.ShowWindow
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     #endregion
 
     #region ShowProperties

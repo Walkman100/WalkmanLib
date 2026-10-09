@@ -113,14 +113,12 @@ public partial class WalkmanLib {
                 output.WriteLine("--{0}  {1}", longFlag.PadRight(maxFlagLength), flagInfo.Value.description);
             }
         } else {
-            KeyValuePair<string, FlagInfo> flagKV = flagDict.FirstOrDefault(
-                (KeyValuePair<string, FlagInfo> x) => {
-                    if (flag.Length == 1 && x.Value.shortFlag == flag.ToLowerInvariant()[0]) {
-                        return true;
-                    }
+            KeyValuePair<string, FlagInfo> flagKV = flagDict.FirstOrDefault(x => {
+                if (flag.Length == 1 && x.Value.shortFlag == flag.ToLowerInvariant()[0])
+                    return true;
 
-                    return x.Key.ToLowerInvariant() == flag.ToLowerInvariant();
-                });
+                return x.Key.ToLowerInvariant() == flag.ToLowerInvariant();
+            });
 
             if (flagKV.Key != null) {
                 FlagInfo flagInfo = flagKV.Value;
@@ -253,8 +251,7 @@ public partial class WalkmanLib {
                     arg = arg.Remove(arg.IndexOf('='));
                 }
 
-                KeyValuePair<string, FlagInfo> flagKV = flagDict.FirstOrDefault((KeyValuePair<string, FlagInfo> x) =>
-                        x.Key.ToLowerInvariant() == arg.ToLowerInvariant());
+                KeyValuePair<string, FlagInfo> flagKV = flagDict.FirstOrDefault(x => x.Key.ToLowerInvariant() == arg.ToLowerInvariant());
                 if (flagKV.Key != null) {
                     gettingArgFor = flagKV.Value;
                     if (gettingArgFor.hasArgs == false) {
