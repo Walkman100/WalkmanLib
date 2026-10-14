@@ -82,6 +82,7 @@ Partial Public Class CustomInputDialog
         SizeDialog()
 
         If Me.Owner IsNot Nothing Then
+            If Me.Owner.TopMost Then Me.TopMost = True
             Me.CenterToParent()
         Else
             Me.CenterToScreen()

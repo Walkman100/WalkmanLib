@@ -94,6 +94,8 @@ Partial Public Class CustomMsgBoxForm
     ' subs & functions
 
     Private Sub CustomMsgBoxForm_Load() Handles Me.Load
+        If Me.Owner IsNot Nothing AndAlso Me.Owner.TopMost Then Me.TopMost = True
+
         If Me.Text = Nothing Then
             Try
                 Me.Text = Owner.Text
